@@ -1,0 +1,12 @@
+class Config:
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///trading_bot.db'  # Replace with your DB URI
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = 'your-secret-key'
+    MAIL_SERVER = 'smtp.yourmail.com'
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USERNAME = 'your-email'
+    MAIL_PASSWORD = 'your-password'
+    BINANCE_API_KEY = 'your-binance-api-key'
+    BINANCE_API_SECRET = 'your-binance-api-secret'
+    BINANCE_API_URL = 'https://testnet.binance.vision/api'  # Binance sandbox API
