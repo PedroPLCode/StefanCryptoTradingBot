@@ -1,38 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Bot Dashboard</title>
+    <title>StefanCryptoTradingBot</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <div class="container">
-        <h1 class="my-4">BTC/USDC Trading Bot</h1>
-        <a href="{{ url_for('main.start_bot') }}" class="btn btn-success">Start Bot</a>
-        <a href="{{ url_for('main.stop_bot') }}" class="btn btn-danger">Stop Bot</a>
 
-        <h2 class="my-4">Trade History</h2>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Trade Time</th>
-                    <th>Action</th>
-                    <th>Amount</th>
-                    <th>Price</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for trade in trades %}
-                <tr>
-                    <td>{{ trade.trade_time }}</td>
-                    <td>{{ trade.buy_or_sell }}</td>
-                    <td>{{ trade.amount }}</td>
-                    <td>{{ trade.price }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<body>
+    <div class="container mt-3">
+        <div class="text-center">
+            <h4 class="card-header text-center">StefanCryptoTradingBot</h4>
+            <p class="text-center">{{ date_and_time }}</p>
+            <div class="container d-flex flex-column justify-content-center align-items-center gap-2 mt-3">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/admin">Settings</a>
+                <a href="{{ url_for('main.logout') }}">Logout</a>
+            </div>
+        </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

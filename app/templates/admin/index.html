@@ -1,0 +1,17 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+
+<div>
+    {% if current_user.is_authenticated %}
+        <p class='pt-3 text-center'>{{ current_user.login }} logged in at {{ current_user.last_login }}</p>
+        <p class='pb-2 text-center'>all good. db connected</p>
+        
+        <p class='mt-1 pt-4 border-top border-dark text-center'>python - flask - sqllite - sqlalchemy</p>
+        <p class='mb-4 text-center'>Stefan CryptoTradingBot - PedroPLCode</p>
+    {% else %}
+        <p class='text-center'>log in to manage settings and db</p>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,5 +1,5 @@
 class Config:
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///trading_bot.db'  # Replace with your DB URI
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///stefan.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = 'your-secret-key'
     MAIL_SERVER = 'smtp.yourmail.com'
