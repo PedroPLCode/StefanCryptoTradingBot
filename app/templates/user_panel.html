@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StefanCryptoTradingBot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container d-flex flex-column justify-content-center align-items-center mt-3">
+
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="col-md-6 text-center alert alert-{{ category }} mt-0 mb-3" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <h4 class="col-md-6 card-header text-center">StefanCryptoTradingBot</h4>
+        <p class="text-muted text-center">{{ date_and_time }}</p>
+
+        <div class="col-md-6 card mb-3">
+            <div class="card-header text-center">
+                <h5>User Data</h5>
+            </div>
+            <div class="card-body text-center">
+                <p class="text-muted m-0 p-0">Login: {{ user.login }}</p>
+                <p class="text-muted m-0 p-0">Name: {{ user.name }}</p>
+                <p class="text-muted m-0 p-0">Email: {{ user.email }}</p>
+                <p class="text-muted m-0 p-0">Control Panel Access: {{ user.control_panel_access }}</p>
+                <p class="text-muted m-0 p-0">Admin Panel Access: {{ user.admin_panel_access }}</p>
+                <p class="text-muted m-0 p-0">Email Reports Receiver: {{ user.email_raports_receiver }}</p>
+                <p class="text-muted m-0 p-0">Account Suspended: {{ user.account_suspended }}</p>
+            </div>
+        </div>
+
+        <div class="col-md-6 card mb-3">
+            <div class="card-header text-center">
+                <h5>User Panel</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                    {% if user.control_panel_access %}
+                        <a href="/control" class="btn btn-primary w-100">Control Panel</a>
+                    {% endif %}
+                    {% if user.admin_panel_access %}
+                        <a href="/admin" class="btn btn-primary w-100">Admin Panel</a>
+                    {% endif %}
+                    {% if user.email_raports_receiver %}
+                        <a href="/report" class="btn btn-secondary w-100">Send Raport</a>
+                    {% endif %}
+                    <a href="{{ url_for('main.logout') }}" class="btn btn-danger w-100">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 card mb-3">
+            <div class="card-header text-center">
+                <h5>System Data</h5>
+            </div>
+            <div class="card-body text-center">
+                <p class="text-muted m-0 p-0">System: {{ system_info }}</p>
+                <p class="text-muted m-0 p-0">Python: {{ python_version }}</p>
+                <p class="text-muted m-0 p-0">Flask: {{ flask_version }}</p>
+                <p class="text-muted m-0 p-0">User Agent: {{ user_agent }}</p>
+            </div>
+        </div>
+
+        <footer class="col-md-6 text-center mb-3">
+            <p class="text-muted">
+                <a href="mailto:StefanCryptoTradingBot@gmail.com">StefanCryptoTradingBot@gmail.com</a>
+            </p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

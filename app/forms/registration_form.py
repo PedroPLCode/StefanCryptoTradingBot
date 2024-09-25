@@ -17,9 +17,9 @@ def password_complexity(form, field):
 
 
 class RegistrationForm(FlaskForm):
-    login = StringField('Login', validators=[DataRequired()])
-    name = StringField('Name', validators=[DataRequired()])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=10, max=50), password_complexity])
-    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
+    login = StringField(render_kw={"placeholder": "Login"}, validators=[DataRequired()])
+    name = StringField(render_kw={"placeholder": "Name"}, validators=[DataRequired()])
+    email = StringField(render_kw={"placeholder": "Email"}, validators=[DataRequired(), Email()])
+    password = PasswordField(render_kw={"placeholder": "Password"}, validators=[DataRequired(), Length(min=10, max=50), password_complexity])
+    confirm_password = PasswordField(render_kw={"placeholder": "Confirm Password"}, validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Register')

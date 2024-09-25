@@ -1,5 +1,5 @@
 from datetime import datetime as dt
-from .. import db  # Keep this line to import db after it is initialized in __init__.py
+from app import db  # Keep this line to import db after it is initialized in __init__.py
 
 class Trades(db.Model):
     __tablename__ = 'trades' 

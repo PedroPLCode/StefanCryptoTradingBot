@@ -1,5 +1,5 @@
 import unittest
-from app.trading_bot import execute_trade
+from app.bot import execute_trade
 
 class TestTradingBot(unittest.TestCase):
     def test_execute_trade_buy(self):
