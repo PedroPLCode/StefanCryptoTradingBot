@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from .forms import LoginForm, RegistrationForm
-from .models import User, Settings, TradeHistory
+from .models import User, Settings, Trades
 from . import db
 import logging
 from datetime import datetime as dt
@@ -21,7 +21,7 @@ def index():
 @main.route('/dashboard')
 def dashboard_view():
     if current_user.is_authenticated:
-        if current_user.accepted:
+        if current_user.control_panel_access:
             return render_template('dashboard.html')
         else:
             logging.warning(f'{current_user.login} trying to login to Dashboard.')
@@ -35,7 +35,7 @@ def dashboard_view():
 @main.route('/admin')
 def admin_view():
     if current_user.is_authenticated:
-        if current_user.admin:
+        if current_user.admin_panel_access:
             return admin.index()
         else:
             logging.warning(f'{current_user.login} trying to login to Dashboard.')

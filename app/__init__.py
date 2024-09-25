@@ -45,14 +45,14 @@ class AdminModelView(ModelView):
         return redirect(url_for('main.admin_login'))
 
 class UserAdmin(AdminModelView):
-    column_list = ('id', 'login', 'name', 'email', 'accepted', 'raports', 'admin', 'creation_date', 'last_login')
-    column_filters = ('login', 'name', 'email', 'accepted', 'raports', 'admin')
+    column_list = ('id', 'login', 'name', 'email', 'control_panel_access', 'admin_panel_access', 'email_raports_receiver', 'account_suspended', 'creation_date', 'last_login')
+    column_filters = ('login', 'name', 'email', 'control_panel_access', 'admin_panel_access', 'email_raports_receiver', 'account_suspended')
     form_excluded_columns = ('password_hash',)
 
 class SettingsAdmin(AdminModelView):
     column_list = ('id', 'strategy', 'trading_enabled')
 
-class TradeAdmin(AdminModelView):
+class TradesAdmin(AdminModelView):
     column_list = ('id', 'trade_time', 'buy_or_sell', 'amount', 'price')
     column_filters = ('trade_time', 'buy_or_sell', 'amount', 'price')
 
@@ -74,12 +74,12 @@ def create_app():
     app.register_blueprint(main)
 
     # Import models after initializing db to avoid circular imports
-    from .models import User, Settings, TradeHistory
+    from .models import User, Settings, Trades
 
     # Setup admin views
     admin.add_view(UserAdmin(User, db.session))
     admin.add_view(SettingsAdmin(Settings, db.session))
-    admin.add_view(TradeAdmin(TradeHistory, db.session))
+    admin.add_view(TradesAdmin(Trades, db.session))
 
     return app
 
