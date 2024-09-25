@@ -10,6 +10,13 @@ from flask_cors import CORS
 from datetime import datetime as dt
 import platform
 import sys
+import logging
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(levelname)s %(message)s',
+                    filename="stefan.log"
+                    )
+logging.info('StefanCryptoTradingBot starting.')
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -30,16 +37,6 @@ def create_app():
     #admin.init_app(app)
     jwt.init_app(app)
     CORS(app)
-
-    # Import models after initializing db to avoid circular imports
-    from .models import User, Settings, Trades
-
-    from .routes.admin import MyAdmin, MyAdminIndexView, UserAdmin, SettingsAdmin, TradesAdmin
-    admin = MyAdmin(app, name='Stefan CryptoTradingBot', index_view=MyAdminIndexView(), template_mode='bootstrap4')
-    # Setup admin views
-    admin.add_view(UserAdmin(User, db.session))
-    admin.add_view(SettingsAdmin(Settings, db.session))
-    admin.add_view(TradesAdmin(Trades, db.session))
     
     # Register blueprints
     from .routes import main
@@ -48,6 +45,16 @@ def create_app():
     return app
 
 app = create_app()
+
+# Import models after initializing db to avoid circular imports
+from .models import User, Settings, Trades
+from .routes.admin import MyAdmin, MyAdminIndexView, UserAdmin, SettingsAdmin, TradesAdmin
+admin = MyAdmin(app, name='StefanCryptoTradingBot', index_view=MyAdminIndexView(), template_mode='bootstrap4')
+# Setup admin views
+from .models import User, Settings, Trades
+admin.add_view(UserAdmin(User, db.session))
+admin.add_view(SettingsAdmin(Settings, db.session))
+admin.add_view(TradesAdmin(Trades, db.session))
 
 @login_manager.user_loader
 def inject_user(user_id):
@@ -78,3 +85,17 @@ def inject_python_version():
 @app.context_processor
 def inject_flask_version():
     return dict(flask_version=flask_version)
+
+@app.shell_context_processor
+def make_shell_context():
+    return {
+        "db": db,
+        "User": app.models.User,
+        "Settings": app.models.Settings,
+        "Trades": app.models.Trades,
+    }
+    
+@app.errorhandler(404)
+def page_not_found(error_msg):
+    flash(f'{error_msg}', 'warning')
+    return redirect(url_for('main.login'))

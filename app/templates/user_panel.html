@@ -22,9 +22,13 @@
         {% endwith %}
 
         <h4 class="col-md-6 card-header text-center">StefanCryptoTradingBot</h4>
-        <p class="text-muted text-center">{{ date_and_time }}</p>
+        <p class="text-muted text-center m-0 p-0">{{ date_and_time }}</p>
 
-        <div class="col-md-6 card mb-3">
+        {% if current_user.is_authenticated %}
+            <p class="text-center text-muted m-0 p-0">Logged in as: {{ current_user.login }}</p>
+        {% endif %}
+
+        <div class="col-md-6 card mt-3 mb-3">
             <div class="card-header text-center">
                 <h5>User Data</h5>
             </div>
@@ -41,7 +45,7 @@
 
         <div class="col-md-6 card mb-3">
             <div class="card-header text-center">
-                <h5>User Panel</h5>
+                <h5>Navigation</h5>
             </div>
             <div class="card-body text-center">
                 <div class="d-flex flex-column justify-content-center align-items-center gap-2">
@@ -52,7 +56,7 @@
                         <a href="/admin" class="btn btn-primary w-100">Admin Panel</a>
                     {% endif %}
                     {% if user.email_raports_receiver %}
-                        <a href="/report" class="btn btn-secondary w-100">Send Raport</a>
+                        <a href="{{ url_for('main.start_bot') }}" class="btn btn-secondary w-100">Send Raport</a>
                     {% endif %}
                     <a href="{{ url_for('main.logout') }}" class="btn btn-danger w-100">Logout</a>
                 </div>

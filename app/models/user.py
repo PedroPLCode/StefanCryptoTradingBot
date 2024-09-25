@@ -15,6 +15,7 @@ class User(UserMixin, db.Model):
     control_panel_access = db.Column(db.Boolean, nullable=False, default=False)
     admin_panel_access = db.Column(db.Boolean, nullable=False, default=False)
     email_raports_receiver = db.Column(db.Boolean, nullable=False, default=False)
+    login_errors = db.Column(db.Integer, nullable=False, unique=False, default=0)
     account_suspended = db.Column(db.Boolean, nullable=False, default=False)
 
     def set_password(self, password):

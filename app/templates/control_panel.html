@@ -9,7 +9,8 @@
 </head>
 
 <body>
-    <div class="container mt-5">
+    <div class="container d-flex flex-column justify-content-center align-items-center mt-3">
+
         {% with messages = get_flashed_messages(with_categories=True) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -20,48 +21,62 @@
         {% endif %}
         {% endwith %}
 
-        <h1 class="my-4 text-center">BTC/USDC Trading Bot</h1>
+        <h4 class="col-md-6 card-header text-center">StefanCryptoTradingBot</h4>
+        <p class="text-muted text-center m-0 p-0">{{ date_and_time }}</p>
 
         {% if current_user.is_authenticated %}
-            <p class="text-center text-muted">Logged in as: {{ current_user.email }}</p>
+            <p class="text-center text-muted m-0 p-0">Logged in as: {{ current_user.login }}</p>
         {% endif %}
 
-        <div class="d-flex justify-content-center gap-2 my-4">
-            <a href="{{ url_for('main.start_bot') }}" class="btn btn-success">Start Bot</a>
-            <a href="{{ url_for('main.stop_bot') }}" class="btn btn-danger">Stop Bot</a>
-        </div>
-
-        <div class="text-center mb-4">
-            <a href="/admin" class="btn btn-secondary">Settings</a>
-            <a href="/" class="btn btn-info">Index</a>
-            <a href="{{ url_for('main.logout') }}" class="btn btn-warning">Logout</a>
-        </div>
-
-        <h2 class="my-4 text-center">Trade History</h2>
-        <div class="card">
-            <div class="card-body">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Trade Time</th>
-                            <th>Action</th>
-                            <th>Amount</th>
-                            <th>Price</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for trade in trades %}
-                        <tr>
-                            <td>{{ trade.trade_time }}</td>
-                            <td>{{ trade.buy_or_sell }}</td>
-                            <td>{{ trade.amount }}</td>
-                            <td>{{ trade.price }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        <div class="col-md-6 card mt-3 mb-3">
+            <div class="card-header text-center bg-light">
+                <h5>Trade Data</h5>
+            </div>
+            <div class="card-body text-center">
+                <p class="text-muted m-0 p-0">Trade Info 1: aaa</p>
+                <p class="text-muted m-0 p-0">Trade Info 2: aaa</p>
+                <p class="text-muted m-0 p-0">Trade Info 3: asd</p>
+                <p class="text-muted m-0 p-0">Trade Info 4: Csadf</p>
             </div>
         </div>
+
+        <div class="col-md-6 card mb-3">
+            <div class="card-header text-center bg-light">
+                <h5>Control Panel</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                    <a href="{{ url_for('main.start_bot') }}" class="btn btn-success w-100">Start Bot</a>
+                    <a href="{{ url_for('main.stop_bot') }}" class="btn btn-danger w-100">Stop Bot</a>
+                    {% if user.email_raports_receiver %}
+                        <a href="{{ url_for('main.send_report') }}" class="btn btn-secondary w-100">Send Report</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 card mb-3">
+            <div class="card-header text-center bg-light">
+                <h5>Navigation</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                    {% if user.control_panel_access %}
+                        <a href="/" class="btn btn-primary w-100">User Panel</a>
+                    {% endif %}
+                    {% if user.admin_panel_access %}
+                        <a href="/admin" class="btn btn-primary w-100">Admin Panel</a>
+                    {% endif %}
+                    <a href="{{ url_for('main.logout') }}" class="btn btn-danger w-100">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <footer class="col-md-6 text-center mb-3">
+            <p class="text-muted">
+                <a href="mailto:StefanCryptoTradingBot@gmail.com">StefanCryptoTradingBot@gmail.com</a>
+            </p>
+        </footer>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -13,13 +13,21 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = generate_password_hash(form.password.data)
-        new_user = User(login=form.login.data, name=form.name.data, email=form.email.data, password_hash=hashed_password)
+        new_user = User(
+            login=form.login.data,
+            name=form.name.data,
+            email=form.email.data,
+            password_hash=hashed_password,
+        )
         try:
             db.session.add(new_user)
             db.session.commit()
-            flash('Account created successfully. Please wait for admin confirmation', 'success')
+            logging.info(f'New account registered: {new_user.login}')
+            flash('Account created successfully. Admin will contact you.', 'success')
+            #email do admina
         except Exception as e:
-            db.session.rollback()  # Rollback in case of an error
+            db.session.rollback() 
+            logging.error(f'New account registration error: {e}')
             flash('An error occurred while creating your account. Please try again.', 'danger')
     else:
         for field, errors in form.errors.items():
@@ -30,20 +38,33 @@ def register():
 
 @main.route('/login', methods=['GET', 'POST'])
 def login():
-    if current_user.is_authenticated:  # Check if already logged in
+    if current_user.is_authenticated:
         return redirect(url_for('main.user_panel_view'))
-    
+
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(login=form.login.data).first()
-        if user and user.check_password(form.password.data):
-            login_user(user)
-            next_page = request.args.get('next')
-            flash(f'Logged in Succesfully. Welcome back {user.name}', 'success')
-            return redirect(next_page or url_for('main.user_panel_view'))
+        if user:
+            if user.check_password(form.password.data):
+                login_user(user)
+                next_page = request.args.get('next')
+                flash(f'Logged in successfully. Welcome back, {user.name}!', 'success')
+                return redirect(next_page or url_for('main.user_panel_view'))
+            else:
+                user.login_errors += 1
+                db.session.commit()
+                logging.warning(f'User {user.name} login error number {user.login_errors}.')
+                flash(f'User {user.name} login error number {user.login_errors}.', 'danger')
+
+                if user.login_errors >= 4:
+                    user.account_suspended = True
+                    db.session.commit()
+                    logging.warning(f'User {user.name} suspended.')
+                    flash(f'User {user.name} suspended. Admin will contact you.', 'danger')
         else:
-            logging.warning(f'Error.')
-            flash(f'Login Error.', 'danger')
+            logging.warning('Bad login attempt.')
+            flash('Error: Login or Password Incorrect.', 'danger')
+
     return render_template('login.html', form=form)
 
 

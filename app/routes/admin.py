@@ -12,8 +12,8 @@ from datetime import datetime as dt
 class MyAdmin(Admin):
     @expose('/')
     def index(self):
-        if current_user.is_authenticated and current_user.admin:
-            return super().index()
+        if current_user.is_authenticated and current_user.admin_panel_access:
+            return super(MyAdmin, self).index()  # Użycie pełnej notacji
         else:
             flash('Please log in to access the admin panel.', 'warning')
             return redirect(url_for('main.index'))
@@ -21,7 +21,7 @@ class MyAdmin(Admin):
         
 class MyAdminIndexView(AdminIndexView):
     def is_accessible(self):
-        return current_user.is_authenticated and current_user.admin
+        return current_user.is_authenticated and current_user.admin_panel_access
 
     def inaccessible_callback(self, name, **kwargs):
         flash('Please log in to access this page.', 'danger')
@@ -30,10 +30,11 @@ class MyAdminIndexView(AdminIndexView):
     
 class AdminModelView(ModelView):
     def is_accessible(self):
-        return current_user.is_authenticated and current_user.admin
+        return current_user.is_authenticated and current_user.admin_panel_access
 
     def inaccessible_callback(self, name, **kwargs):
-        return redirect(url_for('main.admin_login'))
+        flash('You do not have access to this page.', 'danger')
+        return redirect(url_for('main.login'))
 
 
 class UserAdmin(AdminModelView):

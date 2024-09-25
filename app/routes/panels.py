@@ -19,26 +19,28 @@ def user_panel_view():
     
 @main.route('/control')
 def control_panel_view():
-    if current_user.is_authenticated:
-        if current_user.control_panel_access:
-            return render_template('control_panel.html')
-        else:
-            logging.warning(f'{current_user.login} trying to login to Dashboard.')
-            flash(f'Error. User {current_user.login} not accepted here.', 'danger')
-            return redirect(url_for('main.login'))
-    else:
+    if not current_user.is_authenticated:
+        flash('Please log in to access the control panel.', 'warning')
+        return redirect(url_for('main.login'))
+
+    if not current_user.control_panel_access:
+        logging.warning(f'{current_user.login} tried to access the Control Panel without permission.')
+        flash(f'Error. User {current_user.login} is not allowed to access the Control Panel.', 'danger')
         return redirect(url_for('main.user_panel_view'))
+
+    return render_template('control_panel.html')
     
 
 @main.route('/admin')
 def admin_panel_view():
-    if current_user.is_authenticated:
-        if current_user.admin_panel_access:
-            from .. import admin
-            return admin.index()
-        else:
-            logging.warning(f'{current_user.login} trying to login to Dashboard.')
-            flash(f'Error. User {current_user.login} not accepted here.', 'danger')
-            return redirect(url_for('main.login'))
-    else:
+    if not current_user.is_authenticated:
+        flash('Please log in to access the admin panel.', 'warning')
+        return redirect(url_for('main.login'))
+
+    if not current_user.admin_panel_access:
+        logging.warning(f'{current_user.login} tried to access the Admin Panel without permission.')
+        flash(f'Error. User {current_user.login} is not allowed to access the Admin Panel.', 'danger')
         return redirect(url_for('main.user_panel_view'))
+
+    from .. import admin
+    return admin.index()
