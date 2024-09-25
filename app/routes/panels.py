@@ -28,7 +28,7 @@ def control_panel_view():
         flash(f'Error. User {current_user.login} is not allowed to access the Control Panel.', 'danger')
         return redirect(url_for('main.user_panel_view'))
 
-    return render_template('control_panel.html')
+    return render_template('control_panel.html', user=current_user)
     
 
 @main.route('/admin')

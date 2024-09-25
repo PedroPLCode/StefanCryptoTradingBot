@@ -45,6 +45,7 @@ pygments==2.18.0
 PyJWT==2.9.0
 python-binance==1.0.19
 python-dateutil==2.9.0.post0
+python-dotenv==1.0.1
 pytz==2024.2
 regex==2024.9.11
 requests==2.32.3

@@ -86,6 +86,12 @@ def inject_python_version():
 def inject_flask_version():
     return dict(flask_version=flask_version)
 
+@app.context_processor
+def inject_db_info():
+    engine = db.get_engine()
+    db_dialect = engine.dialect.name
+    return dict(db_engine=db_dialect)
+
 @app.shell_context_processor
 def make_shell_context():
     return {

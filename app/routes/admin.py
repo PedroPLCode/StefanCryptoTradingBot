@@ -13,7 +13,7 @@ class MyAdmin(Admin):
     @expose('/')
     def index(self):
         if current_user.is_authenticated and current_user.admin_panel_access:
-            return super(MyAdmin, self).index()  # Użycie pełnej notacji
+            return super().index()
         else:
             flash('Please log in to access the admin panel.', 'warning')
             return redirect(url_for('main.index'))
