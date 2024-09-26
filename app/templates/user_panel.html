@@ -22,15 +22,15 @@
         {% endwith %}
 
         <h4 class="col-md-6 card-header text-center">StefanCryptoTradingBot</h4>
-        <p class="text-muted text-center m-0 p-0">{{ date_and_time }}</p>
+        <p class="text-muted text-center m-0 p-0">current time: {{ date_and_time }}</p>
 
         {% if current_user.is_authenticated %}
-            <p class="text-center text-muted m-0 p-0">Logged in as: {{ current_user.login }}</p>
+            <p class="text-center text-muted m-0 p-0">{{ current_user.login }} logged in at {{ current_user.last_login }}</p>
         {% endif %}
 
         <div class="col-md-6 card mt-3 mb-3">
             <div class="card-header text-center">
-                <h5>User Data</h5>
+                <h5>User Info</h5>
             </div>
             <div class="card-body text-center">
                 <p class="text-muted m-0 p-0">Login: {{ user.login }}</p>
@@ -40,6 +40,19 @@
                 <p class="text-muted m-0 p-0">Admin Panel Access: {{ user.admin_panel_access }}</p>
                 <p class="text-muted m-0 p-0">Email Reports Receiver: {{ user.email_raports_receiver }}</p>
                 <p class="text-muted m-0 p-0">Account Suspended: {{ user.account_suspended }}</p>
+            </div>
+        </div>
+
+        <div class="col-md-6 card mb-3">
+            <div class="card-header text-center">
+                <h5>System Info</h5>
+            </div>
+            <div class="card-body text-center">
+                <p class="text-muted m-0 p-0">System: {{ system_info }}</p>
+                <p class="text-muted m-0 p-0">Python: {{ python_version }}</p>
+                <p class="text-muted m-0 p-0">Flask: {{ flask_version }}</p>
+                <p class="text-muted m-0 p-0">Database: {{ db_engine }}</p>
+                <p class="text-muted m-0 p-0">User Agent: {{ user_agent }}</p>
             </div>
         </div>
 
@@ -60,19 +73,6 @@
                     {% endif %}
                     <a href="{{ url_for('main.logout') }}" class="btn btn-danger w-100">Logout</a>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 card mb-3">
-            <div class="card-header text-center">
-                <h5>System Data</h5>
-            </div>
-            <div class="card-body text-center">
-                <p class="text-muted m-0 p-0">System: {{ system_info }}</p>
-                <p class="text-muted m-0 p-0">Python: {{ python_version }}</p>
-                <p class="text-muted m-0 p-0">Flask: {{ flask_version }}</p>
-                <p class="text-muted m-0 p-0">Database: {{ db_engine }}</p>
-                <p class="text-muted m-0 p-0">User Agent: {{ user_agent }}</p>
             </div>
         </div>
 

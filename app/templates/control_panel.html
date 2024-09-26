@@ -22,15 +22,15 @@
         {% endwith %}
 
         <h4 class="col-md-6 card-header text-center">StefanCryptoTradingBot</h4>
-        <p class="text-muted text-center m-0 p-0">{{ date_and_time }}</p>
+        <p class="text-muted text-center m-0 p-0">current time: {{ date_and_time }}</p>
 
         {% if current_user.is_authenticated %}
-            <p class="text-center text-muted m-0 p-0">Logged in as: {{ current_user.login }}</p>
+            <p class="text-center text-muted m-0 p-0">{{ current_user.login }} logged in at {{ current_user.last_login }}</p>
         {% endif %}
 
         <div class="col-md-6 card mt-3 mb-3">
             <div class="card-header text-center bg-light">
-                <h5>Trade Data</h5>
+                <h5>Trade Info</h5>
             </div>
             <div class="card-body text-center">
                 <p class="text-muted m-0 p-0">Trade Info 1: aaa</p>
@@ -42,9 +42,10 @@
 
         <div class="col-md-6 card mb-3">
             <div class="card-header text-center bg-light">
-                <h5>Control Panel</h5>
+                <h5>Bot Control</h5>
             </div>
             <div class="card-body text-center">
+                <p class="text-muted m-0 p-0">Status: aaa</p>
                 <div class="d-flex flex-column justify-content-center align-items-center gap-2">
                     <a href="{{ url_for('main.start_bot') }}" class="btn btn-success w-100">Start Bot</a>
                     <a href="{{ url_for('main.stop_bot') }}" class="btn btn-danger w-100">Stop Bot</a>

@@ -47,6 +47,8 @@ def login():
         if user:
             if user.check_password(form.password.data):
                 login_user(user)
+                user.last_login = dt.utcnow()
+                db.session.commit()
                 next_page = request.args.get('next')
                 flash(f'Logged in successfully. Welcome back, {user.name}!', 'success')
                 return redirect(next_page or url_for('main.user_panel_view'))
