@@ -26,9 +26,14 @@ migrate = Migrate()
 jwt = JWTManager()
     
 
-def create_app():
+def create_app(config_name=None):
     app = Flask(__name__)
-    app.config.from_object('config.Config')
+    
+    if config_name == 'testing':
+        app.config.from_object('config.TestingConfig')
+    else:
+        app.config.from_object('config.DevelopmentConfig')
+        
     # Initialize extensions
     db.init_app(app)
     login_manager.init_app(app)

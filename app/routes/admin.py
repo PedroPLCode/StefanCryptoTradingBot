@@ -1,3 +1,4 @@
+#tests ok
 from flask import Flask, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user

@@ -1,4 +1,4 @@
-class Config:
+class DevelopmentConfig:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///stefan.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = 'your-secret-key'
@@ -11,3 +11,10 @@ class Config:
     BINANCE_API_KEY = 'your-binance-api-key'
     BINANCE_API_SECRET = 'your-binance-api-secret'
     BINANCE_API_URL = 'https://testnet.binance.vision/api'  # Binance sandbox API
+    
+class TestingConfig:
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'  # Baza danych in-memory dla testów
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SERVER_NAME = 'localhost:5000'
+    SECRET_KEY = 'test-secret-key'

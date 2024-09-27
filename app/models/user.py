@@ -1,3 +1,4 @@
+#tests ok
 from flask_login import UserMixin
 from datetime import datetime as dt
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -23,3 +24,17 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def update_last_login(self):
+        self.last_login = dt.utcnow()
+
+    def increment_login_errors(self):
+        if self.login_errors is None: 
+            self.login_errors = 0
+        self.login_errors += 1
+
+    def reset_login_errors(self):
+        self.login_errors = 0
+
+    def __repr__(self):
+        return f'<User {self.login}, Email: {self.email}, Admin: {self.admin_panel_access}>'

@@ -1,8 +1,10 @@
+#Tests in progress
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..forms import LoginForm, RegistrationForm
 from ..models import User, Settings, Trades
+from ..utils import send_email
 from .. import db
 import logging
 from datetime import datetime as dt
@@ -24,7 +26,7 @@ def register():
             db.session.commit()
             logging.info(f'New account registered: {new_user.login}')
             flash('Account created successfully. Admin will contact you.', 'success')
-            #email do admina
+            #send_email()
         except Exception as e:
             db.session.rollback() 
             logging.error(f'New account registration error: {e}')
@@ -45,6 +47,10 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(login=form.login.data).first()
         if user:
+            if user.account_suspended:
+                logging.warning(f'User {user.name} suspended.')
+                return redirect(url_for('main.login'))
+                
             if user.check_password(form.password.data):
                 login_user(user)
                 user.last_login = dt.utcnow()
@@ -64,7 +70,7 @@ def login():
                     logging.warning(f'User {user.name} suspended.')
                     flash(f'User {user.name} suspended. Admin will contact you.', 'danger')
         else:
-            logging.warning('Bad login attempt.')
+            logging.warning('Bad login attempt. User not found')
             flash('Error: Login or Password Incorrect.', 'danger')
 
     return render_template('login.html', form=form)
