@@ -5,6 +5,7 @@ alembic==1.13.2
 APScheduler==3.10.4
 async-timeout==4.0.3
 attrs==24.2.0
+beautifulsoup4==4.12.3
 blinker==1.8.2
 certifi==2024.8.30
 charset-normalizer==3.3.2
@@ -13,6 +14,7 @@ dateparser==1.2.0
 Deprecated==1.2.14
 dnspython==2.6.1
 email-validator==2.2.0
+exceptiongroup==1.2.2
 flask==3.0.3
 Flask-Admin==1.6.1
 Flask-Cors==5.0.0
@@ -28,6 +30,7 @@ greenlet==3.1.1
 idna==3.10
 importlib-metadata==8.5.0
 importlib-resources==6.4.5
+iniconfig==2.0.0
 itsdangerous==2.2.0
 jinja2==3.1.4
 limits==3.13.0
@@ -40,9 +43,12 @@ numpy==2.0.2
 ordered-set==4.1.0
 packaging==24.1
 pandas==2.2.3
+pluggy==1.5.0
 pycryptodome==3.20.0
 pygments==2.18.0
 PyJWT==2.9.0
+pytest==8.3.3
+pytest-mock==3.14.0
 python-binance==1.0.19
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
@@ -51,8 +57,10 @@ regex==2024.9.11
 requests==2.32.3
 rich==13.8.1
 six==1.16.0
+soupsieve==2.6
 SQLAlchemy==2.0.35
 TA-Lib==0.4.32
+tomli==2.0.1
 typing-extensions==4.12.2
 tzdata==2024.1
 tzlocal==5.2
