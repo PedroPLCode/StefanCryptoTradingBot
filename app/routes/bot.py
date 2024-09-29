@@ -25,7 +25,7 @@ def stop_bot():
 @main.route('/refresh')
 @login_required
 def refresh():
-    flash('Binance API refseshed.')
+    flash('Binance API refseshed.', 'success')
     return redirect(url_for('main.control_panel_view'))
 
 
@@ -36,5 +36,5 @@ def report():
     subject = 'Stefan Test'
     body = 'Stefan Body'
     send_email(email, subject, body)
-    flash(f'Email to {email} send.')
+    flash(f'Email to {email} send.', 'success')
     return redirect(url_for('main.control_panel_view'))

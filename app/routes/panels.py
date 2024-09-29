@@ -51,5 +51,7 @@ def admin_panel_view():
         flash(f'Error. User {current_user.login} is not allowed to access the Admin Panel.', 'danger')
         return redirect(url_for('main.user_panel_view'))
 
-    from .. import admin
-    return admin.index()
+    #from .. import admin
+    #return admin.index()
+
+    return redirect(url_for('admin.index'))
