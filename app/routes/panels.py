@@ -8,7 +8,7 @@ from .. import db
 import logging
 from datetime import datetime as dt
 from . import main
-from ..utils.api_utils import fetch_data, fetch_ticker, fetch_system_status, fetch_account_status
+from ..utils.api_utils import fetch_data, fetch_ticker, fetch_system_status, fetch_account_status, fetch_server_time
 from ..utils.app_utils import send_email, show_account_balance
 
 @main.route('/')
@@ -16,7 +16,8 @@ def user_panel_view():
     if current_user.is_authenticated:
         binance_status = fetch_system_status()
         account_status = fetch_account_status()
-        return render_template('user_panel.html', user=current_user, account_status=account_status, binance_status=binance_status)
+        server_time = fetch_server_time()
+        return render_template('user_panel.html', user=current_user, account_status=account_status, binance_status=binance_status, server_time=server_time)
     else:
         flash('Please log in to access app.', 'warning')
         return redirect(url_for('main.login'))

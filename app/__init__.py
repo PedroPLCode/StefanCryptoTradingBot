@@ -1,4 +1,6 @@
-from flask import Flask, redirect, url_for, flash, request, __version__ as flask_version
+from flask import Flask, render_template, redirect, url_for, flash, request, __version__ as flask_version
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 from flask_mail import Mail
@@ -6,12 +8,16 @@ from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
+from flask import current_app
+from apscheduler.schedulers.background import BackgroundScheduler
+from flask_limiter import Limiter
 from flask_cors import CORS
 from datetime import datetime as dt
 import platform
 import sys
 import logging
 from datetime import datetime
+#from .utils.app_utils import send_email
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s',
@@ -43,14 +49,21 @@ def create_app(config_name=None):
     #admin.init_app(app)
     jwt.init_app(app)
     CORS(app)
-    
-    # Register blueprints
-    from .routes import main
-    app.register_blueprint(main)
 
     return app
 
 app = create_app()
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://",
+)
+
+# Register blueprints
+from .routes import main
+app.register_blueprint(main)
 
 # Import models after initializing db to avoid circular imports
 from .models import User, Settings, Trades
@@ -111,6 +124,11 @@ def make_shell_context():
 def page_not_found(error_msg):
     flash(f'{error_msg}', 'warning')
     return redirect(url_for('main.login'))
+
+@app.errorhandler(429)
+@limiter.exempt
+def too_many_requests(error_msg):
+    return render_template('limiter.html', error_msg=error_msg)
 
 @login_manager.unauthorized_handler
 def unauthorized_callback():

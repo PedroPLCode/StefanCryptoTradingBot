@@ -1,5 +1,5 @@
 #tests ERROR
-from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm, RecaptchaField
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
 import re
@@ -31,6 +31,7 @@ def password_complexity(form, field):
 
 
 class RegistrationForm(FlaskForm):
+    recaptcha = RecaptchaField()
     login = StringField(render_kw={"placeholder": "Login"}, validators=[DataRequired(), is_login_exits])
     name = StringField(render_kw={"placeholder": "Name"}, validators=[DataRequired()])
     email = StringField(render_kw={"placeholder": "Email"}, validators=[DataRequired(), Email(), is_email_exists])

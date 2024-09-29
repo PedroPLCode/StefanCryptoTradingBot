@@ -5,7 +5,7 @@ import pandas as pd
 from binance.client import Client
 import os
 import logging
-from ..bot import symbol
+#from ..bot.bot import symbol
 
 load_dotenv()
 
@@ -46,3 +46,7 @@ def fetch_system_status():
 def fetch_account_status():
     status = client.get_account()
     return status
+
+def fetch_server_time():
+    server_time = client.get_server_time()
+    return server_time

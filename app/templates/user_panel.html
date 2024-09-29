@@ -65,6 +65,13 @@
                     error
                     {% endif%}
                 </p>
+                <p class="text-muted m-0 p-0">Binance API Server Time:
+                    {% if server_time is not none %}
+                    {{ server_time.serverTime }}
+                    {% else %}
+                    error
+                    {% endif%}
+                </p>
                 <p class="text-muted m-0 p-0">System: {{ system_info }}</p>
                 <p class="text-muted m-0 p-0">Python: {{ python_version }}</p>
                 <p class="text-muted m-0 p-0">Flask: {{ flask_version }}</p>

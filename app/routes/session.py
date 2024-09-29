@@ -9,8 +9,10 @@ from .. import db
 import logging
 from datetime import datetime as dt
 from . import main
+from .. import limiter
 
 @main.route('/register', methods=['GET', 'POST'])
+@limiter.limit("4/hour")
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.user_panel_view'))
@@ -29,7 +31,7 @@ def register():
             db.session.commit()
             logging.info(f'New account registered: {new_user.login}')
             flash('Account created successfully. Admin will contact you.', 'success')
-            #send_email()
+            send_email('piotrek.gaszczynski@gmail.com', 'New User', 'new user registered')
         except Exception as e:
             db.session.rollback() 
             logging.error(f'New account registration error: {e}')
@@ -42,6 +44,7 @@ def register():
 
 
 @main.route('/login', methods=['GET', 'POST'])
+@limiter.limit("4/hour")
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.user_panel_view'))
