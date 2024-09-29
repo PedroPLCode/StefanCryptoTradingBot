@@ -6,8 +6,8 @@ from ..models import User, Settings, Trades
 from .. import db
 import logging
 from datetime import datetime as dt
-from ..binance_api import fetch_data
-from ..utils import send_email, show_account_balance
+from ..utils.api_utils import fetch_data
+from ..utils.app_utils import send_email, show_account_balance
 from . import main
 
 @main.route('/start')

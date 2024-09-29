@@ -8,8 +8,8 @@ from .. import db
 import logging
 from datetime import datetime as dt
 from . import main
-from ..binance_api import fetch_data, fetch_ticker, fetch_system_status, fetch_account_status
-from ..utils import send_email, show_account_balance
+from ..utils.api_utils import fetch_data, fetch_ticker, fetch_system_status, fetch_account_status
+from ..utils.app_utils import send_email, show_account_balance
 
 @main.route('/')
 def user_panel_view():

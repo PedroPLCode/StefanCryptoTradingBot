@@ -11,7 +11,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import logging
-from ..utils import send_email
+from ..utils.app_utils import send_email
 
 main = Blueprint('main', __name__)
 """
@@ -26,4 +26,4 @@ def start_scheduler():
 start_scheduler()
 """
 
-from . import session, panels, bot, admin
+from . import session, panels, admin, stefan

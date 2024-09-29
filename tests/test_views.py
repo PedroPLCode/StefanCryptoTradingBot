@@ -50,13 +50,13 @@ def test_admin_panel_view_without_login(test_client):
     response = test_client.get(url_for('main.admin_panel_view'), follow_redirects=True)
     assert response.status_code == 200
     assert b'Please log in to access the admin panel.' in response.data
-"""
+
 def test_admin_panel_view_with_login(test_client, mock_db):
     login(test_client, "testlogin", "TestPassword123#")
     response = test_client.get(url_for('main.admin_panel_view'))
     assert response.status_code == 200
     assert b'Admin Panel' in response.data
-"""
+
 def test_admin_panel_view_no_access(test_client, mock_db):
     mock_db.admin_panel_access = False
     login(test_client, "testlogin", "TestPassword123#")

@@ -5,7 +5,7 @@ from app.models import User
 import os
 from datetime import datetime, timedelta
 import logging
-from .binance_api import fetch_data, fetch_ticker, fetch_system_status, fetch_account_status
+from .api_utils import fetch_data, fetch_ticker, fetch_system_status, fetch_account_status
 
 
 def send_email(email, subject, body):
