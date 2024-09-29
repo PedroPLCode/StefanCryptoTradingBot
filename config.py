@@ -1,15 +1,28 @@
+import os 
+from flask.cli import load_dotenv
+
+load_dotenv()  
+
 class DevelopmentConfig:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///stefan.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = 'your-secret-key'
     PERMANENT_SESSION_LIFETIME = 300  # 300 sekund = 5 minut
-    MAIL_SERVER = 'smtp.yourmail.com'
-    MAIL_PORT = 587
-    MAIL_USE_TLS = True
-    MAIL_USERNAME = 'your-email'
-    MAIL_PASSWORD = 'your-password'
-    BINANCE_API_KEY = 'your-binance-api-key'
-    BINANCE_API_SECRET = 'your-binance-api-secret'
+    SESSION_PERMANENT = False
+    
+    #GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
+    #GOOGLE_SECRET_KEY = os.environ['GOOGLE_SECRET_KEY']
+    GMAIL_APP_PASSWORD = os.environ['GMAIL_APP_PASSWORD']
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 465
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
+    MAIL_USERNAME = os.environ['GMAIL_USERNAME']
+    MAIL_PASSWORD = os.environ['GMAIL_APP_PASSWORD']
+    MAIL_DEFAULT_SENDER = os.environ['GMAIL_USERNAME']
+    
+    BINANCE_API_KEY = 'secret' #os.environ['BINANCE_API_KEY']
+    BINANCE_API_SECRET = 'secret' #os.environ['BINANCE_API_SECRET']
     BINANCE_API_URL = 'https://testnet.binance.vision/api'  # Binance sandbox API
     
 class TestingConfig:

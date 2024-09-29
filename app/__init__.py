@@ -11,6 +11,7 @@ from datetime import datetime as dt
 import platform
 import sys
 import logging
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s',
@@ -110,3 +111,12 @@ def make_shell_context():
 def page_not_found(error_msg):
     flash(f'{error_msg}', 'warning')
     return redirect(url_for('main.login'))
+
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    flash('Please log in to access this page.', 'warning')
+    return redirect(url_for('main.login'))
+
+@app.template_filter('to_datetime')
+def to_datetime(timestamp):
+    return datetime.fromtimestamp(timestamp / 1000.0).strftime('%Y-%m-%d %H:%M:%S')

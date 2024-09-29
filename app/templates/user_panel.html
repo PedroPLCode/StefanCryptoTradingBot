@@ -40,6 +40,16 @@
                 <p class="text-muted m-0 p-0">Admin Panel Access: {{ user.admin_panel_access }}</p>
                 <p class="text-muted m-0 p-0">Email Reports Receiver: {{ user.email_raports_receiver }}</p>
                 <p class="text-muted m-0 p-0">Account Suspended: {{ user.account_suspended }}</p>
+
+                {% if account_status is not none %}
+                <p class="text-muted m-0 p-0">Binance API canTrade: {{ account_status.canTrade }} </p>
+                <p class="text-muted m-0 p-0">Binance API AcanWithdraw: {{ account_status.canWithdraw }} </p>
+                <p class="text-muted m-0 p-0">Binance API canDeposit: {{ account_status.canDeposit }} </p>
+                {% else %}
+                    error
+                {% endif%}
+
+                </p>
             </div>
         </div>
 
@@ -48,6 +58,13 @@
                 <h5>System Info</h5>
             </div>
             <div class="card-body text-center">
+                <p class="text-muted m-0 p-0">Binance API Status:
+                    {% if binance_status is not none %}
+                    {{ binance_status.status }} {{ binance_status.msg | title}}
+                    {% else %}
+                    error
+                    {% endif%}
+                </p>
                 <p class="text-muted m-0 p-0">System: {{ system_info }}</p>
                 <p class="text-muted m-0 p-0">Python: {{ python_version }}</p>
                 <p class="text-muted m-0 p-0">Flask: {{ flask_version }}</p>

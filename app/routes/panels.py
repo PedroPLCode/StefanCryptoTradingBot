@@ -8,11 +8,15 @@ from .. import db
 import logging
 from datetime import datetime as dt
 from . import main
+from ..binance_api import fetch_data, fetch_ticker, fetch_system_status, fetch_account_status
+from ..utils import send_email, show_account_balance
 
 @main.route('/')
 def user_panel_view():
     if current_user.is_authenticated:
-        return render_template('user_panel.html', user=current_user)
+        binance_status = fetch_system_status()
+        account_status = fetch_account_status()
+        return render_template('user_panel.html', user=current_user, account_status=account_status, binance_status=binance_status)
     else:
         flash('Please log in to access app.', 'warning')
         return redirect(url_for('main.login'))
@@ -29,7 +33,11 @@ def control_panel_view():
         flash(f'Error. User {current_user.login} is not allowed to access the Control Panel.', 'danger')
         return redirect(url_for('main.user_panel_view'))
 
-    return render_template('control_panel.html', user=current_user)
+    binance_ticker = fetch_ticker()
+    account_status = fetch_account_status()
+    account_balance = show_account_balance(account_status)
+
+    return render_template('control_panel.html', user=current_user, account_status=account_status, account_balance=account_balance, data=binance_ticker)
     
 
 @main.route('/admin')

@@ -6,21 +6,35 @@ from ..models import User, Settings, Trades
 from .. import db
 import logging
 from datetime import datetime as dt
+from ..binance_api import fetch_data
+from ..utils import send_email, show_account_balance
 from . import main
 
 @main.route('/start')
 @login_required
 def start_bot():
-    settings = Settings.query.first()
-    settings.trading_enabled = True
-    db.session.commit()
-    return redirect(url_for('main.dashboard'))
+    return redirect(url_for('main.control_panel_view'))
 
 
 @main.route('/stop')
 @login_required
 def stop_bot():
-    settings = Settings.query.first()
-    settings.trading_enabled = False
-    db.session.commit()
-    return redirect(url_for('main.dashboard'))
+    return redirect(url_for('main.control_panel_view'))
+
+
+@main.route('/refresh')
+@login_required
+def refresh():
+    flash('Binance API refseshed.')
+    return redirect(url_for('main.control_panel_view'))
+
+
+@main.route('/report')
+@login_required
+def report():
+    email = 'piotrek.gaszczynski@gmail.com'
+    subject = 'Stefan Test'
+    body = 'Stefan Body'
+    send_email(email, subject, body)
+    flash(f'Email to {email} send.')
+    return redirect(url_for('main.control_panel_view'))
