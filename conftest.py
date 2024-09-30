@@ -24,6 +24,7 @@ def app():
         yield app
         db.drop_all()
 
+
 @pytest.fixture
 def mock_db(mocker):
     hashed_password = generate_password_hash('TestPassword123#')
@@ -42,6 +43,7 @@ def mock_db(mocker):
     db.session.commit()
     
     return user
+
 
 @pytest.fixture
 def test_client(app):

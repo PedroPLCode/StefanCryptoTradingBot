@@ -5,14 +5,13 @@ from bs4 import BeautifulSoup
 def login(client, login, password):
     response = client.get(url_for('main.login'))
     soup = BeautifulSoup(response.data, 'html.parser')
-    csrf_token = soup.find('input', {'name': 'csrf_token'})['value']  # Extract CSRF token
+    csrf_token = soup.find('input', {'name': 'csrf_token'})['value']
 
     return client.post(url_for('main.login'), data=dict(
         login=login,
         password=password,
         csrf_token=csrf_token
     ), follow_redirects=True)
-
 
 def logout(client):
     return client.get(url_for('main.logout'), follow_redirects=True)

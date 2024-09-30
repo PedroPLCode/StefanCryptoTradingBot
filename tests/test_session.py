@@ -10,7 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 def test_register(test_client):
     response = test_client.get(url_for('main.register'))
     soup = BeautifulSoup(response.data, 'html.parser')
-    csrf_token = soup.find('input', {'name': 'csrf_token'})['value']  # Extract CSRF token
+    csrf_token = soup.find('input', {'name': 'csrf_token'})['value']
 
     response = test_client.post(url_for('main.register'), data={
         'login': 'testlogin',
@@ -18,10 +18,10 @@ def test_register(test_client):
         'email': 'test@email.com',
         'password': 'TestPassword123#',
         'confirm_password': 'TestPassword123#',
-        'csrf_token': csrf_token  # Include CSRF token
+        'csrf_token': csrf_token
     })
     assert response.status_code == 200
-    assert b'Account created successfully' in response.data  # Adjust based on your flash message
+    assert b'Account created successfully' in response.data
     assert User.query.filter_by(login='testlogin').first() is not None
     
     
@@ -37,7 +37,7 @@ def test_register_email_exists(test_client):
     
     response = test_client.get(url_for('main.register'))
     soup = BeautifulSoup(response.data, 'html.parser')
-    csrf_token = soup.find('input', {'name': 'csrf_token'})['value']  # Extract CSRF token
+    csrf_token = soup.find('input', {'name': 'csrf_token'})['value']
 
     response = test_client.post(url_for('main.register'), data={
         'login': 'testlogin',
@@ -45,10 +45,10 @@ def test_register_email_exists(test_client):
         'email': 'test@email.com',
         'password': 'TestPassword123#',
         'confirm_password': 'TestPassword123#',
-        'csrf_token': csrf_token  # Include CSRF token
+        'csrf_token': csrf_token
     })
     assert response.status_code == 200
-    assert b'This email is in use.' in response.data  # Adjust based on your flash message
+    assert b'This email is in use.' in response.data
     assert User.query.filter_by(name='TestName').first() == None
     
     
@@ -72,10 +72,10 @@ def test_register_login_exists(test_client):
         'email': 'test@email.com',
         'password': 'TestPassword123#',
         'confirm_password': 'TestPassword123#',
-        'csrf_token': csrf_token  # Include CSRF token
+        'csrf_token': csrf_token
     })
     assert response.status_code == 200
-    assert b'This login is in use.' in response.data  # Adjust based on your flash message
+    assert b'This login is in use.' in response.data
     assert User.query.filter_by(name='TestName').first() == None
 
 

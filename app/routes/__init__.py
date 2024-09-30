@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..forms import LoginForm, RegistrationForm
-from ..models import User, Settings, Trades
+from ..models import User, Settings, Buy, Sell, admin
 import logging
 from datetime import datetime as dt
 from flask_cors import CORS
@@ -16,17 +16,4 @@ from ..utils.app_utils import send_email
 
 main = Blueprint('main', __name__)
 
-from . import bot, session, panels, admin
-
-"""
-def start_scheduler():
-    logging.info('Starting scheduller.')
-    scheduler = BackgroundScheduler()
-    with current_app.app_context():    
-        scheduler.add_job(func=send_email('piotrek.gaszczynski@gmail.com', '24hrs report', 'raport dobory'), 
-                        trigger="interval",
-                        hours=24)
-    scheduler.start()
-
-start_scheduler()
-"""
+from . import session, panels, context_processors, error_handlers, stefan

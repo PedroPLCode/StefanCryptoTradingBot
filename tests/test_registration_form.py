@@ -29,6 +29,7 @@ def add_user():
     ("testuser", "John Doe", "john@example.com", "ValidPass123!", "DifferentPass123!", False),  # Passwords do not match
     ("testuser", "John Doe", "john@example.com", "ValidPass123!", "ValidPass123!", True)   # Valid case
 ])
+
 def test_registration_form(login, name, email, password, confirm_password, expected, add_user):
     with app.test_request_context():
         app.config['WTF_CSRF_ENABLED'] = True

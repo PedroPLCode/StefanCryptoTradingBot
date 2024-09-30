@@ -17,36 +17,27 @@ import platform
 import sys
 import logging
 from datetime import datetime
-#from .utils.app_utils import send_email
+#from .utils.app_utils import send_email, send_24h_report_email
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(levelname)s %(message)s',
-                    filename="stefan.log"
-                    )
-logging.info('StefanCryptoTradingBot starting.')
-
-# Initialize extensions
 db = SQLAlchemy()
 login_manager = LoginManager()
 mail = Mail()
 migrate = Migrate()
 jwt = JWTManager()
+scheduler = BackgroundScheduler()
     
-
 def create_app(config_name=None):
     app = Flask(__name__)
-    
+
     if config_name == 'testing':
         app.config.from_object('config.TestingConfig')
     else:
         app.config.from_object('config.DevelopmentConfig')
         
-    # Initialize extensions
     db.init_app(app)
     login_manager.init_app(app)
     mail.init_app(app)
     migrate.init_app(app, db)
-    #admin.init_app(app)
     jwt.init_app(app)
     CORS(app)
 
@@ -54,87 +45,38 @@ def create_app(config_name=None):
 
 app = create_app()
 
-limiter = Limiter(
-    get_remote_address,
-    app=app,
-    default_limits=["200 per day", "50 per hour"],
-    storage_uri="memory://",
-)
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(levelname)s %(message)s',
+                    filename="stefan.log"
+                    )
+logging.info('StefanCryptoTradingBot starting.')
 
-# Register blueprints
+limiter = Limiter(
+        get_remote_address,
+        app=app,
+        default_limits=["200 per day", "50 per hour"],
+        storage_uri="memory://",
+    )
+
+def start_scheduler():
+    from .utils.app_utils import send_24h_report_email
+    logging.info('Starting scheduller.')
+    
+    with app.app_context():    
+        scheduler.add_job(func=send_24h_report_email, 
+                        trigger="interval",
+                        hours=24)
+    scheduler.start()
+    
+start_scheduler()
+
 from .routes import main
 app.register_blueprint(main)
 
-# Import models after initializing db to avoid circular imports
-from .models import User, Settings, Trades
-from .routes.admin import MyAdmin, MyAdminIndexView, UserAdmin, SettingsAdmin, TradesAdmin
+from .models.admin import MyAdmin, MyAdminIndexView, UserAdmin, SettingsAdmin, BuyAdmin, SellAdmin
 admin = MyAdmin(app, name='StefanCryptoTradingBot', index_view=MyAdminIndexView(), template_mode='bootstrap4')
-# Setup admin views
-from .models import User, Settings, Trades
+from .models import User, Settings, Buy, Sell
 admin.add_view(UserAdmin(User, db.session))
 admin.add_view(SettingsAdmin(Settings, db.session))
-admin.add_view(TradesAdmin(Trades, db.session))
-
-@login_manager.user_loader
-def inject_user(user_id):
-    from .models import User
-    return User.query.get(int(user_id))
-
-@app.context_processor
-def inject_date_and_time():
-    return dict(date_and_time=dt.utcnow())
-
-@app.context_processor
-def inject_user_agent():
-    user_agent = request.headers.get('User-Agent') 
-    return dict(user_agent=user_agent)
-
-@app.context_processor
-def inhect_system_info():
-    system_name = platform.system()
-    system_version = platform.version()
-    release = platform.release()
-    return dict(system_info=f'{system_name} {release} ({system_version})')
-
-@app.context_processor
-def inject_python_version():
-    python_version = sys.version
-    return dict(python_version=python_version)
-
-@app.context_processor
-def inject_flask_version():
-    return dict(flask_version=flask_version)
-
-@app.context_processor
-def inject_db_info():
-    engine = db.get_engine()
-    db_dialect = engine.dialect.name
-    return dict(db_engine=db_dialect)
-
-@app.shell_context_processor
-def make_shell_context():
-    return {
-        "db": db,
-        "User": app.models.User,
-        "Settings": app.models.Settings,
-        "Trades": app.models.Trades,
-    }
-    
-@app.errorhandler(404)
-def page_not_found(error_msg):
-    flash(f'{error_msg}', 'warning')
-    return redirect(url_for('main.login'))
-
-@app.errorhandler(429)
-@limiter.exempt
-def too_many_requests(error_msg):
-    return render_template('limiter.html', error_msg=error_msg)
-
-@login_manager.unauthorized_handler
-def unauthorized_callback():
-    flash('Please log in to access this page.', 'warning')
-    return redirect(url_for('main.login'))
-
-@app.template_filter('to_datetime')
-def to_datetime(timestamp):
-    return datetime.fromtimestamp(timestamp / 1000.0).strftime('%Y-%m-%d %H:%M:%S')
+admin.add_view(BuyAdmin(Buy, db.session))
+admin.add_view(SellAdmin(Sell, db.session))

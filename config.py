@@ -7,11 +7,9 @@ class DevelopmentConfig:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///stefan.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = 'your-secret-key'
-    PERMANENT_SESSION_LIFETIME = 300  # 300 sekund = 5 minut
+    PERMANENT_SESSION_LIFETIME = 300
     SESSION_PERMANENT = False
     
-    #GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
-    #GOOGLE_SECRET_KEY = os.environ['GOOGLE_SECRET_KEY']
     GMAIL_APP_PASSWORD = os.environ['GMAIL_APP_PASSWORD']
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465
@@ -28,9 +26,10 @@ class DevelopmentConfig:
     BINANCE_API_SECRET = 'secret' #os.environ['BINANCE_API_SECRET']
     BINANCE_API_URL = 'https://testnet.binance.vision/api'  # Binance sandbox API
     
+    
 class TestingConfig:
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'  # Baza danych in-memory dla testów
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SERVER_NAME = 'localhost:5000'
     SECRET_KEY = 'test-secret-key'

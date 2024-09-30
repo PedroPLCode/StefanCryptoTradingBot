@@ -1,9 +1,8 @@
-#Tests ok
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..forms import LoginForm, RegistrationForm
-from ..models import User, Settings, Trades
+from ..models import User, Settings, Buy, Sell
 from .. import db
 import logging
 from datetime import datetime as dt
@@ -51,8 +50,5 @@ def admin_panel_view():
         logging.warning(f'{current_user.login} tried to access the Admin Panel without permission.')
         flash(f'Error. User {current_user.login} is not allowed to access the Admin Panel.', 'danger')
         return redirect(url_for('main.user_panel_view'))
-
-    #from .. import admin
-    #return admin.index()
 
     return redirect(url_for('admin.index'))

@@ -1,8 +1,7 @@
-#tests ok
 from flask_login import UserMixin
 from datetime import datetime as dt
 from werkzeug.security import generate_password_hash, check_password_hash
-from .. import db  # Keep this line to import db after it is initialized in __init__.py
+from .. import db
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'

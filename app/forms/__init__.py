@@ -1,2 +1,2 @@
-from .registration_form import RegistrationForm
-from .login_form import LoginForm
+from .registration import RegistrationForm
+from .login import LoginForm

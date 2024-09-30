@@ -9,6 +9,7 @@ from flask_wtf.csrf import generate_csrf
     ("", "password", False),  # Login is empty, password is filled
     ("testlogin", "password", True)  # Both fields are filled
 ])
+
 def test_login_form(login, password, expected):
     with app.test_request_context():
         app.config['WTF_CSRF_ENABLED'] = True

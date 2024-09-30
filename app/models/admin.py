@@ -1,4 +1,3 @@
-#tests ok
 from flask import Flask, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
@@ -39,8 +38,8 @@ class AdminModelView(ModelView):
 
 
 class UserAdmin(AdminModelView):
-    column_list = ('id', 'login', 'name', 'email', 'control_panel_access', 'admin_panel_access', 'email_raports_receiver', 'account_suspended', 'creation_date', 'last_login')
-    column_filters = ('login', 'name', 'email', 'control_panel_access', 'admin_panel_access', 'email_raports_receiver', 'account_suspended')
+    column_list = ('id', 'login', 'name', 'email', 'control_panel_access', 'admin_panel_access', 'email_raports_receiver', 'account_suspended', 'login_errors', 'creation_date', 'last_login')
+    column_filters = ('login', 'name', 'email', 'control_panel_access', 'admin_panel_access', 'email_raports_receiver', 'account_suspended', 'login_errors')
     form_excluded_columns = ('password_hash',)
 
 
@@ -48,6 +47,11 @@ class SettingsAdmin(AdminModelView):
     column_list = ('id', 'strategy', 'trading_enabled')
 
 
-class TradesAdmin(AdminModelView):
-    column_list = ('id', 'trade_time', 'buy_or_sell', 'amount', 'price')
-    column_filters = ('trade_time', 'buy_or_sell', 'amount', 'price')
+class BuyAdmin(AdminModelView):
+    column_list = ('id', 'time', 'amount', 'price')
+    column_filters = ('time', 'amount', 'price')
+    
+    
+class SellAdmin(AdminModelView):
+    column_list = ('id', 'time', 'amount', 'price')
+    column_filters = ('time', 'amount', 'price')
