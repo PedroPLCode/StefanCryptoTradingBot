@@ -5,7 +5,6 @@ import pandas as pd
 from binance.client import Client
 import os
 import logging
-#from ..bot.bot import symbol
 
 load_dotenv()
 
@@ -24,14 +23,24 @@ def fetch_data(symbol, interval='1h', lookback='30 days'):
     df['low'] = df['low'].astype(float)
     return df
 
-def place_order(order_type, amount):
+
+def get_account_balance():
+    account_info = client.futures_account()  # For futures account
+    # Use client.get_account() if you're accessing spot account instead
+    balances = {balance['asset']: float(balance['balance']) for balance in account_info['assets']}
+    return {
+        'USDC': balances.get('USDC', 0),
+        'BTC': balances.get('BTC', 0)
+    }
+
+
+def place_order(symbol, order_type, amount):
     try:
         if order_type == 'buy':
             client.order_market_buy(symbol=symbol, quantity=amount)
         elif order_type == 'sell':
             client.order_market_sell(symbol=symbol, quantity=amount)
-        # W przykładowych miejscach w kodzie:
-        logging.info(f'Bought {amount} {symbol}')
+        logging.info(f'Bought {amount} {symbol}' if order_type == 'buy' else f'Sold {amount} {symbol}')
     except Exception as e:
         print(f"Error placing order: {e}")
 

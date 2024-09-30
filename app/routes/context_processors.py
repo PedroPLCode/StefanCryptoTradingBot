@@ -17,6 +17,7 @@ import platform
 import sys
 import logging
 from datetime import datetime
+from ..models import Settings
 from .. import app, db, login_manager
 
 @login_manager.user_loader
@@ -35,6 +36,15 @@ def inject_current_user():
 @app.context_processor
 def inject_date_and_time():
     return dict(date_and_time=dt.utcnow())
+
+@app.context_processor
+def inject_bot_settings():
+    settings = Settings.query.first()
+    if not settings:
+        settings = Settings()
+        db.session.add(settings)
+        db.session.commit()
+    return dict(bot_settings=settings)
 
 @app.context_processor
 def inject_user_agent():

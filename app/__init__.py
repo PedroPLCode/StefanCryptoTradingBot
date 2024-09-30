@@ -17,7 +17,6 @@ import platform
 import sys
 import logging
 from datetime import datetime
-#from .utils.app_utils import send_email, send_24h_report_email
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -80,3 +79,9 @@ admin.add_view(UserAdmin(User, db.session))
 admin.add_view(SettingsAdmin(Settings, db.session))
 admin.add_view(BuyAdmin(Buy, db.session))
 admin.add_view(SellAdmin(Sell, db.session))
+
+def start_stefan():
+    logging.info('Starting Stefan.')
+    with app.app_context():    
+        from .stefan import stefan
+start_stefan()

@@ -13,12 +13,28 @@ from . import main
 @main.route('/start')
 @login_required
 def start_bot():
+    settings = Settings.query.first()
+    if not settings:
+        settings = Settings()
+        db.session.add(settings)
+        db.session.commit()
+    settings.bot_running = True 
+    db.session.commit()
+    flash('Bot started.', 'success')
     return redirect(url_for('main.control_panel_view'))
 
 
 @main.route('/stop')
 @login_required
 def stop_bot():
+    settings = Settings.query.first()
+    if not settings:
+        settings = Settings()
+        db.session.add(settings)
+        db.session.commit()
+    settings.bot_running = False
+    db.session.commit()
+    flash('Bot stopped.', 'success')
     return redirect(url_for('main.control_panel_view'))
 
 

@@ -64,6 +64,8 @@
             </div>
             <div class="card-body text-center">
 
+                <p class="text-muted m-0 p-0">Bot Running: {{ bot_settings.bot_running }}</p>
+
                 {% if account_balance is not none %}
                 {% for single in account_balance %}
                 <p class="text-muted m-0 p-0">Balance {{ single.asset }}: Free: {{ single.free | round(4) }} Locked: {{ single.locked | round(4) }} </p>
@@ -72,14 +74,18 @@
                     error
                 {% endif%}
 
-                <p class="text-muted m-0 p-0">Bot Status:</p>
+                <p class="text-muted m-0 p-0">Bot Symbol: {{ bot_settings.symbol }}</p>
+                <p class="text-muted m-0 p-0">Bot Lookback Days: {{ bot_settings.lookback_days }}</p>
+                <p class="text-muted m-0 p-0">Bot Stop Loss: {{ bot_settings.stop_loss_pct }}</p>
+                <p class="text-muted m-0 p-0">Bot Trailing Stop Loss: {{ bot_settings.trailing_stop_pct }}</p>
+                <p class="text-muted m-0 p-0">Bot Take Profit: {{ bot_settings.take_profit_pct }}</p>
 
-                <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                <div class="mt-2 d-flex flex-column justify-content-center align-items-center gap-2">
                     <a href="{{ url_for('main.start_bot') }}" class="btn btn-success w-100">Start Bot</a>
                     <a href="{{ url_for('main.stop_bot') }}" class="btn btn-danger w-100">Stop Bot</a>
-                    <a href="{{ url_for('main.refresh') }}" class="btn btn-danger w-100">Refresh</a>
+                    <a href="{{ url_for('main.refresh') }}" class="btn btn-primary w-100">Refresh</a>
                     {% if user.email_raports_receiver %}
-                        <a href="{{ url_for('main.report') }}" class="btn btn-secondary w-100">Email Report</a>
+                        <a href="{{ url_for('main.report') }}" class="btn btn-primary w-100">Email Report</a>
                     {% endif %}
                 </div>
             </div>
