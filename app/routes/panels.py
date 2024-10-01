@@ -13,12 +13,18 @@ from ..utils.app_utils import send_email, show_account_balance
 @main.route('/')
 def user_panel_view():
     if current_user.is_authenticated:
-        binance_status = fetch_system_status()
-        account_status = fetch_account_status()
-        server_time = fetch_server_time()
-        return render_template('user_panel.html', user=current_user, account_status=account_status, binance_status=binance_status, server_time=server_time)
+        try:
+            binance_status = fetch_system_status()
+            account_status = fetch_account_status()
+            server_time = fetch_server_time()
+            return render_template('user_panel.html', user=current_user, account_status=account_status, binance_status=binance_status, server_time=server_time)
+        except Exception as e:
+            logging.error(f"Error in user_panel_view: {e}")
+            send_email('piotrek.gaszczynski@gmail.com', 'Error in user panel view', str(e))
+            flash('An error occurred while fetching account data. Please try again later.', 'danger')
+            return redirect(url_for('main.login'))
     else:
-        flash('Please log in to access app.', 'warning')
+        flash('Please log in to access the app.', 'warning')
         return redirect(url_for('main.login'))
 
     
@@ -33,12 +39,19 @@ def control_panel_view():
         flash(f'Error. User {current_user.login} is not allowed to access the Control Panel.', 'danger')
         return redirect(url_for('main.user_panel_view'))
 
-    binance_ticker = fetch_ticker()
-    account_status = fetch_account_status()
-    account_balance = show_account_balance(account_status)
+    try:
+        binance_ticker = fetch_ticker()
+        account_status = fetch_account_status()
+        account_balance = show_account_balance(account_status)
 
-    return render_template('control_panel.html', user=current_user, account_status=account_status, account_balance=account_balance, data=binance_ticker)
-    
+        return render_template('control_panel.html', user=current_user, account_status=account_status, account_balance=account_balance, data=binance_ticker)
+
+    except Exception as e:
+        logging.error(f'Error loading control panel: {e}')
+        send_email('piotrek.gaszczynski@gmail.com', 'Error loading control panel', str(e))
+        flash('An error occurred while loading the control panel. The admin has been notified.', 'danger')
+        return redirect(url_for('main.user_panel_view'))
+
 
 @main.route('/admin')
 def admin_panel_view():
@@ -51,4 +64,11 @@ def admin_panel_view():
         flash(f'Error. User {current_user.login} is not allowed to access the Admin Panel.', 'danger')
         return redirect(url_for('main.user_panel_view'))
 
-    return redirect(url_for('admin.index'))
+    try:
+        return redirect(url_for('admin.index'))
+
+    except Exception as e:
+        logging.error(f'Error accessing admin panel: {e}')
+        send_email('piotrek.gaszczynski@gmail.com', 'Error accessing admin panel', str(e))
+        flash('An error occurred while accessing the admin panel. The admin has been notified.', 'danger')
+        return redirect(url_for('main.user_panel_view'))

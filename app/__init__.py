@@ -28,17 +28,26 @@ scheduler = BackgroundScheduler()
 def create_app(config_name=None):
     app = Flask(__name__)
 
-    if config_name == 'testing':
-        app.config.from_object('config.TestingConfig')
-    else:
-        app.config.from_object('config.DevelopmentConfig')
+    try:
+        if config_name == 'testing':
+            app.config.from_object('config.TestingConfig')
+        else:
+            app.config.from_object('config.DevelopmentConfig')
+
+        db.init_app(app)
+        login_manager.init_app(app)
+        mail.init_app(app)
+        migrate.init_app(app, db)
+        jwt.init_app(app)
+        CORS(app)
+
+        logging.info('Flask app initialized successfully.')
         
-    db.init_app(app)
-    login_manager.init_app(app)
-    mail.init_app(app)
-    migrate.init_app(app, db)
-    jwt.init_app(app)
-    CORS(app)
+    except Exception as e:
+        logging.error(f'Error initializing Flask app: {e}')
+        from .utils.app_utils import send_email
+        send_email('piotrek.gaszczynski@gmail.com', 'App Initialization Error', str(e))
+        raise  # Re-raise the exception for further handling if needed
 
     return app
 
@@ -59,13 +68,18 @@ limiter = Limiter(
 
 def start_scheduler():
     from .utils.app_utils import send_24h_report_email
-    logging.info('Starting scheduller.')
-    
-    with app.app_context():    
-        scheduler.add_job(func=send_24h_report_email, 
-                        trigger="interval",
-                        hours=24)
-    scheduler.start()
+    logging.info('Starting scheduler.')
+
+    try:
+        with app.app_context():    
+            scheduler.add_job(func=send_24h_report_email, 
+                              trigger="interval",
+                              hours=24)
+        scheduler.start()
+    except Exception as e:
+        logging.error(f'Error starting scheduler: {e}')
+        from .utils.app_utils import send_email
+        send_email('piotrek.gaszczynski@gmail.com', 'Scheduler Error', str(e))
     
 start_scheduler()
 

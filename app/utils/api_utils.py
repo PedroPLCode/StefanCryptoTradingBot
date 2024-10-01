@@ -9,9 +9,9 @@ import logging
 load_dotenv()
 
 API_KEY = os.environ['BINANCE_API_KEY']
-API_SECRET = os.environ['BINANCE_API_SECRET']
+BINANCE_API_SECRET = os.environ['BINANCE_API_SECRET']
 
-client = Client(API_KEY, API_SECRET)
+client = Client(API_KEY, BINANCE_API_SECRET, testnet=True)
 
 def fetch_data(symbol, interval='1h', lookback='30 days'):
     klines = client.get_historical_klines(symbol, interval, lookback)
@@ -35,6 +35,7 @@ def get_account_balance():
 
 
 def place_order(symbol, order_type, amount):
+    from ..utils.app_utils import send_email
     try:
         if order_type == 'buy':
             client.order_market_buy(symbol=symbol, quantity=amount)
@@ -43,6 +44,7 @@ def place_order(symbol, order_type, amount):
         logging.info(f'Bought {amount} {symbol}' if order_type == 'buy' else f'Sold {amount} {symbol}')
     except Exception as e:
         print(f"Error placing order: {e}")
+        send_email('piotrek.gaszczynski@gmail.com', 'Error placing order', str(e))
 
 def fetch_ticker(symbol='BTCUSDT'):
     ticker = client.get_ticker(symbol='BTCUSDT')

@@ -11,12 +11,18 @@ from .api_utils import fetch_data, fetch_ticker, fetch_system_status, fetch_acco
 
 
 def create_new_user(form):
-    return User(
-                login=form.login.data,
-                name=form.name.data,
-                email=form.email.data,
-                password_hash=generate_password_hash(form.password.data),
-            )
+    try:
+        new_user = User(
+            login=form.login.data,
+            name=form.name.data,
+            email=form.email.data,
+            password_hash=generate_password_hash(form.password.data),
+        )
+        return new_user
+    except Exception as e:
+        logging.error(f'Error creating user: {e}')
+        send_email('piotrek.gaszczynski@gmail.com', 'User Creation Error', str(e))
+        raise  # Re-raise the exception for further handling if needed
     
     
 def send_email(email, subject, body):

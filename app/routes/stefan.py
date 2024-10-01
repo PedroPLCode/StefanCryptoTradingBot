@@ -13,36 +13,64 @@ from . import main
 @main.route('/start')
 @login_required
 def start_bot():
-    settings = Settings.query.first()
-    if not settings:
-        settings = Settings()
-        db.session.add(settings)
+    try:
+        settings = Settings.query.first()
+        if not settings:
+            settings = Settings()
+            db.session.add(settings)
+            db.session.commit()
+        settings.bot_running = True
         db.session.commit()
-    settings.bot_running = True 
-    db.session.commit()
-    flash('Bot started.', 'success')
-    return redirect(url_for('main.control_panel_view'))
+
+        flash('Bot started.', 'success')
+        send_email('piotrek.gaszczynski@gmail.com', 'Bot started.', 'Bot started.')
+        return redirect(url_for('main.control_panel_view'))
+    
+    except Exception as e:
+        db.session.rollback()  # Roll back in case of any DB error
+        logging.error(f'Error starting bot: {e}')
+        send_email('piotrek.gaszczynski@gmail.com', 'Error starting bot', str(e))
+        flash('An error occurred while starting the bot. The admin has been notified.', 'danger')
+        return redirect(url_for('main.control_panel_view'))
 
 
 @main.route('/stop')
 @login_required
 def stop_bot():
-    settings = Settings.query.first()
-    if not settings:
-        settings = Settings()
-        db.session.add(settings)
+    try:
+        settings = Settings.query.first()
+        if not settings:
+            settings = Settings()
+            db.session.add(settings)
+            db.session.commit()
+        settings.bot_running = False
         db.session.commit()
-    settings.bot_running = False
-    db.session.commit()
-    flash('Bot stopped.', 'success')
-    return redirect(url_for('main.control_panel_view'))
+
+        flash('Bot stopped.', 'success')
+        send_email('piotrek.gaszczynski@gmail.com', 'Bot stopped.', 'Bot stopped.')
+        return redirect(url_for('main.control_panel_view'))
+    
+    except Exception as e:
+        db.session.rollback()  # Roll back in case of any DB error
+        logging.error(f'Error stopping bot: {e}')
+        send_email('piotrek.gaszczynski@gmail.com', 'Error stopping bot', str(e))
+        flash('An error occurred while stopping the bot. The admin has been notified.', 'danger')
+        return redirect(url_for('main.control_panel_view'))
 
 
 @main.route('/refresh')
 @login_required
 def refresh():
-    flash('Binance API refseshed.', 'success')
-    return redirect(url_for('main.control_panel_view'))
+    try:
+        flash('Binance API refreshed.', 'success')
+        return redirect(url_for('main.control_panel_view'))
+
+    except Exception as e:
+        logging.error(f'Error refreshing Binance API: {e}')
+        send_email('piotrek.gaszczynski@gmail.com', 'Error refreshing Binance API', str(e))
+        flash('An error occurred while refreshing the Binance API. The admin has been notified.', 'danger')
+        return redirect(url_for('main.control_panel_view'))
+
 
 
 @main.route('/report')
@@ -51,6 +79,13 @@ def report():
     email = 'piotrek.gaszczynski@gmail.com'
     subject = 'Stefan Test'
     body = 'Stefan Body'
-    send_email(email, subject, body)
-    flash(f'Email to {email} send.', 'success')
+    
+    try:
+        send_email(email, subject, body)
+        flash(f'Email to {email} sent successfully.', 'success')
+    except Exception as e:
+        logging.error(f'Error sending email to {email}: {e}')
+        flash('An error occurred while sending the email. The admin has been notified.', 'danger')
+        send_email('piotrek.gaszczynski@gmail.com', 'Error sending email', str(e))
+    
     return redirect(url_for('main.control_panel_view'))
