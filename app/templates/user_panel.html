@@ -55,27 +55,38 @@
 
         <div class="col-12 col-md-6 card mb-3">
             <div class="card-header text-center">
-                <h5>System Info</h5>
+                <h5>
+                    {% if user.control_panel_access %}
+                    System Info
+                    {% else %}
+                    Limited Access
+                    {% endif %}
+                </h5>
             </div>
             <div class="card-body text-center">
-                <p class="text-muted m-0 p-0">Binance API Status:
-                    {% if binance_status is not none %}
-                    {{ binance_status.status }} {{ binance_status.msg | title}}
-                    {% else %}
-                    error
-                    {% endif%}
-                </p>
-                <p class="text-muted m-0 p-0">Binance API Server Time:
-                    {% if server_time is not none %}
-                    {{ server_time.serverTime }}
-                    {% else %}
-                    error
-                    {% endif%}
-                </p>
-                <p class="text-muted m-0 p-0">System: {{ system_info }}</p>
-                <p class="text-muted m-0 p-0">Python: {{ python_version }}</p>
-                <p class="text-muted m-0 p-0">Flask: {{ flask_version }}</p>
-                <p class="text-muted m-0 p-0">Database: {{ db_engine }}</p>
+                {% if user.control_panel_access %}
+                    <p class="text-muted m-0 p-0">Binance API Status:
+                        {% if binance_status is not none %}
+                        {{ binance_status.status }} {{ binance_status.msg | title}}
+                        {% else %}
+                        error
+                        {% endif%}
+                    </p>
+                    <p class="text-muted m-0 p-0">Binance API Server Time:
+                        {% if server_time is not none %}
+                        {{ server_time.serverTime }}
+                        {% else %}
+                        error
+                        {% endif %}
+                    </p>
+                    <p class="text-muted m-0 p-0">System: {{ system_info }}</p>
+                    <p class="text-muted m-0 p-0">Python: {{ python_version }}</p>
+                    <p class="text-muted m-0 p-0">Flask: {{ flask_version }}</p>
+                    <p class="text-muted m-0 p-0">Database: {{ db_engine }}</p>
+                {% else %}
+                    <p class="text-muted m-0 p-0">You have no permission to visit other pages.</p>
+                    <p class="text-muted m-0 p-0">Admin will contact you.</p>
+                {% endif %}
                 <p class="text-muted m-0 p-0">User Agent: {{ user_agent }}</p>
             </div>
         </div>
@@ -93,7 +104,7 @@
                         <a href="/admin" class="btn btn-primary w-100">Admin Panel</a>
                     {% endif %}
                     {% if user.email_raports_receiver %}
-                        <a href="{{ url_for('main.start_bot') }}" class="btn btn-secondary w-100">Send Raport</a>
+                        <a href="{{ url_for('main.start_bot') }}" class="btn btn-primary w-100">Email Raport</a>
                     {% endif %}
                     <a href="{{ url_for('main.logout') }}" class="btn btn-danger w-100">Logout</a>
                 </div>

@@ -44,7 +44,7 @@ class UserAdmin(AdminModelView):
 
 
 class SettingsAdmin(AdminModelView):
-    column_list = ('id', 'strategy', 'trading_enabled')
+    column_list = ('id', 'bot_running', 'symbol', 'stop_loss_pct', 'trailing_stop_pct', 'take_profit_pct', 'lookback_days')
 
 
 class BuyAdmin(AdminModelView):

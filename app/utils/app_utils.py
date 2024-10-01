@@ -3,6 +3,7 @@ from flask_mail import Message
 from flask_login import LoginManager, current_user
 from app.models import User
 import os
+from flask import current_app
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..forms import LoginForm, RegistrationForm
@@ -10,6 +11,12 @@ import logging
 from .api_utils import fetch_data, fetch_ticker, fetch_system_status, fetch_account_status
 
 
+def get_ip_address(request):
+    if 'X-Forwarded-For' in request.headers:
+        return request.headers['X-Forwarded-For'].split(',')[0]
+    return request.remote_addr
+                              
+                                
 def create_new_user(form):
     try:
         new_user = User(
@@ -26,13 +33,14 @@ def create_new_user(form):
     
     
 def send_email(email, subject, body):
-    from app import mail
-    message = Message(subject=subject, recipients=[email])
-    message.body = body
+    from app import mail, app
     try:
-        mail.send(message)
-        logging.info(f'Email "{subject}" sent to {email}.')
-        return True
+        with current_app.app_context():
+            message = Message(subject=subject, recipients=[email])
+            message.body = body
+            mail.send(message)
+            logging.info(f'Email "{subject}" sent to {email}.')
+            return True
     except Exception as e:
         logging.error(f'Failed to send email "{subject}" to {email}: {str(e)}')
         return False 

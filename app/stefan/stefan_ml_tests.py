@@ -104,7 +104,7 @@ def load_model():
         model.fit(X_train, y_train)
 
         # Save the new model and scaler for future use
-        joblib.dump(model, 'trading_model.pkl')
+        joblib.dump(model, 'model.pkl')
         joblib.dump(scaler, 'scaler.pkl')
         logging.info("Created and saved new model and scaler.")
 

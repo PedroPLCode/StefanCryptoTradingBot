@@ -9,6 +9,7 @@ class DevelopmentConfig:
     SECRET_KEY = 'your-secret-key'
     PERMANENT_SESSION_LIFETIME = 300
     SESSION_PERMANENT = False
+    SESSION_COOKIE_SECURE = True
     
     GMAIL_APP_PASSWORD = os.environ['GMAIL_APP_PASSWORD']
     MAIL_SERVER = 'smtp.gmail.com'
@@ -22,9 +23,9 @@ class DevelopmentConfig:
     RECAPTCHA_PUBLIC_KEY = os.environ['RECAPTCHA_PUBLIC_KEY']
     RECAPTCHA_PRIVATE_KEY = os.environ['RECAPTCHA_PRIVATE_KEY']
     
-    BINANCE_API_KEY = 'secret' #os.environ['BINANCE_API_KEY']
-    BINANCE_API_SECRET = 'secret' #os.environ['BINANCE_API_SECRET']
-    BINANCE_API_URL = 'https://testnet.binance.vision/api'  # Binance sandbox API
+    #BINANCE_API_KEY = 'secret' #os.environ['BINANCE_API_KEY']
+    #BINANCE_API_SECRET = 'secret' #os.environ['BINANCE_API_SECRET']
+    #BINANCE_API_URL = 'https://testnet.binance.vision/api'  # Binance sandbox API
     
     
 class TestingConfig:

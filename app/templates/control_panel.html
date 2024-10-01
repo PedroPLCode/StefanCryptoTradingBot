@@ -68,7 +68,7 @@
 
                 {% if account_balance is not none %}
                 {% for single in account_balance %}
-                <p class="text-muted m-0 p-0">Balance {{ single.asset }}: Free: {{ single.free | round(4) }} Locked: {{ single.locked | round(4) }} </p>
+                <p class="text-muted m-0 p-0">Balance {{ single.asset }}: Free: {{ single.free | round(16) }} Locked: {{ single.locked | round(16) }} </p>
                 {% endfor %}
                 {% else %}
                     error
@@ -81,8 +81,15 @@
                 <p class="text-muted m-0 p-0">Bot Take Profit: {{ bot_settings.take_profit_pct }}</p>
 
                 <div class="mt-2 d-flex flex-column justify-content-center align-items-center gap-2">
-                    <a href="{{ url_for('main.start_bot') }}" class="btn btn-success w-100">Start Bot</a>
-                    <a href="{{ url_for('main.stop_bot') }}" class="btn btn-danger w-100">Stop Bot</a>
+
+                    {% if bot_settings.bot_running %}
+                        <a href="" class="btn btn-light w-100">Bot Started</a>
+                        <a href="{{ url_for('main.stop_bot') }}" class="btn btn-danger w-100">Stop Bot</a>
+                    {% else %}
+                        <a href="{{ url_for('main.start_bot') }}" class="btn btn-success w-100">Start Bot</a>
+                        <a href="" class="btn btn-light w-100">Bot Stopped</a>
+                    {% endif %}
+
                     <a href="{{ url_for('main.refresh') }}" class="btn btn-primary w-100">Refresh</a>
                     {% if user.email_raports_receiver %}
                         <a href="{{ url_for('main.report') }}" class="btn btn-primary w-100">Email Report</a>
