@@ -1,3 +1,4 @@
+#tests 100% ok
 import random
 from flask_mail import Message
 from flask_login import LoginManager, current_user
@@ -29,7 +30,7 @@ def create_new_user(form):
     except Exception as e:
         logging.error(f'Error creating user: {e}')
         send_email('piotrek.gaszczynski@gmail.com', 'User Creation Error', str(e))
-        raise  # Re-raise the exception for further handling if needed
+        raise
     
     
 def send_email(email, subject, body):

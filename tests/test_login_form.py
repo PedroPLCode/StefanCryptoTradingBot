@@ -3,13 +3,18 @@ from app import app
 from app.forms import LoginForm
 from flask_wtf.csrf import generate_csrf
 
+def test_login_form_fields():
+    with app.test_request_context():
+        form = LoginForm()
+        assert 'login' in form
+        assert 'password' in form
+
 @pytest.mark.parametrize("login, password, expected", [
     ("", "", False),  # Both fields are empty
     ("testlogin", "", False),  # Login is filled, password is empty
     ("", "password", False),  # Login is empty, password is filled
     ("testlogin", "password", True)  # Both fields are filled
 ])
-
 def test_login_form(login, password, expected):
     with app.test_request_context():
         app.config['WTF_CSRF_ENABLED'] = True

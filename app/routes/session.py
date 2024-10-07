@@ -1,8 +1,9 @@
+#tests 100% ok
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..forms import LoginForm, RegistrationForm
-from ..models import User, Settings, Buy, Sell
+from ..models import User, Settings
 from sqlalchemy import or_
 from ..utils.app_utils import send_email, create_new_user, get_ip_address
 from .. import db

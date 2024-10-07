@@ -1,3 +1,4 @@
+#testy 100% ok 
 from flask import Flask, render_template, redirect, url_for, flash, request, __version__ as flask_version
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -16,6 +17,9 @@ from datetime import datetime as dt
 import platform
 import sys
 import logging
+import numpy as np
+import pandas as pd
+import pytz
 from datetime import datetime
 from ..models import Settings
 from .. import app, db, login_manager
@@ -27,7 +31,7 @@ def inject_user(user_id):
 
 @app.template_filter('to_datetime')
 def to_datetime(timestamp):
-    return datetime.fromtimestamp(timestamp / 1000.0).strftime('%Y-%m-%d %H:%M:%S')
+    return datetime.fromtimestamp(timestamp / 1000.0, tz=pytz.utc).strftime('%Y-%m-%d %H:%M:%S')
 
 @app.context_processor
 def inject_current_user():
@@ -52,11 +56,11 @@ def inject_user_agent():
     return dict(user_agent=user_agent)
 
 @app.context_processor
-def inhect_system_info():
+def inject_system_info():
     system_name = platform.system()
     system_version = platform.version()
     release = platform.release()
-    return dict(system_info=f'{system_name} {release} ({system_version})')
+    return dict(system_info=f'{system_name} {release} {system_version}')
 
 @app.context_processor
 def inject_python_version():
@@ -66,6 +70,14 @@ def inject_python_version():
 @app.context_processor
 def inject_flask_version():
     return dict(flask_version=flask_version)
+
+@app.context_processor
+def inject_numpy_version():
+    return dict(numpy_version = np.__version__)
+
+@app.context_processor
+def inject_pandas_version():
+    return dict(pandas_version = pd.__version__)
 
 @app.context_processor
 def inject_db_info():
@@ -79,5 +91,6 @@ def make_shell_context():
         "db": db,
         "User": app.models.User,
         "Settings": app.models.Settings,
-        "Trades": app.models.Trades,
+        "Buy": app.models.Buy,
+        "Sell": app.models.Sell,
     }

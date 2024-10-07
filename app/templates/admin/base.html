@@ -92,10 +92,10 @@
             <div class="p-3 card-body text-center">
                 <div class="d-flex flex-column justify-content-center align-items-center">
                     <a href="/" class="btn btn-primary w-100 mb-2">User Panel</a>
-                    {% if user.control_panel_access %}
+                    {% if user and user.control_panel_access %}
                         <a href="/control" class="btn btn-primary w-100 mb-2">Control Panel</a>
-                    {% endif %}
                     <a href="{{ url_for('main.logout') }}" class="btn btn-danger w-100">Logout</a>
+                    {% endif %}
                 </div>
             </div>
         </div>

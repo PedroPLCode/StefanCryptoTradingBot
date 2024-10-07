@@ -23,13 +23,10 @@ class DevelopmentConfig:
     RECAPTCHA_PUBLIC_KEY = os.environ['RECAPTCHA_PUBLIC_KEY']
     RECAPTCHA_PRIVATE_KEY = os.environ['RECAPTCHA_PRIVATE_KEY']
     
-    #BINANCE_API_KEY = 'secret' #os.environ['BINANCE_API_KEY']
-    #BINANCE_API_SECRET = 'secret' #os.environ['BINANCE_API_SECRET']
-    #BINANCE_API_URL = 'https://testnet.binance.vision/api'  # Binance sandbox API
-    
     
 class TestingConfig:
     TESTING = True
+    RECAPTCHA_TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SERVER_NAME = 'localhost:5000'

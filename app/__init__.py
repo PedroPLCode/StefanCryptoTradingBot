@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, flash, request, __version__ as flask_version
+from flask import Flask, Blueprint, render_template, redirect, url_for, flash, request, __version__ as flask_version
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_sqlalchemy import SQLAlchemy
@@ -18,6 +18,12 @@ import platform
 import sys
 import logging
 from datetime import datetime
+
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(levelname)s %(message)s',
+                    filename="stefan.log"
+                    )
+logging.info('StefanCryptoTradingBot starting.')
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -41,6 +47,14 @@ def create_app(config_name=None):
         migrate.init_app(app, db)
         jwt.init_app(app)
         CORS(app)
+        
+        from .models.admin import MyAdmin, MyAdminIndexView, UserAdmin, SettingsAdmin
+        admin = MyAdmin(app, name='StefanCryptoTradingBot', index_view=MyAdminIndexView(), template_mode='bootstrap4')
+        from .models import User, Settings
+        admin.add_view(UserAdmin(User, db.session))
+        admin.add_view(SettingsAdmin(Settings, db.session))
+        
+        main = Blueprint('main', __name__)
 
         logging.info('Flask app initialized successfully.')
         
@@ -48,17 +62,11 @@ def create_app(config_name=None):
         logging.error(f'Error initializing Flask app: {e}')
         from .utils.app_utils import send_email
         send_email('piotrek.gaszczynski@gmail.com', 'App Initialization Error', str(e))
-        raise  # Re-raise the exception for further handling if needed
-
+        raise
+    
     return app
 
 app = create_app()
-
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(levelname)s %(message)s',
-                    filename="stefan.log"
-                    )
-logging.info('StefanCryptoTradingBot starting.')
 
 limiter = Limiter(
         get_remote_address,
@@ -105,17 +113,3 @@ with app.app_context():
 
 from .routes import main
 app.register_blueprint(main)
-
-from .models.admin import MyAdmin, MyAdminIndexView, UserAdmin, SettingsAdmin, BuyAdmin, SellAdmin
-admin = MyAdmin(app, name='StefanCryptoTradingBot', index_view=MyAdminIndexView(), template_mode='bootstrap4')
-from .models import User, Settings, Buy, Sell
-admin.add_view(UserAdmin(User, db.session))
-admin.add_view(SettingsAdmin(Settings, db.session))
-admin.add_view(BuyAdmin(Buy, db.session))
-admin.add_view(SellAdmin(Sell, db.session))
-
-#def start_stefan():
-#    logging.info('Starting Stefan.')
-#    with app.app_context():    
-#        from .stefan import stefan
-#start_stefan()

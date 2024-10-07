@@ -30,7 +30,7 @@
 
         <div class="col-12 col-md-6 card mt-3 mb-3">
             <div class="card-header text-center bg-light">
-                <h5>BTC Ticker Information</h5>
+                <h5>BTC Current Info</h5>
             </div>
             <div class="card-body text-center">
                 {% if data is not none %}
@@ -60,7 +60,7 @@
 
         <div class="col-12 col-md-6 card mb-3">
             <div class="card-header text-center bg-light">
-                <h5>Bot Control</h5>
+                <h5>Bot Control Panel</h5>
             </div>
             <div class="card-body text-center">
 
@@ -83,11 +83,11 @@
                 <div class="mt-2 d-flex flex-column justify-content-center align-items-center gap-2">
 
                     {% if bot_settings.bot_running %}
-                        <a href="" class="btn btn-light w-100">Bot Started</a>
+                        <a href="" class="btn btn-light w-100">Bot is running</a>
                         <a href="{{ url_for('main.stop_bot') }}" class="btn btn-danger w-100">Stop Bot</a>
                     {% else %}
                         <a href="{{ url_for('main.start_bot') }}" class="btn btn-success w-100">Start Bot</a>
-                        <a href="" class="btn btn-light w-100">Bot Stopped</a>
+                        <a href="" class="btn btn-light w-100">Bot is stopped</a>
                     {% endif %}
 
                     <a href="{{ url_for('main.refresh') }}" class="btn btn-primary w-100">Refresh</a>

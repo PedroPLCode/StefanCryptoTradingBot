@@ -1,59 +1,80 @@
 import pytest
-from flask import Flask, get_flashed_messages
-from flask_login import LoginManager
-from app import create_app, db, inject_date_and_time, inject_user_agent, inhect_system_info, inject_python_version, inject_flask_version, inject_db_info
+from flask import  __version__ as flask_version
+from datetime import datetime as dt
+from flask_login import current_user
+import platform
+import sys
+import pytz
+import numpy as np
+import pandas as pd
+import platform
+from app import app, create_app, db, login_manager
+from app.models import User, Settings
+from app.routes.context_processors import (to_datetime, inject_current_user, inject_date_and_time, inject_bot_settings, 
+                                           inject_user_agent, inject_system_info, inject_python_version, 
+                                           inject_flask_version, inject_numpy_version, inject_pandas_version, 
+                                           inject_db_info)
 
 @pytest.fixture
-def app():
+def client():
     app = create_app('testing')
-    with app.app_context():
-        db.create_all()
-        yield app
-        db.drop_all()
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['TESTING'] = True
+    app.config['WTF_CSRF_ENABLED'] = False
+    with app.test_client() as client:
+        with app.test_request_context():
+            yield app
 
-@pytest.fixture
-def client(app):
-    return app.test_client()
-
-def test_inject_date_and_time(app):
+def test_inject_date_and_time():
     with app.test_request_context():
-        context = app.context_processor(inject_date_and_time)()
-        assert 'date_and_time' in context
+        date_and_time_real = dt.utcnow()
+        current_time = inject_date_and_time()['date_and_time']
+        current_time_dt = dt.strptime(str(current_time), '%Y-%m-%d %H:%M:%S.%f')
+        assert abs((current_time_dt - date_and_time_real).total_seconds()) < 1
 
-def test_inject_user_agent(app):
-    with app.test_request_context(headers={'User-Agent': 'test-agent'}):
-        context = app.context_processor(inject_user_agent)()
-        assert context['user_agent'] == 'test-agent'
-
-def test_inject_system_info(app):
+def test_inject_bot_settings():
     with app.test_request_context():
-        context = app.context_processor(inhect_system_info)()
-        assert 'system_info' in context
+        settings_real = Settings.query.first()
+        settings_test = inject_bot_settings()['bot_settings']
+        assert settings_real == settings_test
 
-def test_inject_python_version(app):
+def test_inject_system_info():
     with app.test_request_context():
-        context = app.context_processor(inject_python_version)()
-        assert 'python_version' in context
+        system_name = platform.system()
+        system_version = platform.version()
+        release = platform.release()
+        system_info_real = f'{system_name} {release} {system_version}'
+        system_info_test = inject_system_info()['system_info']
+        assert system_info_test == system_info_real
 
-def test_inject_flask_version(app):
+def test_inject_python_version():
     with app.test_request_context():
-        context = app.context_processor(inject_flask_version)()
-        assert 'flask_version' in context
+        python_version_real = sys.version
+        python_version_test = inject_python_version()['python_version']
+        assert python_version_real == python_version_test
 
-def test_inject_db_info(app):
+def test_inject_flask_version():
     with app.test_request_context():
-        context = app.context_processor(inject_db_info)()
-        assert 'db_engine' in context
+        flask_version_real=flask_version
+        flask_version_test = inject_flask_version()['flask_version']
+        assert flask_version_real == flask_version_test
 
-def test_errorhandler_404(test_client):
-    response = test_client.get('/non-existent-url', follow_redirects=True)  # No need to follow redirects
-    assert response.status_code == 302  # Expect a redirect
+def test_inject_numpy_version():
+    with app.test_request_context():
+        numpy_version_real = np.__version__
+        numpy_version_test = inject_numpy_version()['numpy_version']
+        assert numpy_version_real == numpy_version_test
 
-    # Follow the redirect to the login page and check the response
-    follow_response = test_client.get(response.headers['Location'])
-    assert follow_response.status_code == 200  # Ensure the login page is rendered
+def test_inject_pandas_version():
+    with app.test_request_context():
+        pandas_version_real = pd.__version__
+        pandas_version_test = inject_pandas_version()['pandas_version']
+        assert pandas_version_real == pandas_version_test
 
-    # Check for flash messages
-    messages = get_flashed_messages()
-    assert messages is not None
-    assert '404 Not Found' in messages[0]  # Check that the error message was flashed
+def test_inject_db_info():
+    with app.test_request_context():
+        engine = db.get_engine()
+        db_dialect = engine.dialect.name
+        db_engine_real=db_dialect
+        db_engine_test = inject_db_info()['db_engine']
+        assert db_engine_real == db_engine_test

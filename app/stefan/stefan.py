@@ -1,3 +1,4 @@
+#TESTS NEEDED
 import time
 from flask import current_app
 import numpy as np
@@ -9,12 +10,11 @@ from ..utils.app_utils import send_email
 from .. import db
 from ..models import Settings
 
-# Initial Configuration
 symbol = 'BTCUSDT'
-stop_loss_pct = 0.005  # 0.5% stop-loss for scalping
-trailing_stop_pct = 0.01  # 1% trailing stop
-take_profit_pct = 0.01  # 1% take profit for scalping
-lookback_days = '30 days'  # Length of historical data
+stop_loss_pct = 0.005
+trailing_stop_pct = 0.01
+take_profit_pct = 0.01
+lookback_days = '30 days'
 
 def calculate_indicators(df):
     """Calculate technical indicators for the given DataFrame."""
@@ -29,8 +29,8 @@ def calculate_indicators(df):
     df['macd'] = df['ema_12'] - df['ema_26']
     df['macd_signal'] = df['macd'].ewm(span=9, adjust=False).mean()
 
-    df['sma_5'] = df['close'].rolling(window=5).mean()  # Short-term SMA
-    df['sma_15'] = df['close'].rolling(window=15).mean()  # Medium-term SMA
+    df['sma_5'] = df['close'].rolling(window=5).mean()
+    df['sma_15'] = df['close'].rolling(window=15).mean()
 
     df['sma'] = df['close'].rolling(window=20).mean()
     df['std'] = df['close'].rolling(window=20).std()

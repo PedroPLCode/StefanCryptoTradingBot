@@ -1,3 +1,4 @@
+#tests 100% ok
 from flask import Flask, render_template, redirect, url_for, flash, request, __version__ as flask_version
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address

@@ -1,3 +1,4 @@
+#tests 100% ok
 from flask import Flask, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
@@ -45,13 +46,3 @@ class UserAdmin(AdminModelView):
 
 class SettingsAdmin(AdminModelView):
     column_list = ('id', 'bot_running', 'symbol', 'stop_loss_pct', 'trailing_stop_pct', 'take_profit_pct', 'lookback_days')
-
-
-class BuyAdmin(AdminModelView):
-    column_list = ('id', 'time', 'amount', 'price')
-    column_filters = ('time', 'amount', 'price')
-    
-    
-class SellAdmin(AdminModelView):
-    column_list = ('id', 'time', 'amount', 'price')
-    column_filters = ('time', 'amount', 'price')

@@ -1,8 +1,9 @@
+#tests 100% ok 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..forms import LoginForm, RegistrationForm
-from ..models import User, Settings, Buy, Sell
+from ..models import User, Settings
 from .. import db, app
 import logging
 from datetime import datetime as dt
@@ -36,7 +37,7 @@ def start_bot():
         return redirect(url_for('main.control_panel_view'))
     
     except Exception as e:
-        db.session.rollback()  # Roll back in case of any DB error
+        db.session.rollback()
         logging.error(f'Error starting bot: {e}')
         send_email('piotrek.gaszczynski@gmail.com', 'Error starting bot', str(e))
         flash('An error occurred while starting the bot. The admin has been notified.', 'danger')
@@ -69,7 +70,7 @@ def stop_bot():
         return redirect(url_for('main.control_panel_view'))
     
     except Exception as e:
-        db.session.rollback()  # Roll back in case of any DB error
+        db.session.rollback()
         logging.error(f'Error stopping bot: {e}')
         send_email('piotrek.gaszczynski@gmail.com', 'Error stopping bot', str(e))
         flash('An error occurred while stopping the bot. The admin has been notified.', 'danger')

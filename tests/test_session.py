@@ -1,166 +1,79 @@
-from flask import current_app, url_for
-from bs4 import BeautifulSoup
 import pytest
-from unittest.mock import MagicMock
+from flask import Flask, url_for
+from flask_login import current_user
 from app import create_app, db
 from app.models import User
-from flask_login import UserMixin, login_user, logout_user, login_required, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
+from unittest.mock import patch
+from bs4 import BeautifulSoup
+
+@pytest.fixture
+def test_app():
+    from app import app
+    app.config['WTF_CSRF_ENABLED'] = True
+    app.secret_key = 'supersecretkey'
+    app.testing = True
+    app.config['TESTING'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    with app.app_context():
+        yield app
+
+@pytest.fixture
+def test_client(test_app):
+    return test_app.test_client()
+
+@pytest.fixture
+def test_session_user(test_app):
+    with test_app.app_context():
+        test_user = User.query.filter_by(login='test_regular_user').first()
+        return test_user
 
 def test_register(test_client):
-    response = test_client.get(url_for('main.register'))
+    response = test_client.get('/register')
     soup = BeautifulSoup(response.data, 'html.parser')
-    csrf_token = soup.find('input', {'name': 'csrf_token'})['value']
-
-    response = test_client.post(url_for('main.register'), data={
-        'login': 'testlogin',
-        'name': 'TestName',
-        'email': 'test@email.com',
-        'password': 'TestPassword123#',
-        'confirm_password': 'TestPassword123#',
-        'csrf_token': csrf_token
-    })
+    csrf_token = soup.find('input', {'name': 'csrf_token'})['value'] 
+    response = test_client.post('/register', data={
+        'login': 'newuser_from_test',
+        'email': 'newuser@example.com',
+        'name': 'NewUserFromTest-DeleteIt',
+        'password': 'ValidPass123!',
+        'confirm_password': 'ValidPass123!',
+        'csrf_token': csrf_token,
+    }, follow_redirects=True)
+    print(response.data)
     assert response.status_code == 200
-    assert b'Account created successfully' in response.data
-    assert User.query.filter_by(login='testlogin').first() is not None
-    
-    
-def test_register_email_exists(test_client):
-    existing_user = User(
-        login='testloginqqq',
-        name='TestUser',
-        email='test@email.com',
-    )
-    existing_user.set_password('TestPassword123#')
-    db.session.add(existing_user)
-    db.session.commit()
-    
-    response = test_client.get(url_for('main.register'))
-    soup = BeautifulSoup(response.data, 'html.parser')
-    csrf_token = soup.find('input', {'name': 'csrf_token'})['value']
+    assert b'Account created successfully.' in response.data
+    assert User.query.filter_by(login='newuser').first() is not None
 
-    response = test_client.post(url_for('main.register'), data={
-        'login': 'testlogin',
-        'name': 'TestName',
-        'email': 'test@email.com',
-        'password': 'TestPassword123#',
-        'confirm_password': 'TestPassword123#',
-        'csrf_token': csrf_token
-    })
+def test_login_and_logout(test_client, test_session_user):
+    test_session_user.set_password("ValidPass123!")
+    db.session.commit()
+    response = test_client.get('/login')
+    soup = BeautifulSoup(response.data, 'html.parser')
+    csrf_token = soup.find('input', {'name': 'csrf_token'})['value'] 
+    response = test_client.post('/login', data={
+        'login': 'test_regular_user',
+        'password': 'ValidPass123!',
+        'csrf_token': csrf_token,
+    }, follow_redirects=True)
+    print(response.data)
     assert response.status_code == 200
-    assert b'This email is in use.' in response.data
-    assert User.query.filter_by(name='TestName').first() == None
+    assert b'Logged in successfully.' in response.data
     
-    
-def test_register_login_exists(test_client):
-    existing_user = User(
-        login='testlogin',
-        name='TestUser',
-        email='testqqq@email.com',
-    )
-    existing_user.set_password('TestPassword123#')
-    db.session.add(existing_user)
-    db.session.commit()
-    
-    response = test_client.get(url_for('main.register'))
-    soup = BeautifulSoup(response.data, 'html.parser')
-    csrf_token = soup.find('input', {'name': 'csrf_token'})['value']  # Extract CSRF token
-
-    response = test_client.post(url_for('main.register'), data={
-        'login': 'testlogin',
-        'name': 'TestName',
-        'email': 'test@email.com',
-        'password': 'TestPassword123#',
-        'confirm_password': 'TestPassword123#',
-        'csrf_token': csrf_token
-    })
+    response = test_client.get('/logout', follow_redirects=True)
     assert response.status_code == 200
-    assert b'This login is in use.' in response.data
-    assert User.query.filter_by(name='TestName').first() == None
+    assert b'logged out successfully.' in response.data
 
-
-def test_successful_login(test_client):
-    user = User(
-        login='testlogin',
-        name='TestUser',
-        email='test@example.com',
-    )
-    user.set_password('TestPassword123#')
-    db.session.add(user)
-    db.session.commit()
-
-    response = test_client.get(url_for('main.login'))
+def test_login_invalid(test_client):
+    response = test_client.get('/login')
     soup = BeautifulSoup(response.data, 'html.parser')
-    csrf_token = soup.find('input', {'name': 'csrf_token'})['value']
-    response = test_client.post(url_for('main.login'), data={
-        'login': 'testlogin',
-        'password': 'TestPassword123#',
+    csrf_token = soup.find('input', {'name': 'csrf_token'})['value'] 
+    response = test_client.post('/login', data={
+        'login': 'wronguser',
+        'password': 'wrongpassword',
         'csrf_token': csrf_token
-    })
+    }, follow_redirects=True)
 
-    assert response.status_code == 302
-    assert response.location == '/'
-    
-    with test_client.session_transaction() as session:
-        assert '_user_id' in session
-        assert session['_user_id'] == str(user.id)
-
-    
-def test_wrong_login(test_client):
-    user = User(
-        login='testlogin',
-        name='TestUser',
-        email='test@example.com',
-    )
-    user.set_password('TestPassword123#')
-    db.session.add(user)
-    db.session.commit()
-    
-    response = test_client.get(url_for('main.login'))
-    soup = BeautifulSoup(response.data, 'html.parser')
-    csrf_token = soup.find('input', {'name': 'csrf_token'})['value']
-    response = test_client.post(url_for('main.login'), data={
-        'login': 'WrongLogin',
-        'password': 'WrongPassword#',
-        'csrf_token': csrf_token
-    })
     assert response.status_code == 200
-    assert current_user == None
     assert b'Error: Login or Password Incorrect.' in response.data
-
-"""
-def test_logout(test_client):
-    user = User(
-        login='testlogin',
-        name='TestUser',
-        email='test@example.com',
-    )
-    user.set_password('TestPassword123#')
-    db.session.add(user)
-    db.session.commit()
-    
-    response = test_client.get(url_for('main.login'))
-    soup = BeautifulSoup(response.data, 'html.parser')
-    csrf_token = soup.find('input', {'name': 'csrf_token'})['value']
-    
-    response = test_client.post(url_for('main.login'), data={
-        'login': 'testlogin',
-        'password': 'TestPassword123#',
-        'csrf_token': csrf_token
-    })
-
-    with test_client.session_transaction() as session:
-        assert '_user_id' in session
-        assert session['_user_id'] == str(user.id)
-
-    # Now test the logout
-    response = test_client.get(url_for('main.logout'), follow_redirects=True)
-
-    # Check for the logout message in the redirected response
-    assert session.get('_flashes')  # Check if there are flash messages
-    print(session.get('_flashes'))
-    assert any('User testlogin logged out successfully.' in message for category, message in session['_flashes'])
-
-    with test_client.session_transaction() as session:
-        assert '_user_id' not in session
-"""

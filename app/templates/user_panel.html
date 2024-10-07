@@ -43,7 +43,7 @@
 
                 {% if account_status is not none %}
                 <p class="text-muted m-0 p-0">Binance API canTrade: {{ account_status.canTrade }} </p>
-                <p class="text-muted m-0 p-0">Binance API AcanWithdraw: {{ account_status.canWithdraw }} </p>
+                <p class="text-muted m-0 p-0">Binance API canWithdraw: {{ account_status.canWithdraw }} </p>
                 <p class="text-muted m-0 p-0">Binance API canDeposit: {{ account_status.canDeposit }} </p>
                 {% else %}
                     error
@@ -64,6 +64,7 @@
                 </h5>
             </div>
             <div class="card-body text-center">
+                <p class="text-muted m-0 p-0">StefanCryptoTradingBot version: 0.9</p>
                 {% if user.control_panel_access %}
                     <p class="text-muted m-0 p-0">Binance API Status:
                         {% if binance_status is not none %}
@@ -82,6 +83,8 @@
                     <p class="text-muted m-0 p-0">System: {{ system_info }}</p>
                     <p class="text-muted m-0 p-0">Python: {{ python_version }}</p>
                     <p class="text-muted m-0 p-0">Flask: {{ flask_version }}</p>
+                    <p class="text-muted m-0 p-0">Numpy: {{ numpy_version }}</p>
+                    <p class="text-muted m-0 p-0">Pandas: {{ pandas_version }}</p>
                     <p class="text-muted m-0 p-0">Database: {{ db_engine }}</p>
                 {% else %}
                     <p class="text-muted m-0 p-0">You have no permission to visit other pages.</p>
