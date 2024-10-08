@@ -1,140 +1,202 @@
-#TESTS NEEDED
+# poprawić machine learning - zeby sie uczyl i to wykozystywał
+# TESTS NEEDED
 import time
-from flask import current_app
 import numpy as np
 import pandas as pd
 import logging
 from binance.client import Client
-from ..utils.api_utils import fetch_data, place_order, get_account_balance
+import talib
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
+import joblib
+from keras.models import Sequential
+from keras.layers import LSTM, Dense, Dropout
+from ..utils.api_utils import fetch_data, place_order
 from ..utils.app_utils import send_email
 from .. import db
 from ..utils.logging import logger
 from ..models import Settings
 
 symbol = 'BTCUSDT'
-stop_loss_pct = 0.005
+stop_loss_pct = 0.02
 trailing_stop_pct = 0.01
-take_profit_pct = 0.01
+take_profit_pct = 0.03
 lookback_days = '30 days'
 
+def create_lstm_model(input_shape):
+    model = Sequential()
+    model.add(LSTM(50, return_sequences=True, input_shape=input_shape))
+    model.add(Dropout(0.2))
+    model.add(LSTM(50))
+    model.add(Dropout(0.2))
+    model.add(Dense(1, activation='sigmoid'))
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    return model
+
+def train_lstm_model(X, y):
+    model = create_lstm_model((X.shape[1], 1))
+    model.fit(X, y, epochs=50, batch_size=32)
+    return model
+
 def calculate_indicators(df):
-    """Calculate technical indicators for the given DataFrame."""
-    delta = df['close'].diff(1)
-    gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-    rs = gain / loss
-    df['rsi'] = 100 - (100 / (1 + rs))
+    try:
+        df['rsi'] = talib.RSI(df['close'], timeperiod=14)
+        df['macd'], df['macd_signal'], _ = talib.MACD(df['close'], fastperiod=12, slowperiod=26, signalperiod=9)
+        df['upper_band'], df['middle_band'], df['lower_band'] = talib.BBANDS(
+            df['close'], timeperiod=20, nbdevup=2, nbdevdn=2, matype=0)
+        df['sma'] = talib.SMA(df['close'], timeperiod=50)
+        df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=14)
+        df['stoch'] = talib.STOCHF(df['high'], df['low'], df['close'], fastk_period=14)[0]
+        df.dropna(inplace=True)
+    except Exception as e:
+        logger.error(f'Błąd podczas obliczania wskaźników: {str(e)}')
 
-    df['ema_12'] = df['close'].ewm(span=12, adjust=False).mean()
-    df['ema_26'] = df['close'].ewm(span=26, adjust=False).mean()
-    df['macd'] = df['ema_12'] - df['ema_26']
-    df['macd_signal'] = df['macd'].ewm(span=9, adjust=False).mean()
+def prepare_data(df):
+    try:
+        features = df[['rsi', 'macd', 'macd_signal', 'upper_band',
+                       'middle_band', 'lower_band', 'sma', 'atr', 'stoch']]
+        target = (df['close'].shift(-1) > df['close']).astype(int)
+        return features[:-1], target[:-1]
+    except KeyError as e:
+        logger.error(f'Brak danych w DataFrame: {str(e)}')
+        return None, None
 
-    df['sma_5'] = df['close'].rolling(window=5).mean()
-    df['sma_15'] = df['close'].rolling(window=15).mean()
+def train_model(df):
+    X, y = prepare_data(df)
+    if X is None or y is None:
+        return None, None
+    
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test)
 
-    df['sma'] = df['close'].rolling(window=20).mean()
-    df['std'] = df['close'].rolling(window=20).std()
-    df['upper_band'] = df['sma'] + (df['std'] * 2)
-    df['lower_band'] = df['sma'] - (df['std'] * 2)
+    model = GradientBoostingClassifier()
+    param_grid = {
+        'n_estimators': [100, 200],
+        'learning_rate': [0.01, 0.1],
+        'max_depth': [3, 5, 7],
+    }
+    grid_search = GridSearchCV(model, param_grid, cv=3)
+    grid_search.fit(X_train, y_train)
 
-    df['high_low'] = df['high'] - df['low']
-    df['high_close'] = (df['high'] - df['close'].shift()).abs()
-    df['low_close'] = (df['low'] - df['close'].shift()).abs()
-    df['tr'] = df[['high_low', 'high_close', 'low_close']].max(axis=1)
-    df['atr'] = df['tr'].rolling(window=14).mean()
+    best_model = grid_search.best_estimator_
+    logger.trade(f'Najlepsze parametry modelu: {grid_search.best_params_}')
+    logger.trade(f'Skuteczność modelu: {best_model.score(X_test, y_test)}')
 
-    lowest_low = df['low'].rolling(window=14).min()
-    highest_high = df['high'].rolling(window=14).max()
-    df['stoch'] = 100 * ((df['close'] - lowest_low) / (highest_high - lowest_low))
+    joblib.dump(best_model, 'model.pkl')
+    joblib.dump(scaler, 'scaler.pkl')
 
-    df.dropna(inplace=True)
+    return best_model, scaler
 
-def check_signals(df):
-    """Check for trading signals based on RSI and SMAs."""
-    latest_data = df.iloc[-1]
-    if latest_data['rsi'] < 30 and latest_data['sma_5'] > latest_data['sma_15']:
-        return 'buy'
-    elif latest_data['rsi'] > 70 and latest_data['sma_5'] < latest_data['sma_15']:
-        return 'sell'
-    return None
+def load_model():
+    try:
+        model = joblib.load('model.pkl')
+        scaler = joblib.load('scaler.pkl')
+        logger.trade("Załadowano istniejący model i scaler.")
+    except FileNotFoundError:
+        logger.trade("Nie znaleziono modelu ani scalera. Tworzę nowy.")
+        scaler = StandardScaler()
+        model = LinearRegression()
+        X_train, y_train = load_initial_training_data()
+        scaler.fit(X_train)
+        model.fit(X_train, y_train)
+        joblib.dump(model, 'model.pkl')
+        joblib.dump(scaler, 'scaler.pkl')
+        logger.trade("Stworzono i zapisano nowy model i scaler.")
+    return model, scaler
+
+def load_initial_training_data():
+    X_train = np.random.rand(100, 10)
+    y_train = np.random.rand(100)
+    return X_train, y_train
+
+def check_signals(df, model, scaler):
+    if model is None or scaler is None:
+        logger.error("Model lub scaler nie jest załadowany. Nie można sprawdzić sygnałów.")
+        return None
+    try:
+        latest_data = df.iloc[-1][['rsi', 'macd', 'macd_signal', 'upper_band',
+                                   'middle_band', 'lower_band', 'sma', 'atr', 'stoch']].values.reshape(1, -1)
+        latest_data_scaled = scaler.transform(latest_data)
+        prediction = model.predict(latest_data_scaled)[0]
+        return 'buy' if prediction == 1 else 'sell' if prediction == 0 else None
+    except Exception as e:
+        logger.error(f'Błąd przy sprawdzaniu sygnałów: {str(e)}')
+        return None
 
 def update_trailing_stop_loss(current_price, trailing_stop_price, atr):
-    """Update the trailing stop loss price based on current price and ATR."""
     return max(trailing_stop_price, current_price * (1 - (trailing_stop_pct * (atr / current_price))))
 
 def backtest_strategy(df):
-    """Backtest the strategy based on historical data."""
-    df['signal'] = np.where(df['close'].shift(-1) > df['close'], 1, 0)
-    df['strategy_returns'] = df['signal'].shift(1) * (df['close'].pct_change())
-    df['cumulative_strategy_returns'] = (1 + df['strategy_returns']).cumprod()
-    return df
-
-def run_trading_logic():
-    trailing_stop_price = None
-    take_profit_price = None
-    stop_loss_price = None
-    
     try:
-        with current_app.app_context():
-            settings = Settings.query.first()
-            if settings:
-                symbol = settings.symbol
-                stop_loss_pct = settings.stop_loss_pct
-                trailing_stop_pct = settings.trailing_stop_pct
-                take_profit_pct = settings.take_profit_pct
-                lookback_days = settings.lookback_days
+        df['signal'] = np.where(df['close'].shift(-1) > df['close'], 1, 0)
+        df['strategy_returns'] = df['signal'].shift(1) * (df['close'].pct_change())
+        df['cumulative_strategy_returns'] = (1 + df['strategy_returns']).cumprod()
+        return df
+    except Exception as e:
+        logger.error(f'Błąd w trakcie backtestingu: {str(e)}')
+        return df
 
-                if not settings.bot_running:
-                    return
+def generate_report(current_price, profit_loss, cumulative_returns):
+    report = f"""
+    Raport Tradingu:
+    Aktualna cena: {current_price}
+    Zysk/Strata: {profit_loss}
+    Skumulowane zwroty strategii: {cumulative_returns}
+    """
+    logger.trade(report)
 
-            df = fetch_data(symbol, lookback=lookback_days)
-            calculate_indicators(df)
+trailing_stop_price = None
+take_profit_price = None
+model, scaler = load_model()
 
-            df_backtest = backtest_strategy(df)
-            logger.trade(f"Cumulative Strategy Returns: {df_backtest['cumulative_strategy_returns'].iloc[-1]}")
+while True:
+    try:
+        settings = Settings.query.first()
+        if settings:
+            symbol = settings.symbol
+            stop_loss_pct = settings.stop_loss_pct
+            trailing_stop_pct = settings.trailing_stop_pct
+            take_profit_pct = settings.take_profit_pct
+            lookback_days = settings.lookback_days
 
-            signal = check_signals(df)
-            current_price = df['close'].iloc[-1]
-            atr = df['atr'].iloc[-1]
+            if not settings.bot_running:
+                time.sleep(60)
+                continue
 
-            account_balance = get_account_balance()
-            amount = account_balance['USDC']
+        df = fetch_data(symbol='BTCUSDT', interval='1h', lookback='30 days')
+        if df.empty:
+            logger.error("Nie udało się pobrać danych z Binance.")
+        else:
+            logger.info(f"Pobrano dane dla {symbol}")
 
-            if signal == 'buy':
-                amount_to_buy = amount / current_price
-                place_order(symbol, 'buy', amount_to_buy)
-                logger.trade(f'Bought {amount_to_buy} BTC')
-                trailing_stop_price = current_price * (1 - trailing_stop_pct)
-                take_profit_price = current_price * (1 + take_profit_pct)
-                stop_loss_price = current_price * (1 - stop_loss_pct)
+        calculate_indicators(df)
+        signal = check_signals(df, model, scaler)
+        current_price = df['close'].iloc[-1]
 
-            elif signal == 'sell' and trailing_stop_price is not None:
-                amount_to_sell = amount / current_price
-                place_order(symbol, 'sell', amount_to_sell)
-                logger.trade(f'Sold {amount_to_sell} BTC')
-                trailing_stop_price = None
-                take_profit_price = None
-                stop_loss_price = None
+        if signal == 'buy':
+            logger.trade(f"Sygnał kupna przy cenie: {current_price}")
+            trailing_stop_price = current_price * (1 - trailing_stop_pct)
+            place_order('BTCUSDT', 'buy')
 
-            if stop_loss_price is not None and current_price <= stop_loss_price:
-                amount_to_sell = amount / current_price
-                place_order(symbol, 'sell', amount_to_sell)
-                logger.trade(f'Stop Loss triggered: Sold {amount_to_sell} BTC at {current_price}')
-                stop_loss_price = None 
-                take_profit_price = None 
+        elif signal == 'sell':
+            logger.trade(f"Sygnał sprzedaży przy cenie: {current_price}")
+            place_order('BTCUSDT', 'sell')
 
-            if take_profit_price is not None and current_price >= take_profit_price:
-                amount_to_sell = amount / current_price
-                place_order(symbol, 'sell', amount_to_sell)
-                logger.trade(f'Take Profit triggered: Sold {amount_to_sell} BTC at {current_price}')
-                take_profit_price = None
-                stop_loss_price = None
+        if trailing_stop_price:
+            trailing_stop_price = update_trailing_stop_loss(current_price, trailing_stop_price, df['atr'].iloc[-1])
+            logger.trade(f"Nowa cena trailing stop loss: {trailing_stop_price}")
 
-            if trailing_stop_price is not None:
-                trailing_stop_price = update_trailing_stop_loss(current_price, trailing_stop_price, atr)
+        profit_loss = (current_price - trailing_stop_price) if trailing_stop_price else 0
+        df = backtest_strategy(df)
+        cumulative_returns = df['cumulative_strategy_returns'].iloc[-1]
+        generate_report(current_price, profit_loss, cumulative_returns)
+
+        time.sleep(60)
 
     except Exception as e:
-        with current_app.app_context():
-            logger.error(f"An error occurred: {e}", exc_info=True)
-            send_email('piotrek.gaszczynski@gmail.com', 'Trading Bot Error', f'An error occurred: {e}')
+        logger.error(f'Błąd w pętli głównej: {str(e)}')
+        time.sleep(60)
