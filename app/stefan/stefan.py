@@ -8,6 +8,7 @@ from binance.client import Client
 from ..utils.api_utils import fetch_data, place_order, get_account_balance
 from ..utils.app_utils import send_email
 from .. import db
+from ..utils.logging import logger
 from ..models import Settings
 
 symbol = 'BTCUSDT'
@@ -91,7 +92,7 @@ def run_trading_logic():
             calculate_indicators(df)
 
             df_backtest = backtest_strategy(df)
-            logging.info(f"Cumulative Strategy Returns: {df_backtest['cumulative_strategy_returns'].iloc[-1]}")
+            logger.trade(f"Cumulative Strategy Returns: {df_backtest['cumulative_strategy_returns'].iloc[-1]}")
 
             signal = check_signals(df)
             current_price = df['close'].iloc[-1]
@@ -103,7 +104,7 @@ def run_trading_logic():
             if signal == 'buy':
                 amount_to_buy = amount / current_price
                 place_order(symbol, 'buy', amount_to_buy)
-                logging.info(f'Bought {amount_to_buy} BTC')
+                logger.trade(f'Bought {amount_to_buy} BTC')
                 trailing_stop_price = current_price * (1 - trailing_stop_pct)
                 take_profit_price = current_price * (1 + take_profit_pct)
                 stop_loss_price = current_price * (1 - stop_loss_pct)
@@ -111,7 +112,7 @@ def run_trading_logic():
             elif signal == 'sell' and trailing_stop_price is not None:
                 amount_to_sell = amount / current_price
                 place_order(symbol, 'sell', amount_to_sell)
-                logging.info(f'Sold {amount_to_sell} BTC')
+                logger.trade(f'Sold {amount_to_sell} BTC')
                 trailing_stop_price = None
                 take_profit_price = None
                 stop_loss_price = None
@@ -119,14 +120,14 @@ def run_trading_logic():
             if stop_loss_price is not None and current_price <= stop_loss_price:
                 amount_to_sell = amount / current_price
                 place_order(symbol, 'sell', amount_to_sell)
-                logging.info(f'Stop Loss triggered: Sold {amount_to_sell} BTC at {current_price}')
+                logger.trade(f'Stop Loss triggered: Sold {amount_to_sell} BTC at {current_price}')
                 stop_loss_price = None 
                 take_profit_price = None 
 
             if take_profit_price is not None and current_price >= take_profit_price:
                 amount_to_sell = amount / current_price
                 place_order(symbol, 'sell', amount_to_sell)
-                logging.info(f'Take Profit triggered: Sold {amount_to_sell} BTC at {current_price}')
+                logger.trade(f'Take Profit triggered: Sold {amount_to_sell} BTC at {current_price}')
                 take_profit_price = None
                 stop_loss_price = None
 
@@ -135,5 +136,5 @@ def run_trading_logic():
 
     except Exception as e:
         with current_app.app_context():
-            logging.error(f"An error occurred: {e}", exc_info=True)
+            logger.error(f"An error occurred: {e}", exc_info=True)
             send_email('piotrek.gaszczynski@gmail.com', 'Trading Bot Error', f'An error occurred: {e}')

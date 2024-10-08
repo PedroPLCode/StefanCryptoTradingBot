@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from ..forms import LoginForm, RegistrationForm
 from ..models import User, Settings
 from .. import db, app
+from ..utils.logging import logger
 import logging
 from datetime import datetime as dt
 from ..utils.api_utils import fetch_data
@@ -15,7 +16,7 @@ from . import main
 @login_required
 def start_bot():
     if not current_user.control_panel_access:
-        logging.warning(f'{current_user.login} tried to control Bot without permission.')
+        logger.warning(f'{current_user.login} tried to control Bot without permission.')
         flash(f'Error. User {current_user.login} is not allowed to control Bot.', 'danger')
         return redirect(url_for('main.user_panel_view'))
     
@@ -38,7 +39,7 @@ def start_bot():
     
     except Exception as e:
         db.session.rollback()
-        logging.error(f'Error starting bot: {e}')
+        logger.error(f'Error starting bot: {e}')
         send_email('piotrek.gaszczynski@gmail.com', 'Error starting bot', str(e))
         flash('An error occurred while starting the bot. The admin has been notified.', 'danger')
         return redirect(url_for('main.control_panel_view'))
@@ -48,7 +49,7 @@ def start_bot():
 @login_required
 def stop_bot():
     if not current_user.control_panel_access:
-        logging.warning(f'{current_user.login} tried to control Bot without permission.')
+        logger.warning(f'{current_user.login} tried to control Bot without permission.')
         flash(f'Error. User {current_user.login} is not allowed to control Bot.', 'danger')
         return redirect(url_for('main.user_panel_view'))
     
@@ -71,7 +72,7 @@ def stop_bot():
     
     except Exception as e:
         db.session.rollback()
-        logging.error(f'Error stopping bot: {e}')
+        logger.error(f'Error stopping bot: {e}')
         send_email('piotrek.gaszczynski@gmail.com', 'Error stopping bot', str(e))
         flash('An error occurred while stopping the bot. The admin has been notified.', 'danger')
         return redirect(url_for('main.control_panel_view'))
@@ -81,7 +82,7 @@ def stop_bot():
 @login_required
 def refresh():
     if not current_user.control_panel_access:
-        logging.warning(f'{current_user.login} tried to control Bot without permission.')
+        logger.warning(f'{current_user.login} tried to control Bot without permission.')
         flash(f'Error. User {current_user.login} is not allowed to control Bot.', 'danger')
         return redirect(url_for('main.user_panel_view'))
     
@@ -90,7 +91,7 @@ def refresh():
         return redirect(url_for('main.control_panel_view'))
 
     except Exception as e:
-        logging.error(f'Error refreshing Binance API: {e}')
+        logger.error(f'Error refreshing Binance API: {e}')
         send_email('piotrek.gaszczynski@gmail.com', 'Error refreshing Binance API', str(e))
         flash('An error occurred while refreshing the Binance API. The admin has been notified.', 'danger')
         return redirect(url_for('main.control_panel_view'))
@@ -101,7 +102,7 @@ def refresh():
 @login_required
 def report():
     if not current_user.email_raports_receiver:
-        logging.warning(f'{current_user.login} tried to get email rapirt.')
+        logger.warning(f'{current_user.login} tried to get email rapirt.')
         flash(f'Error. User {current_user.login} is not allowed receiving email raports.', 'danger')
         return redirect(url_for('main.user_panel_view'))
     
@@ -114,7 +115,7 @@ def report():
             send_email(email, subject, body)
             flash(f'Email to {email} sent successfully.', 'success')
     except Exception as e:
-        logging.error(f'Error sending email to {email}: {e}')
+        logger.error(f'Error sending email to {email}: {e}')
         flash('An error occurred while sending the email. The admin has been notified.', 'danger')
         send_email('piotrek.gaszczynski@gmail.com', 'Error sending email', str(e))
     

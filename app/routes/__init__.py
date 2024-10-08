@@ -11,7 +11,6 @@ from flask import current_app
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-import logging
 from ..utils.app_utils import send_email
 
 main = Blueprint('main', __name__)

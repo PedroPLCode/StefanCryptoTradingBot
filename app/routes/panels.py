@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from ..forms import LoginForm, RegistrationForm
 from ..models import User, Settings
 from .. import db
+from ..utils.logging import logger
 import logging
 from datetime import datetime as dt
 from . import main
@@ -20,7 +21,7 @@ def user_panel_view():
             server_time = fetch_server_time()
             return render_template('user_panel.html', user=current_user, account_status=account_status, binance_status=binance_status, server_time=server_time)
         except Exception as e:
-            logging.error(f"Error in user_panel_view: {e}")
+            logger.error(f"Error in user_panel_view: {e}")
             send_email('piotrek.gaszczynski@gmail.com', 'Error in user panel view', str(e))
             flash('An error occurred while fetching account data. Please try again later.', 'danger')
             return redirect(url_for('main.login'))
@@ -36,7 +37,7 @@ def control_panel_view():
         return redirect(url_for('main.login'))
 
     if not current_user.control_panel_access:
-        logging.warning(f'{current_user.login} tried to access the Control Panel without permission.')
+        logger.warning(f'{current_user.login} tried to access the Control Panel without permission.')
         flash(f'Error. User {current_user.login} is not allowed to access the Control Panel.', 'danger')
         return redirect(url_for('main.user_panel_view'))
 
@@ -48,7 +49,7 @@ def control_panel_view():
         return render_template('control_panel.html', user=current_user, account_status=account_status, account_balance=account_balance, data=binance_ticker)
 
     except Exception as e:
-        logging.error(f'Error loading control panel: {e}')
+        logger.error(f'Error loading control panel: {e}')
         send_email('piotrek.gaszczynski@gmail.com', 'Error loading control panel', str(e))
         flash('An error occurred while loading the control panel. The admin has been notified.', 'danger')
         return redirect(url_for('main.user_panel_view'))
@@ -61,7 +62,7 @@ def admin_panel_view():
         return redirect(url_for('main.login'))
 
     if not current_user.admin_panel_access:
-        logging.warning(f'{current_user.login} tried to access the Admin Panel without permission.')
+        logger.warning(f'{current_user.login} tried to access the Admin Panel without permission.')
         flash(f'Error. User {current_user.login} is not allowed to access the Admin Panel.', 'danger')
         return redirect(url_for('main.user_panel_view'))
 
@@ -69,7 +70,7 @@ def admin_panel_view():
         return redirect(url_for('admin.index'))
 
     except Exception as e:
-        logging.error(f'Error accessing admin panel: {e}')
+        logger.error(f'Error accessing admin panel: {e}')
         send_email('piotrek.gaszczynski@gmail.com', 'Error accessing admin panel', str(e))
         flash('An error occurred while accessing the admin panel. The admin has been notified.', 'danger')
         return redirect(url_for('main.user_panel_view'))

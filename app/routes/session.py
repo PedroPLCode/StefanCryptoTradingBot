@@ -7,6 +7,7 @@ from ..models import User, Settings
 from sqlalchemy import or_
 from ..utils.app_utils import send_email, create_new_user, get_ip_address
 from .. import db
+from ..utils.logging import logger
 import logging
 from datetime import datetime as dt
 from . import main
@@ -27,27 +28,27 @@ def register():
             try:
                 db.session.add(new_user)
                 db.session.commit()
-                logging.info(f'New account registered: {new_user.login} from {user_ip} ')
+                logger.info(f'New account registered: {new_user.login} from {user_ip} ')
                 flash('Account created successfully. Admin will contact you.', 'success')
                 
                 try:
                     send_email('piotrek.gaszczynski@gmail.com', 'New User', 'New user registered: ' + new_user.login)
                 except Exception as e:
-                    logging.error(f'Error sending registration email: {e}')
+                    logger.error(f'Error sending registration email: {e}')
                     flash('Registration was successful, but there was an error notifying the admin.', 'warning')
 
             except Exception as e:
                 db.session.rollback()
-                logging.error(f'New account registration error: {e} from {user_ip}')
+                logger.error(f'New account registration error: {e} from {user_ip}')
                 flash('An error occurred while creating your account. Please try again.', 'danger')
 
                 try:
                     send_email('piotrek.gaszczynski@gmail.com', 'Registration error', str(e))
                 except Exception as email_error:
-                    logging.error(f'Error sending registration error email: {email_error}')
+                    logger.error(f'Error sending registration error email: {email_error}')
 
         else:
-            logging.info(f'{user_exists.login} {user_exists.email} trying to create new user from {user_ip}. User already exists.')
+            logger.info(f'{user_exists.login} {user_exists.email} trying to create new user from {user_ip}. User already exists.')
             flash('This login or email is already in use.', 'danger')
     else:
         for field, errors in form.errors.items():
@@ -80,26 +81,26 @@ def login():
                     else:
                         user.login_errors += 1
                         db.session.commit()
-                        logging.warning(f'User {user.name} login error number {user.login_errors} from {user_ip}.')
+                        logger.warning(f'User {user.name} login error number {user.login_errors} from {user_ip}.')
                         flash(f'User {user.name} login error number {user.login_errors}.', 'danger')
 
                         if user.login_errors >= 4:
                             user.account_suspended = True
                             db.session.commit()
-                            logging.warning(f'User {user.name} suspended from address {user_ip}')
+                            logger.warning(f'User {user.name} suspended from address {user_ip}')
                             flash(f'User {user.name} suspended. Admin will contact you.', 'danger')
                 else:
-                    logging.warning(f'User {user.name} suspended trying to log in from address {user_ip}')
+                    logger.warning(f'User {user.name} suspended trying to log in from address {user_ip}')
                     flash(f'User {user.name} suspended. Admin will contact you.', 'danger')
             else:
-                logging.warning(f'Bad login attempt from address {user_ip}. User not found')
+                logger.warning(f'Bad login attempt from address {user_ip}. User not found')
                 flash('Error: Login or Password Incorrect.', 'danger')
         except Exception as e:
-            logging.error(f'Error during login process: {e} from {user_ip}')
+            logger.error(f'Error during login process: {e} from {user_ip}')
             try:
                 send_email('piotrek.gaszczynski@gmail.com', 'Login error', str(e))
             except Exception as email_error:
-                logging.error(f'Error sending login error email: {email_error}')
+                logger.error(f'Error sending login error email: {email_error}')
             flash('An unexpected error occurred during login. Please try again later.', 'danger')
 
     return render_template('login.html', form=form)
@@ -111,10 +112,10 @@ def logout():
     try:
         login = current_user.login
         logout_user()
-        logging.info(f'User {login} logged out.')
+        logger.info(f'User {login} logged out.')
         flash(f'User {login} logged out successfully.', 'success')
     except Exception as e:
-        logging.error(f'Error during logout: {e}')
+        logger.error(f'Error during logout: {e}')
         send_email('piotrek.gaszczynski@gmail.com', 'Logout error', str(e))
         flash('An error occurred during logout. Please try again.', 'danger')
 

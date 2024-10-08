@@ -15,10 +15,8 @@ from keras.layers import LSTM, Dense, Dropout
 from ..utils.api_utils import fetch_data, place_order, get_account_balance
 from ..utils.app_utils import send_email
 from .. import db
+from ..utils.logging import logger
 from ..models import Settings
-
-# Configure logging
-#logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Configuration
 symbol = 'BTCUSDT'
@@ -75,8 +73,8 @@ def train_model(df):
     grid_search.fit(X_train, y_train)
 
     best_model = grid_search.best_estimator_
-    logging.info(f'Best model parameters: {grid_search.best_params_}')
-    logging.info(f'Model accuracy: {best_model.score(X_test, y_test)}')
+    logger.trade(f'Best model parameters: {grid_search.best_params_}')
+    logger.trade(f'Model accuracy: {best_model.score(X_test, y_test)}')
 
     joblib.dump(best_model, 'trading_model.pkl')
     joblib.dump(scaler, 'scaler.pkl')
@@ -87,9 +85,9 @@ def load_model():
     try:
         model = joblib.load('model.pkl')
         scaler = joblib.load('scaler.pkl')
-        logging.info("Loaded existing model and scaler.")
+        logger.trade("Loaded existing model and scaler.")
     except FileNotFoundError:
-        logging.error("Model or scaler not found, creating new model and scaler.")
+        logger.trade("Model or scaler not found, creating new model and scaler.")
 
         # Create a new scaler and model
         scaler = StandardScaler()
@@ -107,7 +105,7 @@ def load_model():
         # Save the new model and scaler for future use
         joblib.dump(model, 'model.pkl')
         joblib.dump(scaler, 'scaler.pkl')
-        logging.info("Created and saved new model and scaler.")
+        logger.trade("Created and saved new model and scaler.")
 
     return model, scaler
 
@@ -120,7 +118,7 @@ def load_initial_training_data():
 
 def check_signals(df, model, scaler):
     if not hasattr(scaler, 'scale_'):
-        logging.error("Scaler is not fitted yet. Cannot transform new data.")
+        logger.trade("Scaler is not fitted yet. Cannot transform new data.")
         return None
     latest_data = df.iloc[-1][['rsi', 'macd', 'macd_signal', 'upper_band',
                                'middle_band', 'lower_band', 'sma', 'atr', 'stoch']].values.reshape(1, -1)
@@ -165,7 +163,7 @@ while True:
             model = train_lstm_model(X, y)
 
         df_backtest = backtest_strategy(df)
-        logging.info(f"Cumulative Strategy Returns: {df_backtest['cumulative_strategy_returns'].iloc[-1]}")
+        logger.trade(f"Cumulative Strategy Returns: {df_backtest['cumulative_strategy_returns'].iloc[-1]}")
 
         signal = check_signals(df, model, scaler)
         current_price = df['close'].iloc[-1]
@@ -176,19 +174,19 @@ while True:
 
         if signal == 'buy':
             place_order(symbol, 'buy', amount / current_price)
-            logging.info(f'Bought {amount / current_price} BTC')
+            logger.trade(f'Bought {amount / current_price} BTC')
             trailing_stop_price = current_price * (1 - trailing_stop_pct)
             take_profit_price = current_price * (1 + take_profit_pct)
 
         elif signal == 'sell' and trailing_stop_price is not None:
             place_order(symbol, 'sell', amount / current_price)
-            logging.info(f'Sold {amount / current_price} BTC')
+            logger.trade(f'Sold {amount / current_price} BTC')
             trailing_stop_price = None
             take_profit_price = None
 
         if take_profit_price is not None and current_price >= take_profit_price:
             place_order(symbol, 'sell', amount / current_price)
-            logging.info(f'Take Profit triggered: Sold {amount / current_price} BTC at {current_price}')
+            logger.trade(f'Take Profit triggered: Sold {amount / current_price} BTC at {current_price}')
             take_profit_price = None
 
         if trailing_stop_price is not None:
@@ -197,7 +195,7 @@ while True:
         time.sleep(300)  # Wait for 5 minutes before the next cycle
 
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
         # Send an email with the error details
         send_email('piotrek.gaszczynski@gmail.com', 'Trading Bot Error', f'An error occurred: {e}')
         # Optionally, you can decide to continue or break the loop

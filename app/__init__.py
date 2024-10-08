@@ -16,14 +16,8 @@ from flask_cors import CORS
 from datetime import datetime as dt
 import platform
 import sys
-import logging
 from datetime import datetime
-
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s %(levelname)s %(message)s',
-                    filename="stefan.log"
-                    )
-logging.info('StefanCryptoTradingBot starting.')
+from .utils.logging import logger
 
 db = SQLAlchemy()
 login_manager = LoginManager()
@@ -56,10 +50,11 @@ def create_app(config_name=None):
         
         main = Blueprint('main', __name__)
 
-        logging.info('Flask app initialized successfully.')
+        logger.info('Flask app initialized successfully.')
+        logger.trade('Stefan up.')
         
     except Exception as e:
-        logging.error(f'Error initializing Flask app: {e}')
+        logger.error(f'Error initializing Flask app: {e}')
         from .utils.app_utils import send_email
         send_email('piotrek.gaszczynski@gmail.com', 'App Initialization Error', str(e))
         raise
@@ -76,18 +71,18 @@ limiter = Limiter(
     )
 
 def run_job_with_context(func, *args, **kwargs):
-    logging.info(f'Running job: {func.__name__} with args: {args} and kwargs: {kwargs}')
+    logger.info(f'Running job: {func.__name__} with args: {args} and kwargs: {kwargs}')
     with app.app_context():
         try:
             result = func(*args, **kwargs)
-            logging.info(f'Job {func.__name__} executed successfully. Result: {result}')
+            logger.info(f'Job {func.__name__} executed successfully. Result: {result}')
             return result
         except Exception as e:
-            logging.error(f'Error executing job {func.__name__}: {e}')
+            logger.error(f'Error executing job {func.__name__}: {e}')
             raise
         
 def start_scheduler():
-    logging.info('Starting scheduler.')
+    logger.info('Starting scheduler.')
     try:
         from .utils.app_utils import send_24h_report_email
         from .stefan.stefan import run_trading_logic  
@@ -102,9 +97,9 @@ def start_scheduler():
             minutes=1
         )
         scheduler.start()
-        logging.info('Scheduler started successfully.')
+        logger.info('Scheduler started successfully.')
     except Exception as e:
-        logging.error(f'Error starting scheduler: {e}')
+        logger.error(f'Error starting scheduler: {e}')
         from .utils.app_utils import send_email
         send_email('piotrek.gaszczynski@gmail.com', 'Scheduler Error', str(e))
 

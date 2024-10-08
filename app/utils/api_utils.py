@@ -6,6 +6,7 @@ import pandas as pd
 from binance.client import Client
 import os
 import logging
+from ..utils.logging import logger
 
 load_dotenv()
 
@@ -42,9 +43,9 @@ def place_order(symbol, order_type, amount):
             client.order_market_buy(symbol=symbol, quantity=amount)
         elif order_type == 'sell':
             client.order_market_sell(symbol=symbol, quantity=amount)
-        logging.info(f'Order placed: {order_type.capitalize()} {amount} {symbol}')
+        logger.info(f'Order placed: {order_type.capitalize()} {amount} {symbol}')
     except Exception as e:
-        logging.error(f"Error placing order: {e}", exc_info=True)
+        logger.error(f"Error placing order: {e}", exc_info=True)
         send_email('piotrek.gaszczynski@gmail.com', 'Error placing order', str(e))
 
 def fetch_ticker(symbol='BTCUSDT'):

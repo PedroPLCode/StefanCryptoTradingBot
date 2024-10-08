@@ -10,6 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from ..forms import LoginForm, RegistrationForm
 import logging
 from .api_utils import fetch_data, fetch_ticker, fetch_system_status, fetch_account_status
+from ..utils.logging import logger
 
 
 def get_ip_address(request):
@@ -28,7 +29,7 @@ def create_new_user(form):
         )
         return new_user
     except Exception as e:
-        logging.error(f'Error creating user: {e}')
+        logger.error(f'Error creating user: {e}')
         send_email('piotrek.gaszczynski@gmail.com', 'User Creation Error', str(e))
         raise
     
@@ -40,10 +41,10 @@ def send_email(email, subject, body):
             message = Message(subject=subject, recipients=[email])
             message.body = body
             mail.send(message)
-            logging.info(f'Email "{subject}" sent to {email}.')
+            logger.info(f'Email "{subject}" sent to {email}.')
             return True
     except Exception as e:
-        logging.error(f'Failed to send email "{subject}" to {email}: {str(e)}')
+        logger.error(f'Failed to send email "{subject}" to {email}: {str(e)}')
         return False 
     
 
