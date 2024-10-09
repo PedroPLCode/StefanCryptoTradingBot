@@ -42,16 +42,18 @@ def create_app(config_name=None):
         jwt.init_app(app)
         CORS(app)
         
-        from .models.admin import MyAdmin, MyAdminIndexView, UserAdmin, SettingsAdmin
+        from .models.admin import MyAdmin, MyAdminIndexView, UserAdmin, SettingsAdmin, CurrentTradeAdmin, TradesHistoryAdmin
         admin = MyAdmin(app, name='StefanCryptoTradingBot', index_view=MyAdminIndexView(), template_mode='bootstrap4')
-        from .models import User, Settings
+        from .models import User, Settings, CurrentTrade, TradesHistory
         admin.add_view(UserAdmin(User, db.session))
         admin.add_view(SettingsAdmin(Settings, db.session))
+        admin.add_view(CurrentTradeAdmin(CurrentTrade, db.session))
+        admin.add_view(TradesHistoryAdmin(TradesHistory, db.session))
         
         main = Blueprint('main', __name__)
 
-        logger.info('Flask app initialized successfully.')
-        logger.trade('Stefan up.')
+        logger.info('Flask app initialized.')
+        logger.trade('Stefan Bot initialized.')
         
     except Exception as e:
         logger.error(f'Error initializing Flask app: {e}')
@@ -85,16 +87,22 @@ def start_scheduler():
     logger.info('Starting scheduler.')
     try:
         from .utils.app_utils import send_24h_report_email
+        from .utils.stefan_utils import clear_trade_history_db
         from .stefan.stefan import run_trading_logic  
+        scheduler.add_job(
+            func=partial(run_job_with_context, run_trading_logic),
+            trigger='interval',
+            minutes=1
+        )
         scheduler.add_job(
             func=partial(run_job_with_context, send_24h_report_email),
             trigger="interval",
             hours=24
         )
         scheduler.add_job(
-            func=partial(run_job_with_context, run_trading_logic),
-            trigger='interval',
-            minutes=1
+            func=partial(run_job_with_context, clear_trade_history_db),
+            trigger="interval",
+            days=7
         )
         scheduler.start()
         logger.info('Scheduler started successfully.')

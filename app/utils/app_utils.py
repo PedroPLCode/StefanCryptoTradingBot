@@ -1,15 +1,8 @@
-#tests 100% ok
-import random
+#tests
 from flask_mail import Message
-from flask_login import LoginManager, current_user
 from app.models import User
-import os
 from flask import current_app
-from datetime import datetime, timedelta
-from werkzeug.security import generate_password_hash, check_password_hash
-from ..forms import LoginForm, RegistrationForm
-import logging
-from .api_utils import fetch_data, fetch_ticker, fetch_system_status, fetch_account_status
+from werkzeug.security import generate_password_hash
 from ..utils.logging import logger
 
 
@@ -35,7 +28,7 @@ def create_new_user(form):
     
     
 def send_email(email, subject, body):
-    from app import mail, app
+    from app import mail
     try:
         with current_app.app_context():
             message = Message(subject=subject, recipients=[email])

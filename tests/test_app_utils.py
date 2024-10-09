@@ -9,7 +9,7 @@ from app.forms import RegistrationForm
 def app():
     app = Flask(__name__)
     app.config['TESTING'] = True
-    app.config['MAIL_SUPPRESS_SEND'] = True  # Prevent sending actual emails during tests
+    app.config['MAIL_SUPPRESS_SEND'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     app.config['SECRET_KEY'] = 'secret'
     yield app
@@ -34,7 +34,7 @@ def test_show_account_balance():
     }
     
     balances = show_account_balance(account_status)
-    assert len(balances) == 2  # BTC and USDC should be included
+    assert len(balances) == 2
     assert balances[0]['asset'] == 'BTC'
     assert balances[1]['asset'] == 'USDC'
     assert balances[0]['free'] == 0.5

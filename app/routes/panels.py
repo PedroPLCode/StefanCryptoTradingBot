@@ -1,9 +1,8 @@
-#tests 100% ok
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..forms import LoginForm, RegistrationForm
-from ..models import User, Settings
+from ..models import User, Settings, TradesHistory
 from .. import db
 from ..utils.logging import logger
 import logging
@@ -45,8 +44,9 @@ def control_panel_view():
         binance_ticker = fetch_ticker()
         account_status = fetch_account_status()
         account_balance = show_account_balance(account_status)
+        current_trades = TradesHistory.query.all()
 
-        return render_template('control_panel.html', user=current_user, account_status=account_status, account_balance=account_balance, data=binance_ticker)
+        return render_template('control_panel.html', user=current_user, account_status=account_status, account_balance=account_balance, data=binance_ticker, current_trades=current_trades)
 
     except Exception as e:
         logger.error(f'Error loading control panel: {e}')

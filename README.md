@@ -89,3 +89,5 @@ pytest
 - Backtesting: Adding backtesting features to allow users to test their strategies against historical data.
 
 ## Any comments welcome.
+
+## Project is under GPL Licence (GNU General Public License)
