@@ -34,16 +34,16 @@ def run_trading_logic():
 
                 elif signal == 'sell' and current_trade:
                     place_order(symbol, 'sell')
-                    trailing_stop_price = None # potrzebne ?
-                    save_trailing_stop_loss(trailing_stop_price) # potrzebne ?
+                    #trailing_stop_price = None # potrzebne ?
+                    #save_trailing_stop_loss(trailing_stop_price) # potrzebne ?
 
                 elif trailing_stop_price and current_trade:
                     trailing_stop_price = update_trailing_stop_loss(current_price, trailing_stop_price, df['atr'].iloc[-1])
                     save_trailing_stop_loss(trailing_stop_price) 
                     if current_price <= trailing_stop_price:
                         place_order(symbol, 'sell')
-                        trailing_stop_price = None # potrzebne ?
-                        save_trailing_stop_loss(trailing_stop_price) # potrzebne ?
+                        #trailing_stop_price = None # potrzebne ?
+                        #save_trailing_stop_loss(trailing_stop_price) # potrzebne ?
 
                 logger.trade(f"Aktualna cena: {current_price}, Trailing stop loss: {trailing_stop_price}")
                 #time.sleep(60)

@@ -66,10 +66,10 @@
                 <div class="d-flex flex-column justify-content-center align-items-center gap-2">
                     {% if current_trades %}
                         {% for trade in current_trades %}
-                        <p>id: {{ trade.id }} {{ trade.type }} amount: {{ trade.amount }} BTC, price: ${{ '%.2f'|format(trade.price) }} USDC, timestamp: {{ trade.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                        <p class="mb-1">id: {{ trade.id }} {{ trade.type }} amount: {{ trade.amount }} BTC, price: ${{ '%.2f'|format(trade.price) }} USDC, timestamp: {{ trade.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
                         {% endfor %}
                     {% else %}
-                        <p>List empty.</p>
+                        <p class="mb-1">List empty.</p>
                     {% endif %}
                 </div>
             </div>
@@ -93,9 +93,8 @@
 
                 <p class="text-muted m-0 p-0">Bot Symbol: {{ bot_settings.symbol }}</p>
                 <p class="text-muted m-0 p-0">Bot Lookback Days: {{ bot_settings.lookback_days }}</p>
-                <p class="text-muted m-0 p-0">Bot Stop Loss: {{ bot_settings.stop_loss_pct }}</p>
+                <p class="text-muted m-0 p-0">Bot Interval: {{ bot_settings.interval }}</p>
                 <p class="text-muted m-0 p-0">Bot Trailing Stop Loss: {{ bot_settings.trailing_stop_pct }}</p>
-                <p class="text-muted m-0 p-0">Bot Take Profit: {{ bot_settings.take_profit_pct }}</p>
 
                 <div class="mt-2 d-flex flex-column justify-content-center align-items-center gap-2">
 

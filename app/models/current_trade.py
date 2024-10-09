@@ -13,6 +13,6 @@ class CurrentTrade(db.Model):
             f'<CurrentTrade:\n'
             f'type: {self.type}\n'
             f'amount: {self.amount}\n'
-            f'trailing_stop_loss: {self.trailing_stop_loss}\n'
-            f'price: {self.price}>'
+            f'price: {self.price}\n'
+            f'trailing_stop_loss: {self.trailing_stop_loss}>'
         )

@@ -14,6 +14,6 @@ class TradesHistory(db.Model):
             f'id: {self.id}\n'
             f'type: {self.type}\n'
             f'amount: {self.amount}\n'
-            f'price: {self.price}>'
+            f'price: {self.price}\n'
             f'timestamp: {self.timestamp}>'
         )
