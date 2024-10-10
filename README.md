@@ -10,7 +10,7 @@ The bot provides an easy-to-use interface for starting and stopping the bot, rea
 - Binance API Integration: Fetches real-time data and executes trades.
 - Real-Time Monitoring: Displays current trade results, account balances, and historical data from the last 24 hours.
 - Control & Admin Panel: Includes user access to a control panel for starting/stopping the bot, and an admin panel for changing settings, configurations and strategies.
-- Email Reporting: Sends daily performance reports summarizing the bot's activities over the past 24 hours.
+- Email Reporting: Sends daily performance reports summarizing the bot's activities over the past 24 hours / 7 days.
 
 ## Installation
 
@@ -35,12 +35,12 @@ pip install -r requirements.txt
 
 4. Configure your environment variables by creating a .env file with your Binance API credentials, database URL, and email configuration.
 ```bash
-GMAIL_USERNAME = 'xxx@xxx.xx'
-GMAIL_APP_PASSWORD="xxx"
-RECAPTCHA_PUBLIC_KEY = "xxx"
-RECAPTCHA_PRIVATE_KEY = "xxx"
-BINANCE_API_KEY='xxx'
-BINANCE_API_SECRET='xxx'
+GMAIL_USERNAME = 'gmail@username.com'
+GMAIL_APP_PASSWORD="gmail_app_password"
+RECAPTCHA_PUBLIC_KEY = "recaptcha_public_key"
+RECAPTCHA_PRIVATE_KEY = "recaptcha_private_key"
+BINANCE_API_KEY='binance_api_key'
+BINANCE_API_SECRET='binance_api_secret'
 ```
 
 5. Set up the database:
@@ -76,6 +76,7 @@ pytest
 pytest
 
 ## Technologies Used
+- Python :)
 - Flask: A web framework used for building the application interface.
 - Flask-SQLAlchemy: ORM used to manage the database.
 - Flask-JWT-Extended: JWT-based authentication for securing user access.
@@ -90,4 +91,4 @@ pytest
 
 ## Any comments welcome.
 
-## Project is under GPL Licence (GNU General Public License)
+StefanCryptoTradingBot Project is under GPL Licence (GNU General Public License)

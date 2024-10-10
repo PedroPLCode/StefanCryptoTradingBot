@@ -6,7 +6,7 @@ class Settings(db.Model):
     symbol = db.Column(db.String(16), default="BTCUSDC")
     trailing_stop_pct = db.Column(db.Float, default=0.01)
     interval = db.Column(db.String(16), default="1m")
-    lookback_days = db.Column(db.String(16), default="30 days")
+    lookback_period = db.Column(db.String(16), default="4h")
     bot_running = db.Column(db.Boolean, default=False)
     
     def __repr__(self):

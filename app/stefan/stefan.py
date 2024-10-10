@@ -17,10 +17,10 @@ def run_trading_logic():
                 symbol = settings.symbol
                 trailing_stop_pct = settings.trailing_stop_pct
                 interval = settings.interval
-                lookback_days = settings.lookback_days
+                lookback_period = settings.lookback_period
                 trailing_stop_price = None
                 
-                df = fetch_data(symbol, interval=interval, lookback=lookback_days)
+                df = fetch_data(symbol, interval=interval, lookback=lookback_period)
                 calculate_indicators(df)
                 buy_signal = check_buy_signal(df)
                 current_price = df['close'].iloc[-1]
@@ -45,4 +45,4 @@ def run_trading_logic():
 
     except Exception as e:
         logger.error(f'Błąd w pętli handlowej: {str(e)}')
-        send_admin_email(f'Błąd w pętli handlowej: {str(e)}')
+        send_admin_email('Błąd w pętli handlowej', {str(e)})

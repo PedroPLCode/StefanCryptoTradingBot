@@ -16,7 +16,7 @@ BINANCE_API_KEY = os.environ['BINANCE_API_KEY']
 BINANCE_API_SECRET = os.environ['BINANCE_API_SECRET']
 client = Client(BINANCE_API_KEY, BINANCE_API_SECRET) #, testnet=True)
 
-def fetch_data(symbol, interval='1m', lookback='30 days'):
+def fetch_data(symbol, interval='1m', lookback='4h'):
     klines = client.get_historical_klines(symbol, interval, lookback)
     df = pd.DataFrame(klines, columns=['open_time', 'open', 'high', 'low', 'close', 'volume', 'close_time',
                                         'quote_asset_volume', 'number_of_trades', 'taker_buy_base_asset_volume',

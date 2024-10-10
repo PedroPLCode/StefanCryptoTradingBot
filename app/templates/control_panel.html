@@ -35,22 +35,22 @@
             <div class="card-body text-center">
                 {% if data is not none %}
                     <div class="ticker-info">
-                        <p class="mb-1"><strong>Price Change:</strong> {{ data.priceChange }}</p>
-                        <p class="mb-1"><strong>Price Change Percentage:</strong> {{ data.priceChangePercent }}%</p>
-                        <p class="mb-1"><strong>Weighted Average Price:</strong> {{ data.weightedAvgPrice }}</p>
-                        <p class="mb-1"><strong>Previous Close Price:</strong> {{ data.prevClosePrice }}</p>
-                        <p class="mb-1"><strong>Last Price:</strong> {{ data.lastPrice }}</p>
-                        <p class="mb-1"><strong>Bid Price:</strong> {{ data.bidPrice }}</p>
-                        <p class="mb-1"><strong>Ask Price:</strong> {{ data.askPrice }}</p>
-                        <p class="mb-1"><strong>Open Price:</strong> {{ data.openPrice }}</p>
-                        <p class="mb-1"><strong>High Price:</strong> {{ data.highPrice }}</p>
-                        <p class="mb-1"><strong>Low Price:</strong> {{ data.lowPrice }}</p>
-                        <p class="mb-1"><strong>Volume:</strong> {{ data.volume }}</p>
-                        <p class="mb-1"><strong>Open Time:</strong> {{ data.openTime | to_datetime }}</p>
-                        <p class="mb-1"><strong>Close Time:</strong> {{ data.closeTime | to_datetime }}</p>
-                        <p class="mb-1"><strong>First Trade ID:</strong> {{ data.firstId }}</p>
-                        <p class="mb-1"><strong>Last Trade ID:</strong> {{ data.lastId }}</p>
-                        <p class="mb-1"><strong>Trade Count:</strong> {{ data.count }}</p>
+                        <p class="mb-1">Price Change: {{ data.priceChange }}</p>
+                        <p class="mb-1">Price Change Percentage: {{ data.priceChangePercent }}%</p>
+                        <p class="mb-1">Weighted Average Price: {{ data.weightedAvgPrice }}</p>
+                        <p class="mb-1">Previous Close Price: {{ data.prevClosePrice }}</p>
+                        <p class="mb-1">Last Price: {{ data.lastPrice }}</p>
+                        <p class="mb-1">Bid Price: {{ data.bidPrice }}</p>
+                        <p class="mb-1">Ask Price: {{ data.askPrice }}</p>
+                        <p class="mb-1">Open Price: {{ data.openPrice }}</p>
+                        <p class="mb-1">High Price: {{ data.highPrice }}</p>
+                        <p class="mb-1">Low Price: {{ data.lowPrice }}</p>
+                        <p class="mb-1">Volume: {{ data.volume }}</p>
+                        <p class="mb-1">Open Time: {{ data.openTime | to_datetime }}</p>
+                        <p class="mb-1">Close Time: {{ data.closeTime | to_datetime }}</p>
+                        <p class="mb-1">First Trade ID: {{ data.firstId }}</p>
+                        <p class="mb-1">Last Trade ID: {{ data.lastId }}</p>
+                        <p class="mb-1">Trade Count: {{ data.count }}</p>
                     </div>
                 {% else %}
                     <p class="text-muted mb-0">No data available. Please check your API connection.</p>
