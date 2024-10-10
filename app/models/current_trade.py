@@ -6,6 +6,7 @@ class CurrentTrade(db.Model):
     type = db.Column(db.String(16), default="undefined")
     amount = db.Column(db.Float, default=0)
     price = db.Column(db.Float, default=0)
+    previous_price = db.Column(db.Float, default=0)
     trailing_stop_loss = db.Column(db.Float, nullable=True)
     
     def __repr__(self):

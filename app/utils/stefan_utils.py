@@ -8,19 +8,26 @@ def calculate_indicators(df):
     df['rsi'] = talib.RSI(df['close'], timeperiod=5)
     df['macd'], df['macd_signal'], _ = talib.MACD(df['close'], fastperiod=5, slowperiod=13, signalperiod=5)
     df['upper_band'], df['middle_band'], df['lower_band'] = talib.BBANDS(df['close'], timeperiod=20, nbdevup=2, nbdevdn=2, matype=0)
-    df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=5)
+    df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=3)
     df['cci'] = talib.CCI(df['high'], df['low'], df['close'], timeperiod=10)
-    df['slowk'], df['slowd'] = talib.STOCH(df['high'], df['low'], df['close'], fastk_period=5, slowk_period=3, slowd_period=3)
+    df['slowk'], df['slowd'] = talib.STOCH(df['high'], df['low'], df['close'], fastk_period=14, slowk_period=3, slowd_period=3)
     df.dropna(inplace=True)
 
 
-def check_signals(df):
+def check_buy_signal(df):
     latest_data = df.iloc[-1]
-    if latest_data['rsi'] < 25 and latest_data['macd'] > latest_data['macd_signal'] and latest_data['cci'] < -100:
-        return 'buy'
-    elif latest_data['rsi'] > 75 and latest_data['macd'] < latest_data['macd_signal'] and latest_data['cci'] > 100:
-        return 'sell'
-    return None
+    mfi = talib.MFI(df['high'], df['low'], df['close'], df['volume'], timeperiod=3)
+    if latest_data['rsi'] < 25 and latest_data['macd'] > latest_data['macd_signal'] and latest_data['cci'] < -100 and mfi.iloc[-1] < 20:
+        return True
+    return False
+
+
+def check_sell_signal(df):
+    latest_data = df.iloc[-1]
+    mfi = talib.MFI(df['high'], df['low'], df['close'], df['volume'], timeperiod=3)
+    if latest_data['rsi'] > 75 and latest_data['macd'] < latest_data['macd_signal'] and latest_data['cci'] > 100 and mfi.iloc[-1] > 80:
+        return True
+    return False
 
 
 def save_trade(order_type, amount, price):
@@ -40,13 +47,21 @@ def load_current_trade():
 
 def update_trailing_stop_loss(current_price, trailing_stop_price, atr):
     dynamic_trailing_stop = max(trailing_stop_price, current_price * (1 - (0.5 * atr / current_price)))
-    return dynamic_trailing_stop
+    minimal_trailing_stop = current_price * 0.98
+    return max(dynamic_trailing_stop, minimal_trailing_stop)
 
 
 def save_trailing_stop_loss(trailing_stop_price):
     current_trade = load_current_trade()
     if current_trade:
         current_trade.trailing_stop_loss = trailing_stop_price
+        db.session.commit()
+        
+        
+def save_previous_price(price):
+    current_trade = load_current_trade()
+    if current_trade:
+        current_trade.previous_price = price
         db.session.commit()
         
 
