@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from ..forms import LoginForm, RegistrationForm
 from ..models import User, Settings
 from sqlalchemy import or_
-from ..utils.app_utils import send_email, create_new_user, get_ip_address
+from ..utils.app_utils import send_email, send_admin_email, create_new_user, get_ip_address
 from .. import db
 from ..utils.logging import logger
 import logging
@@ -31,7 +31,7 @@ def register():
                 flash('Account created successfully. Admin will contact you.', 'success')
                 
                 try:
-                    send_email('piotrek.gaszczynski@gmail.com', 'New User', 'New user registered: ' + new_user.login)
+                    send_admin_email('New User', 'New user registered: ' + new_user.login)
                 except Exception as e:
                     logger.error(f'Error sending registration email: {e}')
                     flash('Registration was successful, but there was an error notifying the admin.', 'warning')
@@ -42,7 +42,7 @@ def register():
                 flash('An error occurred while creating your account. Please try again.', 'danger')
 
                 try:
-                    send_email('piotrek.gaszczynski@gmail.com', 'Registration error', str(e))
+                    send_admin_email('Registration error', str(e))
                 except Exception as email_error:
                     logger.error(f'Error sending registration error email: {email_error}')
 
@@ -97,7 +97,7 @@ def login():
         except Exception as e:
             logger.error(f'Error during login process: {e} from {user_ip}')
             try:
-                send_email('piotrek.gaszczynski@gmail.com', 'Login error', str(e))
+                send_admin_email('Login error', str(e))
             except Exception as email_error:
                 logger.error(f'Error sending login error email: {email_error}')
             flash('An unexpected error occurred during login. Please try again later.', 'danger')
@@ -115,7 +115,7 @@ def logout():
         flash(f'User {login} logged out successfully.', 'success')
     except Exception as e:
         logger.error(f'Error during logout: {e}')
-        send_email('piotrek.gaszczynski@gmail.com', 'Logout error', str(e))
+        send_admin_email('Logout error', str(e))
         flash('An error occurred during logout. Please try again.', 'danger')
 
     return redirect(url_for('main.login'))

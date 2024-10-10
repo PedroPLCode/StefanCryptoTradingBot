@@ -4,7 +4,7 @@ from .. import db
 from ..models import Settings, CurrentTrade
 import numpy as np
 import pandas as pd
-from ..utils.app_utils import send_email
+from ..utils.app_utils import send_email, send_admin_email
 from ..utils.stefan_utils import save_trade, save_trade_to_history, load_current_trade, delete_trade
 from binance.client import Client
 import os
@@ -61,10 +61,10 @@ def place_buy_order(symbol):
                 
     except ConnectionError as ce:
         logger.error(f"Błąd połączenia: {str(ce)}")
-        send_email('twój_email@gmail.com', 'Błąd połączenia przy składaniu zlecenia kupna', str(ce))
+        send_admin_email('Błąd połączenia przy składaniu zlecenia kupna', str(ce))
     except Exception as e:
         logger.error(f"Błąd podczas składania zlecenia kupna: {str(e)}")
-        send_email('twój_email@gmail.com', 'Błąd przy składaniu zlecenia kupna', str(e))
+        send_admin_email('Błąd przy składaniu zlecenia kupna', str(e))
         
         
 def place_sell_order(symbol):
@@ -84,10 +84,10 @@ def place_sell_order(symbol):
                 
     except ConnectionError as ce:
         logger.error(f"Błąd połączenia: {str(ce)}")
-        send_email('twój_email@gmail.com', 'Błąd połączenia przy składaniu zlecenia sprzedaży', str(ce))
+        send_admin_email('Błąd połączenia przy składaniu zlecenia sprzedaży', str(ce))
     except Exception as e:
         logger.error(f"Błąd podczas składania zlecenia sprzedaży: {str(e)}")
-        send_email('twój_email@gmail.com', 'Błąd przy składaniu zlecenia sprzedaży', str(e))
+        send_admin_email('Błąd przy składaniu zlecenia sprzedaży', str(e))
 
 
 def fetch_ticker(symbol='BTCUSDT'):

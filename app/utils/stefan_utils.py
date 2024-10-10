@@ -1,5 +1,6 @@
 # TESTS NEEDED
 import talib
+from datetime import datetime, timedelta
 from .. import db
 from ..models import TradesHistory, CurrentTrade
 from .logging import logger
@@ -76,11 +77,12 @@ def save_trade_to_history(order_type, amount, price):
         logger.error(f'Błąd podczas dodawania transakcji do historii: {str(e)}')
     
 
-def clear_trade_history_db():
+def clear_old_trade_history():
     try:
-        db.session.query(TradesHistory).delete()
+        one_month_ago = datetime.now() - timedelta(days=30)
+        db.session.query(TradesHistory).filter(TradesHistory.timestamp < one_month_ago).delete()
         db.session.commit()
-        logger.info("All trade history cleared successfully.")
+        logger.info("Trade history older than one month cleared successfully.")
     except Exception as e:
-        logger.error(f"Error clearing trade history: {str(e)}")
+        logger.error(f"Error clearing old trade history: {str(e)}")
         db.session.rollback()

@@ -8,7 +8,7 @@ from ..utils.logging import logger
 import logging
 from datetime import datetime as dt
 from ..utils.api_utils import fetch_data
-from ..utils.app_utils import send_email, show_account_balance
+from ..utils.app_utils import send_email, send_admin_email, show_account_balance, generate_trade_report
 from . import main
 
 @main.route('/start')
@@ -33,13 +33,13 @@ def start_bot():
             db.session.commit()
 
             flash('Bot started.', 'success')
-            send_email('piotrek.gaszczynski@gmail.com', 'Bot started.', 'Bot started.')
+            send_admin_email('Bot started.', 'Bot started.')
         return redirect(url_for('main.control_panel_view'))
     
     except Exception as e:
         db.session.rollback()
         logger.error(f'Error starting bot: {e}')
-        send_email('piotrek.gaszczynski@gmail.com', 'Error starting bot', str(e))
+        send_admin_email('Error starting bot', str(e))
         flash('An error occurred while starting the bot. The admin has been notified.', 'danger')
         return redirect(url_for('main.control_panel_view'))
 
@@ -66,13 +66,13 @@ def stop_bot():
             db.session.commit()
 
             flash('Bot stopped.', 'success')
-            send_email('piotrek.gaszczynski@gmail.com', 'Bot stopped.', 'Bot stopped.')
+            send_admin_email('Bot stopped.', 'Bot stopped.')
         return redirect(url_for('main.control_panel_view'))
     
     except Exception as e:
         db.session.rollback()
         logger.error(f'Error stopping bot: {e}')
-        send_email('piotrek.gaszczynski@gmail.com', 'Error stopping bot', str(e))
+        send_admin_email('Error stopping bot', str(e))
         flash('An error occurred while stopping the bot. The admin has been notified.', 'danger')
         return redirect(url_for('main.control_panel_view'))
 
@@ -91,7 +91,7 @@ def refresh():
 
     except Exception as e:
         logger.error(f'Error refreshing Binance API: {e}')
-        send_email('piotrek.gaszczynski@gmail.com', 'Error refreshing Binance API', str(e))
+        send_admin_email('Error refreshing Binance API', str(e))
         flash('An error occurred while refreshing the Binance API. The admin has been notified.', 'danger')
         return redirect(url_for('main.control_panel_view'))
 
@@ -105,17 +105,17 @@ def report():
         flash(f'Error. User {current_user.login} is not allowed receiving email raports.', 'danger')
         return redirect(url_for('main.user_panel_view'))
     
-    email = 'piotrek.gaszczynski@gmail.com'
-    subject = 'Stefan Test'
-    body = 'Stefan Body'
+    email = current_user.email
+    subject = 'Stefan Test Raport'
+    report_body = generate_trade_report('7d')
     
     try:
         with current_app.app_context():
-            send_email(email, subject, body)
+            send_email(email, subject, report_body)
             flash(f'Email to {email} sent successfully.', 'success')
     except Exception as e:
         logger.error(f'Error sending email to {email}: {e}')
         flash('An error occurred while sending the email. The admin has been notified.', 'danger')
-        send_email('piotrek.gaszczynski@gmail.com', 'Error sending email', str(e))
+        send_admin_email('Error sending email', str(e))
     
     return redirect(url_for('main.control_panel_view'))

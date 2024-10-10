@@ -15,7 +15,7 @@ import joblib
 from keras.models import Sequential
 from keras.layers import LSTM, Dense, Dropout
 from ..utils.api_utils import fetch_data, place_order
-from ..utils.app_utils import send_email
+from ..utils.app_utils import send_email, send_admin_email
 from .. import db
 from ..utils.logging import logger
 from ..models import Settings

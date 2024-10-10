@@ -57,8 +57,8 @@ def create_app(config_name=None):
         
     except Exception as e:
         logger.error(f'Error initializing Flask app: {e}')
-        from .utils.app_utils import send_email
-        send_email('piotrek.gaszczynski@gmail.com', 'App Initialization Error', str(e))
+        from .utils.app_utils import send_admin_email
+        send_admin_email('App Initialization Error', str(e))
         raise
     
     return app
@@ -87,7 +87,7 @@ def start_scheduler():
     logger.info('Starting scheduler.')
     try:
         from .utils.app_utils import send_24h_report_email
-        from .utils.stefan_utils import clear_trade_history_db
+        from .utils.stefan_utils import clear_old_trade_history
         from .stefan.stefan import run_trading_logic  
         scheduler.add_job(
             func=partial(run_job_with_context, run_trading_logic),
@@ -100,7 +100,7 @@ def start_scheduler():
             hours=24
         )
         scheduler.add_job(
-            func=partial(run_job_with_context, clear_trade_history_db),
+            func=partial(run_job_with_context, clear_old_trade_history),
             trigger="interval",
             days=7
         )
@@ -108,8 +108,8 @@ def start_scheduler():
         logger.info('Scheduler started successfully.')
     except Exception as e:
         logger.error(f'Error starting scheduler: {e}')
-        from .utils.app_utils import send_email
-        send_email('piotrek.gaszczynski@gmail.com', 'Scheduler Error', str(e))
+        from .utils.app_utils import send_admin_email
+        send_admin_email('Scheduler Error', str(e))
 
 with app.app_context():
     start_scheduler()

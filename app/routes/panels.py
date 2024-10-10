@@ -9,7 +9,7 @@ import logging
 from datetime import datetime as dt
 from . import main
 from ..utils.api_utils import fetch_data, fetch_ticker, fetch_system_status, fetch_account_status, fetch_server_time
-from ..utils.app_utils import send_email, show_account_balance
+from ..utils.app_utils import send_email, show_account_balance, send_admin_email
 
 @main.route('/')
 def user_panel_view():
@@ -21,7 +21,7 @@ def user_panel_view():
             return render_template('user_panel.html', user=current_user, account_status=account_status, binance_status=binance_status, server_time=server_time)
         except Exception as e:
             logger.error(f"Error in user_panel_view: {e}")
-            send_email('piotrek.gaszczynski@gmail.com', 'Error in user panel view', str(e))
+            send_admin_email('Error in user panel view', str(e))
             flash('An error occurred while fetching account data. Please try again later.', 'danger')
             return redirect(url_for('main.login'))
     else:
@@ -50,7 +50,7 @@ def control_panel_view():
 
     except Exception as e:
         logger.error(f'Error loading control panel: {e}')
-        send_email('piotrek.gaszczynski@gmail.com', 'Error loading control panel', str(e))
+        send_admin_email('Error loading control panel', str(e))
         flash('An error occurred while loading the control panel. The admin has been notified.', 'danger')
         return redirect(url_for('main.user_panel_view'))
 
@@ -71,6 +71,6 @@ def admin_panel_view():
 
     except Exception as e:
         logger.error(f'Error accessing admin panel: {e}')
-        send_email('piotrek.gaszczynski@gmail.com', 'Error accessing admin panel', str(e))
+        send_admin_email('Error accessing admin panel', str(e))
         flash('An error occurred while accessing the admin panel. The admin has been notified.', 'danger')
         return redirect(url_for('main.user_panel_view'))
