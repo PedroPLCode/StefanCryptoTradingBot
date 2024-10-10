@@ -1,13 +1,7 @@
-from flask import Flask, redirect, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, current_user
-from flask_mail import Mail
+from flask import redirect, url_for, flash
+from flask_login import current_user
 from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
-from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager
-from flask_cors import CORS
-from datetime import datetime as dt
 
 class MyAdmin(Admin):
     @expose('/')

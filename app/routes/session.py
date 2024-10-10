@@ -1,13 +1,11 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import  render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
 from ..forms import LoginForm, RegistrationForm
-from ..models import User, Settings
+from ..models import User
 from sqlalchemy import or_
-from ..utils.app_utils import send_email, send_admin_email, create_new_user, get_ip_address
+from ..utils.app_utils import send_admin_email, create_new_user, get_ip_address
 from .. import db
 from ..utils.logging import logger
-import logging
 from datetime import datetime as dt
 from . import main
 from .. import limiter

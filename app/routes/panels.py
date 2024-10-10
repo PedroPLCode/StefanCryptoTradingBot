@@ -1,15 +1,10 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import login_user, logout_user, login_required, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
-from ..forms import LoginForm, RegistrationForm
-from ..models import User, Settings, TradesHistory
-from .. import db
+from flask import render_template, redirect, url_for, flash
+from flask_login import current_user
+from ..models import TradesHistory
 from ..utils.logging import logger
-import logging
-from datetime import datetime as dt
 from . import main
-from ..utils.api_utils import fetch_data, fetch_ticker, fetch_system_status, fetch_account_status, fetch_server_time
-from ..utils.app_utils import send_email, show_account_balance, send_admin_email
+from ..utils.api_utils import fetch_ticker, fetch_system_status, fetch_account_status, fetch_server_time
+from ..utils.app_utils import show_account_balance, send_admin_email
 
 @main.route('/')
 def user_panel_view():

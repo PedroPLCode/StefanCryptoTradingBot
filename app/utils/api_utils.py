@@ -1,10 +1,7 @@
 from dotenv import load_dotenv
-from .. import db
-from ..models import Settings, CurrentTrade
-import numpy as np
 import pandas as pd
-from ..utils.app_utils import send_email, send_admin_email
-from ..utils.stefan_utils import save_trade, save_trade_to_history, load_current_trade, delete_trade
+from ..utils.app_utils import send_admin_email
+from ..utils.stefan_utils import save_trade, save_trade_to_history, delete_trade
 from binance.client import Client
 import os
 from ..utils.logging import logger
@@ -13,7 +10,7 @@ load_dotenv()
 
 BINANCE_API_KEY = os.environ['BINANCE_API_KEY']
 BINANCE_API_SECRET = os.environ['BINANCE_API_SECRET']
-client = Client(BINANCE_API_KEY, BINANCE_API_SECRET) #, testnet=True)
+client = Client(BINANCE_API_KEY, BINANCE_API_SECRET)
 
 def fetch_data(symbol, interval='1m', lookback='4h'):
     klines = client.get_historical_klines(symbol, interval, lookback)

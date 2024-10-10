@@ -5,7 +5,6 @@ from flask import current_app
 from werkzeug.security import generate_password_hash
 from ..utils.logging import logger
 
-
 def get_ip_address(request):
     if 'X-Forwarded-For' in request.headers:
         return request.headers['X-Forwarded-For'].split(',')[0]
@@ -25,20 +24,6 @@ def create_new_user(form):
         logger.error(f'Error creating user: {e}')
         send_admin_email('User Creation Error', str(e))
         raise
-    
-    
-def send_email(email, subject, body):
-    from app import mail
-    try:
-        with current_app.app_context():
-            message = Message(subject=subject, recipients=[email])
-            message.body = body
-            mail.send(message)
-            logger.info(f'Email "{subject}" sent to {email}.')
-            return True
-    except Exception as e:
-        logger.error(f'Failed to send email "{subject}" to {email}: {str(e)}')
-        return False 
 
 
 def generate_trade_report(period):
@@ -65,6 +50,20 @@ def generate_trade_report(period):
                             f"price: ${trade.price:.2f} USDC, timestamp: {trade.timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n")
 
     return report_data
+
+
+def send_email(email, subject, body):
+    from app import mail
+    try:
+        with current_app.app_context():
+            message = Message(subject=subject, recipients=[email])
+            message.body = body
+            mail.send(message)
+            logger.info(f'Email "{subject}" sent to {email}.')
+            return True
+    except Exception as e:
+        logger.error(f'Failed to send email "{subject}" to {email}: {str(e)}')
+        return False 
 
 
 def send_24h_report_email():

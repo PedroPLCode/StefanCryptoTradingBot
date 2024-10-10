@@ -1,14 +1,9 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
-from flask_login import login_user, logout_user, login_required, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
-from ..forms import LoginForm, RegistrationForm
-from ..models import User, Settings
-from .. import db, app
+from flask import redirect, url_for, flash, current_app
+from flask_login import login_required, current_user
+from ..models import Settings
+from .. import db
 from ..utils.logging import logger
-import logging
-from datetime import datetime as dt
-from ..utils.api_utils import fetch_data
-from ..utils.app_utils import send_email, send_admin_email, show_account_balance, generate_trade_report
+from ..utils.app_utils import send_email, send_admin_email, generate_trade_report
 from . import main
 
 @main.route('/start')

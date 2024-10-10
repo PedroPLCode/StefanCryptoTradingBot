@@ -1,10 +1,16 @@
-import time
 from flask import current_app
-from ..utils.app_utils import send_admin_email
-from ..utils.api_utils import fetch_data, place_buy_order, place_sell_order
-from ..utils.stefan_utils import calculate_indicators, check_buy_signal, save_trailing_stop_loss, save_previous_price, load_current_trade, update_trailing_stop_loss
 from ..models import Settings
 from ..utils.logging import logger
+from ..utils.app_utils import send_admin_email
+from ..utils.api_utils import fetch_data, place_buy_order, place_sell_order
+from ..utils.stefan_utils import (
+    calculate_indicators, 
+    check_buy_signal, 
+    save_trailing_stop_loss, 
+    save_previous_price, 
+    load_current_trade, 
+    update_trailing_stop_loss
+)
 
 def run_trading_logic():
     try:
