@@ -1,4 +1,3 @@
-# TESTS NEEDED
 import talib
 from datetime import datetime, timedelta
 from .. import db

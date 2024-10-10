@@ -1,4 +1,3 @@
-#tests
 from dotenv import load_dotenv
 from .. import db
 from ..models import Settings, CurrentTrade

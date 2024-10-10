@@ -1,4 +1,3 @@
-# TESTS NEEDED
 import time
 from flask import current_app
 from ..utils.app_utils import send_admin_email

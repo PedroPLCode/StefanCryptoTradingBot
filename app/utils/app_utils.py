@@ -1,4 +1,3 @@
-#tests
 from datetime import datetime, timedelta
 from flask_mail import Message
 from app.models import User, TradesHistory
