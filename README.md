@@ -59,12 +59,17 @@ pytest
 ```bash
 ./run.sh
 ```
+or
+```
+gunicorn -c gunicorn_config.py wsgi:app
+```
 
 ## Usage
 
 ### Once the bot is running, you can access the web interface to:
 - Start and Stop the Bot: Control the bot’s operation via the control panel.
 - Monitor Trading: View live data, including account balances and trade performance.
+- Adjust settings and strategy via admin panel.
 - Receive Reports: Check daily performance reports sent to your email.
 
 ### Example Commands:
@@ -89,6 +94,6 @@ pytest
 - Machine Learning: Incorporating machine learning to improve trade predictions and make the bot more adaptive.
 - Backtesting: Adding backtesting features to allow users to test their strategies against historical data.
 
-## Any comments welcome.
+### Any comments welcome.
 
 StefanCryptoTradingBot Project is under GPL Licence (GNU General Public License)

@@ -91,7 +91,6 @@ def refresh():
         return redirect(url_for('main.control_panel_view'))
 
 
-
 @main.route('/report')
 @login_required
 def report():

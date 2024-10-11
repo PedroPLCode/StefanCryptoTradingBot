@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import MagicMock, patch, AsyncMock
 from app.models import Settings
 from app import create_app, app
-from app.stefan.stefan import run_trading_logic
+from app.stefan.trading_logic import run_trading_logic
 from app.utils.stefan_utils import load_current_trade
 
 @pytest.fixture

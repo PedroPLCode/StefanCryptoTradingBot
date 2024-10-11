@@ -20,8 +20,11 @@ def register():
     if form.validate_on_submit():
         user_ip = get_ip_address(request)
         user_exists = User.query.filter(or_(User.login == form.login.data, User.email == form.email.data)).first()
-        if not user_exists:
+        if not user_exists:            
+            is_first_user = User.query.count() == 0
             new_user = create_new_user(form)
+            new_user.admin_panel_access = True if is_first_user else False
+                
             try:
                 db.session.add(new_user)
                 db.session.commit()
