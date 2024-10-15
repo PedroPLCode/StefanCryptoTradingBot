@@ -3,6 +3,8 @@ from .. import db
 class TradesHistory(db.Model):
     __tablename__ = 'trades_history'
     id = db.Column(db.Integer, primary_key=True)
+    bot_id = db.Column(db.Integer, default=0)
+    symbol = db.Column(db.String(16), default="undefined")
     type = db.Column(db.String(16), default="undefined")
     amount = db.Column(db.Float, default=0)
     price = db.Column(db.Float, default=0)

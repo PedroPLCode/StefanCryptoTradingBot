@@ -1,9 +1,9 @@
 from flask import render_template, redirect, url_for, flash
 from flask_login import current_user
-from ..models import TradesHistory
+from ..models import Settings, TradesHistory
 from ..utils.logging import logger
 from . import main
-from ..utils.api_utils import fetch_ticker, fetch_system_status, fetch_account_status, fetch_server_time
+from ..utils.api_utils import fetch_system_status, fetch_account_status, fetch_server_time
 from ..utils.app_utils import show_account_balance, send_admin_email
 
 @main.route('/')
@@ -36,12 +36,17 @@ def control_panel_view():
         return redirect(url_for('main.user_panel_view'))
 
     try:
-        binance_ticker = fetch_ticker()
-        account_status = fetch_account_status()
-        account_balance = show_account_balance(account_status)
         current_trades = TradesHistory.query.all()
+        all_bots_infos = Settings.query.all()
+        
+        for bot_info in all_bots_infos:
+            account_status = fetch_account_status(bot_info.id)
+            cryptocoin = bot_info.symbol[:3]
+            stablecoin = bot_info.symbol[-4:]
+            balance = show_account_balance(account_status, {cryptocoin, stablecoin})
+            bot_info.balance = balance
 
-        return render_template('control_panel.html', user=current_user, account_status=account_status, account_balance=account_balance, data=binance_ticker, current_trades=current_trades)
+        return render_template('control_panel.html', user=current_user, all_bots_infos=all_bots_infos, account_status=account_status, current_trades=current_trades)
 
     except Exception as e:
         logger.error(f'Error loading control panel: {e}')

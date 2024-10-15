@@ -36,15 +36,15 @@
                 <p class="text-muted m-0 p-0">Login: {{ user.login }}</p>
                 <p class="text-muted m-0 p-0">Name: {{ user.name }}</p>
                 <p class="text-muted m-0 p-0">Email: {{ user.email }}</p>
-                <p class="text-muted m-0 p-0">Control Panel Access: {{ user.control_panel_access }}</p>
-                <p class="text-muted m-0 p-0">Admin Panel Access: {{ user.admin_panel_access }}</p>
-                <p class="text-muted m-0 p-0">Email Reports Receiver: {{ user.email_raports_receiver }}</p>
-                <p class="text-muted m-0 p-0">Account Suspended: {{ user.account_suspended }}</p>
+                <p class="text-muted m-0 p-0">Control Panel Access: <span class="{{ 'text-success' if user.control_panel_access else 'text-danger' }}">{{ user.control_panel_access }}</span></p>
+                <p class="text-muted m-0 p-0">Admin Panel Access: <span class="{{ 'text-success' if user.admin_panel_access else 'text-danger' }}">{{ user.admin_panel_access }}</span></p>
+                <p class="text-muted m-0 p-0">Email Reports Receiver: <span class="{{ 'text-success' if user.email_raports_receiver else 'text-danger' }}">{{ user.email_raports_receiver }}</span></p>
+                <p class="text-muted m-0 p-0">Account Suspended: <span class="{{ 'text-success' if not user.account_suspended else 'text-danger' }}">{{ user.account_suspended }}</span></p>
 
                 {% if account_status is not none %}
-                <p class="text-muted m-0 p-0">Binance API canTrade: {{ account_status.canTrade }} </p>
-                <p class="text-muted m-0 p-0">Binance API canWithdraw: {{ account_status.canWithdraw }} </p>
-                <p class="text-muted m-0 p-0">Binance API canDeposit: {{ account_status.canDeposit }} </p>
+                <p class="text-muted m-0 p-0">Binance API canTrade: <span class="{{ 'text-success' if account_status.canTrade else 'text-danger' }}">{{ account_status.canTrade }}</span></p>
+                <p class="text-muted m-0 p-0">Binance API canWithdraw: <span class="{{ 'text-success' if account_status.canWithdraw else 'text-danger' }}">{{ account_status.canWithdraw }}</span></p>
+                <p class="text-muted m-0 p-0">Binance API canDeposit: <span class="{{ 'text-success' if account_status.canDeposit else 'text-danger' }}">{{ account_status.canDeposit }}</span></p>
                 {% else %}
                     error
                 {% endif%}
@@ -64,7 +64,7 @@
                 </h5>
             </div>
             <div class="card-body text-center">
-                <p class="text-muted m-0 p-0">StefanCryptoTradingBot version: 0.9</p>
+                <p class="text-muted m-0 p-0">StefanCryptoTradingBot version: 0.92</p>
                 {% if user.control_panel_access %}
                     <p class="text-muted m-0 p-0">Binance API Status:
                         {% if binance_status is not none %}
@@ -107,7 +107,7 @@
                         <a href="/admin" class="btn btn-primary w-100">Admin Panel</a>
                     {% endif %}
                     {% if user.email_raports_receiver %}
-                        <a href="{{ url_for('main.start_bot') }}" class="btn btn-primary w-100">Email Raport</a>
+                        <a href="{{ url_for('main.report') }}" class="btn btn-primary w-100">Email Raport</a>
                     {% endif %}
                     <a href="{{ url_for('main.logout') }}" class="btn btn-danger w-100">Logout</a>
                 </div>

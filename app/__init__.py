@@ -81,9 +81,9 @@ def start_scheduler():
     try:
         from .utils.app_utils import send_24h_report_email
         from .utils.stefan_utils import clear_old_trade_history
-        from .stefan.trading_logic import run_trading_logic  
+        from .stefan.trading_logic import run_all_trading_bots  
         scheduler.add_job(
-            func=partial(run_job_with_context, run_trading_logic),
+            func=partial(run_job_with_context, run_all_trading_bots),
             trigger='interval',
             minutes=1
         )

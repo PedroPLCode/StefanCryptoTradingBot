@@ -7,6 +7,7 @@ class Settings(db.Model):
     trailing_stop_pct = db.Column(db.Float, default=0.01)
     interval = db.Column(db.String(16), default="1m")
     lookback_period = db.Column(db.String(16), default="4h")
+    sell_signal_extended = db.Column(db.Boolean, default=False)
     bot_running = db.Column(db.Boolean, default=False)
     
     def __repr__(self):

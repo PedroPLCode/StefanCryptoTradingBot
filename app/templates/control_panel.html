@@ -27,38 +27,8 @@
         {% if current_user.is_authenticated %}
             <p class="text-center text-muted m-0 p-0">{{ current_user.login }} logged in at {{ current_user.last_login }}</p>
         {% endif %}
-
-        <div class="col-12 col-md-6 card mt-3 mb-3">
-            <div class="card-header text-center bg-light">
-                <h5>BTC Current Info</h5>
-            </div>
-            <div class="card-body text-center">
-                {% if data is not none %}
-                    <div class="ticker-info">
-                        <p class="mb-1">Price Change: {{ data.priceChange }}</p>
-                        <p class="mb-1">Price Change Percentage: {{ data.priceChangePercent }}%</p>
-                        <p class="mb-1">Weighted Average Price: {{ data.weightedAvgPrice }}</p>
-                        <p class="mb-1">Previous Close Price: {{ data.prevClosePrice }}</p>
-                        <p class="mb-1">Last Price: {{ data.lastPrice }}</p>
-                        <p class="mb-1">Bid Price: {{ data.bidPrice }}</p>
-                        <p class="mb-1">Ask Price: {{ data.askPrice }}</p>
-                        <p class="mb-1">Open Price: {{ data.openPrice }}</p>
-                        <p class="mb-1">High Price: {{ data.highPrice }}</p>
-                        <p class="mb-1">Low Price: {{ data.lowPrice }}</p>
-                        <p class="mb-1">Volume: {{ data.volume }}</p>
-                        <p class="mb-1">Open Time: {{ data.openTime | to_datetime }}</p>
-                        <p class="mb-1">Close Time: {{ data.closeTime | to_datetime }}</p>
-                        <p class="mb-1">First Trade ID: {{ data.firstId }}</p>
-                        <p class="mb-1">Last Trade ID: {{ data.lastId }}</p>
-                        <p class="mb-1">Trade Count: {{ data.count }}</p>
-                    </div>
-                {% else %}
-                    <p class="text-muted mb-0">No data available. Please check your API connection.</p>
-                {% endif %}
-            </div>
-        </div>           
         
-        <div class="col-12 col-md-6 card mb-3">
+        <div class="col-12 col-md-6 card mt-3 mb-3">
             <div class="card-header text-center bg-light">
                 <h5>Current Trades</h5>
             </div>
@@ -66,7 +36,7 @@
                 <div class="d-flex flex-column justify-content-center align-items-center gap-2">
                     {% if current_trades %}
                         {% for trade in current_trades %}
-                        <p class="mb-1">id: {{ trade.id }} {{ trade.type }} amount: {{ trade.amount }} BTC, price: ${{ '%.2f'|format(trade.price) }} USDC, timestamp: {{ trade.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                        <p class="mb-1">id: {{ trade.id }} bot_id: {{ trade.id }} type: {{ trade.type }} amount: {{ trade.amount }} {{ trade.symbol[:3] }}, price: ${{ '%.2f'|format(trade.price) }} {{ trade.symbol[:-4] }}, timestamp: {{ trade.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
                         {% endfor %}
                     {% else %}
                         <p class="mb-1">List empty.</p>
@@ -75,37 +45,42 @@
             </div>
         </div>
 
+        {% for bot_info in all_bots_infos %}
+            <div class="col-12 col-md-6 card mb-3">
+                <div class="card-header text-center bg-light">
+                    <h5>Bot {{bot_info.id}} Control Panel</h5>
+                </div>
+                <div class="card-body text-center">
+                    <p class="text-muted m-0 p-0">Symbol: {{ bot_info.symbol }}</p>
+                    {% for balance in bot_info.balance %}
+                    <p class="text-muted m-0 p-0">Balance {{ balance.asset }}: free {{ balance.free }}, locked {{ balance.locked }}</p>
+                    {% endfor %}
+                    <p class="text-muted m-0 p-0">Trailing Stop Loss: {{ bot_info.trailing_stop_pct }}</p>
+                    <p class="text-muted m-0 p-0">Lookback Days: {{ bot_info.lookback_period }}</p>
+                    <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>
+                    <p class="text-muted m-0 p-0">Sell Signal Extended: {{ bot_info.sell_signal_extended }}</p>
+                    <p class="text-muted m-0 p-0">Bot Running: <span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{{ bot_info.bot_running }}</span></p>
+                    <div class="mt-2 d-flex flex-column justify-content-center align-items-center gap-2">
+                        {% if bot_info.bot_running %}
+                            <a href="" class="btn btn-light w-100">Bot is running</a>
+                            <a href="{{ url_for('main.stop_bot', bot_id=bot_info.id) }}" class="btn btn-danger w-100">Stop Bot {{bot_info.id}}</a>
+                        {% else %}
+                            <a href="{{ url_for('main.start_bot', bot_id=bot_info.id) }}" class="btn btn-success w-100">Start Bot {{bot_info.id}}</a>
+                            <a href="" class="btn btn-light w-100">Bot is stopped</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
         <div class="col-12 col-md-6 card mb-3">
             <div class="card-header text-center bg-light">
-                <h5>Bot Control Panel</h5>
+                <h5>Options</h5>
             </div>
             <div class="card-body text-center">
-
-                <p class="text-muted m-0 p-0">Bot Running: {{ bot_settings.bot_running }}</p>
-
-                {% if account_balance is not none %}
-                {% for single in account_balance %}
-                <p class="text-muted m-0 p-0">Balance {{ single.asset }}: Free: {{ single.free | round(16) }} Locked: {{ single.locked | round(16) }} </p>
-                {% endfor %}
-                {% else %}
-                    error
-                {% endif%}
-
-                <p class="text-muted m-0 p-0">Bot Symbol: {{ bot_settings.symbol }}</p>
-                <p class="text-muted m-0 p-0">Bot Lookback Days: {{ bot_settings.lookback_days }}</p>
-                <p class="text-muted m-0 p-0">Bot Interval: {{ bot_settings.interval }}</p>
-                <p class="text-muted m-0 p-0">Bot Trailing Stop Loss: {{ bot_settings.trailing_stop_pct }}</p>
-
-                <div class="mt-2 d-flex flex-column justify-content-center align-items-center gap-2">
-
-                    {% if bot_settings.bot_running %}
-                        <a href="" class="btn btn-light w-100">Bot is running</a>
-                        <a href="{{ url_for('main.stop_bot') }}" class="btn btn-danger w-100">Stop Bot</a>
-                    {% else %}
-                        <a href="{{ url_for('main.start_bot') }}" class="btn btn-success w-100">Start Bot</a>
-                        <a href="" class="btn btn-light w-100">Bot is stopped</a>
-                    {% endif %}
-
+                <div class="d-flex flex-column justify-content-center align-items-center gap-2">    
+                    <a href="{{ url_for('main.start_all') }}" class="btn btn-success w-100">Start All bots</a>    
+                    <a href="{{ url_for('main.stop_all') }}" class="btn btn-danger w-100">Stop All Bots</a>   
                     <a href="{{ url_for('main.refresh') }}" class="btn btn-primary w-100">Refresh</a>
                     {% if user.email_raports_receiver %}
                         <a href="{{ url_for('main.report') }}" class="btn btn-primary w-100">Email Report</a>

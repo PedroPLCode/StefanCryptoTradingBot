@@ -3,11 +3,12 @@ from .. import db
 class CurrentTrade(db.Model):
     __tablename__ = 'current_trade'
     id = db.Column(db.Integer, primary_key=True)
-    type = db.Column(db.String(16), default="undefined")
-    amount = db.Column(db.Float, default=0)
-    price = db.Column(db.Float, default=0)
-    previous_price = db.Column(db.Float, default=0)
-    trailing_stop_loss = db.Column(db.Float, nullable=True)
+    is_active = db.Column(db.Boolean, nullable=False, default=False)
+    type = db.Column(db.String(16), default="undefined", nullable=True)
+    amount = db.Column(db.Float, default=0, nullable=True)
+    price = db.Column(db.Float, default=0, nullable=True)
+    previous_price = db.Column(db.Float, default=0, nullable=True)
+    trailing_stop_loss = db.Column(db.Float, default=0, nullable=True)
     
     def __repr__(self):
         return (

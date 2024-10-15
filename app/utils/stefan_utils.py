@@ -1,8 +1,11 @@
+from flask import flash, current_app
 import talib
 from datetime import datetime, timedelta
 from .. import db
-from ..models import TradesHistory, CurrentTrade
+from ..models import Settings, TradesHistory, CurrentTrade
 from .logging import logger
+from ..utils.app_utils import send_admin_email
+from ..utils.api_utils import place_sell_order
 
 def calculate_indicators(df):
     df['rsi'] = talib.RSI(df['close'], timeperiod=5)
@@ -30,19 +33,22 @@ def check_sell_signal(df):
     return False
 
 
-def save_trade(order_type, amount, price):
-    trade = CurrentTrade(type=order_type, amount=amount, price=price)
-    db.session.add(trade)
+def save_active_trade(current_trade, order_type, amount, price):
+    current_trade.is_active = True
+    current_trade.type = order_type
+    current_trade.amount = amount
+    current_trade.price = price
     db.session.commit()
     
     
-def delete_trade():
-    db.session.query(CurrentTrade).delete()
+def save_deactivated_trade(current_trade):
+    current_trade.is_active = False
+    current_trade.type = None
+    current_trade.amount = None
+    current_trade.price = None
+    current_trade.previous_price = None
+    current_trade.trailing_stop_loss = None
     db.session.commit()
-
-
-def load_current_trade():
-    return CurrentTrade.query.first() or None
 
 
 def update_trailing_stop_loss(current_price, trailing_stop_price, atr):
@@ -51,26 +57,24 @@ def update_trailing_stop_loss(current_price, trailing_stop_price, atr):
     return max(dynamic_trailing_stop, minimal_trailing_stop)
 
 
-def save_trailing_stop_loss(trailing_stop_price):
-    current_trade = load_current_trade()
+def save_trailing_stop_loss(trailing_stop_price, current_trade):
     if current_trade:
         current_trade.trailing_stop_loss = trailing_stop_price
         db.session.commit()
         
         
-def save_previous_price(price):
-    current_trade = load_current_trade()
+def save_previous_price(price, current_trade):
     if current_trade:
         current_trade.previous_price = price
         db.session.commit()
         
 
-def save_trade_to_history(order_type, amount, price):
+def save_trade_to_history(current_trade, symbol, order_type, amount, price):
     try:
-        trade = TradesHistory(type=order_type, amount=amount, price=price)
+        trade = TradesHistory(bot_id=current_trade.id, symbol=symbol, type=order_type, amount=amount, price=price)
         db.session.add(trade)
         db.session.commit()
-        logger.info(f'Transaction {trade.id}: {order_type}, amount: {amount}, price: {price}, timestamp: {trade.timestamp}')
+        logger.info(f'Transaction {trade.id}: bot: {current_trade.id} {order_type}, amount: {amount}, symbol: {symbol}, price: {price}, timestamp: {trade.timestamp}')
     except Exception as e:
         db.session.rollback()
         logger.error(f'Błąd podczas dodawania transakcji do historii: {str(e)}')
@@ -85,3 +89,54 @@ def clear_old_trade_history():
     except Exception as e:
         logger.error(f"Error clearing old trade history: {str(e)}")
         db.session.rollback()
+        
+
+def start_single_bot(settings, current_user):
+    if settings.bot_running:
+        flash(f'Bot {settings.id} is already running.', 'info')
+    else:
+        settings.bot_running = True
+        db.session.commit()
+        flash(f'Bot {settings.id} has been started.', 'success')
+        send_admin_email('Bot started.', f'Bot {settings.id} has been started by {current_user.login}.')
+
+
+def stop_single_bot(settings, current_user):
+    if not settings.bot_running:
+        flash(f'Bot {settings.id} is already stopped.', 'info')
+    else:
+        settings.bot_running = False
+        db.session.commit()
+        flash(f'Bot {settings.id} has been stopped.', 'success')
+        send_admin_email('Bot stopped.', f'Bot {settings.id} has been stopped by {current_user.login if current_user.login else current_user}.')
+
+
+def stop_all_bots(current_user):
+    all_bots_settings = Settings.query.all()
+    all_bots_current_trade = CurrentTrade.query.all()
+    
+    with current_app.app_context():
+        for settings in all_bots_settings:
+            try:
+                current_trade = next((trade for trade in all_bots_current_trade if trade.id == settings.id), None)
+                
+                if current_trade.is_active:
+                    place_sell_order(settings.symbol, current_trade)
+            
+                stop_single_bot(settings, current_user)
+                
+            except Exception as e:
+                logger.error(f'Błąd podczas rozruchu botów: ', str(e))
+                send_admin_email('Błąd podczas rozruchu botów', str(e))
+            
+    
+def start_all_bots(current_user='undefined'):
+    all_bots_settings = Settings.query.all()
+        
+    with current_app.app_context():
+        for settings in all_bots_settings:
+            try:
+                start_single_bot(settings, current_user)         
+            except Exception as e:
+                logger.error(f'Błąd podczas rozruchu botów: {str(e)}')
+                send_admin_email('Błąd podczas rozruchu botów', {str(e)})

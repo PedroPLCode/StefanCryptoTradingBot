@@ -1,74 +1,100 @@
 from flask import redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
-from ..models import Settings
+from ..models import Settings, CurrentTrade
 from .. import db
 from ..utils.logging import logger
 from ..utils.app_utils import send_email, send_admin_email, generate_trade_report
+from ..utils.api_utils import place_sell_order
+from ..utils.stefan_utils import stop_all_bots, start_all_bots, start_single_bot, stop_single_bot
 from . import main
 
-@main.route('/start')
+@main.route('/start/<int:bot_id>')
 @login_required
-def start_bot():
+def start_bot(bot_id):
     if not current_user.control_panel_access:
         logger.warning(f'{current_user.login} tried to control Bot without permission.')
-        flash(f'Error. User {current_user.login} is not allowed to control Bot.', 'danger')
+        flash(f'Error. User {current_user.login} is not allowed to control the Bot.', 'danger')
+        return redirect(url_for('main.user_panel_view'))
+
+    try:
+        settings = Settings.query.filter_by(id=bot_id).first()
+
+        if settings:
+            start_single_bot(settings, current_user)
+        else:
+            flash(f'Settings for bot {bot_id} not found.', 'danger')
+            send_admin_email('Bot not started.', f'Settings for bot {bot_id} not found.')
+
+        return redirect(url_for('main.control_panel_view'))
+
+    except Exception as e:
+        logger.error(f'Error while starting bot {bot_id}: {e}')
+        flash(f'An error occurred while starting bot {bot_id}.', 'danger')
+        return redirect(url_for('main.control_panel_view'))
+
+
+@main.route('/stop/<int:bot_id>')
+@login_required
+def stop_bot(bot_id):
+    if not current_user.control_panel_access:
+        logger.warning(f'{current_user.login} tried to control Bot without permission.')
+        flash(f'Error. User {current_user.login} is not allowed to control the Bot.', 'danger')
         return redirect(url_for('main.user_panel_view'))
     
     try:
-        settings = Settings.query.first()
-        if not settings:
-            settings = Settings()
-            db.session.add(settings)
-            db.session.commit()
-            
-        if settings.bot_running:
-            flash('Bot is already running.', 'success')
+        settings = Settings.query.filter_by(id=bot_id).first()
+        current_trade = CurrentTrade.query.filter_by(id=bot_id).first()
+        
+        if current_trade.is_active:
+            place_sell_order(settings.symbol, current_trade)
+        
+        if settings:
+            stop_single_bot(settings, current_user)
         else:
-            settings.bot_running = True
-            db.session.commit()
+            flash(f'Settings for bot {bot_id} not found.', 'danger')
+            send_admin_email('Bot not stopped.', f'Settings for bot {bot_id} not found.')
 
-            flash('Bot started.', 'success')
-            send_admin_email('Bot started.', 'Bot started.')
+        return redirect(url_for('main.control_panel_view'))
+
+    except Exception as e:
+        logger.error(f'Error while stopping bot {bot_id}: {e}')
+        flash(f'An error occurred while stopping bot {bot_id}.', 'danger')
         return redirect(url_for('main.control_panel_view'))
     
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f'Error starting bot: {e}')
-        send_admin_email('Error starting bot', str(e))
-        flash('An error occurred while starting the bot. The admin has been notified.', 'danger')
-        return redirect(url_for('main.control_panel_view'))
 
-
-@main.route('/stop')
+@main.route('/startall')
 @login_required
-def stop_bot():
+def start_all(current_user):
     if not current_user.control_panel_access:
         logger.warning(f'{current_user.login} tried to control Bot without permission.')
-        flash(f'Error. User {current_user.login} is not allowed to control Bot.', 'danger')
+        flash(f'Error. User {current_user.login} is not allowed to control the Bot.', 'danger')
         return redirect(url_for('main.user_panel_view'))
     
     try:
-        settings = Settings.query.first()
-        if not settings:
-            settings = Settings()
-            db.session.add(settings)
-            db.session.commit()
-            
-        if not settings.bot_running:
-            flash('Bot is already stopped.', 'success')
-        else:
-            settings.bot_running = False
-            db.session.commit()
+        start_all_bots(current_user)
+        return redirect(url_for('main.control_panel_view'))
 
-            flash('Bot stopped.', 'success')
-            send_admin_email('Bot stopped.', 'Bot stopped.')
+    except Exception as e:
+        logger.error(f'Error while stopping all bots: {e}')
+        flash(f'An error occurred while stopping all bots.', 'danger')
         return redirect(url_for('main.control_panel_view'))
     
+    
+@main.route('/stopall')
+@login_required
+def stop_all():
+    if not current_user.control_panel_access:
+        logger.warning(f'{current_user.login} tried to control Bot without permission.')
+        flash(f'Error. User {current_user.login} is not allowed to control the Bot.', 'danger')
+        return redirect(url_for('main.user_panel_view'))
+    
+    try:
+        stop_all_bots(current_user)
+        return redirect(url_for('main.control_panel_view'))
+
     except Exception as e:
-        db.session.rollback()
-        logger.error(f'Error stopping bot: {e}')
-        send_admin_email('Error stopping bot', str(e))
-        flash('An error occurred while stopping the bot. The admin has been notified.', 'danger')
+        logger.error(f'Error while stopping all bots: {e}')
+        flash(f'An error occurred while stopping all bots.', 'danger')
         return redirect(url_for('main.control_panel_view'))
 
 

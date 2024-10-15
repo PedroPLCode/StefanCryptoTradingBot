@@ -38,10 +38,10 @@ class UserAdmin(AdminModelView):
 
 
 class SettingsAdmin(AdminModelView):
-    column_list = ('id', 'bot_running', 'symbol', 'trailing_stop_pct', 'interval', 'lookback_period')
+    column_list = ('id', 'bot_running', 'symbol', 'trailing_stop_pct', 'interval', 'lookback_period', 'sell_signal_extended')
     
 class CurrentTradeAdmin(AdminModelView):
-    column_list = ('id', 'type', 'amount', 'price', 'previous_price', 'trailing_stop_loss')
+    column_list = ('id', 'is_active', 'type', 'amount', 'price', 'previous_price', 'trailing_stop_loss')
     
 class TradesHistoryAdmin(AdminModelView):
-    column_list = ('id', 'type', 'amount', 'price', 'timestamp')
+    column_list = ('id', 'bot_id', 'type', 'amount', 'price', 'timestamp')
