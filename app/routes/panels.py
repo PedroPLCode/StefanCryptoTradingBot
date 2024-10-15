@@ -49,7 +49,6 @@ def control_panel_view():
         return redirect(url_for('main.user_panel_view'))
 
     try:
-        current_trades = TradesHistory.query.all()
         all_bots_infos = Settings.query.all()
         
         for bot_info in all_bots_infos:
@@ -66,13 +65,39 @@ def control_panel_view():
             user=current_user, 
             all_bots_infos=all_bots_infos, 
             account_status=account_status, 
-            current_trades=current_trades
         )
 
     except Exception as e:
         logger.error(f'Error loading control panel: {e}')
         send_admin_email('Error loading control panel', str(e))
         flash('An error occurred while loading the control panel. The admin has been notified.', 'danger')
+        return redirect(url_for('main.user_panel_view'))
+    
+    
+@main.route('/trades')
+def current_trades_view():
+    if not current_user.is_authenticated:
+        flash('Please log in to access the trades panel.', 'warning')
+        return redirect(url_for('main.login'))
+
+    if not current_user.control_panel_access:
+        logger.warning(f'{current_user.login} tried to access the Trades Panel without permission.')
+        flash(f'Error. User {current_user.login} is not allowed to access the Trades Panel.', 'danger')
+        return redirect(url_for('main.user_panel_view'))
+
+    try:
+        current_trades = TradesHistory.query.all()
+
+        return render_template(
+            'current_trades.html', 
+            user=current_user, 
+            current_trades=current_trades
+        )
+
+    except Exception as e:
+        logger.error(f'Error loading trades panel: {e}')
+        send_admin_email('Error loading trades panel', str(e))
+        flash('An error occurred while loading the trades panel. The admin has been notified.', 'danger')
         return redirect(url_for('main.user_panel_view'))
 
 

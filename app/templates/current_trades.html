@@ -27,43 +27,30 @@
         {% if current_user.is_authenticated %}
             <p class="text-center text-muted m-0 p-0">{{ current_user.login }} logged in at {{ current_user.last_login }}</p>
         {% endif %}
-
-        {% for bot_info in all_bots_infos %}
-            <div class="col-12 col-md-6 card mb-3 mt-3">
-                <div class="card-header text-center bg-light">
-                    <h5>Bot {{bot_info.id}} Control Panel</h5>
-                </div>
-                <div class="card-body text-center">
-                    <p class="text-muted m-0 p-0">Symbol: {{ bot_info.symbol }}</p>
-                    {% for balance in bot_info.balance %}
-                    <p class="text-muted m-0 p-0">Balance {{ balance.asset }}: free {{ balance.free }}, locked {{ balance.locked }}</p>
-                    {% endfor %}
-                    <p class="text-muted m-0 p-0">Trailing Stop Loss: {{ bot_info.trailing_stop_pct }}</p>
-                    <p class="text-muted m-0 p-0">Lookback Days: {{ bot_info.lookback_period }}</p>
-                    <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>
-                    <p class="text-muted m-0 p-0">Sell Signal Extended: {{ bot_info.sell_signal_extended }}</p>
-                    <p class="text-muted m-0 p-0">Bot Running: <span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{{ bot_info.bot_running }}</span></p>
-                    <div class="mt-2 d-flex flex-column justify-content-center align-items-center gap-2">
-                        {% if bot_info.bot_running %}
-                            <a href="" class="btn btn-light w-100">Bot is running</a>
-                            <a href="{{ url_for('main.stop_bot', bot_id=bot_info.id) }}" class="btn btn-danger w-100">Stop Bot {{bot_info.id}}</a>
-                        {% else %}
-                            <a href="{{ url_for('main.start_bot', bot_id=bot_info.id) }}" class="btn btn-success w-100">Start Bot {{bot_info.id}}</a>
-                            <a href="" class="btn btn-light w-100">Bot is stopped</a>
-                        {% endif %}
-                    </div>
+        
+        <div class="col-12 col-md-6 card mt-3 mb-3">
+            <div class="card-header text-center bg-light">
+                <h5>Current Trades</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                    {% if current_trades %}
+                        {% for trade in current_trades %}
+                        <p class="mb-1">id: {{ trade.id }} bot_id: {{ trade.id }} type: {{ trade.type }} amount: {{ trade.amount }} {{ trade.symbol[:3] }}, price: ${{ '%.2f'|format(trade.price) }} {{ trade.symbol[:-4] }}, timestamp: {{ trade.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <p class="mb-1">List empty.</p>
+                    {% endif %}
                 </div>
             </div>
-        {% endfor %}
+        </div>
 
         <div class="col-12 col-md-6 card mb-3">
             <div class="card-header text-center bg-light">
                 <h5>Options</h5>
             </div>
             <div class="card-body text-center">
-                <div class="d-flex flex-column justify-content-center align-items-center gap-2">    
-                    <a href="{{ url_for('main.start_all') }}" class="btn btn-success w-100">Start All bots</a>    
-                    <a href="{{ url_for('main.stop_all') }}" class="btn btn-danger w-100">Stop All Bots</a>   
+                <div class="d-flex flex-column justify-content-center align-items-center gap-2">      
                     <a href="{{ url_for('main.refresh') }}" class="btn btn-primary w-100">Refresh</a>
                     {% if user.email_raports_receiver %}
                         <a href="{{ url_for('main.report') }}" class="btn btn-primary w-100">Email Report</a>
@@ -78,8 +65,8 @@
             </div>
             <div class="card-body text-center">
                 <div class="d-flex flex-column justify-content-center align-items-center gap-2">
-                    <a href="/trades" class="btn btn-primary w-100">Current Trades</a>
                     <a href="/" class="btn btn-primary w-100">User Panel</a>
+                    <a href="/control" class="btn btn-primary w-100">Control Panel</a>
                     {% if user.admin_panel_access %}
                         <a href="/admin" class="btn btn-primary w-100">Admin Panel</a>
                     {% endif %}
