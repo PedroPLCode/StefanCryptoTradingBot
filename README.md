@@ -6,6 +6,7 @@ The bot provides an easy-to-use interface for starting and stopping the bot, rea
 
 ## Features
 
+- Up to 5 independent bots with different currencies and strategies.
 - Automated Trading: Executes trades on Binance based on predefined strategies.
 - Binance API Integration: Fetches real-time data and executes trades.
 - Real-Time Monitoring: Displays current trade results, account balances, and historical data from the last 24 hours.
@@ -39,8 +40,10 @@ GMAIL_USERNAME = 'gmail@username.com'
 GMAIL_APP_PASSWORD="gmail_app_password"
 RECAPTCHA_PUBLIC_KEY = "recaptcha_public_key"
 RECAPTCHA_PRIVATE_KEY = "recaptcha_private_key"
-BINANCE_API_KEY='binance_api_key'
-BINANCE_API_SECRET='binance_api_secret'
+BINANCE_GENERAL_API_KEY='binance_general_api_key'
+BINANCE_GENERAL_API_SECRET='binance_gereral_api_secret'
+BINANCE_BOT1_API_KEY='binance_bot1_api_key'
+BINANCE_BOT1_API_SECRET='binance_bot1_api_secret'
 ```
 
 5. Set up the database:
@@ -73,8 +76,9 @@ gunicorn -c gunicorn_config.py wsgi:app
 - Receive Reports: Check daily performance reports sent to your email.
 
 ### Example Commands:
-- To start the bot, access the control panel and click "Start Bot."
-- To stop the bot, access the control panel and click "Stop Bot."
+- To start seleted bot, access the control panel and click "Start Bot."
+- To stop seleted bot, access the control panel and click "Stop Bot."
+- You can start or stop all bots in same time, using "Start/Stop All Bots."
 
 ### Testing
 - The project includes a test suite that can be executed using pytest. To run the tests, simply use:
@@ -94,6 +98,6 @@ pytest
 - Machine Learning: Incorporating machine learning to improve trade predictions and make the bot more adaptive.
 - Backtesting: Adding backtesting features to allow users to test their strategies against historical data.
 
-### Any comments welcome.
+### Familiarize yourself thoroughly with the source code; only then will you be able to customize the bot to your own needs and preferences. Any comments welcome.
 
 StefanCryptoTradingBot Project is under GPL Licence (GNU General Public License)
