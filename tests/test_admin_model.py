@@ -1,9 +1,5 @@
 import pytest
-from flask import Flask
-from flask_login import current_user
-from app import create_app, db
 from app.models import User
-from unittest.mock import patch
 
 @pytest.fixture
 def test_app():

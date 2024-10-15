@@ -3,12 +3,16 @@ from flask_login import login_user, logout_user, login_required, current_user
 from ..forms import LoginForm, RegistrationForm
 from ..models import User
 from sqlalchemy import or_
-from ..utils.app_utils import send_admin_email, create_new_user, get_ip_address
 from .. import db
 from ..utils.logging import logger
 from datetime import datetime as dt
 from . import main
 from .. import limiter
+from ..utils.app_utils import (
+    send_admin_email,
+    create_new_user, 
+    get_ip_address
+)
 
 @main.route('/register', methods=['GET', 'POST'])
 @limiter.limit("6/hour")
@@ -18,8 +22,14 @@ def register():
 
     form = RegistrationForm()
     if form.validate_on_submit():
+        
         user_ip = get_ip_address(request)
-        user_exists = User.query.filter(or_(User.login == form.login.data, User.email == form.email.data)).first()
+        
+        user_exists = User.query.filter(or_(
+            User.login == form.login.data, 
+            User.email == form.email.data
+        )).first()
+        
         if not user_exists:            
             is_first_user = User.query.count() == 0
             new_user = create_new_user(form)
@@ -69,6 +79,7 @@ def login():
         try:
             user_ip = get_ip_address(request)
             user = User.query.filter_by(login=form.login.data).first()
+            
             if user:
                 if not user.account_suspended:
                     if user.check_password(form.password.data):

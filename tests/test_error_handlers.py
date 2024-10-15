@@ -1,6 +1,4 @@
 import pytest
-from flask import url_for
-from app import app, create_app, db, login_manager
 
 @pytest.fixture
 def test_app():

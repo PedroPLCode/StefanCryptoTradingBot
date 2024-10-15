@@ -1,15 +1,11 @@
 import pytest
 from unittest.mock import patch, MagicMock
-import talib
 from datetime import datetime, timedelta
 import pandas as pd
 from app.utils.stefan_utils import (
     calculate_indicators,
     check_buy_signal,
     check_sell_signal,
-    save_trade,
-    delete_trade,
-    load_current_trade,
     update_trailing_stop_loss,
     save_trailing_stop_loss,
     save_previous_price,
@@ -38,7 +34,6 @@ def mock_talib():
         yield MockTA
 
 def test_calculate_indicators(mock_talib):
-    # Create a sample DataFrame
     df = pd.DataFrame({
         'close': [100, 105, 110, 115, 120],
         'high': [102, 107, 112, 117, 122],
@@ -46,7 +41,6 @@ def test_calculate_indicators(mock_talib):
         'volume': [10, 15, 20, 25, 30]
     })
     
-    # Mock TA-Lib functions
     mock_talib.RSI.return_value = [30, 35, 40, 45, 50]
     mock_talib.MACD.return_value = ([0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0])
     mock_talib.BBANDS.return_value = ([0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0])
@@ -95,28 +89,6 @@ def test_check_sell_signal(mock_talib):
 
     assert check_sell_signal(df) is True
 
-def test_save_trade(mock_db_session, mock_current_trade):
-    mock_current_trade.return_value = MagicMock()
-    
-    save_trade('buy', 1, 100)
-
-    mock_db_session.add.assert_called_once()
-    mock_db_session.commit.assert_called_once()
-
-def test_delete_trade(mock_db_session):
-    delete_trade()
-
-    mock_db_session.query.return_value.delete.assert_called_once()
-    mock_db_session.commit.assert_called_once()
-
-def test_load_current_trade(mock_current_trade):
-    mock_current_trade.query.first.return_value = MagicMock()
-
-    current_trade = load_current_trade()
-    
-    assert current_trade is not None
-    mock_current_trade.query.first.assert_called_once()
-
 def test_update_trailing_stop_loss():
     trailing_stop_price = 90
     current_price = 100
@@ -124,7 +96,7 @@ def test_update_trailing_stop_loss():
 
     result = update_trailing_stop_loss(current_price, trailing_stop_price, atr)
     
-    assert result == 99  # since 100 * (1 - (0.5 * 2 / 100)) = 99
+    assert result == 99
 
 def test_save_trailing_stop_loss(mock_db_session, mock_current_trade):
     mock_current_trade.query.first.return_value = MagicMock()

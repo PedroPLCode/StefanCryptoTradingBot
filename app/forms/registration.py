@@ -11,11 +11,13 @@ def is_login_exits(form, field):
     if user:
         raise ValidationError("This login is in use.")
     
+    
 def is_email_exists(form, field):
     email = field.data
     user = User.query.filter_by(email=email).first()
     if user:
         raise ValidationError("This email is in use.")
+    
     
 def password_complexity(form, field):
     password = field.data
@@ -31,9 +33,20 @@ def password_complexity(form, field):
 
 class RegistrationForm(FlaskForm):
     recaptcha = RecaptchaField()
-    login = StringField(render_kw={"placeholder": "Login"}, validators=[DataRequired(), is_login_exits])
-    name = StringField(render_kw={"placeholder": "Name"}, validators=[DataRequired()])
-    email = StringField(render_kw={"placeholder": "Email"}, validators=[DataRequired(), Email(), is_email_exists])
-    password = PasswordField(render_kw={"placeholder": "Password"}, validators=[DataRequired(), Length(min=10, max=50), password_complexity])
-    confirm_password = PasswordField(render_kw={"placeholder": "Confirm Password"}, validators=[DataRequired(), EqualTo('password')])
+    login = StringField(render_kw={"placeholder": "Login"}, 
+                        validators=[DataRequired(), 
+                                    is_login_exits])
+    name = StringField(render_kw={"placeholder": "Name"}, 
+                       validators=[DataRequired()])
+    email = StringField(render_kw={"placeholder": "Email"}, 
+                        validators=[DataRequired(), 
+                                    Email(), 
+                                    is_email_exists])
+    password = PasswordField(render_kw={"placeholder": "Password"}, 
+                             validators=[DataRequired(), 
+                                         Length(min=10, max=50), 
+                                         password_complexity])
+    confirm_password = PasswordField(render_kw={"placeholder": "Confirm Password"}, 
+                                     validators=[DataRequired(), 
+                                                 EqualTo('password')])
     submit = SubmitField('Register')

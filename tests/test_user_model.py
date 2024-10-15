@@ -1,8 +1,6 @@
 import pytest
 from app import create_app, db
 from app.models import User
-from datetime import datetime as dt
-from werkzeug.security import generate_password_hash, check_password_hash
 
 @pytest.fixture
 def test_app():

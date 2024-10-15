@@ -1,9 +1,6 @@
 import pytest
 from flask import Flask
-from flask_mail import Mail
-from flask_login import LoginManager
-from app.utils.app_utils import create_new_user, send_email, show_account_balance, get_ip_address
-from app.forms import RegistrationForm
+from app.utils.app_utils import show_account_balance, get_ip_address
 
 @pytest.fixture
 def app():

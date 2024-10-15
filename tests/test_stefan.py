@@ -1,9 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch, AsyncMock
 from app.models import Settings
-from app import create_app, app
-from app.stefan.trading_logic import run_trading_logic
-from app.utils.stefan_utils import load_current_trade
+from app.stefan.trading_logic import run_single_bot_trading_logic
 
 @pytest.fixture
 def test_app():
@@ -40,7 +38,7 @@ def mock_trade():
 @patch('test_app.stefan.stefan.check_buy_signal')
 @patch('test_app.stefan.stefan.place_buy_order')
 @patch('test_app.stefan.stefan.place_sell_order')
-@patch('test_app.stefan.stefan.load_current_trade', return_value=None)  # no trade yet
+@patch('test_app.stefan.stefan.load_current_trade', return_value=None)
 @patch('test_app.stefan.stefan.save_trailing_stop_loss')
 @patch('test_app.stefan.stefan.save_previous_price')
 @patch('test_app.stefan.stefan.logger')
@@ -49,17 +47,16 @@ def test_run_trading_logic_buy(mock_logger, mock_save_previous_price, mock_save_
                                 mock_place_buy_order, mock_check_buy_signal,
                                 mock_calculate_indicators, mock_fetch_data, mock_current_app, mock_settings):
     
-    # Configure mocks
     mock_current_app.app_context.return_value.__enter__.return_value = None
     mock_settings.return_value = mock_settings
     mock_fetch_data.return_value = MagicMock()
-    mock_fetch_data.return_value['close'].iloc[-1] = 105  # current price
-    mock_check_buy_signal.return_value = True  # signal to buy
+    mock_fetch_data.return_value['close'].iloc[-1] = 105
+    mock_check_buy_signal.return_value = True
 
-    run_trading_logic()
+    run_single_bot_trading_logic()
 
     mock_place_buy_order.assert_called_once_with('BTCUSDC')
-    mock_save_trailing_stop_loss.assert_called_once_with(0.95)  # trailing stop loss
+    mock_save_trailing_stop_loss.assert_called_once_with(0.95)
     mock_save_previous_price.assert_called_once_with(105)
 
 @patch('test_app.stefan.stefan.current_app')
@@ -68,7 +65,7 @@ def test_run_trading_logic_buy(mock_logger, mock_save_previous_price, mock_save_
 @patch('test_app.stefan.stefan.check_buy_signal')
 @patch('test_app.stefan.stefan.place_buy_order')
 @patch('test_app.stefan.stefan.place_sell_order')
-@patch('test_app.stefan.stefan.load_current_trade', return_value=mock_trade)  # existing trade
+@patch('test_app.stefan.stefan.load_current_trade', return_value=mock_trade)
 @patch('test_app.stefan.stefan.save_trailing_stop_loss')
 @patch('test_app.stefan.stefan.save_previous_price')
 @patch('test_app.stefan.stefan.logger')
@@ -77,27 +74,26 @@ def test_run_trading_logic_sell(mock_logger, mock_save_previous_price, mock_save
                                  mock_place_sell_order, mock_check_buy_signal,
                                  mock_calculate_indicators, mock_fetch_data, mock_current_app, mock_settings, mock_trade):
     
-    # Configure mocks
     mock_current_app.app_context.return_value.__enter__.return_value = None
     mock_settings.return_value = mock_settings
     mock_fetch_data.return_value = MagicMock()
-    mock_fetch_data.return_value['close'].iloc[-1] = 0.94  # current price (below trailing stop)
-    mock_trade.trailing_stop_loss = 0.95  # set trailing stop loss
+    mock_fetch_data.return_value['close'].iloc[-1] = 0.94
+    mock_trade.trailing_stop_loss = 0.95
     mock_trade.previous_price = 100
 
-    run_trading_logic()
+    run_single_bot_trading_logic()
 
     mock_place_sell_order.assert_called_once_with('BTCUSDC')
     mock_save_previous_price.assert_called_once_with(0.94)
 
 @patch('app.stefan.stefan.current_app')
 @patch('app.stefan.stefan.logger')
-@patch('app.stefan.stefan.send_admin_email', new_callable=AsyncMock)  # Mock send_admin_email as async
+@patch('app.stefan.stefan.send_admin_email', new_callable=AsyncMock)
 def test_run_trading_logic_error_handling(mock_send_email, mock_logger, mock_current_app, test_app):
     with test_app.app_context():
         mock_current_app.app_context.side_effect = Exception("Test error")
 
-        run_trading_logic()
+        run_single_bot_trading_logic()
 
         mock_logger.error.assert_called_once_with('Błąd w pętli handlowej: Test error')
         mock_send_email.assert_called_once_with('Błąd w pętli handlowej', 'Test error')

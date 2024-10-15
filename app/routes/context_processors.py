@@ -16,7 +16,9 @@ def inject_user(user_id):
 
 @app.template_filter('to_datetime')
 def to_datetime(timestamp):
-    return datetime.fromtimestamp(timestamp / 1000.0, tz=pytz.utc).strftime('%Y-%m-%d %H:%M:%S')
+    return datetime.fromtimestamp(
+        timestamp / 1000.0, tz=pytz.utc).strftime('%Y-%m-%d %H:%M:%S'
+    )
 
 @app.context_processor
 def inject_current_user():

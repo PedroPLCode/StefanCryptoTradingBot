@@ -3,8 +3,15 @@ from flask_login import current_user
 from ..models import Settings, TradesHistory
 from ..utils.logging import logger
 from . import main
-from ..utils.api_utils import fetch_system_status, fetch_account_status, fetch_server_time
-from ..utils.app_utils import show_account_balance, send_admin_email
+from ..utils.api_utils import (
+    fetch_system_status, 
+    fetch_account_status, 
+    fetch_server_time
+)
+from ..utils.app_utils import (
+    show_account_balance, 
+    send_admin_email
+)
 
 @main.route('/')
 def user_panel_view():
@@ -13,7 +20,13 @@ def user_panel_view():
             binance_status = fetch_system_status()
             account_status = fetch_account_status()
             server_time = fetch_server_time()
-            return render_template('user_panel.html', user=current_user, account_status=account_status, binance_status=binance_status, server_time=server_time)
+            return render_template(
+                'user_panel.html',
+                user=current_user, 
+                account_status=account_status, 
+                binance_status=binance_status, 
+                server_time=server_time
+            )
         except Exception as e:
             logger.error(f"Error in user_panel_view: {e}")
             send_admin_email('Error in user panel view', str(e))
@@ -41,12 +54,20 @@ def control_panel_view():
         
         for bot_info in all_bots_infos:
             account_status = fetch_account_status(bot_info.id)
-            cryptocoin = bot_info.symbol[:3]
-            stablecoin = bot_info.symbol[-4:]
-            balance = show_account_balance(account_status, {cryptocoin, stablecoin})
+            cryptocoin_symbol = bot_info.symbol[:3]
+            stablecoin_symbol = bot_info.symbol[-4:]
+            balance = show_account_balance(
+                account_status, 
+                {cryptocoin_symbol, stablecoin_symbol})
             bot_info.balance = balance
 
-        return render_template('control_panel.html', user=current_user, all_bots_infos=all_bots_infos, account_status=account_status, current_trades=current_trades)
+        return render_template(
+            'control_panel.html', 
+            user=current_user, 
+            all_bots_infos=all_bots_infos, 
+            account_status=account_status, 
+            current_trades=current_trades
+        )
 
     except Exception as e:
         logger.error(f'Error loading control panel: {e}')

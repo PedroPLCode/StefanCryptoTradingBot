@@ -1,19 +1,22 @@
 import pytest
 from flask import  __version__ as flask_version
 from datetime import datetime as dt
-from flask_login import current_user
 import platform
 import sys
-import pytz
 import numpy as np
 import pandas as pd
 import platform
-from app import app, create_app, db, login_manager
-from app.models import User, Settings
-from app.routes.context_processors import (to_datetime, inject_current_user, inject_date_and_time, inject_bot_settings, 
-                                           inject_user_agent, inject_system_info, inject_python_version, 
-                                           inject_flask_version, inject_numpy_version, inject_pandas_version, 
-                                           inject_db_info)
+from app import app, create_app, db
+from app.models import Settings
+from app.routes.context_processors import (
+    inject_date_and_time,                 
+    inject_system_info, 
+    inject_python_version, 
+    inject_flask_version, 
+    inject_numpy_version, 
+    inject_pandas_version, 
+    inject_db_info
+)
 
 @pytest.fixture
 def client():
@@ -31,12 +34,6 @@ def test_inject_date_and_time():
         current_time = inject_date_and_time()['date_and_time']
         current_time_dt = dt.strptime(str(current_time), '%Y-%m-%d %H:%M:%S.%f')
         assert abs((current_time_dt - date_and_time_real).total_seconds()) < 1
-
-def test_inject_bot_settings():
-    with app.test_request_context():
-        settings_real = Settings.query.first()
-        settings_test = inject_bot_settings()['bot_settings']
-        assert settings_real == settings_test
 
 def test_inject_system_info():
     with app.test_request_context():

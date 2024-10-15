@@ -1,12 +1,20 @@
 from flask import redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
 from ..models import Settings, CurrentTrade
-from .. import db
 from ..utils.logging import logger
-from ..utils.app_utils import send_email, send_admin_email, generate_trade_report
-from ..utils.api_utils import place_sell_order
-from ..utils.stefan_utils import stop_all_bots, start_all_bots, start_single_bot, stop_single_bot
 from . import main
+from ..utils.api_utils import place_sell_order
+from ..utils.app_utils import (
+    send_email, 
+    send_admin_email,
+    generate_trade_report
+)
+from ..utils.stefan_utils import (
+    stop_all_bots, 
+    start_all_bots, 
+    start_single_bot, 
+    stop_single_bot
+)
 
 @main.route('/start/<int:bot_id>')
 @login_required

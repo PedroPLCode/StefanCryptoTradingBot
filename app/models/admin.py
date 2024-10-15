@@ -32,16 +32,62 @@ class AdminModelView(ModelView):
 
 
 class UserAdmin(AdminModelView):
-    column_list = ('id', 'login', 'name', 'email', 'control_panel_access', 'admin_panel_access', 'email_raports_receiver', 'account_suspended', 'login_errors', 'creation_date', 'last_login')
-    column_filters = ('login', 'name', 'email', 'control_panel_access', 'admin_panel_access', 'email_raports_receiver', 'account_suspended', 'login_errors')
+    column_list = (
+        'id', 
+        'login', 
+        'name', 
+        'email', 
+        'control_panel_access',
+        'admin_panel_access', 
+        'email_raports_receiver', 
+        'account_suspended', 
+        'login_errors', 
+        'creation_date', 
+        'last_login'
+    )
+    column_filters = (
+        'login', 
+        'name', 
+        'email', 
+        'control_panel_access', 
+        'admin_panel_access', 
+        'email_raports_receiver', 
+        'account_suspended', 
+        'login_errors'
+    )
     form_excluded_columns = ('password_hash',)
 
 
 class SettingsAdmin(AdminModelView):
-    column_list = ('id', 'bot_running', 'symbol', 'trailing_stop_pct', 'interval', 'lookback_period', 'sell_signal_extended')
+    column_list = (
+        'id', 
+        'bot_running', 
+        'symbol', 
+        'trailing_stop_pct', 
+        'interval', 
+        'lookback_period', 
+        'sell_signal_extended'
+    )
+    
     
 class CurrentTradeAdmin(AdminModelView):
-    column_list = ('id', 'is_active', 'type', 'amount', 'price', 'previous_price', 'trailing_stop_loss')
+    column_list = (
+        'id', 
+        'is_active', 
+        'type', 
+        'amount', 
+        'price', 
+        'previous_price', 
+        'trailing_stop_loss'
+    )
+    
     
 class TradesHistoryAdmin(AdminModelView):
-    column_list = ('id', 'bot_id', 'type', 'amount', 'price', 'timestamp')
+    column_list = (
+        'id', 
+        'bot_id', 
+        'type', 
+        'amount', 
+        'price', 
+        'timestamp'
+    )

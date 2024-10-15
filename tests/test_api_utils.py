@@ -1,7 +1,12 @@
 import pytest
-from unittest.mock import patch, MagicMock
-import pandas as pd
-from app.utils.api_utils import fetch_data, get_account_balance, fetch_current_price, place_order
+from unittest.mock import patch
+from app.utils.api_utils import (
+    fetch_data, 
+    get_account_balance,
+    fetch_current_price, 
+    place_buy_order,
+    place_sell_order
+)
 
 @pytest.fixture
 def mock_client():
@@ -42,7 +47,7 @@ def test_place_order(mock_client):
         ]
     }
     mock_client.get_symbol_ticker.return_value = {'price': '50000'}
-    place_order('BTCUSDT', 'buy')
+    place_buy_order('BTCUSDT', 'buy')
     mock_client.order_market_buy.assert_called_once()
     
     mock_client.futures_account.return_value = {
@@ -51,7 +56,7 @@ def test_place_order(mock_client):
             {'asset': 'BTC', 'balance': '0.5'}
         ]
     }
-    place_order('BTCUSDT', 'sell')
+    place_sell_order('BTCUSDT', 'sell')
     mock_client.order_market_sell.assert_called_once()
 
 if __name__ == '__main__':

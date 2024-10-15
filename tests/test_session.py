@@ -1,9 +1,6 @@
 import pytest
-from flask import Flask, url_for
-from flask_login import current_user
-from app import create_app, db
+from app import db
 from app.models import User
-from unittest.mock import patch
 from bs4 import BeautifulSoup
 
 @pytest.fixture

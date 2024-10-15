@@ -35,8 +35,20 @@ def create_app(config_name=None):
         jwt.init_app(app)
         CORS(app)
         
-        from .models.admin import MyAdmin, MyAdminIndexView, UserAdmin, SettingsAdmin, CurrentTradeAdmin, TradesHistoryAdmin
-        admin = MyAdmin(app, name='StefanCryptoTradingBot', index_view=MyAdminIndexView(), template_mode='bootstrap4')
+        from .models.admin import (
+            MyAdmin, 
+            MyAdminIndexView,
+            UserAdmin, 
+            SettingsAdmin,
+            CurrentTradeAdmin, 
+            TradesHistoryAdmin
+        )
+        admin = MyAdmin(
+            app, 
+            name='StefanCryptoTradingBot', 
+            index_view=MyAdminIndexView(),
+            template_mode='bootstrap4'
+        )
         from .models import User, Settings, CurrentTrade, TradesHistory
         admin.add_view(UserAdmin(User, db.session))
         admin.add_view(SettingsAdmin(Settings, db.session))

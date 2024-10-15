@@ -1,5 +1,3 @@
-# Existing User in db is not mocked. Must be real.
-# Needs real User(login=test_regular_user, name=Testowy, email=regular@example.com)
 import pytest
 from app import app
 from app.forms import RegistrationForm

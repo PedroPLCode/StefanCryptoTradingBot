@@ -8,33 +8,52 @@ from ..utils.logging import logger
 
 load_dotenv()
 
-BINANCE_GENERAL_API_KEY = os.environ['BINANCE_GENERAL_API_KEY']
-BINANCE_GENERAL_API_SECRET = os.environ['BINANCE_GENERAL_API_SECRET']
-general_client = Client(BINANCE_GENERAL_API_KEY, BINANCE_GENERAL_API_SECRET)
+def get_binance_api_credentials(bot_id=None):
+    if bot_id:
+        api_key = os.environ.get(f'BINANCE_BOT{bot_id}_API_KEY')
+        api_secret = os.environ.get(f'BINANCE_BOT{bot_id}_API_SECRET')
+    else:
+        api_key = os.environ.get('BINANCE_GENERAL_API_KEY')
+        api_secret = os.environ.get('BINANCE_GENERAL_API_SECRET')
+    
+    return api_key, api_secret
+
+
+def create_binance_client(bot_id=None):
+    api_key, api_secret = get_binance_api_credentials(bot_id)
+    return Client(api_key, api_secret)
+
+general_client = create_binance_client(None)
+
 
 def fetch_data(symbol, interval='1m', lookback='4h'):
     klines = general_client.get_historical_klines(symbol, interval, lookback)
-    df = pd.DataFrame(klines, columns=['open_time', 'open', 'high', 'low', 'close', 'volume', 'close_time',
-                                        'quote_asset_volume', 'number_of_trades', 'taker_buy_base_asset_volume',
-                                        'taker_buy_quote_asset_volume', 'ignore'])
+    df = pd.DataFrame(
+        klines, 
+        columns=[
+            'open_time', 'open', 'high', 'low', 'close', 'volume', 
+            'close_time', 'quote_asset_volume', 'number_of_trades', 
+            'taker_buy_base_asset_volume', 'taker_buy_quote_asset_volume', 
+            'ignore'
+        ]
+    )
     df['close'] = df['close'].astype(float)
     df['high'] = df['high'].astype(float)
     df['low'] = df['low'].astype(float)
     return df
+
 
 def get_account_balance(bot_id, assets=None):
     if assets is None:
         assets = ['USDC', 'BTC', 'ETH', 'SOL', 'BNB']
 
     try:
-        BINANCE_CURRENT_BOT_API_KEY = os.environ[f'BINANCE_BOT{bot_id}_API_KEY']
-        BINANCE_CURRENT_BOT_API_SECRET = os.environ[f'BINANCE_BOT{bot_id}_API_SECRET']
-        bot_client = Client(BINANCE_CURRENT_BOT_API_KEY, BINANCE_CURRENT_BOT_API_SECRET)
-        
+        bot_client = create_binance_client(bot_id)
         account_info = bot_client.futures_account()
-        
-        balances = {balance['asset']: float(balance['balance']) for balance in account_info['assets']}
-        
+        balances = {
+            balance['asset']: float(balance['balance']) 
+            for balance in account_info['assets']
+        }
         return {asset: balances.get(asset, 0) for asset in assets}
 
     except BinanceAPIException as e:
@@ -52,58 +71,76 @@ def fetch_current_price(symbol):
 
 def place_buy_order(symbol, current_trade):
     from ..utils.stefan_utils import save_active_trade, save_trade_to_history
+    
     bot_id = current_trade.id
-    crypto = symbol[:3]
-    BINANCE_CURRENT_BOT_API_KEY = os.environ[f'BINANCE_BOT{bot_id}_API_KEY']
-    BINANCE_CURRENT_BOT_API_SECRET = os.environ[f'BINANCE_BOT{bot_id}_API_SECRET']
-    bot_client = Client(BINANCE_CURRENT_BOT_API_KEY, BINANCE_CURRENT_BOT_API_SECRET)
+    bot_client = create_binance_client(bot_id)
+    cryptocoin_symbol = symbol[:3]
+    stablecoin_symbol = symbol[-4:]
+
     try:
         balance = get_account_balance(bot_id)
-        usdc_balance = balance.get('USDC', 0)
+        stablecoin_balance = balance.get(stablecoin_symbol, 0)
         price = fetch_current_price(symbol)
         
-        if usdc_balance <= 0:
-            logger.info(f'Brak środków USDC na zakup {crypto}.')
+        if stablecoin_balance <= 0:
+            logger.info(f'Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}.')
             return
 
-        amount_to_buy = (usdc_balance * 0.9) / price
+        amount_to_buy = (stablecoin_balance * 0.9) / price
         if amount_to_buy > 0:
             bot_client.order_market_buy(symbol=symbol, quantity=amount_to_buy)
-            logger.info(f'Kupiono {amount_to_buy} {crypto} po cenie {price}')
-            save_active_trade(current_trade, order_type='buy', amount=amount_to_buy, price=price)
-            save_trade_to_history(current_trade, symbol, order_type='buy', amount=amount_to_buy, price=price)
+            logger.info(f'Buy {amount_to_buy} {cryptocoin_symbol} at price {price}')
+            save_active_trade(
+                current_trade, 
+                order_type='buy', 
+                amount=amount_to_buy, 
+                price=price
+            )
+            save_trade_to_history(
+                current_trade, 
+                symbol, 
+                order_type='buy', 
+                amount=amount_to_buy, 
+                price=price
+            )
         else:
-            logger.info('Za mało USDC na zakup BTC.')
-                
+            logger.info(f'Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}.')
+
     except ConnectionError as ce:
         logger.error(f"Błąd połączenia: {str(ce)}")
         send_admin_email('Błąd połączenia przy składaniu zlecenia kupna', str(ce))
     except Exception as e:
         logger.error(f"Błąd podczas składania zlecenia kupna: {str(e)}")
         send_admin_email('Błąd przy składaniu zlecenia kupna', str(e))
-        
-        
+
+
 def place_sell_order(symbol, current_trade):
     from ..utils.stefan_utils import save_trade_to_history, save_deactivated_trade
+    
     bot_id = current_trade.id
-    crypto = symbol[:3]
-    BINANCE_CURRENT_BOT_API_KEY = os.environ[f'BINANCE_BOT{bot_id}_API_KEY']
-    BINANCE_CURRENT_BOT_API_SECRET = os.environ[f'BINANCE_BOT{bot_id}_API_SECRET']
-    bot_client = Client(BINANCE_CURRENT_BOT_API_KEY, BINANCE_CURRENT_BOT_API_SECRET)
+    bot_client = create_binance_client(bot_id)
+    cryptocoin_symbol = symbol[:3]
+
     try:
         balance = get_account_balance(bot_id)
-        btc_balance = balance.get(crypto, 0)
+        crypto_balance = balance.get(cryptocoin_symbol, 0)
         price = fetch_current_price(symbol)
 
-        if btc_balance <= 0:
-            logger.info(f'Brak {crypto} do sprzedaży.')
+        if crypto_balance <= 0:
+            logger.info(f'Not enough {cryptocoin_symbol} to sell.')
             return
 
-        bot_client.order_market_sell(symbol=symbol, quantity=btc_balance)
-        logger.info(f'Sprzedano {btc_balance} {crypto} po cenie {price}')
+        bot_client.order_market_sell(symbol=symbol, quantity=crypto_balance)
+        logger.info(f'Sell {crypto_balance} {cryptocoin_symbol} at price {price}')
         save_deactivated_trade(current_trade)
-        save_trade_to_history(current_trade, symbol, order_type='sell', amount=btc_balance, price=price)
-                
+        save_trade_to_history(
+            current_trade, 
+            symbol, 
+            order_type='sell', 
+            amount=crypto_balance, 
+            price=price
+        )
+
     except ConnectionError as ce:
         logger.error(f"Błąd połączenia: {str(ce)}")
         send_admin_email('Błąd połączenia przy składaniu zlecenia sprzedaży', str(ce))
@@ -122,9 +159,7 @@ def fetch_account_status(bot_id=None):
         status = general_client.get_account()
         return status
     else:
-        BINANCE_CURRENT_BOT_API_KEY = os.environ[f'BINANCE_BOT{bot_id}_API_KEY']
-        BINANCE_CURRENT_BOT_API_SECRET = os.environ[f'BINANCE_BOT{bot_id}_API_SECRET']
-        bot_client = Client(BINANCE_CURRENT_BOT_API_KEY, BINANCE_CURRENT_BOT_API_SECRET)
+        bot_client = create_binance_client(bot_id)
         status = bot_client.get_account()
         return status
 
