@@ -1,6 +1,6 @@
 from flask import redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
-from ..models import Settings, CurrentTrade
+from ..models import BotSettings
 from ..utils.logging import logger
 from . import main
 from ..utils.api_utils import place_sell_order
@@ -25,10 +25,10 @@ def start_bot(bot_id):
         return redirect(url_for('main.user_panel_view'))
 
     try:
-        settings = Settings.query.filter_by(id=bot_id).first()
+        bot_settings = BotSettings.query.filter_by(id=bot_id).first()
 
-        if settings:
-            start_single_bot(settings, current_user)
+        if bot_settings:
+            start_single_bot(bot_settings, current_user)
         else:
             flash(f'Settings for bot {bot_id} not found.', 'danger')
             send_admin_email('Bot not started.', f'Settings for bot {bot_id} not found.')
@@ -50,14 +50,13 @@ def stop_bot(bot_id):
         return redirect(url_for('main.user_panel_view'))
     
     try:
-        settings = Settings.query.filter_by(id=bot_id).first()
-        current_trade = CurrentTrade.query.filter_by(id=bot_id).first()
+        bot_settings = BotSettings.query.filter_by(id=bot_id).first()
         
-        if current_trade.is_active:
-            place_sell_order(settings.symbol, current_trade)
+        if bot_settings.bot_current_trade.is_active:
+            place_sell_order(bot_settings)
         
-        if settings:
-            stop_single_bot(settings, current_user)
+        if bot_settings:
+            stop_single_bot(bot_settings, current_user)
         else:
             flash(f'Settings for bot {bot_id} not found.', 'danger')
             send_admin_email('Bot not stopped.', f'Settings for bot {bot_id} not found.')

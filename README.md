@@ -41,9 +41,10 @@ GMAIL_APP_PASSWORD="gmail_app_password"
 RECAPTCHA_PUBLIC_KEY = "recaptcha_public_key"
 RECAPTCHA_PRIVATE_KEY = "recaptcha_private_key"
 BINANCE_GENERAL_API_KEY='binance_general_api_key'
-BINANCE_GENERAL_API_SECRET='binance_gereral_api_secret'
+BINANCE_GENERAL_API_SECRET='binance_general_api_secret'
 BINANCE_BOT1_API_KEY='binance_bot1_api_key'
 BINANCE_BOT1_API_SECRET='binance_bot1_api_secret'
+#max 5 independent bots
 ```
 
 5. Set up the database:
@@ -98,6 +99,6 @@ pytest
 - Machine Learning: Incorporating machine learning to improve trade predictions and make the bot more adaptive.
 - Backtesting: Adding backtesting features to allow users to test their strategies against historical data.
 
-### Familiarize yourself thoroughly with the source code; only then will you be able to customize the bot to your own needs and preferences. Any comments welcome.
+### Familiarize yourself thoroughly with the source code. Only then will you be able to customize the bot to your own needs and preferences. Any comments welcome.
 
 StefanCryptoTradingBot Project is under GPL Licence (GNU General Public License)

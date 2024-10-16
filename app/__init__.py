@@ -39,8 +39,8 @@ def create_app(config_name=None):
             MyAdmin, 
             MyAdminIndexView,
             UserAdmin, 
-            SettingsAdmin,
-            CurrentTradeAdmin, 
+            BotSettingsAdmin,
+            BotCurrentTradeAdmin, 
             TradesHistoryAdmin
         )
         admin = MyAdmin(
@@ -49,10 +49,10 @@ def create_app(config_name=None):
             index_view=MyAdminIndexView(),
             template_mode='bootstrap4'
         )
-        from .models import User, Settings, CurrentTrade, TradesHistory
+        from .models import User, BotSettings, BotCurrentTrade, TradesHistory
         admin.add_view(UserAdmin(User, db.session))
-        admin.add_view(SettingsAdmin(Settings, db.session))
-        admin.add_view(CurrentTradeAdmin(CurrentTrade, db.session))
+        admin.add_view(BotSettingsAdmin(BotSettings, db.session))
+        admin.add_view(BotCurrentTradeAdmin(BotCurrentTrade, db.session))
         admin.add_view(TradesHistoryAdmin(TradesHistory, db.session))
         
         main = Blueprint('main', __name__)
@@ -62,8 +62,9 @@ def create_app(config_name=None):
         
     except Exception as e:
         logger.error(f'Error initializing Flask app: {e}')
-        from .utils.app_utils import send_admin_email
-        send_admin_email('App Initialization Error', str(e))
+        with app.app_context():
+            from .utils.app_utils import send_admin_email
+            send_admin_email('App Initialization Error', str(e))
         raise
     
     return app
@@ -113,8 +114,9 @@ def start_scheduler():
         logger.info('Scheduler started successfully.')
     except Exception as e:
         logger.error(f'Error starting scheduler: {e}')
-        from .utils.app_utils import send_admin_email
-        send_admin_email('Scheduler Error', str(e))
+        with app.app_context():
+            from .utils.app_utils import send_admin_email
+            send_admin_email('Scheduler Error', str(e))
 
 with app.app_context():
     start_scheduler()

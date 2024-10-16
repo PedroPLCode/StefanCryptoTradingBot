@@ -68,7 +68,7 @@ def make_shell_context():
     return {
         "db": db,
         "User": app.models.User,
-        "Settings": app.models.Settings,
-        "Buy": app.models.Buy,
-        "Sell": app.models.Sell,
+        "BotSettings": app.models.BotSettings,
+        "BotCurrentTrade": app.models.BotCurrentTrade,
+        "TradesHistory": app.models.TradesHistory,
     }

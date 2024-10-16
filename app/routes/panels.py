@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash
 from flask_login import current_user
-from ..models import Settings, TradesHistory
+from ..models import BotSettings, TradesHistory
 from ..utils.logging import logger
 from . import main
 from ..utils.api_utils import (
@@ -49,9 +49,9 @@ def control_panel_view():
         return redirect(url_for('main.user_panel_view'))
 
     try:
-        all_bots_infos = Settings.query.all()
+        all_bots_settings = BotSettings.query.all()
         
-        for bot_info in all_bots_infos:
+        for bot_info in all_bots_settings:
             account_status = fetch_account_status(bot_info.id)
             cryptocoin_symbol = bot_info.symbol[:3]
             stablecoin_symbol = bot_info.symbol[-4:]
@@ -63,7 +63,7 @@ def control_panel_view():
         return render_template(
             'control_panel.html', 
             user=current_user, 
-            all_bots_infos=all_bots_infos, 
+            all_bots_settings=all_bots_settings, 
             account_status=account_status, 
         )
 
@@ -86,12 +86,12 @@ def current_trades_view():
         return redirect(url_for('main.user_panel_view'))
 
     try:
-        current_trades = TradesHistory.query.all()
+        all_trades_history = TradesHistory.query.all()
 
         return render_template(
-            'current_trades.html', 
+            'trades_history.html', 
             user=current_user, 
-            current_trades=current_trades
+            all_trades_history=all_trades_history
         )
 
     except Exception as e:

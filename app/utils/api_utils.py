@@ -69,10 +69,12 @@ def fetch_current_price(symbol):
     return float(ticker['price'])
 
 
-def place_buy_order(symbol, current_trade):
+def place_buy_order(bot_settings):
     from ..utils.stefan_utils import save_active_trade, save_trade_to_history
     
-    bot_id = current_trade.id
+    symbol = bot_settings.symbol
+    bot_current_trade = bot_settings.bot_current_trade
+    bot_id = bot_settings.id
     bot_client = create_binance_client(bot_id)
     cryptocoin_symbol = symbol[:3]
     stablecoin_symbol = symbol[-4:]
@@ -91,17 +93,18 @@ def place_buy_order(symbol, current_trade):
             bot_client.order_market_buy(symbol=symbol, quantity=amount_to_buy)
             logger.info(f'Buy {amount_to_buy} {cryptocoin_symbol} at price {price}')
             save_active_trade(
-                current_trade, 
+                bot_current_trade, 
                 order_type='buy', 
                 amount=amount_to_buy, 
-                price=price
+                price=price,
+                buy_price=price
             )
             save_trade_to_history(
-                current_trade, 
-                symbol, 
+                bot_current_trade, 
                 order_type='buy', 
                 amount=amount_to_buy, 
-                price=price
+                price=price,
+                buy_price=price
             )
         else:
             logger.info(f'Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}.')
@@ -114,10 +117,12 @@ def place_buy_order(symbol, current_trade):
         send_admin_email('Błąd przy składaniu zlecenia kupna', str(e))
 
 
-def place_sell_order(symbol, current_trade):
+def place_sell_order(bot_settings):
     from ..utils.stefan_utils import save_trade_to_history, save_deactivated_trade
     
-    bot_id = current_trade.id
+    symbol = bot_settings.symbol
+    bot_current_trade = bot_settings.bot_current_trade
+    bot_id = bot_settings.id
     bot_client = create_binance_client(bot_id)
     cryptocoin_symbol = symbol[:3]
 
@@ -132,13 +137,13 @@ def place_sell_order(symbol, current_trade):
 
         bot_client.order_market_sell(symbol=symbol, quantity=crypto_balance)
         logger.info(f'Sell {crypto_balance} {cryptocoin_symbol} at price {price}')
-        save_deactivated_trade(current_trade)
+        save_deactivated_trade(bot_current_trade)
         save_trade_to_history(
-            current_trade, 
-            symbol, 
+            bot_current_trade, 
             order_type='sell', 
             amount=crypto_balance, 
-            price=price
+            buy_price=bot_current_trade.buy_price,
+            sell_price=price
         )
 
     except ConnectionError as ce:

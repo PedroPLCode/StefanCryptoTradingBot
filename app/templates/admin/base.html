@@ -94,7 +94,7 @@
                     <a href="/" class="btn btn-primary w-100 mb-2">User Panel</a>
                     {% if user and user.control_panel_access %}
                         <a href="/control" class="btn btn-primary w-100 mb-2">Control Panel</a>
-                        <a href="/trades" class="btn btn-primary w-100 mb-2">Current Trades</a>
+                        <a href="/trades" class="btn btn-primary w-100 mb-2">Trades History</a>
                     <a href="{{ url_for('main.logout') }}" class="btn btn-danger w-100">Logout</a>
                     {% endif %}
                 </div>

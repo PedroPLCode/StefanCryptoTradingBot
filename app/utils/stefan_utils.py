@@ -2,7 +2,7 @@ from flask import flash, current_app
 import talib
 from datetime import datetime, timedelta
 from .. import db
-from ..models import Settings, TradesHistory, CurrentTrade
+from ..models import BotSettings, TradesHistory, BotCurrentTrade
 from .logging import logger
 from ..utils.app_utils import send_admin_email
 from ..utils.api_utils import place_sell_order
@@ -64,11 +64,12 @@ def check_sell_signal(df):
     return False
 
 
-def save_active_trade(current_trade, order_type, amount, price):
+def save_active_trade(current_trade, order_type, amount, price, buy_price):
     current_trade.is_active = True
     current_trade.type = order_type
     current_trade.amount = amount
     current_trade.price = price
+    current_trade.buy_price = buy_price
     db.session.commit()
 
 
@@ -76,6 +77,7 @@ def save_deactivated_trade(current_trade):
     current_trade.is_active = False
     current_trade.type = None
     current_trade.amount = None
+    current_trade.buy_price = None
     current_trade.price = None
     current_trade.previous_price = None
     current_trade.trailing_stop_loss = None
@@ -91,32 +93,33 @@ def update_trailing_stop_loss(current_price, trailing_stop_price, atr):
     return max(dynamic_trailing_stop, minimal_trailing_stop)
 
 
-def save_trailing_stop_loss(trailing_stop_price, current_trade):
-    if current_trade:
-        current_trade.trailing_stop_loss = trailing_stop_price
+def save_trailing_stop_loss(trailing_stop_price, bot_current_trade):
+    if bot_current_trade:
+        bot_current_trade.trailing_stop_loss = trailing_stop_price
         db.session.commit()
 
 
-def save_previous_price(price, current_trade):
-    if current_trade:
-        current_trade.previous_price = price
+def save_previous_price(price, bot_current_trade):
+    if bot_current_trade:
+        bot_current_trade.previous_price = price
         db.session.commit()
 
 
-def save_trade_to_history(current_trade, symbol, order_type, amount, price):
+def save_trade_to_history(bot_current_trade, order_type, amount, buy_price, price, sell_price):
     try:
         trade = TradesHistory(
-            bot_id=current_trade.id, 
-            symbol=symbol, 
+            bot_id=bot_current_trade.id, 
             type=order_type, 
             amount=amount, 
-            price=price
+            price=price,
+            buy_price=buy_price,
+            sell_price=sell_price
         )
         db.session.add(trade)
         db.session.commit()
         logger.info(
-            f'Transaction {trade.id}: bot: {current_trade.id} {order_type}, '
-            f'amount: {amount}, symbol: {symbol}, price: {price}, timestamp: {trade.timestamp}'
+            f'Transaction {trade.id}: bot: {bot_current_trade.id} {order_type}, '
+            f'amount: {amount}, symbol: {bot_current_trade.bot_settings.symbol}, price: {price}, timestamp: {trade.timestamp}'
         )
     except Exception as e:
         db.session.rollback()
@@ -136,39 +139,37 @@ def clear_old_trade_history():
         db.session.rollback()
 
 
-def start_single_bot(settings, current_user):
-    if settings.bot_running:
-        flash(f'Bot {settings.id} is already running.', 'info')
+def start_single_bot(bot_settings, current_user):
+    if bot_settings.bot_running:
+        flash(f'Bot {bot_settings.id} is already running.', 'info')
     else:
-        settings.bot_running = True
+        bot_settings.bot_running = True
         db.session.commit()
-        flash(f'Bot {settings.id} has been started.', 'success')
-        send_admin_email('Bot started.', f'Bot {settings.id} has been started by {current_user.login}.')
+        flash(f'Bot {bot_settings.id} has been started.', 'success')
+        send_admin_email('Bot started.', f'Bot {bot_settings.id} has been started by {current_user.login}.')
 
 
-def stop_single_bot(settings, current_user):
-    if not settings.bot_running:
-        flash(f'Bot {settings.id} is already stopped.', 'info')
+def stop_single_bot(bot_settings, current_user):
+    if not bot_settings.bot_running:
+        flash(f'Bot {bot_settings.id} is already stopped.', 'info')
     else:
-        settings.bot_running = False
+        bot_settings.bot_running = False
         db.session.commit()
-        flash(f'Bot {settings.id} has been stopped.', 'success')
-        send_admin_email('Bot stopped.', f'Bot {settings.id} has been stopped by {current_user.login if current_user.login else current_user}.')
+        flash(f'Bot {bot_settings.id} has been stopped.', 'success')
+        send_admin_email('Bot stopped.', f'Bot {bot_settings.id} has been stopped by {current_user.login if current_user.login else current_user}.')
 
 
 def stop_all_bots(current_user):
-    all_bots_settings = Settings.query.all()
-    all_bots_current_trade = CurrentTrade.query.all()
+    all_bots_settings = BotSettings.query.all()
     
     with current_app.app_context():
-        for settings in all_bots_settings:
+        for bot_settings in all_bots_settings:
             try:
-                current_trade = next((trade for trade in all_bots_current_trade if trade.id == settings.id), None)
                 
-                if current_trade.is_active:
-                    place_sell_order(settings.symbol, current_trade)
+                if bot_settings.current_trade.is_active:
+                    place_sell_order(bot_settings)
             
-                stop_single_bot(settings, current_user)
+                stop_single_bot(bot_settings, current_user)
                 
             except Exception as e:
                 logger.error(f'Błąd podczas rozruchu botów: {str(e)}')
@@ -176,12 +177,12 @@ def stop_all_bots(current_user):
             
 
 def start_all_bots(current_user='undefined'):
-    all_bots_settings = Settings.query.all()
+    all_bots_settings = BotSettings.query.all()
         
     with current_app.app_context():
-        for settings in all_bots_settings:
+        for bot_settings in all_bots_settings:
             try:
-                start_single_bot(settings, current_user)         
+                start_single_bot(bot_settings, current_user)         
             except Exception as e:
                 logger.error(f'Błąd podczas rozruchu botów: {str(e)}')
                 send_admin_email('Błąd podczas rozruchu botów', str(e))

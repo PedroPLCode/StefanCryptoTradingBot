@@ -28,7 +28,7 @@
             <p class="text-center text-muted m-0 p-0">{{ current_user.login }} logged in at {{ current_user.last_login }}</p>
         {% endif %}
 
-        {% for bot_info in all_bots_infos %}
+        {% for bot_info in all_bots_settings %}
             <div class="col-12 col-md-6 card mb-3 mt-3">
                 <div class="card-header text-center bg-light">
                     <h5>Bot {{bot_info.id}} Control Panel</h5>
@@ -38,6 +38,9 @@
                     {% for balance in bot_info.balance %}
                     <p class="text-muted m-0 p-0">Balance {{ balance.asset }}: free {{ balance.free }}, locked {{ balance.locked }}</p>
                     {% endfor %}
+
+                    <p class="text-muted m-0 p-0">Current Trade Active: <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{{ bot_info.bot_current_trade.is_active }}</span></p>
+
                     <p class="text-muted m-0 p-0">Trailing Stop Loss: {{ bot_info.trailing_stop_pct }}</p>
                     <p class="text-muted m-0 p-0">Lookback Days: {{ bot_info.lookback_period }}</p>
                     <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>
@@ -78,7 +81,7 @@
             </div>
             <div class="card-body text-center">
                 <div class="d-flex flex-column justify-content-center align-items-center gap-2">
-                    <a href="/trades" class="btn btn-primary w-100">Current Trades</a>
+                    <a href="/trades" class="btn btn-primary w-100">Trades History</a>
                     <a href="/" class="btn btn-primary w-100">User Panel</a>
                     {% if user.admin_panel_access %}
                         <a href="/admin" class="btn btn-primary w-100">Admin Panel</a>

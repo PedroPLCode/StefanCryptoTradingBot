@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from flask_mail import Message
-from app.models import User, TradesHistory, Settings
+from app.models import User, TradesHistory, BotSettings
 from flask import current_app
 from werkzeug.security import generate_password_hash
 from ..utils.logging import logger
@@ -26,6 +26,10 @@ def create_new_user(form):
         raise
 
 
+def calculate_profit_percentage(buy_price, sell_price):
+    return ((sell_price - buy_price) / buy_price) * 100
+
+
 def generate_trade_report(period):
     now = datetime.now()
 
@@ -34,10 +38,9 @@ def generate_trade_report(period):
     elif period == '7d':
         last_period = now - timedelta(days=7)
 
-    trades = TradesHistory.query.filter(TradesHistory.timestamp >= last_period).order_by(TradesHistory.timestamp.desc()).all()
-    all_bots_settings = Settings.query.all()
+    all_trades_history = TradesHistory.query.filter(TradesHistory.timestamp >= last_period).order_by(TradesHistory.timestamp.desc()).all()
 
-    total_trades = len(trades)
+    total_trades = len(all_trades_history)
     today = now.strftime('%Y-%m-%d')
     report_data = f"Raport okresowy Dnia: {today}\n\n"
 
@@ -46,10 +49,11 @@ def generate_trade_report(period):
     else:
         report_data += f"Liczba transakcji w ciągu ostatnich {period}: {total_trades}\n\n"
 
-        for trade in trades:
-            settings = next((settings for settings in all_bots_settings if settings.id == trade.bot_id), None)
-            report_data += (f"id: {trade.id}, bot_id: {trade.bot_id}, {trade.type} {settings.symbol}, "
-                            f"amount: {trade.amount}, price: ${trade.price:.2f} USDC, "
+        for trade in all_trades_history:
+            profit_percentage = calculate_profit_percentage(trade.buy_price, trade.sell_price)
+            report_data += (f"id: {trade.id}, bot_id: {trade.bot_id}, {trade.type} {trade.bot_settings.symbol}, "
+                            f"amount: {trade.amount}, buy_price: {trade.buy_price:.2f}, "
+                            f"sell_price: {trade.sell_price}, profit_percentage: {profit_percentage} USDC, "
                             f"timestamp: {trade.timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n")
 
     return report_data

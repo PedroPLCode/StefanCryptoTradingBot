@@ -36,4 +36,17 @@ class User(UserMixin, db.Model):
         self.login_errors = 0
 
     def __repr__(self):
-        return f'<User {self.login}, Email: {self.email}, Admin: {self.admin_panel_access}>'
+        return (
+            f'<BotSettings:\n'
+            f'id: {self.id}\n'
+            f'login: {self.login}\n'
+            f'name: {self.name}>'
+            f'email: {self.email}\n'
+            f'creation_date: {self.creation_date}\n'
+            f'last_login: {self.last_login}\n'
+            f'control_panel_access: {self.control_panel_access}\n'
+            f'admin_panel_access: {self.admin_panel_access}\n'
+            f'email_raports_receiver: {self.email_raports_receiver}\n'
+            f'login_errors: {self.login_errors}\n'
+            f'account_suspended: {self.account_suspended}>'
+        )

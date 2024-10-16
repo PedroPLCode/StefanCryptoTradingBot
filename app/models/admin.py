@@ -58,29 +58,31 @@ class UserAdmin(AdminModelView):
     form_excluded_columns = ('password_hash',)
 
 
-class SettingsAdmin(AdminModelView):
+class BotSettingsAdmin(AdminModelView):
     column_list = (
         'id', 
+        'bot_current_trade',
         'bot_running', 
         'symbol', 
         'trailing_stop_pct', 
         'interval', 
         'lookback_period', 
-        'sell_signal_extended'
+        'sell_signal_extended',
     )
     
     
-class CurrentTradeAdmin(AdminModelView):
+class BotCurrentTradeAdmin(AdminModelView):
     column_list = (
         'id', 
+        'bot_settings',
         'is_active', 
         'type', 
         'amount', 
         'price', 
+        'buy_price',
         'previous_price', 
-        'trailing_stop_loss'
+        'trailing_stop_loss',
     )
-    
     
 class TradesHistoryAdmin(AdminModelView):
     column_list = (
