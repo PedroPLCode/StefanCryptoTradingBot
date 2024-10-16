@@ -70,10 +70,10 @@ def fetch_current_price(symbol):
 
 
 def place_buy_order(bot_settings):
-    from ..utils.stefan_utils import save_active_trade, save_trade_to_history
+    from ..utils.stefan_utils import save_active_trade
     
     symbol = bot_settings.symbol
-    bot_current_trade = bot_settings.bot_current_trade
+    current_trade = bot_settings.bot_current_trade
     bot_id = bot_settings.id
     bot_client = create_binance_client(bot_id)
     cryptocoin_symbol = symbol[:3]
@@ -81,8 +81,8 @@ def place_buy_order(bot_settings):
 
     try:
         balance = get_account_balance(bot_id)
-        stablecoin_balance = balance.get(stablecoin_symbol, 0)
-        price = fetch_current_price(symbol)
+        stablecoin_balance = float(balance.get(stablecoin_symbol, 0))
+        price = float(fetch_current_price(symbol))
         
         if stablecoin_balance <= 0:
             logger.info(f'Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}.')
@@ -93,15 +93,7 @@ def place_buy_order(bot_settings):
             bot_client.order_market_buy(symbol=symbol, quantity=amount_to_buy)
             logger.info(f'Buy {amount_to_buy} {cryptocoin_symbol} at price {price}')
             save_active_trade(
-                bot_current_trade, 
-                order_type='buy', 
-                amount=amount_to_buy, 
-                price=price,
-                buy_price=price
-            )
-            save_trade_to_history(
-                bot_current_trade, 
-                order_type='buy', 
+                current_trade, 
                 amount=amount_to_buy, 
                 price=price,
                 buy_price=price
@@ -121,15 +113,15 @@ def place_sell_order(bot_settings):
     from ..utils.stefan_utils import save_trade_to_history, save_deactivated_trade
     
     symbol = bot_settings.symbol
-    bot_current_trade = bot_settings.bot_current_trade
+    current_trade = bot_settings.bot_current_trade
     bot_id = bot_settings.id
     bot_client = create_binance_client(bot_id)
     cryptocoin_symbol = symbol[:3]
 
     try:
         balance = get_account_balance(bot_id)
-        crypto_balance = balance.get(cryptocoin_symbol, 0)
-        price = fetch_current_price(symbol)
+        crypto_balance = float(balance.get(cryptocoin_symbol, 0))
+        price = float(fetch_current_price(symbol))
 
         if crypto_balance <= 0:
             logger.info(f'Not enough {cryptocoin_symbol} to sell.')
@@ -137,12 +129,11 @@ def place_sell_order(bot_settings):
 
         bot_client.order_market_sell(symbol=symbol, quantity=crypto_balance)
         logger.info(f'Sell {crypto_balance} {cryptocoin_symbol} at price {price}')
-        save_deactivated_trade(bot_current_trade)
+        save_deactivated_trade(current_trade)
         save_trade_to_history(
-            bot_current_trade, 
-            order_type='sell', 
+            current_trade, 
             amount=crypto_balance, 
-            buy_price=bot_current_trade.buy_price,
+            buy_price=bot_settings.bot_current_trade.buy_price,
             sell_price=price
         )
 

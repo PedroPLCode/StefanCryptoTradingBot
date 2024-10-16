@@ -64,9 +64,8 @@ def check_sell_signal(df):
     return False
 
 
-def save_active_trade(current_trade, order_type, amount, price, buy_price):
+def save_active_trade(current_trade, amount, price, buy_price):
     current_trade.is_active = True
-    current_trade.type = order_type
     current_trade.amount = amount
     current_trade.price = price
     current_trade.buy_price = buy_price
@@ -75,7 +74,6 @@ def save_active_trade(current_trade, order_type, amount, price, buy_price):
 
 def save_deactivated_trade(current_trade):
     current_trade.is_active = False
-    current_trade.type = None
     current_trade.amount = None
     current_trade.buy_price = None
     current_trade.price = None
@@ -93,33 +91,31 @@ def update_trailing_stop_loss(current_price, trailing_stop_price, atr):
     return max(dynamic_trailing_stop, minimal_trailing_stop)
 
 
-def save_trailing_stop_loss(trailing_stop_price, bot_current_trade):
-    if bot_current_trade:
-        bot_current_trade.trailing_stop_loss = trailing_stop_price
+def save_trailing_stop_loss(trailing_stop_price, current_trade):
+    if current_trade:
+        current_trade.trailing_stop_loss = trailing_stop_price
         db.session.commit()
 
 
-def save_previous_price(price, bot_current_trade):
-    if bot_current_trade:
-        bot_current_trade.previous_price = price
+def save_previous_price(price, current_trade):
+    if current_trade:
+        current_trade.previous_price = price
         db.session.commit()
 
 
-def save_trade_to_history(bot_current_trade, order_type, amount, buy_price, price, sell_price):
+def save_trade_to_history(current_trade, order_type, amount, buy_price, sell_price):
     try:
         trade = TradesHistory(
-            bot_id=bot_current_trade.id, 
-            type=order_type, 
+            bot_id=current_trade.id, 
             amount=amount, 
-            price=price,
             buy_price=buy_price,
             sell_price=sell_price
         )
         db.session.add(trade)
         db.session.commit()
         logger.info(
-            f'Transaction {trade.id}: bot: {bot_current_trade.id} {order_type}, '
-            f'amount: {amount}, symbol: {bot_current_trade.bot_settings.symbol}, price: {price}, timestamp: {trade.timestamp}'
+            f'Transaction {trade.id}: bot: {current_trade.id} {order_type}, '
+            f'amount: {amount}, symbol: {current_trade.bot_settings.symbol}, timestamp: {trade.timestamp}'
         )
     except Exception as e:
         db.session.rollback()
@@ -166,7 +162,7 @@ def stop_all_bots(current_user):
         for bot_settings in all_bots_settings:
             try:
                 
-                if bot_settings.current_trade.is_active:
+                if bot_settings.bot_current_trade.is_active:
                     place_sell_order(bot_settings)
             
                 stop_single_bot(bot_settings, current_user)

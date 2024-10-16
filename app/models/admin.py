@@ -76,7 +76,6 @@ class BotCurrentTradeAdmin(AdminModelView):
         'id', 
         'bot_settings',
         'is_active', 
-        'type', 
         'amount', 
         'price', 
         'buy_price',
@@ -88,8 +87,8 @@ class TradesHistoryAdmin(AdminModelView):
     column_list = (
         'id', 
         'bot_id', 
-        'type', 
         'amount', 
-        'price', 
+        'buy_price', 
+        'sell_price',
         'timestamp'
     )

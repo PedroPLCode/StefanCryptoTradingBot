@@ -39,16 +39,16 @@ def run_single_bot_trading_logic(bot_settings):
             if bot_settings and bot_settings.bot_running:
                 bot_current_trade = bot_settings.bot_current_trade
                 symbol = bot_settings.symbol
-                trailing_stop_pct = bot_settings.trailing_stop_pct
+                trailing_stop_pct = float(bot_settings.trailing_stop_pct)
                 interval = bot_settings.interval
                 lookback_period = bot_settings.lookback_period
 
                 df = fetch_data(symbol, interval=interval, lookback=lookback_period)
                 calculate_indicators(df)
-                current_price = df['close'].iloc[-1]
-                trailing_stop_price = bot_current_trade.trailing_stop_loss
-                previous_price = bot_current_trade.previous_price
-                price_rises = current_price >= previous_price
+                current_price = float(df['close'].iloc[-1])
+                trailing_stop_price = float(bot_current_trade.trailing_stop_loss)
+                previous_price = float(bot_current_trade.previous_price) if bot_current_trade.is_active else None
+                price_rises = current_price >= previous_price if bot_current_trade.is_active else False
                 buy_signal = check_buy_signal(df)
                 sell_signal = None
 
@@ -70,7 +70,7 @@ def run_single_bot_trading_logic(bot_settings):
                     trailing_stop_price = update_trailing_stop_loss(
                         current_price,
                         trailing_stop_price,
-                        df['atr'].iloc[-1]
+                        float(df['atr'].iloc[-1])
                     )
                     save_trailing_stop_loss(trailing_stop_price, bot_current_trade)
                     save_previous_price(current_price, bot_current_trade)

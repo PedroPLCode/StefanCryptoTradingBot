@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from flask_mail import Message
-from app.models import User, TradesHistory, BotSettings
+from app.models import User, TradesHistory
 from flask import current_app
 from werkzeug.security import generate_password_hash
 from ..utils.logging import logger
@@ -52,8 +52,8 @@ def generate_trade_report(period):
         for trade in all_trades_history:
             profit_percentage = calculate_profit_percentage(trade.buy_price, trade.sell_price)
             report_data += (f"id: {trade.id}, bot_id: {trade.bot_id}, {trade.type} {trade.bot_settings.symbol}, "
-                            f"amount: {trade.amount}, buy_price: {trade.buy_price:.2f}, "
-                            f"sell_price: {trade.sell_price}, profit_percentage: {profit_percentage} USDC, "
+                            f"amount: {trade.amount} {trade.bot_settings.symbol[:3]}, buy_price: {trade.buy_price:.2f} {trade.bot_settings.symbol[-4:]}, "
+                            f"sell_price: {trade.sell_price} {trade.bot_settings.symbol[-4:]}, profit_percentage: {profit_percentage}%, "
                             f"timestamp: {trade.timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n")
 
     return report_data

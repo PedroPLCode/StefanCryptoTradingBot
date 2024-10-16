@@ -38,9 +38,8 @@
                     {% for balance in bot_info.balance %}
                     <p class="text-muted m-0 p-0">Balance {{ balance.asset }}: free {{ balance.free }}, locked {{ balance.locked }}</p>
                     {% endfor %}
-
                     <p class="text-muted m-0 p-0">Current Trade Active: <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{{ bot_info.bot_current_trade.is_active }}</span></p>
-
+                    <p class="text-muted m-0 p-0">Trades Count: {{ bot_info.bot_trades_history|length }}</p>
                     <p class="text-muted m-0 p-0">Trailing Stop Loss: {{ bot_info.trailing_stop_pct }}</p>
                     <p class="text-muted m-0 p-0">Lookback Days: {{ bot_info.lookback_period }}</p>
                     <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>

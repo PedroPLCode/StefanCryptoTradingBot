@@ -4,7 +4,6 @@ class BotCurrentTrade(db.Model):
     __tablename__ = 'bot_current_trade'
     id = db.Column(db.Integer, primary_key=True)
     is_active = db.Column(db.Boolean, nullable=False, default=False)
-    type = db.Column(db.String(16), default="undefined", nullable=True)
     amount = db.Column(db.Float, default=0, nullable=True)
     buy_price = db.Column(db.Float, default=0, nullable=True)
     price = db.Column(db.Float, default=0, nullable=True)
@@ -19,4 +18,4 @@ class BotCurrentTrade(db.Model):
     )
     
     def __repr__(self):
-        return (f'{self.id} {self.type}')
+        return (f'{self.id}')
