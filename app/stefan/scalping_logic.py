@@ -60,7 +60,7 @@ def run_scalping_trading_logic(bot_settings):
                 buy_signal = check_scalping_buy_signal(df)
                 sell_signal = None
 
-                if bot_settings.sell_signal_extended:
+                if bot_settings.signals_extended:
                     sell_signal = check_scalping_sell_signal(df) or current_price <= trailing_stop_price
                 else:
                     sell_signal = current_price <= trailing_stop_price

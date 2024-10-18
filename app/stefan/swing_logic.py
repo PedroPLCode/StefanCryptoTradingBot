@@ -27,6 +27,19 @@ def check_swing_buy_signal(df):
     return False
 
 
+def check_swing_buy_signal_with_MA200(df):
+    latest_data = df.iloc[-1]
+
+    if (latest_data['close'] > latest_data['ma_200'] and
+        latest_data['rsi'] < 35 and
+        latest_data['macd'] > latest_data['macd_signal'] and
+        latest_data['cci'] < -50 and
+        talib.MFI(df['high'], df['low'], df['close'], df['volume'], timeperiod=5).iloc[-1] < 30 and
+        latest_data['close'] < latest_data['lower_band']):
+        return True
+    return False
+
+
 def check_swing_sell_signal(df):
     latest_data = df.iloc[-1]
     mfi = talib.MFI(df['high'], df['low'], df['close'], df['volume'], timeperiod=5)
@@ -35,6 +48,19 @@ def check_swing_sell_signal(df):
         latest_data['macd'] < latest_data['macd_signal'] and
         latest_data['cci'] > 50 and
         mfi.iloc[-1] > 70 and
+        latest_data['close'] > latest_data['upper_band']):
+        return True
+    return False
+
+
+def check_swing_sell_signal_with_MA200(df):
+    latest_data = df.iloc[-1]
+
+    if (latest_data['close'] < latest_data['ma_200'] and
+        latest_data['rsi'] > 65 and
+        latest_data['macd'] < latest_data['macd_signal'] and
+        latest_data['cci'] > 50 and
+        talib.MFI(df['high'], df['low'], df['close'], df['volume'], timeperiod=5).iloc[-1] > 70 and
         latest_data['close'] > latest_data['upper_band']):
         return True
     return False
@@ -57,8 +83,15 @@ def run_swing_trading_logic(bot_settings):
                 trailing_stop_price = float(current_trade.trailing_stop_loss)
                 previous_price = float(current_trade.previous_price) if current_trade.is_active else None
                 price_rises = current_price >= previous_price if current_trade.is_active else False
-                buy_signal = check_swing_buy_signal(df)
-                sell_signal = check_swing_sell_signal(df)
+                buy_signal = None
+                sell_signal = None
+
+                if bot_settings.signals_extended:
+                    sell_signal = check_swing_buy_signal_with_MA200
+                    sell_signal = check_swing_sell_signal_with_MA200
+                else:
+                    sell_signal = check_swing_buy_signal
+                    sell_signal = check_swing_sell_signal
 
                 if not current_trade.is_active and buy_signal:
                     place_buy_order(bot_settings)

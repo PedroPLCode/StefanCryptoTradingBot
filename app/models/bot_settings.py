@@ -9,7 +9,7 @@ class BotSettings(db.Model):
     trailing_stop_pct = db.Column(db.Float, default=0.01)
     interval = db.Column(db.String(16), default="1m")
     lookback_period = db.Column(db.String(16), default="15m")
-    sell_signal_extended = db.Column(db.Boolean, default=False)
+    signals_extended = db.Column(db.Boolean, default=False)
     bot_running = db.Column(db.Boolean, default=False)
     
     bot_current_trade = db.relationship(

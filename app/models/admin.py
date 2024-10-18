@@ -70,7 +70,7 @@ class BotSettingsAdmin(AdminModelView):
         'trailing_stop_pct', 
         'interval', 
         'lookback_period', 
-        'sell_signal_extended',
+        'signals_extended',
     )
     
     

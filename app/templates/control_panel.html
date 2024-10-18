@@ -45,7 +45,7 @@
                     <p class="text-muted m-0 p-0">Trailing Stop Loss: {{ bot_info.trailing_stop_pct }}</p>
                     <p class="text-muted m-0 p-0">Lookback Days: {{ bot_info.lookback_period }}</p>
                     <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>
-                    <p class="text-muted m-0 p-0">Sell Signal Extended: {{ bot_info.sell_signal_extended }}</p>
+                    <p class="text-muted m-0 p-0">Signals Extended: {{ bot_info.signals_extended }}</p>
                     <p class="text-muted m-0 p-0">Bot Running: <span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{{ bot_info.bot_running }}</span></p>
                     <div class="mt-2 d-flex flex-column justify-content-center align-items-center gap-2">
                         {% if bot_info.bot_running %}

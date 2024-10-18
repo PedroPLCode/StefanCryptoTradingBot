@@ -34,6 +34,7 @@ def calculate_indicators(df):
     )
     df['vwap'] = (df['volume'] * df['close']).cumsum() / df['volume'].cumsum()
     df['adx'] = talib.ADX(df['high'], df['low'], df['close'], timeperiod=10)
+    df['ma_200'] = talib.SMA(df['close'], timeperiod=200)
     df.dropna(inplace=True)
 
 
