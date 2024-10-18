@@ -120,6 +120,7 @@ def save_trade_to_history(current_trade, order_type, amount, buy_price, sell_pri
     except Exception as e:
         db.session.rollback()
         logger.error(f'Błąd podczas dodawania transakcji do historii: {str(e)}')
+        send_admin_email("Błąd podczas dodawania transakcji do historii", str(e))
 
 
 def clear_old_trade_history():
@@ -132,6 +133,7 @@ def clear_old_trade_history():
         logger.info("Trade history older than one month cleared successfully.")
     except Exception as e:
         logger.error(f"Error clearing old trade history: {str(e)}")
+        send_admin_email(f"Error clearing old trade history", str(e))
         db.session.rollback()
 
 

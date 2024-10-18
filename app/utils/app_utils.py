@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
+import os
 from flask_mail import Message
 from app.models import User, TradesHistory
 from flask import current_app
 from werkzeug.security import generate_password_hash
+import logging
 from ..utils.logging import logger
 
 def get_ip_address(request):
@@ -28,6 +30,47 @@ def create_new_user(form):
 
 def calculate_profit_percentage(buy_price, sell_price):
     return ((sell_price - buy_price) / buy_price) * 100
+
+
+def send_logs_via_email():
+    now = datetime.now()
+    today = now.strftime('%Y-%m-%d')
+    subject = f"{today} Daily Stefan Logs"
+    from ..utils.logging import logs
+
+    for log in logs:
+        log_file_path = os.path.join(os.getcwd(), log)
+        
+        try:
+            if os.path.exists(log_file_path):
+                with open(log_file_path, 'r') as log_file:
+                    log_content = log_file.read()
+                    
+                send_admin_email(f"{subject + log} - {log}", log_content)
+                logging.info(f"Successfully sent email with log: {log}")
+            else:
+                logging.warning(f"Log file does not exist: {log_file_path}")
+        except Exception as e:
+            logging.error(f"Error while sending email for log {log}: {str(e)}")
+            send_admin_email(f"Error while sending email for log {log}", str(e))
+
+
+def clear_logs():
+    from ..utils.logging import logs
+    
+    for log in logs:
+        log_file_path = os.path.join(os.getcwd(), log)
+        
+        try:
+            if os.path.exists(log_file_path):
+                with open(log_file_path, 'w') as log_file:
+                    log_file.write('Log file cleared.')
+                logging.info(f"Successfully cleared log file: {log_file_path}")
+            else:
+                logging.warning(f"Log file does not exist: {log_file_path}")
+        except Exception as e:
+            logging.error(f"Error while clearing log file {log}: {str(e)}")
+            send_admin_email(f"Error while clearing log file {log}", str(e))
 
 
 def generate_trade_report(period):

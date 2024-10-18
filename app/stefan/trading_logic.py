@@ -37,7 +37,7 @@ def run_single_bot_trading_logic(bot_settings):
     try:
         with current_app.app_context():
             if bot_settings and bot_settings.bot_running:
-                bot_current_trade = bot_settings.bot_current_trade
+                current_trade = bot_settings.bot_current_trade
                 symbol = bot_settings.symbol
                 trailing_stop_pct = float(bot_settings.trailing_stop_pct)
                 interval = bot_settings.interval
@@ -46,9 +46,9 @@ def run_single_bot_trading_logic(bot_settings):
                 df = fetch_data(symbol, interval=interval, lookback=lookback_period)
                 calculate_indicators(df)
                 current_price = float(df['close'].iloc[-1])
-                trailing_stop_price = float(bot_current_trade.trailing_stop_loss)
-                previous_price = float(bot_current_trade.previous_price) if bot_current_trade.is_active else None
-                price_rises = current_price >= previous_price if bot_current_trade.is_active else False
+                trailing_stop_price = float(current_trade.trailing_stop_loss)
+                previous_price = float(current_trade.previous_price) if current_trade.is_active else None
+                price_rises = current_price >= previous_price if current_trade.is_active else False
                 buy_signal = check_buy_signal(df)
                 sell_signal = None
 
@@ -57,23 +57,23 @@ def run_single_bot_trading_logic(bot_settings):
                 else:
                     sell_signal = current_price <= trailing_stop_price
 
-                if not bot_current_trade.is_active and buy_signal:
+                if not current_trade.is_active and buy_signal:
                     place_buy_order(bot_settings)
                     trailing_stop_price = current_price * (1 - trailing_stop_pct)
-                    save_trailing_stop_loss(trailing_stop_price, bot_current_trade)
-                    save_previous_price(current_price, bot_current_trade)
+                    save_trailing_stop_loss(trailing_stop_price, current_trade)
+                    save_previous_price(current_price, current_trade)
 
-                elif bot_current_trade.is_active and sell_signal:
+                elif current_trade.is_active and sell_signal:
                     place_sell_order(bot_settings)
 
-                elif bot_current_trade.is_active and price_rises:
+                elif current_trade.is_active and price_rises:
                     trailing_stop_price = update_trailing_stop_loss(
                         current_price,
                         trailing_stop_price,
                         float(df['atr'].iloc[-1])
                     )
-                    save_trailing_stop_loss(trailing_stop_price, bot_current_trade)
-                    save_previous_price(current_price, bot_current_trade)
+                    save_trailing_stop_loss(trailing_stop_price, current_trade)
+                    save_previous_price(current_price, current_trade)
 
                 logger.trade(f"Aktualna cena: {current_price}, Trailing stop loss: {trailing_stop_price}")
 
