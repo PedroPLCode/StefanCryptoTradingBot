@@ -65,6 +65,7 @@ class BotSettingsAdmin(AdminModelView):
         'bot_current_trade',
         'bot_running', 
         'symbol', 
+        'algorithm',
         'comment',
         'trailing_stop_pct', 
         'interval', 

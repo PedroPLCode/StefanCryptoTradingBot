@@ -34,6 +34,7 @@
                     <h5>Bot {{bot_info.id}} Control Panel</h5>
                 </div>
                 <div class="card-body text-center">
+                    <p class="text-muted m-0 p-0">Comment: {{ bot_info.comment }}</p>
                     <p class="text-muted m-0 p-0">Symbol: {{ bot_info.symbol }}</p>
                     {% for balance in bot_info.balance %}
                     <p class="text-muted m-0 p-0">Balance {{ balance.asset }}: free {{ balance.free }}, locked {{ balance.locked }}</p>

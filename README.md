@@ -1,6 +1,6 @@
-# StefanCryptoTradingBot v0.9
+# StefanCryptoTradingBot
 
-CryptoStefanTradingBot is an automated trading bot built for trading in cryptocurrency market on the Binance exchange, designed to operate using scalping strategies. The bot integrates advanced technical indicators, real-time performance monitoring, and dynamic parameter adjustments to improve trading efficiency. 
+CryptoStefanTradingBot is an automated trading bot built for trading in cryptocurrency market on the Binance exchange, designed to operate using scalping, swing and day trading strategies. The bot integrates advanced technical indicators, real-time performance monitoring, and dynamic parameter adjustments to improve trading efficiency. 
 
 The bot provides an easy-to-use interface for starting and stopping the bot, real-time trade and balance monitoring, and daily report emails. User can access a control panel to manage bot operations, and an admin panel for modifying key settings and strategies.
 
@@ -95,7 +95,7 @@ pytest
 - TensorFlow, NumPy, Pandas: Libraries used for implementing trading algorithms, machine learning, and data processing.
 
 ## Future Plans
-- Strategy Optimization: Enhancing the scalping strategy and trading logic.
+- Strategy Optimization: Enhancing strategies and trading logic.
 - Machine Learning: Incorporating machine learning to improve trade predictions and make the bot more adaptive.
 - Backtesting: Adding backtesting features to allow users to test their strategies against historical data.
 
