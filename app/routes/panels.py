@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash
 from flask_login import current_user
-from ..models import BotSettings, TradesHistory
+from ..models import BotSettings
 from ..utils.logging import logger
 from . import main
 from ..utils.api_utils import (
@@ -86,12 +86,12 @@ def current_trades_view():
         return redirect(url_for('main.user_panel_view'))
 
     try:
-        all_trades_history = TradesHistory.query.all()
+        all_bots = BotSettings.query.all()
 
         return render_template(
             'trades_history.html', 
             user=current_user, 
-            all_trades_history=all_trades_history
+            all_bots=all_bots
         )
 
     except Exception as e:

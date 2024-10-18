@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import MagicMock, patch, AsyncMock
 from app.models import Settings
-from app.stefan.trading_logic import run_single_bot_trading_logic
+from app.stefan.trading_bot import run_single_bot_trading_logic
 
 @pytest.fixture
 def test_app():

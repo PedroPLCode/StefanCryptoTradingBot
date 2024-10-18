@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import os
 from flask_mail import Message
-from app.models import User, TradesHistory
+from app.models import User, TradesHistory, BotSettings
 from flask import current_app
 from werkzeug.security import generate_password_hash
 import logging
@@ -80,24 +80,34 @@ def generate_trade_report(period):
         last_period = now - timedelta(hours=24)
     elif period == '7d':
         last_period = now - timedelta(days=7)
-
-    all_trades_history = TradesHistory.query.filter(TradesHistory.timestamp >= last_period).order_by(TradesHistory.timestamp.desc()).all()
-
-    total_trades = len(all_trades_history)
-    today = now.strftime('%Y-%m-%d')
-    report_data = f"Raport okresowy Dnia: {today}\n\n"
-
-    if total_trades == 0:
-        report_data += f"Brak transakcji w ciągu ostatnich {period}.\n"
     else:
-        report_data += f"Liczba transakcji w ciągu ostatnich {period}: {total_trades}\n\n"
+        raise ValueError("Unsupported period specified. Use '24h' or '7d'.")
 
-        for trade in all_trades_history:
-            profit_percentage = calculate_profit_percentage(trade.buy_price, trade.sell_price)
-            report_data += (f"id: {trade.id}, bot_id: {trade.bot_id}, {trade.type} {trade.bot_settings.symbol}, "
-                            f"amount: {trade.amount} {trade.bot_settings.symbol[:3]}, buy_price: {trade.buy_price:.2f} {trade.bot_settings.symbol[-4:]}, "
-                            f"sell_price: {trade.sell_price} {trade.bot_settings.symbol[-4:]}, profit_percentage: {profit_percentage}%, "
-                            f"timestamp: {trade.timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n")
+    all_bots = BotSettings.query.all()
+    
+    report_data = f"Raport okresowy Dnia: {now.strftime('%Y-%m-%d')}\n\n"
+
+    for single_bot in all_bots:
+        trades_in_period = (
+            single_bot.bot_trades_history
+            .filter(TradesHistory.timestamp >= last_period)
+            .order_by(TradesHistory.timestamp.asc())
+            .all()
+        )
+        
+        total_trades = len(trades_in_period)
+
+        if total_trades == 0:
+            report_data += f"Brak transakcji w ciągu ostatnich {period} dla bot_id: {trade.bot_id} {trade.bot_settings.algorithm}.\n"
+        else:
+            report_data += f"Liczba transakcji w ciągu ostatnich {period} dla bot_id: {trade.bot_id} {trade.bot_settings.algorithm}: {total_trades}\n\n"
+
+            for trade in trades_in_period:
+                profit_percentage = calculate_profit_percentage(trade.buy_price, trade.sell_price)
+                report_data += (f"id: {trade.id}, bot_id: {trade.bot_id} {trade.bot_settings.algorithm}, {trade.type} {trade.bot_settings.symbol}, "
+                                f"amount: {trade.amount} {trade.bot_settings.symbol[:3]}, buy_price: {trade.buy_price:.2f} {trade.bot_settings.symbol[-4:]}, "
+                                f"sell_price: {trade.sell_price:.2f} {trade.bot_settings.symbol[-4:]}, profit_percentage: {profit_percentage:.2f}%, "
+                                f"timestamp: {trade.timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n")
 
     return report_data
 
@@ -116,12 +126,14 @@ def send_email(email, subject, body):
         return False
 
 
-def send_24h_report_email():
+def send_report_via_email():
+    now = datetime.now()
+    today = now.strftime('%Y-%m-%d')
     with current_app.app_context():
         users = User.query.filter_by(email_raports_receiver=True).all()
         report_body = generate_trade_report('24h')
         for user in users:
-            success = send_email(user.email, '24h report', report_body)
+            success = send_email(user.email, f'{today} Daily Stefan Trades', report_body)
             if not success:
                 logger.error(f"Failed to send 24h report to {user.email}.")
 

@@ -28,23 +28,27 @@
             <p class="text-center text-muted m-0 p-0">{{ current_user.login }} logged in at {{ current_user.last_login }}</p>
         {% endif %}
         
-        <div class="col-12 col-md-6 card mt-3 mb-3">
-            <div class="card-header text-center bg-light">
-                <h5>Trades History: last 7 days</h5>
-            </div>
-            <div class="card-body text-center">
-                <div class="d-flex flex-column justify-content-center align-items-center gap-2">
-                    {% if all_trades_history %}
-                        {% for trade in all_trades_history %}
-                        {% set profit_percentage = ((trade.sell_price - trade.buy_price) / trade.buy_price) * 100 %}
-                        <p class="mb-1">id: {{ trade.id }} bot_id: {{ trade.bot_settings.id }} type: {{ trade.type }} amount: {{ trade.amount }} {{ trade.bot_settings.symbol[:3] }}, buy_price: ${{ '%.2f'|format(trade.buy_price) }} {{ trade.bot_settings.symbol[:-4] }}, sell_price: ${{ '%.2f'|format(trade.sell_price) }} {{ trade.bot_settings.symbol[:-4] }}, profit: {{ profit_percentage | round(2) }}%, timestamp: {{ trade.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
-                        {% endfor %}
-                    {% else %}
-                        <p class="mb-1">List empty.</p>
-                    {% endif %}
+        {% if all_bots %}
+            {% for single_bot in all_bots %}
+                <div class="col-12 col-md-6 card mt-3 mb-3">
+                    <div class="card-header text-center bg-light">
+                        <h5>Trades History {single_bot.id} {single_bot.symbol} {single_bot.algorithm}: last 7 days</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                            {% if single_bot.bot_trades_history %}
+                                {% for trade in single_bot.bot_trades_history %}
+                                {% set profit_percentage = ((trade.sell_price - trade.buy_price) / trade.buy_price) * 100 %}
+                                <p class="mb-1">id: {{ trade.id }} type: {{ trade.type }} amount: {{ trade.amount }} {{ trade.bot_settings.symbol[:3] }}, buy_price: ${{ '%.2f'|format(trade.buy_price) }} {{ trade.bot_settings.symbol[:-4] }}, sell_price: ${{ '%.2f'|format(trade.sell_price) }} {{ trade.bot_settings.symbol[:-4] }}, profit: {{ profit_percentage | round(2) }}%, timestamp: {{ trade.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                                {% endfor %}
+                            {% else %}
+                                <p class="mb-1">List empty.</p>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            {% endfor %}
+        {% endif %}
 
         <div class="col-12 col-md-6 card mb-3">
             <div class="card-header text-center bg-light">

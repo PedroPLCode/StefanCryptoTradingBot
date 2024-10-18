@@ -57,10 +57,10 @@ def get_account_balance(bot_id, assets=None):
         return {asset: balances.get(asset, 0) for asset in assets}
 
     except BinanceAPIException as e:
-        print(f'Błąd API Binance: {e.message}')
+        print(f'Bot {bot_id} Błąd API Binance: {e.message}')
         return {asset: 0 for asset in assets}
     except Exception as e:
-        print(f'Inny błąd: {str(e)}')
+        print(f'Bot {bot_id} Inny błąd: {str(e)}')
         return {asset: 0 for asset in assets}
     
     
@@ -85,13 +85,13 @@ def place_buy_order(bot_settings):
         price = float(fetch_current_price(symbol))
         
         if stablecoin_balance <= 0:
-            logger.info(f'Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}.')
+            logger.info(f'Bot {bot_settings.id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}.')
             return
 
         amount_to_buy = (stablecoin_balance * 0.9) / price
         if amount_to_buy > 0:
             bot_client.order_market_buy(symbol=symbol, quantity=amount_to_buy)
-            logger.info(f'Buy {amount_to_buy} {cryptocoin_symbol} at price {price}')
+            logger.info(f'Bot {bot_settings.id} Buy {amount_to_buy} {cryptocoin_symbol} at price {price}')
             save_active_trade(
                 current_trade, 
                 amount=amount_to_buy, 
@@ -99,14 +99,14 @@ def place_buy_order(bot_settings):
                 buy_price=price
             )
         else:
-            logger.info(f'Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}.')
+            logger.info(f'Bot {bot_settings.id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}.')
 
     except ConnectionError as ce:
-        logger.error(f"Błąd połączenia: {str(ce)}")
-        send_admin_email('Błąd połączenia przy składaniu zlecenia kupna', str(ce))
+        logger.error(f"Bot {bot_settings.id} Błąd połączenia: {str(ce)}")
+        send_admin_email(f'Bot {bot_settings.id} Błąd połączenia przy składaniu zlecenia kupna', str(ce))
     except Exception as e:
-        logger.error(f"Błąd podczas składania zlecenia kupna: {str(e)}")
-        send_admin_email('Błąd przy składaniu zlecenia kupna', str(e))
+        logger.error(f"Bot {bot_settings.id} Błąd podczas składania zlecenia kupna: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Błąd przy składaniu zlecenia kupna', str(e))
 
 
 def place_sell_order(bot_settings):
@@ -124,11 +124,11 @@ def place_sell_order(bot_settings):
         price = float(fetch_current_price(symbol))
 
         if crypto_balance <= 0:
-            logger.info(f'Not enough {cryptocoin_symbol} to sell.')
+            logger.info(f'Bot {bot_settings.id} Not enough {cryptocoin_symbol} to sell.')
             return
 
         bot_client.order_market_sell(symbol=symbol, quantity=crypto_balance)
-        logger.info(f'Sell {crypto_balance} {cryptocoin_symbol} at price {price}')
+        logger.info(f'Bot {bot_settings.id} Sell {crypto_balance} {cryptocoin_symbol} at price {price}')
         save_deactivated_trade(current_trade)
         save_trade_to_history(
             current_trade, 
@@ -138,11 +138,11 @@ def place_sell_order(bot_settings):
         )
 
     except ConnectionError as ce:
-        logger.error(f"Błąd połączenia: {str(ce)}")
-        send_admin_email('Błąd połączenia przy składaniu zlecenia sprzedaży', str(ce))
+        logger.error(f"Bot {bot_settings.id} Błąd połączenia: {str(ce)}")
+        send_admin_email(f'Bot {bot_settings.id} Błąd połączenia przy składaniu zlecenia sprzedaży', str(ce))
     except Exception as e:
-        logger.error(f"Błąd podczas składania zlecenia sprzedaży: {str(e)}")
-        send_admin_email('Błąd przy składaniu zlecenia sprzedaży', str(e))
+        logger.error(f"Bot {bot_settings.id} Błąd podczas składania zlecenia sprzedaży: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Błąd przy składaniu zlecenia sprzedaży', str(e))
 
 
 def fetch_system_status():

@@ -99,6 +99,8 @@ pytest
 - Machine Learning: Incorporating machine learning to improve trade predictions and make the bot more adaptive.
 - Backtesting: Adding backtesting features to allow users to test their strategies against historical data.
 
-### Familiarize yourself thoroughly with the source code. Only then will you be able to customize the bot to your own needs and preferences. Any comments welcome.
+## Familiarize yourself thoroughly with the source code. Understand its operation. Only then will you be able to customize and adjust the bot to your own needs, preferences and requirements. 
+
+Any comments welcome.
 
 StefanCryptoTradingBot Project is under GPL Licence (GNU General Public License)

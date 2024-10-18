@@ -1,6 +1,7 @@
 from flask import redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
 from ..models import BotSettings
+from datetime import datetime
 from ..utils.logging import logger
 from . import main
 from ..utils.api_utils import place_sell_order
@@ -38,6 +39,7 @@ def start_bot(bot_id):
     except Exception as e:
         logger.error(f'Error while starting bot {bot_id}: {e}')
         flash(f'An error occurred while starting bot {bot_id}.', 'danger')
+        send_admin_email(f'Error while starting bot {bot_id}', str(e))
         return redirect(url_for('main.control_panel_view'))
 
 
@@ -66,6 +68,7 @@ def stop_bot(bot_id):
     except Exception as e:
         logger.error(f'Error while stopping bot {bot_id}: {e}')
         flash(f'An error occurred while stopping bot {bot_id}.', 'danger')
+        send_admin_email(f'Error while stopping bot {bot_id}', str(e))
         return redirect(url_for('main.control_panel_view'))
     
 
@@ -82,8 +85,9 @@ def start_all(current_user):
         return redirect(url_for('main.control_panel_view'))
 
     except Exception as e:
-        logger.error(f'Error while stopping all bots: {e}')
-        flash(f'An error occurred while stopping all bots.', 'danger')
+        logger.error(f'Error while starting all bots: {e}')
+        flash(f'An error occurred while starting all bots.', 'danger')
+        send_admin_email(f'Error while starting all bots.', str(e))
         return redirect(url_for('main.control_panel_view'))
     
     
@@ -102,6 +106,7 @@ def stop_all():
     except Exception as e:
         logger.error(f'Error while stopping all bots: {e}')
         flash(f'An error occurred while stopping all bots.', 'danger')
+        send_admin_email(f'Error while stopping all bots.', str(e))
         return redirect(url_for('main.control_panel_view'))
 
 
@@ -132,8 +137,10 @@ def report():
         flash(f'Error. User {current_user.login} is not allowed receiving email raports.', 'danger')
         return redirect(url_for('main.user_panel_view'))
     
+    now = datetime.now()
+    today = now.strftime('%Y-%m-%d')
     email = current_user.email
-    subject = 'Stefan Test Raport'
+    subject = f'{today} Stefan Trades Report'
     report_body = generate_trade_report('7d')
     
     try:
@@ -143,6 +150,6 @@ def report():
     except Exception as e:
         logger.error(f'Error sending email to {email}: {e}')
         flash('An error occurred while sending the email. The admin has been notified.', 'danger')
-        send_admin_email('Error sending email', str(e))
+        send_admin_email('Error sending report email', str(e))
     
     return redirect(url_for('main.control_panel_view'))

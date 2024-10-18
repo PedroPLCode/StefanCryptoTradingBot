@@ -9,6 +9,7 @@ class User(UserMixin, db.Model):
     login = db.Column(db.String(56), nullable=False, unique=True)
     name = db.Column(db.String(56), nullable=False, unique=False)
     email = db.Column(db.String(128), nullable=False, unique=True)
+    comment = db.Column(db.String(1024), nullable=True, unique=False)
     password_hash = db.Column(db.String(128), nullable=False)
     creation_date = db.Column(db.DateTime, nullable=False, default=dt.utcnow)
     last_login = db.Column(db.DateTime, nullable=False, default=dt.utcnow)

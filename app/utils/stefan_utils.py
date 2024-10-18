@@ -7,14 +7,13 @@ from .logging import logger
 from ..utils.app_utils import send_admin_email
 from ..utils.api_utils import place_sell_order
 
-#dostosować
 def calculate_indicators(df):
-    df['rsi'] = talib.RSI(df['close'], timeperiod=3)
+    df['rsi'] = talib.RSI(df['close'], timeperiod=5)
     df['macd'], df['macd_signal'], _ = talib.MACD(
         df['close'], 
-        fastperiod=3, 
+        fastperiod=5,
         slowperiod=10, 
-        signalperiod=3
+        signalperiod=5
     )
     df['upper_band'], df['middle_band'], df['lower_band'] = talib.BBANDS(
         df['close'], 
@@ -36,32 +35,6 @@ def calculate_indicators(df):
     df['vwap'] = (df['volume'] * df['close']).cumsum() / df['volume'].cumsum()
     df['adx'] = talib.ADX(df['high'], df['low'], df['close'], timeperiod=10)
     df.dropna(inplace=True)
-
-#dostosować
-def check_buy_signal(df):
-    latest_data = df.iloc[-1]
-    mfi = talib.MFI(df['high'], df['low'], df['close'], df['volume'], timeperiod=3)
-    
-    if (latest_data['rsi'] < 35 and
-        latest_data['macd'] > latest_data['macd_signal'] and 
-        latest_data['cci'] < -50 and
-        mfi.iloc[-1] < 30 and
-        latest_data['close'] < latest_data['lower_band']):
-        return True
-    return False
-
-#dostosować
-def check_sell_signal(df):
-    latest_data = df.iloc[-1]
-    mfi = talib.MFI(df['high'], df['low'], df['close'], df['volume'], timeperiod=3)
-    
-    if (latest_data['rsi'] > 65 and
-        latest_data['macd'] < latest_data['macd_signal'] and 
-        latest_data['cci'] > 50 and
-        mfi.iloc[-1] > 70 and
-        latest_data['close'] > latest_data['upper_band']):
-        return True
-    return False
 
 
 def save_active_trade(current_trade, amount, price, buy_price):
@@ -107,6 +80,7 @@ def save_trade_to_history(current_trade, order_type, amount, buy_price, sell_pri
     try:
         trade = TradesHistory(
             bot_id=current_trade.id, 
+            algorithm=current_trade.bot_settings.algorithm,
             amount=amount, 
             buy_price=buy_price,
             sell_price=sell_price
@@ -114,7 +88,7 @@ def save_trade_to_history(current_trade, order_type, amount, buy_price, sell_pri
         db.session.add(trade)
         db.session.commit()
         logger.info(
-            f'Transaction {trade.id}: bot: {current_trade.id} {order_type}, '
+            f'Transaction {trade.id}: bot: {current_trade.id} {order_type}, algorithm: {current_trade.bot_settings.algorithm}'
             f'amount: {amount}, symbol: {current_trade.bot_settings.symbol}, timestamp: {trade.timestamp}'
         )
     except Exception as e:
