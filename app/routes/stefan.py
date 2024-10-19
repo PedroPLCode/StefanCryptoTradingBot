@@ -4,13 +4,11 @@ from ..models import BotSettings
 from datetime import datetime
 from ..utils.logging import logger
 from . import main
-from ..utils.api_utils import place_sell_order
+from ..stefan.api_utils import place_sell_order
 from ..utils.app_utils import (
     send_email, 
     send_admin_email,
-    generate_trade_report
-)
-from ..utils.stefan_utils import (
+    generate_trade_report,
     stop_all_bots, 
     start_all_bots, 
     start_single_bot, 

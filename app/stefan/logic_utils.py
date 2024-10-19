@@ -1,11 +1,8 @@
-from flask import flash, current_app
 import talib
-from datetime import datetime, timedelta
 from .. import db
-from ..models import BotSettings, TradesHistory, BotCurrentTrade
-from .logging import logger
+from ..models import TradesHistory
+from ..utils.logging import logger
 from ..utils.app_utils import send_admin_email
-from ..utils.api_utils import place_sell_order
 
 def calculate_indicators(df):
     df['rsi'] = talib.RSI(df['close'], timeperiod=5)
@@ -96,66 +93,3 @@ def save_trade_to_history(current_trade, order_type, amount, buy_price, sell_pri
         db.session.rollback()
         logger.error(f'Błąd podczas dodawania transakcji do historii: {str(e)}')
         send_admin_email("Błąd podczas dodawania transakcji do historii", str(e))
-
-
-def clear_old_trade_history():
-    try:
-        one_month_ago = datetime.now() - timedelta(days=30)
-        db.session.query(TradesHistory).filter(
-            TradesHistory.timestamp < one_month_ago
-        ).delete()
-        db.session.commit()
-        logger.info("Trade history older than one month cleared successfully.")
-    except Exception as e:
-        logger.error(f"Error clearing old trade history: {str(e)}")
-        send_admin_email(f"Error clearing old trade history", str(e))
-        db.session.rollback()
-
-
-def start_single_bot(bot_settings, current_user):
-    if bot_settings.bot_running:
-        flash(f'Bot {bot_settings.id} is already running.', 'info')
-    else:
-        bot_settings.bot_running = True
-        db.session.commit()
-        flash(f'Bot {bot_settings.id} has been started.', 'success')
-        send_admin_email('Bot started.', f'Bot {bot_settings.id} has been started by {current_user.login}.')
-
-
-def stop_single_bot(bot_settings, current_user):
-    if not bot_settings.bot_running:
-        flash(f'Bot {bot_settings.id} is already stopped.', 'info')
-    else:
-        bot_settings.bot_running = False
-        db.session.commit()
-        flash(f'Bot {bot_settings.id} has been stopped.', 'success')
-        send_admin_email('Bot stopped.', f'Bot {bot_settings.id} has been stopped by {current_user.login if current_user.login else current_user}.')
-
-
-def stop_all_bots(current_user):
-    all_bots_settings = BotSettings.query.all()
-    
-    with current_app.app_context():
-        for bot_settings in all_bots_settings:
-            try:
-                
-                if bot_settings.bot_current_trade.is_active:
-                    place_sell_order(bot_settings)
-            
-                stop_single_bot(bot_settings, current_user)
-                
-            except Exception as e:
-                logger.error(f'Błąd podczas rozruchu botów: {str(e)}')
-                send_admin_email('Błąd podczas rozruchu botów', str(e))
-            
-
-def start_all_bots(current_user='undefined'):
-    all_bots_settings = BotSettings.query.all()
-        
-    with current_app.app_context():
-        for bot_settings in all_bots_settings:
-            try:
-                start_single_bot(bot_settings, current_user)         
-            except Exception as e:
-                logger.error(f'Błąd podczas rozruchu botów: {str(e)}')
-                send_admin_email('Błąd podczas rozruchu botów', str(e))

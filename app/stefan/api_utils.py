@@ -1,6 +1,5 @@
 from dotenv import load_dotenv
 import pandas as pd
-from ..utils.app_utils import send_admin_email
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
 import os
@@ -45,7 +44,7 @@ def fetch_data(symbol, interval='1m', lookback='4h'):
 
 def get_account_balance(bot_id, assets=None):
     if assets is None:
-        assets = ['USDC', 'BTC', 'ETH', 'SOL', 'BNB']
+        assets = ['USDC', 'BTC', 'ETH', 'SOL', 'LTC', 'ADA', 'BNB']
 
     try:
         bot_client = create_binance_client(bot_id)
@@ -70,7 +69,8 @@ def fetch_current_price(symbol):
 
 
 def place_buy_order(bot_settings):
-    from ..utils.stefan_utils import save_active_trade
+    from .logic_utils import save_active_trade
+    from ..utils.app_utils import send_admin_email
     
     symbol = bot_settings.symbol
     current_trade = bot_settings.bot_current_trade
@@ -110,7 +110,8 @@ def place_buy_order(bot_settings):
 
 
 def place_sell_order(bot_settings):
-    from ..utils.stefan_utils import save_trade_to_history, save_deactivated_trade
+    from .logic_utils import save_trade_to_history, save_deactivated_trade
+    from ..utils.app_utils import send_admin_email
     
     symbol = bot_settings.symbol
     current_trade = bot_settings.bot_current_trade

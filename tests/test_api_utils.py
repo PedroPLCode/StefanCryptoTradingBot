@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch
-from app.utils.api_utils import (
+from app.stefan.api_utils import (
     fetch_data, 
     get_account_balance,
     fetch_current_price, 
