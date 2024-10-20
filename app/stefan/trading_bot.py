@@ -24,13 +24,20 @@ from .swing_logic import (
     check_swing_sell_signal_with_MA200
 )
 
-def run_all_trading_bots():
-    all_bots_settings = BotSettings.query.all()
+def run_all_scalp_trading_bots():
+    run_selected_trading_bots('scalp')
 
-    for bot_settings in all_bots_settings:
+            
+def run_all_swing_trading_bots():
+    run_selected_trading_bots('swing')
+
+
+def run_selected_trading_bots(algorithm):
+    all_selected_bots = BotSettings.query.filter(BotSettings.algorithm == algorithm).all()
+    for bot_settings in all_selected_bots:
         try:
             if bot_settings.bot_current_trade:
-                run_trading_logic(bot_settings)
+                run_single_trading_logic(bot_settings)
             else:
                 error_message = f"No current trade found for settings id: {bot_settings.id}"
                 send_admin_email(f'Błąd podczas pętli bota {bot_settings.id}', error_message)
@@ -38,9 +45,9 @@ def run_all_trading_bots():
         except Exception as e:
             logger.error(f'Błąd w pętli handlowej: {str(e)}')
             send_admin_email('Błąd w pętli handlowej', str(e))
-            
 
-def run_trading_logic(bot_settings):
+
+def run_single_trading_logic(bot_settings):
     try:
         with current_app.app_context():
             if bot_settings and bot_settings.bot_running:

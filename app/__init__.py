@@ -92,7 +92,10 @@ def run_job_with_context(func, *args, **kwargs):
 def start_scheduler():
     logger.info('Starting scheduler.')
     try:
-        from .stefan.trading_bot import run_all_trading_bots  
+        from .stefan.trading_bot import (
+            run_all_scalp_trading_bots, 
+            run_all_swing_trading_bots
+        )
         from .utils.app_utils import (
             send_report_via_email, 
             send_logs_via_email, 
@@ -100,9 +103,14 @@ def start_scheduler():
             clear_old_trade_history
         )
         scheduler.add_job(
-            func=partial(run_job_with_context, run_all_trading_bots),
+            func=partial(run_job_with_context, run_all_scalp_trading_bots),
             trigger='interval',
             minutes=1
+        )
+        scheduler.add_job(
+            func=partial(run_job_with_context, run_all_swing_trading_bots),
+            trigger='interval',
+            minutes=30
         )
         scheduler.add_job(
             func=partial(run_job_with_context, send_logs_via_email),
