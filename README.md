@@ -26,7 +26,7 @@ cd StefanCryptoTradingBot
 2. Set up a Python virtual environment and activate it:
 ```bash
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate or . venv/bin/activate
 ```
 
 3. Install the required dependencies:

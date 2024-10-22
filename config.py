@@ -7,6 +7,9 @@ class DevelopmentConfig:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///stefan.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = 'your-secret-key'
+    WTF_CSRF_SECRET_KEY = 'your_csrf_secret_key'
+    SESSION_COOKIE_SECURE = True
+    WTF_CSRF_SSL_STRICT = True
     PERMANENT_SESSION_LIFETIME = 300
     SESSION_PERMANENT = False
     SESSION_COOKIE_SECURE = True
