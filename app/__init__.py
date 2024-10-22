@@ -33,7 +33,8 @@ def create_app(config_name=None):
         mail.init_app(app)
         migrate.init_app(app, db)
         jwt.init_app(app)
-        CORS(app)
+        CORS(app, resources={r"/*": {"origins": "http://localhost:8000"}})
+        #CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "OPTIONS"]}})
         
         from .models.admin import (
             MyAdmin, 
@@ -145,3 +146,6 @@ with app.app_context():
 
 from .routes import main
 app.register_blueprint(main)
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=8000)

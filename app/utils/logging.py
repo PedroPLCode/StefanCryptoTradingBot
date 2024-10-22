@@ -16,12 +16,12 @@ logging.Logger.trade = trade
 logger = logging.getLogger('main_logger')
 logger.setLevel(logging.DEBUG)
 
-general_handler = logging.FileHandler(stafan_log_filemane)
+general_handler = logging.FileHandler(flask_log_filemane)
 general_handler.setLevel(logging.DEBUG)
 general_formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
 general_handler.setFormatter(general_formatter)
 
-trade_handler = logging.FileHandler(flask_log_filemane)
+trade_handler = logging.FileHandler(stafan_log_filemane)
 trade_handler.setLevel(TRADE_LEVEL)
 trade_formatter = logging.Formatter('%(asctime)s TRADE: %(message)s')
 trade_handler.setFormatter(trade_formatter)

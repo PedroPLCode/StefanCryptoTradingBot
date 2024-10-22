@@ -6,13 +6,13 @@ load_dotenv()
 class DevelopmentConfig:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///stefan.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SECRET_KEY = 'your-secret-key'
-    WTF_CSRF_SECRET_KEY = 'your_csrf_secret_key'
-    SESSION_COOKIE_SECURE = True
-    WTF_CSRF_SSL_STRICT = True
+    SECRET_KEY = os.environ['APP_SECRET_KEY']
+    WTF_CSRF_SECRET_KEY = os.environ['CSRF_SECRET_KEY']
+    SESSION_COOKIE_SECURE = False # tutaj popr ?
+    WTF_CSRF_SSL_STRICT = False # tutaj popr ?
+    WTF_CSRF_ENABLED = False # tutaj popr ?
     PERMANENT_SESSION_LIFETIME = 300
     SESSION_PERMANENT = False
-    SESSION_COOKIE_SECURE = True
     
     GMAIL_APP_PASSWORD = os.environ['GMAIL_APP_PASSWORD']
     MAIL_SERVER = 'smtp.gmail.com'
