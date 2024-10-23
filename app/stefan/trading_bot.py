@@ -57,11 +57,22 @@ def run_single_trading_logic(bot_settings):
                 trailing_stop_pct = float(bot_settings.trailing_stop_pct)
                 interval = bot_settings.interval
                 lookback_period = bot_settings.lookback_period
-
+                #logger.info(f'Fetching data for {symbol} with interval {interval} and lookback {lookback_period}')
                 df = fetch_data(symbol, interval=interval, lookback=lookback_period)
-                calculate_indicators(df)
+                #logger.info(f'Data fetched for {symbol}:\n{df.head()}')
+                if df.empty or len(df) < 5: 
+                    #logger.error(f'Bot {bot_settings.id} DataFrame is empty or has insufficient data for indicators')
+                    return 
+                calculate_indicators(df, bot_settings)
+                #logger.info(df)
                 
-                current_price = float(df['close'].iloc[-1])
+                current_price = float(0)
+                if not df.empty and len(df) > 0:
+                    current_price = float(df['close'].iloc[-1])
+                else:
+                    #logger.error(f'Bot {bot_settings.id} DataFrame is empty or has insufficient data')
+                    return
+
                 trailing_stop_price = float(current_trade.trailing_stop_loss)
                 previous_price = float(current_trade.previous_price if current_trade.is_active else 0)
                 price_rises = current_price >= previous_price if current_trade.is_active else False
@@ -98,16 +109,19 @@ def run_single_trading_logic(bot_settings):
                         return
                 
                 if not current_trade.is_active and buy_signal:
+                    logger.trade(f"{bot_settings.algorithm} buy signal!")
                     place_buy_order(bot_settings)
                     trailing_stop_price = float(current_price) * (1 - float(trailing_stop_pct))
                     
-                    logger.debug(f"current_price type: {type(current_price)}, trailing_stop_pct type: {type(trailing_stop_pct)}")
+                    logger.debug(f"{bot_settings.algorithm} BUY: current_price type: {type(current_price)}, trailing_stop_pct type: {type(trailing_stop_pct)}")
 
                     save_trailing_stop_loss(trailing_stop_price, current_trade)
                     save_previous_price(current_price, current_trade)
                 elif current_trade.is_active and sell_signal:
+                    logger.trade(f"{bot_settings.algorithm} sell signal!")
                     place_sell_order(bot_settings)
                 elif current_trade.is_active and price_rises:
+                    logger.trade(f"{bot_settings.algorithm} price rises!")
                     trailing_stop_price = update_trailing_stop_loss(
                         current_price,
                         trailing_stop_price,
@@ -115,6 +129,8 @@ def run_single_trading_logic(bot_settings):
                     )
                     save_trailing_stop_loss(trailing_stop_price, current_trade)
                     save_previous_price(current_price, current_trade)
+                else:
+                    logger.trade(f"{bot_settings.algorithm} no trade signal.")
 
                 logger.trade(f"{bot_settings.algorithm.title()} Trading bot {bot_settings.id}: Aktualna cena: {current_price}, Trailing stop loss: {trailing_stop_price}")
 

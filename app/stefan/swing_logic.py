@@ -1,4 +1,5 @@
 import talib
+from ..utils.logging import logger
 
 def check_swing_buy_signal(df, bot_settings):
     latest_data = df.iloc[-1]
@@ -15,6 +16,10 @@ def check_swing_buy_signal(df, bot_settings):
 
 def check_swing_buy_signal_with_MA200(df, bot_settings):
     latest_data = df.iloc[-1]
+    
+    if 'ma_200' not in df.columns:
+        logger.trade(f"{bot_settings.algorithm} missing ma_200 in df column.")
+        return False
 
     if (latest_data['close'] > latest_data['ma_200'] and
         latest_data['rsi'] < bot_settings.rsi_buy and

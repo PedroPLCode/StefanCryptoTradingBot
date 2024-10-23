@@ -8,9 +8,9 @@ class DevelopmentConfig:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.environ['APP_SECRET_KEY']
     WTF_CSRF_SECRET_KEY = os.environ['CSRF_SECRET_KEY']
-    SESSION_COOKIE_SECURE = False # tutaj popr ?
-    WTF_CSRF_SSL_STRICT = False # tutaj popr ?
-    WTF_CSRF_ENABLED = False # tutaj popr ?
+    SESSION_COOKIE_SECURE = False # ssl https dodac
+    WTF_CSRF_SSL_STRICT = False # ssl https dodac
+    WTF_CSRF_ENABLED = False # ssl https dodac
     PERMANENT_SESSION_LIFETIME = 300
     SESSION_PERMANENT = False
     

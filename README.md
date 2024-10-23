@@ -6,7 +6,7 @@ The bot provides an easy-to-use interface for starting and stopping the bot, rea
 
 ## Features
 
-- Up to 5 independent bots with different currencies and strategies.
+- Many independent bots with different currencies and strategies.
 - Automated Trading: Executes trades on Binance based on predefined strategies.
 - Binance API Integration: Fetches real-time data and executes trades.
 - Real-Time Monitoring: Displays current trade results, account balances, and historical data from the last 24 hours.
@@ -36,6 +36,8 @@ pip install -r requirements.txt
 
 4. Configure your environment variables by creating a .env file with your Binance API credentials, database URL, and email configuration.
 ```bash
+APP_SECRET_KEY = 'your_turbo_secret_key'
+CSRF_SECRET_KEY = 'your_total_secret_key'
 GMAIL_USERNAME = 'gmail@username.com'
 GMAIL_APP_PASSWORD="gmail_app_password"
 RECAPTCHA_PUBLIC_KEY = "recaptcha_public_key"
@@ -44,7 +46,11 @@ BINANCE_GENERAL_API_KEY='binance_general_api_key'
 BINANCE_GENERAL_API_SECRET='binance_general_api_secret'
 BINANCE_BOT1_API_KEY='binance_bot1_api_key'
 BINANCE_BOT1_API_SECRET='binance_bot1_api_secret'
-#max 5 independent bots
+BINANCE_BOT2_API_KEY='binance_bot2_api_key'
+BINANCE_BOT2_API_SECRET='binance_bot2_api_secret'
+BINANCE_BOT3_API_KEY='binance_bot3_api_key'
+BINANCE_BOT3_API_SECRET='binance_bot3_api_secret'
+etc
 ```
 
 5. Set up the database:
@@ -61,7 +67,7 @@ pytest
 
 7. Run the Flask application:
 ```bash
-./run.sh
+flask run -h 0.0.0.0 -p 8000
 ```
 or
 ```

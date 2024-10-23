@@ -7,7 +7,10 @@ import logging
 from flask import flash, current_app
 from .. import db
 from .logging import logger
-from ..stefan.api_utils import place_sell_order
+from ..stefan.api_utils import (
+    place_sell_order,
+    fetch_current_price
+)
 
 def get_ip_address(request):
     if 'X-Forwarded-For' in request.headers:
@@ -30,15 +33,18 @@ def create_new_user(form):
         raise
 
 
-def show_account_balance(account_status, assets_to_include):
+def show_account_balance(symbol, account_status, assets_to_include):
     if not account_status or 'balances' not in account_status:
         return False
 
+    asset_price = fetch_current_price(symbol)
+    
     account_balance = [
         {
             'asset': single['asset'],
             'free': float(single['free']),
             'locked': float(single['locked']),
+            'value': (float(single['free']) + float(single['locked'])) * float(asset_price)
         }
         for single in account_status['balances']
         if single['asset'] in assets_to_include

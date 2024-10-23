@@ -56,6 +56,7 @@ def control_panel_view():
             cryptocoin_symbol = bot_info.symbol[:3]
             stablecoin_symbol = bot_info.symbol[-4:]
             balance = show_account_balance(
+                bot_info.symbol,
                 account_status, 
                 {cryptocoin_symbol, stablecoin_symbol})
             bot_info.balance = balance

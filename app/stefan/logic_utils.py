@@ -1,38 +1,47 @@
 import talib
+import pandas as pd
 from .. import db
 from ..models import TradesHistory
 from ..utils.logging import logger
 from ..utils.app_utils import send_admin_email
 
-def calculate_indicators(df):
-    df['rsi'] = talib.RSI(df['close'], timeperiod=5)
+def calculate_indicators(df, bot_settings):
+    df['close'] = pd.to_numeric(df['close'], errors='coerce')
+    df['high'] = pd.to_numeric(df['high'], errors='coerce')
+    df['low'] = pd.to_numeric(df['low'], errors='coerce')
+    df['volume'] = pd.to_numeric(df['volume'], errors='coerce')
+
+    df['rsi'] = talib.RSI(df['close'], timeperiod=bot_settings.timeperiod)
     df['macd'], df['macd_signal'], _ = talib.MACD(
         df['close'], 
-        fastperiod=5,
-        slowperiod=10, 
-        signalperiod=5
+        fastperiod=bot_settings.timeperiod,
+        slowperiod=2 * bot_settings.timeperiod, 
+        signalperiod=1
     )
     df['upper_band'], df['middle_band'], df['lower_band'] = talib.BBANDS(
         df['close'], 
-        timeperiod=10, 
+        timeperiod=bot_settings.timeperiod, 
         nbdevup=2, 
         nbdevdn=2, 
         matype=0
     )
-    df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=5)
-    df['cci'] = talib.CCI(df['high'], df['low'], df['close'], timeperiod=5)
-    df['slowk'], df['slowd'] = talib.STOCH(
+    df['cci'] = talib.CCI(
         df['high'], 
         df['low'], 
         df['close'], 
-        fastk_period=5, 
-        slowk_period=3, 
-        slowd_period=3
+        timeperiod=bot_settings.timeperiod
     )
-    df['vwap'] = (df['volume'] * df['close']).cumsum() / df['volume'].cumsum()
-    df['adx'] = talib.ADX(df['high'], df['low'], df['close'], timeperiod=10)
+    df['mfi'] = talib.MFI(
+        df['high'], 
+        df['low'], 
+        df['close'], 
+        df['volume'], 
+        timeperiod=bot_settings.timeperiod
+    )
     df['ma_200'] = talib.SMA(df['close'], timeperiod=200)
+
     df.dropna(inplace=True)
+    return df
 
 
 def save_active_trade(current_trade, amount, price, buy_price):
@@ -54,12 +63,22 @@ def save_deactivated_trade(current_trade):
 
 
 def update_trailing_stop_loss(current_price, trailing_stop_price, atr):
-    dynamic_trailing_stop = max(
-        trailing_stop_price, 
-        current_price * (1 - (0.5 * atr / current_price))
-    )
-    minimal_trailing_stop = current_price * 0.98
-    return max(dynamic_trailing_stop, minimal_trailing_stop)
+    try:
+        current_price = float(current_price)
+        trailing_stop_price = float(trailing_stop_price)
+        atr = float(atr)
+
+        dynamic_trailing_stop = max(
+            trailing_stop_price, 
+            current_price * (1 - (0.5 * atr / current_price))
+        )
+        minimal_trailing_stop = current_price * 0.98
+
+        return max(dynamic_trailing_stop, minimal_trailing_stop)
+
+    except ValueError as e:
+        logger.error(f"Invalid value for price or ATR: {e}")
+        return trailing_stop_price
 
 
 def save_trailing_stop_loss(trailing_stop_price, current_trade):
