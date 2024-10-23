@@ -114,14 +114,20 @@ def place_buy_order(bot_settings):
 
     try:
         balance = get_account_balance(bot_id)
-        stablecoin_balance = float(balance.get(stablecoin_symbol, 0))
+        stablecoin_balance = float(balance.get(stablecoin_symbol, '0.0'))
         price = float(fetch_current_price(symbol))
+        
+        logger.debug(f'Fetched stablecoin balance: {stablecoin_balance}')
+        logger.debug(f'Fetched price for {symbol}: {price}')
         
         if stablecoin_balance <= 0:
             logger.info(f'Bot {bot_settings.id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}.')
             return
 
         amount_to_buy = (stablecoin_balance * 0.9) / price
+        
+        logger.debug(f"stablecoin_balance: {stablecoin_balance}, price: {price}")
+
         if amount_to_buy > 0:
             bot_client.order_market_buy(symbol=symbol, quantity=amount_to_buy)
             logger.info(f'Bot {bot_settings.id} Buy {amount_to_buy} {cryptocoin_symbol} at price {price}')

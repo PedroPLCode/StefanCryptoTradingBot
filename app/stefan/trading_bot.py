@@ -1,5 +1,6 @@
 from flask import current_app
 from ..models import BotSettings
+from binance.exceptions import BinanceAPIException
 from ..utils.logging import logger
 from ..utils.app_utils import send_admin_email
 from .api_utils import (
@@ -62,7 +63,7 @@ def run_single_trading_logic(bot_settings):
                 
                 current_price = float(df['close'].iloc[-1])
                 trailing_stop_price = float(current_trade.trailing_stop_loss)
-                previous_price = float(current_trade.previous_price) if current_trade.is_active else None
+                previous_price = float(current_trade.previous_price if current_trade.is_active else 0)
                 price_rises = current_price >= previous_price if current_trade.is_active else False
                 buy_signal = None
                 sell_signal = None
@@ -98,7 +99,10 @@ def run_single_trading_logic(bot_settings):
                 
                 if not current_trade.is_active and buy_signal:
                     place_buy_order(bot_settings)
-                    trailing_stop_price = current_price * (1 - trailing_stop_pct)
+                    trailing_stop_price = float(current_price) * (1 - float(trailing_stop_pct))
+                    
+                    logger.debug(f"current_price type: {type(current_price)}, trailing_stop_pct type: {type(trailing_stop_pct)}")
+
                     save_trailing_stop_loss(trailing_stop_price, current_trade)
                     save_previous_price(current_price, current_trade)
                 elif current_trade.is_active and sell_signal:
@@ -115,5 +119,14 @@ def run_single_trading_logic(bot_settings):
                 logger.trade(f"{bot_settings.algorithm.title()} Trading bot {bot_settings.id}: Aktualna cena: {current_price}, Trailing stop loss: {trailing_stop_price}")
 
     except Exception as e:
+        logger.error(f'Błąd w pętli handlowej bota {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Błąd w pętli handlowej bota {bot_settings.id}', str(e))
+    except BinanceAPIException as e:
+        logger.error(f'Błąd w pętli handlowej bota {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Błąd w pętli handlowej bota {bot_settings.id}', str(e))
+    except ConnectionError as ce:
+        logger.error(f'Błąd w pętli handlowej bota {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Błąd w pętli handlowej bota {bot_settings.id}', str(e))
+    except TimeoutError as e:
         logger.error(f'Błąd w pętli handlowej bota {bot_settings.id}: {str(e)}')
         send_admin_email(f'Błąd w pętli handlowej bota {bot_settings.id}', str(e))
