@@ -64,7 +64,6 @@ def control_panel_view():
             'control_panel.html', 
             user=current_user, 
             all_bots_settings=all_bots_settings, 
-            account_status=account_status, 
         )
 
     except Exception as e:
