@@ -141,6 +141,13 @@ def start_scheduler():
             send_admin_email('Scheduler Error', str(e))
 
 with app.app_context():
+    from .stefan.trading_bot import (
+            run_all_scalp_trading_bots, 
+            run_all_swing_trading_bots
+        )
+    
+    run_all_scalp_trading_bots()
+    run_all_swing_trading_bots()
     start_scheduler()
 
 from .routes import main

@@ -1,4 +1,5 @@
 from flask import current_app
+import pandas as pd
 from ..models import BotSettings
 from binance.exceptions import BinanceAPIException
 from ..utils.logging import logger
@@ -9,16 +10,17 @@ from .api_utils import (
     place_sell_order
 )
 from .logic_utils import (
-    calculate_indicators, 
     save_trailing_stop_loss, 
     save_previous_price, 
     update_trailing_stop_loss
 )
 from .scalping_logic import (
+    calculate_scalp_indicators,
     check_scalping_buy_signal, 
     check_scalping_sell_signal
 )
 from .swing_logic import (
+    calculate_swing_indicators,
     check_swing_buy_signal,
     check_swing_sell_signal,
     check_swing_buy_signal_with_MA200,
@@ -57,21 +59,42 @@ def run_single_trading_logic(bot_settings):
                 trailing_stop_pct = float(bot_settings.trailing_stop_pct)
                 interval = bot_settings.interval
                 lookback_period = bot_settings.lookback_period
-                #logger.info(f'Fetching data for {symbol} with interval {interval} and lookback {lookback_period}')
+                logger.info(f'Fetching data for {symbol} with interval {interval} and lookback {lookback_period}')
                 df = fetch_data(symbol, interval=interval, lookback=lookback_period)
-                #logger.info(f'Data fetched for {symbol}:\n{df.head()}')
-                if df.empty or len(df) < 5: 
-                    #logger.error(f'Bot {bot_settings.id} DataFrame is empty or has insufficient data for indicators')
-                    return 
-                calculate_indicators(df, bot_settings)
-                #logger.info(df)
+                df_for_ma200 = pd.DataFrame()
                 
-                current_price = float(0)
-                if not df.empty and len(df) > 0:
-                    current_price = float(df['close'].iloc[-1])
-                else:
-                    #logger.error(f'Bot {bot_settings.id} DataFrame is empty or has insufficient data')
+                if df is None or df.empty:
+                    logger.error(f'Bot {bot_settings.id}: DataFrame is empty or could not be fetched')
                     return
+
+                #logger.trade(f"\n {df}")
+                if df.empty or len(df) < 5: 
+                    logger.error(f'Bot {bot_settings.id} DataFrame is empty or has insufficient data for indicators')
+                    return 
+                
+                if bot_settings.algorithm == 'scalp':
+                    calculate_scalp_indicators(df, bot_settings)
+                elif bot_settings.algorithm == 'swing':
+                    if bot_settings.signals_extended:
+                        df_for_ma200 = fetch_data(symbol, interval="1d", lookback="300d")
+                        logger.trade(df_for_ma200)
+                        if df_for_ma200 is None or df.empty:
+                            logger.error(f'Bot {bot_settings.id}: DataFrame is empty or could not be fetched')
+                            return
+                    calculate_swing_indicators(df, df_for_ma200, bot_settings)
+                
+                logger.info(f'Data fetched for {symbol} - last close: {df["close"].iloc[-1]}, max: {df["high"].max()}, min: {df["low"].min()}')
+
+                if not df.empty and len(df) > 0:
+                    try:
+                        current_price = float(df['close'].iloc[-1])
+                        logger.trade(f'Current price for Bot {bot_settings.id} is: {current_price}')
+                    except IndexError:
+                        logger.trade(f'Bot {bot_settings.id}: No closing price available in the DataFrame')
+                    except ValueError as ve:
+                        logger.trade(f'Bot {bot_settings.id}: Error converting closing price to float - {ve}')
+                else:
+                    logger.trade(f'Bot {bot_settings.id} DataFrame is empty or has insufficient data')
 
                 trailing_stop_price = float(current_trade.trailing_stop_loss)
                 previous_price = float(current_trade.previous_price if current_trade.is_active else 0)
@@ -109,7 +132,7 @@ def run_single_trading_logic(bot_settings):
                         return
                 
                 if not current_trade.is_active and buy_signal:
-                    logger.trade(f"{bot_settings.algorithm} buy signal!")
+                    logger.trade(f"bot {bot_settings.id} {bot_settings.algorithm} buy signal!")
                     place_buy_order(bot_settings)
                     trailing_stop_price = float(current_price) * (1 - float(trailing_stop_pct))
                     
@@ -118,7 +141,7 @@ def run_single_trading_logic(bot_settings):
                     save_trailing_stop_loss(trailing_stop_price, current_trade)
                     save_previous_price(current_price, current_trade)
                 elif current_trade.is_active and sell_signal:
-                    logger.trade(f"{bot_settings.algorithm} sell signal!")
+                    logger.trade(f"bot {bot_settings.id} {bot_settings.algorithm} sell signal!")
                     place_sell_order(bot_settings)
                 elif current_trade.is_active and price_rises:
                     logger.trade(f"{bot_settings.algorithm} price rises!")
@@ -130,7 +153,7 @@ def run_single_trading_logic(bot_settings):
                     save_trailing_stop_loss(trailing_stop_price, current_trade)
                     save_previous_price(current_price, current_trade)
                 else:
-                    logger.trade(f"{bot_settings.algorithm} no trade signal.")
+                    logger.trade(f"bot {bot_settings.id} {bot_settings.algorithm} no trade signal.")
 
                 logger.trade(f"{bot_settings.algorithm.title()} Trading bot {bot_settings.id}: Aktualna cena: {current_price}, Trailing stop loss: {trailing_stop_price}")
 

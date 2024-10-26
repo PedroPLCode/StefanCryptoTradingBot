@@ -1,48 +1,7 @@
-import talib
-import pandas as pd
 from .. import db
 from ..models import TradesHistory
 from ..utils.logging import logger
 from ..utils.app_utils import send_admin_email
-
-def calculate_indicators(df, bot_settings):
-    df['close'] = pd.to_numeric(df['close'], errors='coerce')
-    df['high'] = pd.to_numeric(df['high'], errors='coerce')
-    df['low'] = pd.to_numeric(df['low'], errors='coerce')
-    df['volume'] = pd.to_numeric(df['volume'], errors='coerce')
-
-    df['rsi'] = talib.RSI(df['close'], timeperiod=bot_settings.timeperiod)
-    df['macd'], df['macd_signal'], _ = talib.MACD(
-        df['close'], 
-        fastperiod=bot_settings.timeperiod,
-        slowperiod=2 * bot_settings.timeperiod, 
-        signalperiod=1
-    )
-    df['upper_band'], df['middle_band'], df['lower_band'] = talib.BBANDS(
-        df['close'], 
-        timeperiod=bot_settings.timeperiod, 
-        nbdevup=2, 
-        nbdevdn=2, 
-        matype=0
-    )
-    df['cci'] = talib.CCI(
-        df['high'], 
-        df['low'], 
-        df['close'], 
-        timeperiod=bot_settings.timeperiod
-    )
-    df['mfi'] = talib.MFI(
-        df['high'], 
-        df['low'], 
-        df['close'], 
-        df['volume'], 
-        timeperiod=bot_settings.timeperiod
-    )
-    df['ma_200'] = talib.SMA(df['close'], timeperiod=200)
-
-    df.dropna(inplace=True)
-    return df
-
 
 def save_active_trade(current_trade, amount, price, buy_price):
     current_trade.is_active = True
