@@ -61,10 +61,10 @@ def create_app(config_name=None):
         logger.trade('Stefan Bot initialized.')
         
     except Exception as e:
-        logger.error(f'Error initializing Flask app: {e}')
+        logger.error(f'Exception Error initializing Flask app: {e}')
         with app.app_context():
             from .utils.app_utils import send_admin_email
-            send_admin_email('App Initialization Error', str(e))
+            send_admin_email('App Initialization Error Exception', str(e))
         raise
     
     return app
@@ -86,7 +86,7 @@ def run_job_with_context(func, *args, **kwargs):
             logger.info(f'Job {func.__name__} executed successfully. Result: {result}')
             return result
         except Exception as e:
-            logger.error(f'Error executing job {func.__name__}: {e}')
+            logger.error(f'Error Exception executing job {func.__name__}: {e}')
             raise
         
 def start_scheduler():
@@ -135,10 +135,10 @@ def start_scheduler():
         scheduler.start()
         logger.info('Scheduler started successfully.')
     except Exception as e:
-        logger.error(f'Error starting scheduler: {e}')
+        logger.error(f'Exception Error starting scheduler: {e}')
         with app.app_context():
             from .utils.app_utils import send_admin_email
-            send_admin_email('Scheduler Error', str(e))
+            send_admin_email('Scheduler Exception Error', str(e))
 
 with app.app_context():
     from .stefan.trading_bot import (

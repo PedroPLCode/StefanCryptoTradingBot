@@ -35,9 +35,9 @@ def start_bot(bot_id):
         return redirect(url_for('main.control_panel_view'))
 
     except Exception as e:
-        logger.error(f'Error while starting bot {bot_id}: {e}')
-        flash(f'An error occurred while starting bot {bot_id}.', 'danger')
-        send_admin_email(f'Error while starting bot {bot_id}', str(e))
+        logger.error(f'Exception in start_bot bot {bot_id}: {str(e)}')
+        flash(f'Error while starting bot {bot_id}.', 'danger')
+        send_admin_email(f'Exception in start_bot bot {bot_id}', str(e))
         return redirect(url_for('main.control_panel_view'))
 
 
@@ -64,9 +64,9 @@ def stop_bot(bot_id):
         return redirect(url_for('main.control_panel_view'))
 
     except Exception as e:
-        logger.error(f'Error while stopping bot {bot_id}: {e}')
+        logger.error(f'Exception in stop_bot bot {bot_id}: {str(e)}')
         flash(f'An error occurred while stopping bot {bot_id}.', 'danger')
-        send_admin_email(f'Error while stopping bot {bot_id}', str(e))
+        send_admin_email(f'Exception in stop_bot bot {bot_id}', str(e))
         return redirect(url_for('main.control_panel_view'))
     
 
@@ -83,9 +83,9 @@ def start_all(current_user):
         return redirect(url_for('main.control_panel_view'))
 
     except Exception as e:
-        logger.error(f'Error while starting all bots: {e}')
-        flash(f'An error occurred while starting all bots.', 'danger')
-        send_admin_email(f'Error while starting all bots.', str(e))
+        logger.error(f'Exception in start_all: {str(e)}')
+        flash(f'An error occured while starting bots.', 'danger')
+        send_admin_email(f'Exception in start_all', str(e))
         return redirect(url_for('main.control_panel_view'))
     
     
@@ -102,9 +102,9 @@ def stop_all():
         return redirect(url_for('main.control_panel_view'))
 
     except Exception as e:
-        logger.error(f'Error while stopping all bots: {e}')
-        flash(f'An error occurred while stopping all bots.', 'danger')
-        send_admin_email(f'Error while stopping all bots.', str(e))
+        logger.error(f'Exception in stop_all: {str(e)}')
+        flash(f'An error occurred while stopping bots.', 'danger')
+        send_admin_email(f'Exception in stop_all.', str(e))
         return redirect(url_for('main.control_panel_view'))
 
 
@@ -121,8 +121,8 @@ def refresh():
         return redirect(url_for('main.control_panel_view'))
 
     except Exception as e:
-        logger.error(f'Error refreshing Binance API: {e}')
-        send_admin_email('Error refreshing Binance API', str(e))
+        logger.error(f'Exception in refresh: {str(e)}')
+        send_admin_email('Exception in refresh', str(e))
         flash('An error occurred while refreshing the Binance API. The admin has been notified.', 'danger')
         return redirect(url_for('main.control_panel_view'))
 
@@ -146,8 +146,8 @@ def report():
             send_email(email, subject, report_body)
             flash(f'Email to {email} sent successfully.', 'success')
     except Exception as e:
-        logger.error(f'Error sending email to {email}: {e}')
+        logger.error(f'Exception in report email {email}: {str(e)}')
         flash('An error occurred while sending the email. The admin has been notified.', 'danger')
-        send_admin_email('Error sending report email', str(e))
+        send_admin_email(f'Exception in report email {email}', str(e))
     
     return redirect(url_for('main.control_panel_view'))

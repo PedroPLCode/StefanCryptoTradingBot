@@ -28,8 +28,8 @@ def user_panel_view():
                 server_time=server_time
             )
         except Exception as e:
-            logger.error(f"Error in user_panel_view: {e}")
-            send_admin_email('Error in user panel view', str(e))
+            logger.error(f'Exception in user_panel_view: {str(e)}')
+            send_admin_email('Exception in user_panel_view', str(e))
             flash('An error occurred while fetching account data. Please try again later.', 'danger')
             return redirect(url_for('main.login'))
     else:
@@ -68,8 +68,8 @@ def control_panel_view():
         )
 
     except Exception as e:
-        logger.error(f'Error loading control panel: {e}')
-        send_admin_email('Error loading control panel', str(e))
+        logger.error(f'Exception in control_panel_view: {str(e)}')
+        send_admin_email('Exception in control_panel_view', str(e))
         flash('An error occurred while loading the control panel. The admin has been notified.', 'danger')
         return redirect(url_for('main.user_panel_view'))
     
@@ -95,8 +95,8 @@ def current_trades_view():
         )
 
     except Exception as e:
-        logger.error(f'Error loading trades panel: {e}')
-        send_admin_email('Error loading trades panel', str(e))
+        logger.error(f'Exception in current_trades_view: {str(e)}')
+        send_admin_email('Exception in current_trades_view', str(e))
         flash('An error occurred while loading the trades panel. The admin has been notified.', 'danger')
         return redirect(url_for('main.user_panel_view'))
 
@@ -116,7 +116,7 @@ def admin_panel_view():
         return redirect(url_for('admin.index'))
 
     except Exception as e:
-        logger.error(f'Error accessing admin panel: {e}')
-        send_admin_email('Error accessing admin panel', str(e))
+        logger.error(f'Exception in admin_panel_view: {str(e)}')
+        send_admin_email('Exception in admin_panel_view', str(e))
         flash('An error occurred while accessing the admin panel. The admin has been notified.', 'danger')
         return redirect(url_for('main.user_panel_view'))

@@ -1,65 +1,75 @@
 import pandas as pd
 import talib
 from ..utils.logging import logger
+from ..utils.app_utils import send_admin_email
 
 def calculate_scalp_indicators(df, bot_settings):
-    df['close'] = pd.to_numeric(df['close'], errors='coerce')
-    df['high'] = pd.to_numeric(df['high'], errors='coerce')
-    df['low'] = pd.to_numeric(df['low'], errors='coerce')
-    df['volume'] = pd.to_numeric(df['volume'], errors='coerce')
-    
-    df['open_time'] = pd.to_datetime(df['open_time'], unit='ms')
-    df['close_time'] = pd.to_datetime(df['close_time'], unit='ms')
+    try:
+        df['close'] = pd.to_numeric(df['close'], errors='coerce')
+        df['high'] = pd.to_numeric(df['high'], errors='coerce')
+        df['low'] = pd.to_numeric(df['low'], errors='coerce')
+        df['volume'] = pd.to_numeric(df['volume'], errors='coerce')
+        
+        df['open_time'] = pd.to_datetime(df['open_time'], unit='ms')
+        df['close_time'] = pd.to_datetime(df['close_time'], unit='ms')
 
-    df['rsi'] = talib.RSI(df['close'], timeperiod=bot_settings.timeperiod)
+        df['rsi'] = talib.RSI(df['close'], timeperiod=bot_settings.timeperiod)
 
-    df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=bot_settings.timeperiod)
+        df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=bot_settings.timeperiod)
 
-    df.dropna(subset=['close'], inplace=True)
-    
-    logger.trade("Data length before calculating MACD: %d", len(df))
-    
-    if len(df) < 26 + 14:
-        logger.error('Not enough data points for MACD calculation.')
+        df.dropna(subset=['close'], inplace=True)
+        
+        logger.trade("Data length before calculating MACD: %d", len(df))
+        
+        if len(df) < 26 + 14:
+            logger.error('Not enough data points for MACD calculation.')
+            return df
+
+        df['macd'], df['macd_signal'], _ = talib.MACD(
+            df['close'],
+            fastperiod=bot_settings.timeperiod,
+            slowperiod=2 * bot_settings.timeperiod,
+            signalperiod=bot_settings.timeperiod // 2
+        )
+
+        df['upper_band'], df['middle_band'], df['lower_band'] = talib.BBANDS(
+            df['close'],
+            timeperiod=bot_settings.timeperiod,
+            nbdevup=2,
+            nbdevdn=2,
+            matype=0
+        )
+        
+        #logger.trade("Before calculating indicators:\n%s", df.tail())
+        
+        df['cci'] = talib.CCI(
+            df['high'],
+            df['low'],
+            df['close'],
+            timeperiod=bot_settings.timeperiod
+        )
+        
+        df['mfi'] = talib.MFI(
+            df['high'],
+            df['low'],
+            df['close'],
+            df['volume'],
+            timeperiod=bot_settings.timeperiod
+        )
+
+        #logger.trade("After calculating indicators:\n%s", df.tail())
+
+        df.dropna(subset=['macd', 'macd_signal', 'cci', 'mfi', 'atr'], inplace=True)
+        
         return df
-
-    df['macd'], df['macd_signal'], _ = talib.MACD(
-        df['close'],
-        fastperiod=bot_settings.timeperiod,
-        slowperiod=2 * bot_settings.timeperiod,
-        signalperiod=bot_settings.timeperiod // 2
-    )
-
-    df['upper_band'], df['middle_band'], df['lower_band'] = talib.BBANDS(
-        df['close'],
-        timeperiod=bot_settings.timeperiod,
-        nbdevup=2,
-        nbdevdn=2,
-        matype=0
-    )
-    
-    #logger.trade("Before calculating indicators:\n%s", df.tail())
-    
-    df['cci'] = talib.CCI(
-        df['high'],
-        df['low'],
-        df['close'],
-        timeperiod=bot_settings.timeperiod
-    )
-    
-    df['mfi'] = talib.MFI(
-        df['high'],
-        df['low'],
-        df['close'],
-        df['volume'],
-        timeperiod=bot_settings.timeperiod
-    )
-
-    #logger.trade("After calculating indicators:\n%s", df.tail())
-
-    df.dropna(subset=['macd', 'macd_signal', 'cci', 'mfi', 'atr'], inplace=True)
-    
-    return df
+    except IndexError as e:
+        logger.error(f'IndexError in calculate_scalp_indicators bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in calculate_scalp_indicators bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in calculate_scalp_indicators bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in calculate_scalp_indicators bot {bot_settings.id}', str(e))
+        return False
 
 
 def check_scalping_buy_signal(df, bot_settings):
@@ -83,11 +93,13 @@ def check_scalping_buy_signal(df, bot_settings):
             
         return False
     
-    except IndexError as ie:
-        logger.error(f'IndexError in check_scalping_buy_signal for bot {bot_settings.id}: {str(ie)}')
+    except IndexError as e:
+        logger.error(f'IndexError in check_scalping_buy_signal bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_scalping_buy_signal bot {bot_settings.id}', str(e))
         return False
     except Exception as e:
-        logger.error(f'Error in check_scalping_buy_signal for bot {bot_settings.id}: {str(e)}')
+        logger.error(f'Exception in check_scalping_buy_signal bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_scalping_buy_signal bot {bot_settings.id}', str(e))
         return False
             
 
@@ -109,9 +121,11 @@ def check_scalping_sell_signal(df, bot_settings):
         
         return False
     
-    except IndexError as ie:
-        logger.error(f'IndexError in check_scalping_sell_signal for bot {bot_settings.id}: {str(ie)}')
+    except IndexError as e:
+        logger.error(f'IndexError in check_scalping_sell_signal bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_scalping_sell_signal bot {bot_settings.id}', str(e))
         return False
     except Exception as e:
-        logger.error(f'Error in check_scalping_sell_signal for bot {bot_settings.id}: {str(e)}')
+        logger.error(f'Exception in check_scalping_sell_signal bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_scalping_sell_signal bot {bot_settings.id}', str(e))
         return False

@@ -1,7 +1,7 @@
 import logging
 
-stafan_log_filemane = 'stefan_bot.log'
-flask_log_filemane = 'flask_app.log'
+stafan_log_filemane = 'stefan.log'
+flask_log_filemane = 'flask.log'
 logs = [stafan_log_filemane, flask_log_filemane]
 
 TRADE_LEVEL = 25

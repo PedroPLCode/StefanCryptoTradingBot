@@ -44,18 +44,18 @@ def register():
                 try:
                     send_admin_email('New User', f'New user registered: {new_user.login}')
                 except Exception as e:
-                    logger.error(f'Error sending registration email: {e}')
+                    logger.error(f'Error sending registration email: {str(e)}')
                     flash('Registration was successful, but there was an error notifying the admin.', 'warning')
 
             except Exception as e:
                 db.session.rollback()
-                logger.error(f'New account registration error: {e} from {user_ip}')
+                logger.error(f'New account registration error: {str(e)} from {user_ip}')
                 flash('An error occurred while creating your account. Please try again.', 'danger')
 
                 try:
                     send_admin_email('Registration error', str(e))
                 except Exception as email_error:
-                    logger.error(f'Error sending registration error email: {email_error}')
+                    logger.error(f'Error sending registration error email {str(email_error)}')
 
         else:
             logger.info(f'{user_exists.login} {user_exists.email} trying to create new user from {user_ip}. User already exists.')
@@ -107,11 +107,11 @@ def login():
                 logger.warning(f'Bad login attempt from address {user_ip}. User not found')
                 flash('Error: Login or Password Incorrect.', 'danger')
         except Exception as e:
-            logger.error(f'Error during login process: {e} from {user_ip}')
+            logger.error(f'Error during login process from {user_ip} {str(e)}')
             try:
                 send_admin_email('Login error', str(e))
             except Exception as email_error:
-                logger.error(f'Error sending login error email: {email_error}')
+                logger.error(f'Error sending login error email {str(email_error)}')
             flash('An unexpected error occurred during login. Please try again later.', 'danger')
 
     return render_template('login.html', form=form)
@@ -126,7 +126,7 @@ def logout():
         logger.info(f'User {login} logged out.')
         flash(f'User {login} logged out successfully.', 'success')
     except Exception as e:
-        logger.error(f'Error during logout: {e}')
+        logger.error(f'Error during logout: {str(e)}')
         send_admin_email('Logout error', str(e))
         flash('An error occurred during logout. Please try again.', 'danger')
 

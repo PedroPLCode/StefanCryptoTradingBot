@@ -44,11 +44,11 @@ def run_selected_strategy_trading_bots(strategy):
                 run_single_trading_logic(bot_settings)
             else:
                 error_message = f"No current trade found for settings id: {bot_settings.id}"
-                send_admin_email(f'Błąd podczas pętli bota {bot_settings.id}', error_message)
+                send_admin_email(f'No current trade found for settings id: {bot_settings.id}', error_message)
                 logger.trade(error_message)
         except Exception as e:
-            logger.error(f'Błąd w pętli handlowej: {str(e)}')
-            send_admin_email('Błąd w pętli handlowej', str(e))
+            logger.error(f'Exception in run_selected_strategy_trading_bots: {str(e)}')
+            send_admin_email('Exception in run_selected_strategy_trading_bots', str(e))
 
 
 def run_single_trading_logic(bot_settings):
@@ -86,10 +86,10 @@ def run_single_trading_logic(bot_settings):
                     try:
                         current_price = float(df['close'].iloc[-1])
                         logger.trade(f'Current price for Bot {bot_settings.id} is: {current_price}')
-                    except IndexError:
-                        logger.trade(f'Bot {bot_settings.id}: No closing price available in the DataFrame')
-                    except ValueError as ve:
-                        logger.trade(f'Bot {bot_settings.id}: Error converting closing price to float - {ve}')
+                    except IndexError as e:
+                        logger.trade(f'Bot {bot_settings.id}: IndexError No closing price available in the DataFrame {str(e)}')
+                    except ValueError as e:
+                        logger.trade(f'Bot {bot_settings.id}: ValueError converting closing price to float {str(e)}')
                 else:
                     logger.trade(f'Bot {bot_settings.id} DataFrame is empty or has insufficient data')
 
@@ -155,14 +155,14 @@ def run_single_trading_logic(bot_settings):
                 logger.trade(f"{bot_settings.strategy.title()} Trading bot {bot_settings.id}: Aktualna cena: {current_price}, Trailing stop loss: {trailing_stop_price}")
 
     except Exception as e:
-        logger.error(f'Błąd w pętli handlowej bota {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Błąd w pętli handlowej bota {bot_settings.id}', str(e))
+        logger.error(f'Exception in run_single_trading_logic bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in run_single_trading_logic bot {bot_settings.id}', str(e))
     except BinanceAPIException as e:
-        logger.error(f'Błąd w pętli handlowej bota {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Błąd w pętli handlowej bota {bot_settings.id}', str(e))
-    except ConnectionError as ce:
-        logger.error(f'Błąd w pętli handlowej bota {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Błąd w pętli handlowej bota {bot_settings.id}', str(e))
+        logger.error(f'BinanceAPIException in run_single_trading_logic bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'BinanceAPIException in run_single_trading_logic bot {bot_settings.id}', str(e))
+    except ConnectionError as e:
+        logger.error(f'ConnectionError in run_single_trading_logic bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'ConnectionError in run_single_trading_logic bot {bot_settings.id}', str(e))
     except TimeoutError as e:
-        logger.error(f'Błąd w pętli handlowej bota {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Błąd w pętli handlowej bota {bot_settings.id}', str(e))
+        logger.error(f'TimeoutError in run_single_trading_logic bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'TimeoutError in run_single_trading_logic bot {bot_settings.id}', str(e))

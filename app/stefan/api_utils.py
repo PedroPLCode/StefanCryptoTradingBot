@@ -19,13 +19,19 @@ def get_binance_api_credentials(bot_id=None):
 
 
 def create_binance_client(bot_id=None):
-    api_key, api_secret = get_binance_api_credentials(bot_id)
-    return Client(api_key, api_secret)
+    from ..utils.app_utils import send_admin_email
+    try:
+        api_key, api_secret = get_binance_api_credentials(bot_id)
+        return Client(api_key, api_secret)
+    except Exception as e:
+        logger.error(f"Exception in create_binance_client: {str(e)}")
+        send_admin_email(f'Exception in create_binance_client', str(e))
 
 general_client = create_binance_client(None)
 
 
 def fetch_full_data(symbol, interval='1m', lookback='4h'):
+    from ..utils.app_utils import send_admin_email
     try: 
         klines = general_client.get_historical_klines(symbol, interval, lookback)
         df = pd.DataFrame(
@@ -43,20 +49,25 @@ def fetch_full_data(symbol, interval='1m', lookback='4h'):
         return df
     
     except BinanceAPIException as e:
-        logger.error(f'Binance API error: {e}')
+        logger.error(f'BinanceAPIException in fetch_full_data: {str(e)}')
+        send_admin_email(f'BinanceAPIException in fetch_full_data', str(e))
         return None
     except ConnectionError as e:
-        logger.error(f"Connection error occurred: {e}")
+        logger.error(f"ConnectionError in fetch_full_data: {str(e)}")
+        send_admin_email(f'ConnectionError in fetch_full_data', str(e))
         return None
     except TimeoutError as e:
-        logger.error(f"Request timed out: {e}")
+        logger.error(f"TimeoutError in fetch_full_data: {str(e)}")
+        send_admin_email(f'TimeoutError in fetch_full_data', str(e))
         return None
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.error(f"Exception in fetch_full_data: {str(e)}")
+        send_admin_email(f'Exception in fetch_full_data', str(e))
         return None
 
 
 def fetch_data_for_ma200(symbol, interval='1d', lookback='200d'):
+    from ..utils.app_utils import send_admin_email
     try: 
         klines = general_client.get_historical_klines(symbol, interval, lookback)
         df_for_ma200 = pd.DataFrame(
@@ -69,23 +80,27 @@ def fetch_data_for_ma200(symbol, interval='1d', lookback='200d'):
         return df_for_ma200
     
     except BinanceAPIException as e:
-        logger.error(f'Binance API error: {e}')
+        logger.error(f"BinanceAPIException in fetch_data_for_ma200: {str(e)}")
+        send_admin_email(f'BinanceAPIException in fetch_data_for_ma200', str(e))
         return None
     except ConnectionError as e:
-        logger.error(f"Connection error occurred: {e}")
+        logger.error(f"ConnectionError in fetch_data_for_ma200: {str(e)}")
+        send_admin_email(f'ConnectionError in fetch_data_for_ma200', str(e))
         return None
     except TimeoutError as e:
-        logger.error(f"Request timed out: {e}")
+        logger.error(f"TimeoutError in fetch_data_for_ma200: {str(e)}")
+        send_admin_email(f'TimeoutError in fetch_data_for_ma200', str(e))
         return None
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.error(f"Exception in fetch_data_for_ma200: {str(e)}")
+        send_admin_email(f'Exception in fetch_data_for_ma200', str(e))
         return None
 
 
-def get_account_balance(bot_id, assets=None):
-    if assets is None:
-        assets = ['USDC', 'BTC', 'ETH', 'SOL', 'LTC', 'ADA', 'BNB']
-
+def get_account_balance(bot_id, assets):
+    from ..utils.app_utils import send_admin_email
+    #if assets is None:
+    #    assets = ['USDC', 'BTC', 'ETH', 'SOL', 'LTC', 'ADA', 'BNB']
     try:
         bot_client = create_binance_client(bot_id)
         account_info = bot_client.futures_account()
@@ -96,34 +111,43 @@ def get_account_balance(bot_id, assets=None):
         return {asset: balances.get(asset, 0) for asset in assets}
 
     except BinanceAPIException as e:
-        logger.error(f'Bot {bot_id} Błąd API Binance: {e.message}')
+        logger.error(f'Bot {bot_id} BinanceAPIException in get_account_balance: {str(e)}')
+        send_admin_email(f'Bot {bot_id} BinanceAPIException in get_account_balance', str(e))
         return {asset: 0 for asset in assets}
     except ConnectionError as e:
-        logger.error(f"Bot {bot_id} Connection error occurred: {e}")
+        logger.error(f"Bot {bot_id} ConnectionError in get_account_balance: {str(e)}")
+        send_admin_email(f'Bot {bot_id} ConnectionError in get_account_balance', str(e))
         return {asset: 0 for asset in assets}
     except TimeoutError as e:
-        logger.error(f"Bot {bot_id} Request timed out: {e}")
+        logger.error(f"Bot {bot_id} TimeoutError in get_account_balance: {str(e)}")
+        send_admin_email(f'Bot {bot_id} TimeoutError in get_account_balance', str(e))
         return {asset: 0 for asset in assets}
     except Exception as e:
-        logger.error(f'Bot {bot_id} Inny błąd: {str(e)}')
+        logger.error(f'Bot {bot_id} Exception in get_account_balance: {str(e)}')
+        send_admin_email(f'Bot {bot_id} Exception in get_account_balance', str(e))
         return {asset: 0 for asset in assets}
     
     
 def fetch_current_price(symbol):
+    from ..utils.app_utils import send_admin_email
     try:
         ticker = general_client.get_symbol_ticker(symbol=symbol)
         return float(ticker['price'])
     except BinanceAPIException as e:
-        logger.error(f'Binance API error: {e}')
+        logger.error(f'BinanceAPIException in fetch_current_price: {str(e)}')
+        send_admin_email(f'BinanceAPIException in fetch_current_price', str(e))
         return None
     except ConnectionError as e:
-        logger.error(f"Connection error occurred: {e}")
+        logger.error(f"ConnectionError in fetch_current_price: {str(e)}")
+        send_admin_email(f'ConnectionError in fetch_current_price', str(e))
         return None
     except TimeoutError as e:
-        logger.error(f"Request timed out: {e}")
+        logger.error(f"TimeoutError in fetch_current_price: {str(e)}")
+        send_admin_email(f'TimeoutError in fetch_current_price', str(e))
         return None
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.error(f"Exception in fetch_current_price: {str(e)}")
+        send_admin_email(f'Exception in fetch_current_price', str(e))
         return None
 
 
@@ -139,7 +163,7 @@ def place_buy_order(bot_settings):
     stablecoin_symbol = symbol[-4:]
 
     try:
-        balance = get_account_balance(bot_id)
+        balance = get_account_balance(bot_id, [stablecoin_symbol, cryptocoin_symbol])
         stablecoin_balance = float(balance.get(stablecoin_symbol, '0.0'))
         price = float(fetch_current_price(symbol))
         
@@ -167,17 +191,17 @@ def place_buy_order(bot_settings):
             logger.info(f'Bot {bot_settings.id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}.')
 
     except BinanceAPIException as e:
-        logger.error(f'Bot {bot_id} Binance API error: {e}')
-        send_admin_email(f'Bot {bot_settings.id} Binance API error', str(e))
+        logger.error(f'Bot {bot_id} BinanceAPIException in place_buy_order: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} BinanceAPIException in place_buy_order', str(e))
     except ConnectionError as ce:
-        logger.error(f"Bot {bot_settings.id} Błąd połączenia: {str(ce)}")
-        send_admin_email(f'Bot {bot_settings.id} Błąd połączenia przy składaniu zlecenia kupna', str(ce))
+        logger.error(f"Bot {bot_settings.id} ConnectionError in place_buy_order: {str(ce)}")
+        send_admin_email(f'Bot {bot_settings.id} Connection rror in place_buy_order', str(ce))
     except TimeoutError as e:
-        logger.error(f"Bot {bot_settings.id}. Request timed out: {e}")
-        send_admin_email(f"Bot {bot_settings.id}. Request timed out", str(e))
+        logger.error(f"Bot {bot_settings.id} TimeoutError in place_buy_order:  {str(e)}")
+        send_admin_email(f"Bot {bot_settings.id} TimeoutError in place_buy_order", str(e))
     except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Błąd podczas składania zlecenia kupna: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Błąd przy składaniu zlecenia kupna', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in place_buy_order: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in place_buy_order', str(e))
 
 
 def place_sell_order(bot_settings):
@@ -189,9 +213,10 @@ def place_sell_order(bot_settings):
     bot_id = bot_settings.id
     bot_client = create_binance_client(bot_id)
     cryptocoin_symbol = symbol[:3]
+    stablecoin_symbol = symbol[-4:]
 
     try:
-        balance = get_account_balance(bot_id)
+        balance = get_account_balance(bot_id, [stablecoin_symbol, cryptocoin_symbol])
         crypto_balance = float(balance.get(cryptocoin_symbol, 0))
         price = float(fetch_current_price(symbol))
 
@@ -209,38 +234,44 @@ def place_sell_order(bot_settings):
             sell_price=price
         )
     except BinanceAPIException as e:
-        logger.error(f'Bot {bot_id} Binance API error: {e}')
-        send_admin_email(f'Bot {bot_settings.id} Binance API error', str(e))
+        logger.error(f'Bot {bot_id} BinanceAPIException in place_sell_order: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} BinanceAPIException in place_sell_order', str(e))
     except ConnectionError as ce:
-        logger.error(f"Bot {bot_settings.id} Błąd połączenia: {str(ce)}")
-        send_admin_email(f'Bot {bot_settings.id} Błąd połączenia przy składaniu zlecenia sprzedaży', str(ce))
+        logger.error(f"Bot {bot_settings.id} ConnectionError in place_sell_order: {str(ce)}")
+        send_admin_email(f'Bot {bot_settings.id} ConnectionError in place_sell_order', str(ce))
     except TimeoutError as e:
-        logger.error(f"Bot {bot_settings.id}. Request timed out: {e}")
-        send_admin_email(f"Bot {bot_settings.id}. Request timed out", str(e))
+        logger.error(f"Bot {bot_settings.id} TimeoutError in place_sell_order: {str(e)}")
+        send_admin_email(f"Bot {bot_settings.id} TimeoutError in place_sell_order", str(e))
     except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Błąd podczas składania zlecenia sprzedaży: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Błąd przy składaniu zlecenia sprzedaży', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in place_sell_order: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in place_sell_order', str(e))
 
 
 def fetch_system_status():
+    from ..utils.app_utils import send_admin_email
     try:
         status = general_client.get_system_status()
         return status
     except BinanceAPIException as e:
-        logger.error(f'Binance API error: {e}')
+        logger.error(f'BinanceAPIException in fetch_system_status: {str(e)}')
+        send_admin_email(f'BinanceAPIException in fetch_system_status', str(e))
         return None
     except ConnectionError as e:
-        logger.error(f"Connection error occurred: {e}")
+        logger.error(f"ConnectionError in fetch_system_status: {str(e)}")
+        send_admin_email(f'ConnectionError in fetch_system_status', str(e))
         return None
     except TimeoutError as e:
-        logger.error(f"Request timed out: {e}")
+        logger.error(f"TimeoutError in fetch_system_status: {str(e)}")
+        send_admin_email(f'TimeoutError in fetch_system_status', str(e))
         return None
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.error(f"Exception in fetch_system_status: {str(e)}")
+        send_admin_email(f'Exception in fetch_system_status', str(e))
         return None
 
 
 def fetch_account_status(bot_id=None):
+    from ..utils.app_utils import send_admin_email
     try:
         if not bot_id:
             status = general_client.get_account()
@@ -250,32 +281,41 @@ def fetch_account_status(bot_id=None):
             status = bot_client.get_account()
             return status
     except BinanceAPIException as e:
-        logger.error(f'Bot {bot_id} Błąd API Binance: {e}')
+        logger.error(f'BinanceAPIException in fetch_account_status: {str(e)}')
+        send_admin_email(f'BinanceAPIException in fetch_account_status', str(e))
         return None
     except ConnectionError as e:
-        logger.error(f"Connection error occurred: {e}")
+        logger.error(f"ConnectionError in fetch_account_status: {str(e)}")
+        send_admin_email(f'ConnectionError in fetch_account_status', str(e))
         return None
     except TimeoutError as e:
-        logger.error(f"Request timed out: {e}")
+        logger.error(f"TimeoutError in fetch_account_status: {str(e)}")
+        send_admin_email(f'TimeoutError in fetch_account_status', str(e))
         return None
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.error(f"Exception in fetch_account_status: {str(e)}")
+        send_admin_email(f'Exception in fetch_account_status', str(e))
         return None
 
 
 def fetch_server_time():
+    from ..utils.app_utils import send_admin_email
     try:
         server_time = general_client.get_server_time()
         return server_time
     except BinanceAPIException as e:
-        logger.error(f'Błąd API Binance: {e}')
+        logger.error(f'BinanceAPIException in fetch_server_time: {str(e)}')
+        send_admin_email(f'BinanceAPIException in fetch_server_time', str(e))
         return None
     except ConnectionError as e:
-        logger.error(f"Connection error occurred: {e}")
+        logger.error(f"ConnectionError in fetch_server_time: {str(e)}")
+        send_admin_email(f'ConnectionError in fetch_server_time', str(e))
         return None
     except TimeoutError as e:
-        logger.error(f"Request timed out: {e}")
+        logger.error(f"TimeoutError in fetch_server_time: {str(e)}")
+        send_admin_email(f'TimeoutError in fetch_server_time', str(e))
         return None
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.error(f"Exception in fetch_server_time: {str(e)}")
+        send_admin_email(f'Exception in fetch_server_time', str(e))
         return None
