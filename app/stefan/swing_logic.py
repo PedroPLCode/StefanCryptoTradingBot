@@ -21,16 +21,16 @@ def calculate_swing_indicators(df, df_for_ma200, bot_settings):
 
         # Obliczanie MA200
         if not df_for_ma200.empty:
-            logger.trade(f"Liczba wierszy w DataFrame: {len(df_for_ma200)}")
-            logger.trade(df_for_ma200['close'])
-            logger.trade(df_for_ma200['close'].head(10))
+            #logger.trade(f"Liczba wierszy w DataFrame: {len(df_for_ma200)}")
+            #logger.trade(df_for_ma200['close'])
+            #logger.trade(df_for_ma200['close'].head(10))
             
             df_for_ma200['ma_200'] = df_for_ma200['close'].rolling(window=200).mean()
             ma_200_column = df_for_ma200['ma_200'].tail(len(df)).reset_index(drop=True)
             df['ma_200'] = ma_200_column
             
-            logger.trade('teraz tu ma200')
-            logger.trade(f'df z ma_200:\n{df}')
+            #logger.trade('teraz tu ma200')
+            #logger.trade(f'df z ma_200:\n{df}')
 
         # Obliczanie ATR
         df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=bot_settings.timeperiod)
@@ -81,7 +81,7 @@ def calculate_swing_indicators(df, df_for_ma200, bot_settings):
             timeperiod=bot_settings.timeperiod
         )
 
-        logger.trade(f"\n{df}")
+        #logger.trade(f"\n{df}")
         
         # Ustal kolumny do usunięcia
         columns_to_check = ['macd', 'macd_signal', 'cci', 'mfi', 'atr']

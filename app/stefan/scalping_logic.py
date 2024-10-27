@@ -19,7 +19,7 @@ def calculate_scalp_indicators(df, bot_settings):
 
         df.dropna(subset=['close'], inplace=True)
         
-        logger.trade("Data length before calculating MACD: %d", len(df))
+        #logger.trade("Data length before calculating MACD: %d", len(df))
         
         if len(df) < 26 + 14:
             logger.error('Not enough data points for MACD calculation.')

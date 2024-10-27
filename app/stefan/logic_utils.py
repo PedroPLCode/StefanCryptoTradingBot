@@ -11,6 +11,7 @@ def save_active_trade(current_trade, amount, price, buy_price):
         current_trade.buy_price = buy_price
         db.session.commit()
     except Exception as e:
+        db.session.rollback()
         logger.error(f"Exception in save_active_trade: {str(e)}")
         send_admin_email(f'Exception in save_active_trade', str(e))
 
@@ -25,6 +26,7 @@ def save_deactivated_trade(current_trade):
         current_trade.trailing_stop_loss = None
         db.session.commit()
     except Exception as e:
+        db.session.rollback()
         logger.error(f"Exception in save_deactivated_trade: {str(e)}")
         send_admin_email(f'Exception in save_deactivated_trade', str(e))
 
@@ -59,6 +61,7 @@ def save_trailing_stop_loss(trailing_stop_price, current_trade):
             current_trade.trailing_stop_loss = trailing_stop_price
             db.session.commit()
     except Exception as e:
+        db.session.rollback()
         logger.error(f"Exception in save_trailing_stop_loss: {str(e)}")
         send_admin_email(f'Exception in save_trailing_stop_loss', str(e))
         
@@ -69,6 +72,7 @@ def save_previous_price(price, current_trade):
             current_trade.previous_price = price
             db.session.commit()
     except Exception as e:
+        db.session.rollback()
         logger.error(f"Exception in save_previous_price: {str(e)}")
         send_admin_email(f'Exception in save_previous_price', str(e))
 
@@ -89,6 +93,6 @@ def save_trade_to_history(current_trade, order_type, amount, buy_price, sell_pri
             f'amount: {amount}, symbol: {current_trade.bot_settings.symbol}, timestamp: {trade.timestamp}'
         )
     except Exception as e:
+        db.session.rollback()
         logger.error(f"Exception in save_trade_to_history: {str(e)}")
         send_admin_email(f'Exception in save_trade_to_history', str(e))
-        db.session.rollback()

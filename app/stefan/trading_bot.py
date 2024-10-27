@@ -74,7 +74,7 @@ def run_single_trading_logic(bot_settings):
                 elif bot_settings.strategy == 'swing':
                     if bot_settings.signals_extended:
                         df_for_ma200 = fetch_data_for_ma200(symbol, interval="1d", lookback="200d")
-                        logger.trade(f'\n{df_for_ma200}')
+                        #logger.trade(f'\n{df_for_ma200}')
                         if df_for_ma200 is None or df_for_ma200.empty or len(df_for_ma200) < 5:
                             logger.error(f'Bot {bot_settings.id}: DataFrame df_for_ma200 is empty or could not be fetched')
                             return
@@ -129,13 +129,15 @@ def run_single_trading_logic(bot_settings):
                         logger.error(f'No strategy {bot_settings.strategy} found for bot {bot_settings.id}')
                         send_admin_email(f'Error starting bot {bot_settings.id}', f'No strategy {bot_settings.strategy} found for bot {bot_settings.id}')
                         return
+                    
+                #buy_signal = True # SZTUCZNA INGERENCJA
                 
                 if not current_trade.is_active and buy_signal:
                     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} buy signal!")
                     place_buy_order(bot_settings.id)
                     trailing_stop_price = float(current_price) * (1 - float(trailing_stop_pct))
                     
-                    logger.debug(f"{bot_settings.strategy} BUY: current_price type: {type(current_price)}, trailing_stop_pct type: {type(trailing_stop_pct)}")
+                    logger.debug(f"{bot_settings.strategy} BUY: current_price type: {current_price}, trailing_stop_pct type: {trailing_stop_pct}")
 
                     save_trailing_stop_loss(trailing_stop_price, current_trade)
                     save_previous_price(current_price, current_trade)

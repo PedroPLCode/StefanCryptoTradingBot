@@ -6,6 +6,11 @@ load_dotenv()
 class DevelopmentConfig:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///stefan.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "connect_args": {
+            "timeout": 30
+        }
+    }
     SECRET_KEY = os.environ['APP_SECRET_KEY']
     WTF_CSRF_SECRET_KEY = os.environ['CSRF_SECRET_KEY']
     SESSION_COOKIE_SECURE = False # ssl https dodac

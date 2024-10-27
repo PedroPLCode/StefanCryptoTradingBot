@@ -214,9 +214,9 @@ def clear_old_trade_history():
         db.session.commit()
         logger.info("Trade history older than one month cleared successfully.")
     except Exception as e:
+        db.session.rollback()
         logger.error(f"Exception in clear_old_trade_history: {str(e)}")
         send_admin_email(f"Exception in clear_old_trade_history", str(e))
-        db.session.rollback()
 
 
 def start_single_bot(bot_id, current_user):
@@ -231,6 +231,7 @@ def start_single_bot(bot_id, current_user):
             flash(f'Bot {bot_settings.id} has been started.', 'success')
             send_admin_email(f'Bot {bot_settings.id} started.', f'Bot {bot_settings.id} has been started by {current_user.login}.')
     except Exception as e:
+        db.session.rollback()
         logger.error(f'Exception in start_single_bot bot {bot_settings.id}: {str(e)}')
         send_admin_email(f'Exception in start_single_bot bot {bot_settings.id}', str(e))
         
@@ -247,6 +248,7 @@ def stop_single_bot(bot_id, current_user):
             flash(f'Bot {bot_settings.id} has been stopped.', 'success')
             send_admin_email(f'Bot {bot_settings.id} stopped.', f'Bot {bot_settings.id} has been stopped by {current_user.login if current_user.login else current_user}.')
     except Exception as e:
+        db.session.rollback()
         logger.error(f'Exception in stop_single_bot bot {bot_settings.id}: {str(e)}')
         send_admin_email(f'Exception in stop_single_bot bot {bot_settings.id}', str(e))
 
