@@ -64,7 +64,7 @@
                 </h5>
             </div>
             <div class="card-body text-center">
-                <p class="text-muted m-0 p-0">StefanCryptoTradingBot version 0.94</p>
+                <p class="text-muted m-0 p-0">StefanCryptoTradingBot version 0.96</p>
                 {% if user.control_panel_access %}
                     <p class="text-muted m-0 p-0">Binance API Status:
                         {% if binance_status is not none %}
@@ -95,6 +95,19 @@
         </div>
 
         <div class="col-12 col-md-6 card mb-3">
+            <div class="card-header text-center bg-light">
+                <h5>Options</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="d-flex flex-column justify-content-center align-items-center gap-2">    
+                    {% if user.email_raports_receiver %}
+                        <a href="{{ url_for('main.report') }}" class="btn btn-primary w-100">Email Raport</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 card mb-3">
             <div class="card-header text-center">
                 <h5>Navigation</h5>
             </div>
@@ -106,9 +119,6 @@
                     {% endif %}
                     {% if user.admin_panel_access %}
                         <a href="/admin" class="btn btn-primary w-100">Admin Panel</a>
-                    {% endif %}
-                    {% if user.email_raports_receiver %}
-                        <a href="{{ url_for('main.report') }}" class="btn btn-primary w-100">Email Raport</a>
                     {% endif %}
                     <a href="{{ url_for('main.logout') }}" class="btn btn-danger w-100">Logout</a>
                 </div>

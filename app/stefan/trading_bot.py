@@ -124,13 +124,15 @@ def run_single_trading_logic(bot_settings):
                         else:
                             sell_signal = current_price <= trailing_stop_price
                     else:
+                        buy_signal = False
+                        sell_signal = False
                         logger.error(f'No strategy {bot_settings.strategy} found for bot {bot_settings.id}')
                         send_admin_email(f'Error starting bot {bot_settings.id}', f'No strategy {bot_settings.strategy} found for bot {bot_settings.id}')
                         return
                 
                 if not current_trade.is_active and buy_signal:
                     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} buy signal!")
-                    place_buy_order(bot_settings)
+                    place_buy_order(bot_settings.id)
                     trailing_stop_price = float(current_price) * (1 - float(trailing_stop_pct))
                     
                     logger.debug(f"{bot_settings.strategy} BUY: current_price type: {type(current_price)}, trailing_stop_pct type: {type(trailing_stop_pct)}")
@@ -139,7 +141,7 @@ def run_single_trading_logic(bot_settings):
                     save_previous_price(current_price, current_trade)
                 elif current_trade.is_active and sell_signal:
                     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell signal!")
-                    place_sell_order(bot_settings)
+                    place_sell_order(bot_settings.id)
                 elif current_trade.is_active and price_rises:
                     logger.trade(f"{bot_settings.strategy} price rises!")
                     trailing_stop_price = update_trailing_stop_loss(

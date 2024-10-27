@@ -72,7 +72,7 @@ def stop_bot(bot_id):
 
 @main.route('/startall')
 @login_required
-def start_all(current_user):
+def start_all():
     if not current_user.control_panel_access:
         logger.warning(f'{current_user.login} tried to control Bot without permission.')
         flash(f'Error. User {current_user.login} is not allowed to control the Bot.', 'danger')

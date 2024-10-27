@@ -146,9 +146,9 @@ with app.app_context():
             run_all_swing_trading_bots
         )
     
-    run_all_scalp_trading_bots()
-    run_all_swing_trading_bots()
-    start_scheduler()
+    run_all_scalp_trading_bots() # hashed only for testing
+    run_all_swing_trading_bots() # hashed only for testing
+    #start_scheduler() # hashed only for testing
 
 from .routes import main
 app.register_blueprint(main)

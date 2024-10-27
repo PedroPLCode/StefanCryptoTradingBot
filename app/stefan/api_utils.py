@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import pandas as pd
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
+from app.models import BotSettings
 import os
 from ..utils.logging import logger
 
@@ -19,11 +20,11 @@ def get_binance_api_credentials(bot_id=None):
 
 
 def create_binance_client(bot_id=None):
-    from ..utils.app_utils import send_admin_email
     try:
         api_key, api_secret = get_binance_api_credentials(bot_id)
         return Client(api_key, api_secret)
     except Exception as e:
+        from ..utils.app_utils import send_admin_email
         logger.error(f"Exception in create_binance_client: {str(e)}")
         send_admin_email(f'Exception in create_binance_client', str(e))
 
@@ -73,11 +74,24 @@ def fetch_data_for_ma200(symbol, interval='1d', lookback='200d'):
         df_for_ma200 = pd.DataFrame(
             klines, 
             columns=[
-                'close'
+                'open_time', 
+                'open', 
+                'high', 
+                'low', 
+                'close', 
+                'volume', 
+                'close_time', 
+                'quote_asset_volume', 
+                'number_of_trades', 
+                'taker_buy_base_asset_volume', 
+                'taker_buy_quote_asset_volume', 
+                'ignore'
             ]
         )
+
         df_for_ma200['close'] = df_for_ma200['close'].astype(float)
-        return df_for_ma200
+
+        return df_for_ma200[['close']]
     
     except BinanceAPIException as e:
         logger.error(f"BinanceAPIException in fetch_data_for_ma200: {str(e)}")
@@ -151,18 +165,19 @@ def fetch_current_price(symbol):
         return None
 
 
-def place_buy_order(bot_settings):
+def place_buy_order(bot_id):
     from .logic_utils import save_active_trade
     from ..utils.app_utils import send_admin_email
     
-    symbol = bot_settings.symbol
-    current_trade = bot_settings.bot_current_trade
-    bot_id = bot_settings.id
-    bot_client = create_binance_client(bot_id)
-    cryptocoin_symbol = symbol[:3]
-    stablecoin_symbol = symbol[-4:]
+    try:    
+        bot_settings = BotSettings.query.get(bot_id)
+        symbol = bot_settings.symbol
+        current_trade = bot_settings.bot_current_trade
+        bot_id = bot_settings.id
+        bot_client = create_binance_client(bot_id)
+        cryptocoin_symbol = symbol[:3]
+        stablecoin_symbol = symbol[-4:]
 
-    try:
         balance = get_account_balance(bot_id, [stablecoin_symbol, cryptocoin_symbol])
         stablecoin_balance = float(balance.get(stablecoin_symbol, '0.0'))
         price = float(fetch_current_price(symbol))
@@ -204,18 +219,19 @@ def place_buy_order(bot_settings):
         send_admin_email(f'Bot {bot_settings.id} Exception in place_buy_order', str(e))
 
 
-def place_sell_order(bot_settings):
+def place_sell_order(bot_id):
     from .logic_utils import save_trade_to_history, save_deactivated_trade
     from ..utils.app_utils import send_admin_email
-    
-    symbol = bot_settings.symbol
-    current_trade = bot_settings.bot_current_trade
-    bot_id = bot_settings.id
-    bot_client = create_binance_client(bot_id)
-    cryptocoin_symbol = symbol[:3]
-    stablecoin_symbol = symbol[-4:]
 
-    try:
+    try:    
+        bot_settings = BotSettings.query.get(bot_id)
+        symbol = bot_settings.symbol
+        current_trade = bot_settings.bot_current_trade
+        bot_id = bot_settings.id
+        bot_client = create_binance_client(bot_id)
+        cryptocoin_symbol = symbol[:3]
+        stablecoin_symbol = symbol[-4:]
+
         balance = get_account_balance(bot_id, [stablecoin_symbol, cryptocoin_symbol])
         crypto_balance = float(balance.get(cryptocoin_symbol, 0))
         price = float(fetch_current_price(symbol))

@@ -50,7 +50,8 @@ def show_account_balance(symbol, account_status, assets_to_include):
             {
                 'asset': single['asset'],
                 'amount': float(single['free']) + float(single['locked']),
-                'value': (float(single['free']) + float(single['locked'])) * float(asset_price)
+                'value': (float(single['free']) + float(single['locked'])) * float(asset_price),
+                'price': float(asset_price)
             }
             for single in account_status['balances']
             if single['asset'] in assets_to_include
@@ -60,6 +61,7 @@ def show_account_balance(symbol, account_status, assets_to_include):
     except Exception as e:
         logger.error(f"Exception in show_account_balance: {str(e)}")
         send_admin_email(f"Exception in show_account_balance", str(e))
+        return False
 
 
 def calculate_profit_percentage(buy_price, sell_price):
@@ -217,29 +219,33 @@ def clear_old_trade_history():
         db.session.rollback()
 
 
-def start_single_bot(bot_settings, current_user):
+def start_single_bot(bot_id, current_user):
     try:
+        bot_settings = BotSettings.query.get(bot_id)
         if bot_settings.bot_running:
             flash(f'Bot {bot_settings.id} is already running.', 'info')
         else:
             bot_settings.bot_running = True
             db.session.commit()
+            logger.info(f'Bot {bot_settings.id} has been started.')
             flash(f'Bot {bot_settings.id} has been started.', 'success')
-            send_admin_email('Bot started.', f'Bot {bot_settings.id} has been started by {current_user.login}.')
+            send_admin_email(f'Bot {bot_settings.id} started.', f'Bot {bot_settings.id} has been started by {current_user.login}.')
     except Exception as e:
         logger.error(f'Exception in start_single_bot bot {bot_settings.id}: {str(e)}')
         send_admin_email(f'Exception in start_single_bot bot {bot_settings.id}', str(e))
         
 
-def stop_single_bot(bot_settings, current_user):
+def stop_single_bot(bot_id, current_user):
     try:
+        bot_settings = BotSettings.query.get(bot_id)
         if not bot_settings.bot_running:
             flash(f'Bot {bot_settings.id} is already stopped.', 'info')
         else:
             bot_settings.bot_running = False
             db.session.commit()
+            logger.info(f'Bot {bot_settings.id} has been stopped.')
             flash(f'Bot {bot_settings.id} has been stopped.', 'success')
-            send_admin_email('Bot stopped.', f'Bot {bot_settings.id} has been stopped by {current_user.login if current_user.login else current_user}.')
+            send_admin_email(f'Bot {bot_settings.id} stopped.', f'Bot {bot_settings.id} has been stopped by {current_user.login if current_user.login else current_user}.')
     except Exception as e:
         logger.error(f'Exception in stop_single_bot bot {bot_settings.id}: {str(e)}')
         send_admin_email(f'Exception in stop_single_bot bot {bot_settings.id}', str(e))
@@ -252,7 +258,8 @@ def stop_all_bots(current_user):
             try:
                 if bot_settings.bot_current_trade.is_active:
                     place_sell_order(bot_settings)
-                stop_single_bot(bot_settings, current_user)
+                bot_id = bot_settings.id
+                stop_single_bot(bot_id, current_user)
             except Exception as e:
                 logger.error(f'Exception in stop_all_bots: {str(e)}')
                 send_admin_email('Exception in stop_all_bots', str(e))
@@ -263,7 +270,8 @@ def start_all_bots(current_user='undefined'):
     with current_app.app_context():
         for bot_settings in all_bots_settings:
             try:
-                start_single_bot(bot_settings, current_user)         
+                bot_id = bot_settings.id
+                start_single_bot(bot_id, current_user)         
             except Exception as e:
                 logger.error(f'Exception in start_all_bots: {str(e)}')
                 send_admin_email('Exception in start_all_bots', str(e))

@@ -28,37 +28,87 @@
             <p class="text-center text-muted m-0 p-0">{{ current_user.login }} logged in at {{ current_user.last_login }}</p>
         {% endif %}
 
-        {% for bot_info in all_bots_settings %}
-            <div class="col-12 col-md-6 card mb-3 mt-3">
+        {% if all_bots_settings %}
+            {% for bot_info in all_bots_settings %}
+                <div class="col-12 col-md-6 card mb-3 mt-3">
+                    <div class="card-header text-center bg-light">
+                        <h5>Bot {{bot_info.id}} Control Panel</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <p class="text-muted m-0 p-0">Symbol: {{ bot_info.symbol }}</p>
+                        <p class="text-muted m-0 p-0">Comment: {{ bot_info.comment }}</p>
+                        {% for balance in bot_info.balance %}
+                            {% if balance.asset != 'USDC' %}
+                                <p class="text-muted m-0 p-0">Current {{ balance.asset }} Price: {{ balance.price }} USDC</p>
+                            {% endif %}
+                        {% endfor %}
+                        {% for balance in bot_info.balance %}
+                            {% if loop.index < loop.length - 1 %}
+                                {% set next_balance = bot_info.balance[loop.index] %}
+                            {% else %}
+                                {% set next_balance = None %}
+                            {% endif %}
+                            {% if loop.index0 > 0 %}
+                                {% set previous_balance = bot_info.balance[loop.index0 - 1] %}
+                            {% else %}
+                                {% set previous_balance = None %}
+                            {% endif %}
+                            <p class="text-muted m-0 p-0">
+                                Balance {{ balance.asset }}: {{ balance.amount }} 
+                                ( 
+                                    {% if balance.amount != 0 %}
+                                        {{ balance.amount / balance.price }}
+                                    {% else %}
+                                        0.0
+                                    {% endif %}
+                                {% if next_balance %}
+                                    {{ next_balance.asset }}
+                                {% elif previous_balance %}
+                                    {{ previous_balance.asset }}
+                                {% else %}
+                                    USDC
+                                {% endif %} )
+                            </p>
+                        {% endfor %}
+                        <p class="text-muted m-0 p-0">Strategy: {{ bot_info.strategy }}</p>
+                        <p class="text-muted m-0 p-0">Signals Extended: {{ bot_info.signals_extended }}</p>
+                        <p class="text-muted m-0 p-0">Trailing Stop Loss: {{ bot_info.trailing_stop_pct }}</p>
+                        <p class="text-muted m-0 p-0">Lookback Period: {{ bot_info.lookback_period }}</p>
+                        <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>
+                        <p class="text-muted m-0 p-0">Time Period: {{ bot_info.timeperiod }}</p>
+                        <p class="text-muted m-0 p-0">CCI Settings: buy {{ bot_info.cci_buy }} / sell {{ bot_info.cci_sell }}</p>
+                        <p class="text-muted m-0 p-0">RSI Settings: buy {{ bot_info.rsi_buy }} / sell {{ bot_info.rsi_sell }}</p>
+                        <p class="text-muted m-0 p-0">MFI Settings: buy {{ bot_info.mfi_buy }} / sell {{ bot_info.mfi_sell }}</p>
+                        <p class="text-muted m-0 p-0">Current Trade Active: <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{{ bot_info.bot_current_trade.is_active }}</span></p>
+                        {% if bot_info.bot_current_trade.is_active %}
+                            <p class="text-muted m-0 p-0">Current Trade Data: amount {{ bot_info.bot_current_trade.amount }}, buy_price {{ bot_info.bot_current_trade.buy_price }}, price {{ bot_info.bot_current_trade.price }}, trailing_stop_loss {{ bot_info.bot_current_trade.trailing_stop_loss }}</p>
+                        {% endif %}
+                        <p class="text-muted m-0 p-0">Bot Running: <span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{{ bot_info.bot_running }}</span></p>
+                        <p class="text-muted m-0 p-0">Trades Count: {{ bot_info.bot_trades_history|length }}</p>
+                        <div class="mt-2 d-flex flex-column justify-content-center align-items-center gap-2">
+                            {% if bot_info.bot_running %}
+                                <a href="" class="btn btn-light w-100">Bot is running</a>
+                                <a href="{{ url_for('main.stop_bot', bot_id=bot_info.id) }}" class="btn btn-danger w-100">Stop Bot {{bot_info.id}}</a>
+                            {% else %}
+                                <a href="{{ url_for('main.start_bot', bot_id=bot_info.id) }}" class="btn btn-success w-100">Start Bot {{bot_info.id}}</a>
+                                <a href="" class="btn btn-light w-100">Bot is stopped</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 col-md-6 card mt-3 mb-3">
                 <div class="card-header text-center bg-light">
-                    <h5>Bot {{bot_info.id}} Control Panel</h5>
+                    <h5>Bots Control Panel</h5>
                 </div>
                 <div class="card-body text-center">
-                    <p class="text-muted m-0 p-0">Comment: {{ bot_info.comment }}</p>
-                    <p class="text-muted m-0 p-0">Symbol: {{ bot_info.symbol }}</p>
-                    {% for balance in bot_info.balance %}
-                    <p class="text-muted m-0 p-0">Balance {{ balance.asset }}: amount {{ balance.amount }}, value {{ balance.value | round(2) }}</p>
-                    {% endfor %}
-                    <p class="text-muted m-0 p-0">Current Trade Active: <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{{ bot_info.bot_current_trade.is_active }}</span></p>
-                    <p class="text-muted m-0 p-0">Strategy: {{ bot_info.strategy }}</p>
-                    <p class="text-muted m-0 p-0">Trades Count: {{ bot_info.bot_trades_history|length }}</p>
-                    <p class="text-muted m-0 p-0">Trailing Stop Loss: {{ bot_info.trailing_stop_pct }}</p>
-                    <p class="text-muted m-0 p-0">Lookback Days: {{ bot_info.lookback_period }}</p>
-                    <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>
-                    <p class="text-muted m-0 p-0">Signals Extended: {{ bot_info.signals_extended }}</p>
-                    <p class="text-muted m-0 p-0">Bot Running: <span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{{ bot_info.bot_running }}</span></p>
-                    <div class="mt-2 d-flex flex-column justify-content-center align-items-center gap-2">
-                        {% if bot_info.bot_running %}
-                            <a href="" class="btn btn-light w-100">Bot is running</a>
-                            <a href="{{ url_for('main.stop_bot', bot_id=bot_info.id) }}" class="btn btn-danger w-100">Stop Bot {{bot_info.id}}</a>
-                        {% else %}
-                            <a href="{{ url_for('main.start_bot', bot_id=bot_info.id) }}" class="btn btn-success w-100">Start Bot {{bot_info.id}}</a>
-                            <a href="" class="btn btn-light w-100">Bot is stopped</a>
-                        {% endif %}
+                    <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                        <p class="mb-1">Nothing here.<br>No bots.<br>Nothing to control.<br>Boring...<br>Lets create some bots!</p>
                     </div>
                 </div>
             </div>
-        {% endfor %}
+        {% endif %}
 
         <div class="col-12 col-md-6 card mb-3">
             <div class="card-header text-center bg-light">
@@ -66,8 +116,10 @@
             </div>
             <div class="card-body text-center">
                 <div class="d-flex flex-column justify-content-center align-items-center gap-2">    
-                    <a href="{{ url_for('main.start_all') }}" class="btn btn-success w-100">Start All bots</a>    
-                    <a href="{{ url_for('main.stop_all') }}" class="btn btn-danger w-100">Stop All Bots</a>   
+                    {% if all_bots_settings %}
+                        <a href="{{ url_for('main.start_all') }}" class="btn btn-success w-100">Start All bots</a>    
+                        <a href="{{ url_for('main.stop_all') }}" class="btn btn-danger w-100">Stop All Bots</a>   
+                    {% endif %}
                     <a href="{{ url_for('main.refresh') }}" class="btn btn-primary w-100">Refresh</a>
                     {% if user.email_raports_receiver %}
                         <a href="{{ url_for('main.report') }}" class="btn btn-primary w-100">Email Report</a>

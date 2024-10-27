@@ -42,12 +42,23 @@
                                 <p class="mb-1">id: {{ trade.id }} strategy {{ trade.strategy }} type: {{ trade.type }} amount: {{ trade.amount }} {{ trade.bot_settings.symbol[:3] }}, buy_price: ${{ '%.2f'|format(trade.buy_price) }} {{ trade.bot_settings.symbol[:-4] }}, sell_price: ${{ '%.2f'|format(trade.sell_price) }} {{ trade.bot_settings.symbol[:-4] }}, profit: {{ profit_percentage | round(2) }}%, timestamp: {{ trade.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
                                 {% endfor %}
                             {% else %}
-                                <p class="mb-1">List empty.</p>
+                                <p class="mb-1">List empty.<br>Boring...<br>Lets do some trades!</p>
                             {% endif %}
                         </div>
                     </div>
                 </div>
             {% endfor %}
+        {% else %}
+            <div class="col-12 col-md-6 card mt-3 mb-3">
+                <div class="card-header text-center bg-light">
+                    <h5>Trades History: last 7 days</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                        <p class="mb-1">Nothing here.<br>No bots.<br>Nothing to observe.<br>Boring...<br>Lets do some trades!</p>
+                    </div>
+                </div>
+            </div>
         {% endif %}
 
         <div class="col-12 col-md-6 card mb-3">

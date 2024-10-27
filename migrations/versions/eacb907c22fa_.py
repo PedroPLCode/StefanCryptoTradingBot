@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 0b888f0d9dd2
+Revision ID: eacb907c22fa
 Revises: 
-Create Date: 2024-10-16 15:36:55.810244
+Create Date: 2024-10-27 17:30:04.666395
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0b888f0d9dd2'
+revision = 'eacb907c22fa'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,10 +21,19 @@ def upgrade():
     op.create_table('bot_settings',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('symbol', sa.String(length=16), nullable=True),
+    sa.Column('comment', sa.String(length=1024), nullable=True),
+    sa.Column('strategy', sa.String(length=16), nullable=True),
     sa.Column('trailing_stop_pct', sa.Float(), nullable=True),
+    sa.Column('cci_buy', sa.Integer(), nullable=True),
+    sa.Column('cci_sell', sa.Integer(), nullable=True),
+    sa.Column('rsi_buy', sa.Integer(), nullable=True),
+    sa.Column('rsi_sell', sa.Integer(), nullable=True),
+    sa.Column('mfi_buy', sa.Integer(), nullable=True),
+    sa.Column('mfi_sell', sa.Integer(), nullable=True),
+    sa.Column('timeperiod', sa.Integer(), nullable=True),
     sa.Column('interval', sa.String(length=16), nullable=True),
     sa.Column('lookback_period', sa.String(length=16), nullable=True),
-    sa.Column('sell_signal_extended', sa.Boolean(), nullable=True),
+    sa.Column('signals_extended', sa.Boolean(), nullable=True),
     sa.Column('bot_running', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
@@ -33,6 +42,7 @@ def upgrade():
     sa.Column('login', sa.String(length=56), nullable=False),
     sa.Column('name', sa.String(length=56), nullable=False),
     sa.Column('email', sa.String(length=128), nullable=False),
+    sa.Column('comment', sa.String(length=1024), nullable=True),
     sa.Column('password_hash', sa.String(length=128), nullable=False),
     sa.Column('creation_date', sa.DateTime(), nullable=False),
     sa.Column('last_login', sa.DateTime(), nullable=False),
@@ -48,8 +58,8 @@ def upgrade():
     op.create_table('bot_current_trade',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=False),
-    sa.Column('type', sa.String(length=16), nullable=True),
     sa.Column('amount', sa.Float(), nullable=True),
+    sa.Column('buy_price', sa.Float(), nullable=True),
     sa.Column('price', sa.Float(), nullable=True),
     sa.Column('previous_price', sa.Float(), nullable=True),
     sa.Column('trailing_stop_loss', sa.Float(), nullable=True),
@@ -59,9 +69,10 @@ def upgrade():
     )
     op.create_table('trades_history',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('type', sa.String(length=16), nullable=True),
+    sa.Column('strategy', sa.String(length=16), nullable=True),
     sa.Column('amount', sa.Float(), nullable=True),
-    sa.Column('price', sa.Float(), nullable=True),
+    sa.Column('buy_price', sa.Float(), nullable=True),
+    sa.Column('sell_price', sa.Float(), nullable=True),
     sa.Column('timestamp', sa.DateTime(), nullable=True),
     sa.Column('bot_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['bot_id'], ['bot_settings.id'], ),
