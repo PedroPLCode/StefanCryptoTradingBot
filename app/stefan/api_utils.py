@@ -25,7 +25,7 @@ def create_binance_client(bot_id=None):
 general_client = create_binance_client(None)
 
 
-def fetch_data(symbol, interval='1m', lookback='4h'):
+def fetch_full_data(symbol, interval='1m', lookback='4h'):
     try: 
         klines = general_client.get_historical_klines(symbol, interval, lookback)
         df = pd.DataFrame(
@@ -41,6 +41,32 @@ def fetch_data(symbol, interval='1m', lookback='4h'):
         df['high'] = df['high'].astype(float)
         df['low'] = df['low'].astype(float)
         return df
+    
+    except BinanceAPIException as e:
+        logger.error(f'Binance API error: {e}')
+        return None
+    except ConnectionError as e:
+        logger.error(f"Connection error occurred: {e}")
+        return None
+    except TimeoutError as e:
+        logger.error(f"Request timed out: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        return None
+
+
+def fetch_data_for_ma200(symbol, interval='1d', lookback='200d'):
+    try: 
+        klines = general_client.get_historical_klines(symbol, interval, lookback)
+        df_for_ma200 = pd.DataFrame(
+            klines, 
+            columns=[
+                'close'
+            ]
+        )
+        df_for_ma200['close'] = df_for_ma200['close'].astype(float)
+        return df_for_ma200
     
     except BinanceAPIException as e:
         logger.error(f'Binance API error: {e}')

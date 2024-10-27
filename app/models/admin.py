@@ -65,7 +65,7 @@ class BotSettingsAdmin(AdminModelView):
         'bot_current_trade',
         'bot_running', 
         'symbol', 
-        'algorithm',
+        'strategy',
         'comment',
         'trailing_stop_pct', 
         'cci_buy',
@@ -97,6 +97,7 @@ class TradesHistoryAdmin(AdminModelView):
     column_list = (
         'id', 
         'bot_id', 
+        'strategy',
         'amount', 
         'buy_price', 
         'sell_price',

@@ -56,7 +56,7 @@ def save_trade_to_history(current_trade, order_type, amount, buy_price, sell_pri
     try:
         trade = TradesHistory(
             bot_id=current_trade.id, 
-            algorithm=current_trade.bot_settings.algorithm,
+            strategy=current_trade.bot_settings.strategy,
             amount=amount, 
             buy_price=buy_price,
             sell_price=sell_price
@@ -64,7 +64,7 @@ def save_trade_to_history(current_trade, order_type, amount, buy_price, sell_pri
         db.session.add(trade)
         db.session.commit()
         logger.info(
-            f'Transaction {trade.id}: bot: {current_trade.id} {order_type}, algorithm: {current_trade.bot_settings.algorithm}'
+            f'Transaction {trade.id}: bot: {current_trade.id} {order_type}, strategy: {current_trade.bot_settings.strategy}'
             f'amount: {amount}, symbol: {current_trade.bot_settings.symbol}, timestamp: {trade.timestamp}'
         )
     except Exception as e:

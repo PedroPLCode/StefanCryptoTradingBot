@@ -5,7 +5,7 @@ class BotSettings(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     symbol = db.Column(db.String(16), default="BTCUSDC", nullable=True)
     comment = db.Column(db.String(1024), nullable=True, unique=False)
-    algorithm = db.Column(db.String(16), default="swing", nullable=True)
+    strategy = db.Column(db.String(16), default="swing", nullable=True)
     trailing_stop_pct = db.Column(db.Float, default=0.01, nullable=True)
     cci_buy = db.Column(db.Integer, default=-50, nullable=True)
     cci_sell = db.Column(db.Integer, default=50, nullable=True)

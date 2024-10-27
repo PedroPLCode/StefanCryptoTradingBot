@@ -42,8 +42,7 @@ def show_account_balance(symbol, account_status, assets_to_include):
     account_balance = [
         {
             'asset': single['asset'],
-            'free': float(single['free']),
-            'locked': float(single['locked']),
+            'amount': float(single['free']) + float(single['locked']),
             'value': (float(single['free']) + float(single['locked'])) * float(asset_price)
         }
         for single in account_status['balances']
@@ -122,13 +121,13 @@ def generate_trade_report(period):
         total_trades = len(trades_in_period)
 
         if total_trades == 0:
-            report_data += f"Brak transakcji w ciągu ostatnich {period} dla bot_id: {trade.bot_id} {trade.bot_settings.algorithm}.\n"
+            report_data += f"Brak transakcji w ciągu ostatnich {period} dla bot_id: {trade.bot_id} {trade.bot_settings.strategy}.\n"
         else:
-            report_data += f"Liczba transakcji w ciągu ostatnich {period} dla bot_id: {trade.bot_id} {trade.bot_settings.algorithm}: {total_trades}\n\n"
+            report_data += f"Liczba transakcji w ciągu ostatnich {period} dla bot_id: {trade.bot_id} {trade.bot_settings.strategy}: {total_trades}\n\n"
 
             for trade in trades_in_period:
                 profit_percentage = calculate_profit_percentage(trade.buy_price, trade.sell_price)
-                report_data += (f"id: {trade.id}, bot_id: {trade.bot_id} {trade.bot_settings.algorithm}, {trade.type} {trade.bot_settings.symbol}, "
+                report_data += (f"id: {trade.id}, bot_id: {trade.bot_id} {trade.bot_settings.strategy}, {trade.type} {trade.bot_settings.symbol}, "
                                 f"amount: {trade.amount} {trade.bot_settings.symbol[:3]}, buy_price: {trade.buy_price:.2f} {trade.bot_settings.symbol[-4:]}, "
                                 f"sell_price: {trade.sell_price:.2f} {trade.bot_settings.symbol[-4:]}, profit_percentage: {profit_percentage:.2f}%, "
                                 f"timestamp: {trade.timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n")
