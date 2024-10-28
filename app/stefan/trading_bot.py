@@ -5,27 +5,28 @@ from binance.exceptions import BinanceAPIException
 from ..utils.logging import logger
 from ..utils.app_utils import send_admin_email
 from .api_utils import (
-    fetch_full_data, 
-    fetch_data_for_ma200,
+    fetch_data,
     place_buy_order, 
     place_sell_order
 )
 from .logic_utils import (
-    save_trailing_stop_loss, 
-    save_previous_price, 
-    update_trailing_stop_loss
+    update_trailing_stop_loss,
+    update_current_trade,
+    update_trade_history
 )
 from .scalping_logic import (
     calculate_scalp_indicators,
     check_scalping_buy_signal, 
-    check_scalping_sell_signal
+    check_scalping_sell_signal,
+    check_scalping_buy_signal_with_ma50,
+    check_scalping_sell_signal_with_ma50
 )
 from .swing_logic import (
     calculate_swing_indicators,
     check_swing_buy_signal,
     check_swing_sell_signal,
-    check_swing_buy_signal_with_MA200,
-    check_swing_sell_signal_with_MA200
+    check_swing_buy_signal_with_ma200,
+    check_swing_sell_signal_with_ma200
 )
 
 def run_all_scalp_trading_bots():
@@ -61,7 +62,7 @@ def run_single_trading_logic(bot_settings):
                 interval = bot_settings.interval
                 lookback_period = bot_settings.lookback_period
                 logger.info(f'Fetching data for {symbol} with interval {interval} and lookback {lookback_period}')
-                df = fetch_full_data(symbol, interval=interval, lookback=lookback_period)
+                df = fetch_data(symbol, interval=interval, lookback=lookback_period)
                 df_for_ma200 = pd.DataFrame()
 
                 #logger.trade(f"\n {df}")
@@ -70,10 +71,16 @@ def run_single_trading_logic(bot_settings):
                     return 
                 
                 if bot_settings.strategy == 'scalp':
-                    calculate_scalp_indicators(df, bot_settings)
+                    if bot_settings.signals_extended:
+                        df_for_ma50 = fetch_data(symbol, interval="1h", lookback="3d")
+                        #logger.trade(f'\n{df_for_ma200}')
+                        if df_for_ma50 is None or df_for_ma50.empty or len(df_for_ma50) < 5:
+                            logger.error(f'Bot {bot_settings.id}: DataFrame df_for_ma50 is empty or could not be fetched')
+                            return
+                    calculate_scalp_indicators(df, df_for_ma50, bot_settings)
                 elif bot_settings.strategy == 'swing':
                     if bot_settings.signals_extended:
-                        df_for_ma200 = fetch_data_for_ma200(symbol, interval="1d", lookback="200d")
+                        df_for_ma200 = fetch_data(symbol, interval="1d", lookback="200d")
                         #logger.trade(f'\n{df_for_ma200}')
                         if df_for_ma200 is None or df_for_ma200.empty or len(df_for_ma200) < 5:
                             logger.error(f'Bot {bot_settings.id}: DataFrame df_for_ma200 is empty or could not be fetched')
@@ -112,38 +119,71 @@ def run_single_trading_logic(bot_settings):
                 if indicators_ok:
                     if bot_settings.strategy == 'swing':
                         if bot_settings.signals_extended:
-                            buy_signal = check_swing_buy_signal_with_MA200(df, bot_settings)
-                            sell_signal = check_swing_sell_signal_with_MA200(df, bot_settings)
+                            buy_signal = check_swing_buy_signal_with_ma200(df, bot_settings)
+                            sell_signal = check_swing_sell_signal_with_ma200(df, bot_settings)
                         else:
                             buy_signal = check_swing_buy_signal(df, bot_settings)
                             sell_signal = check_swing_sell_signal(df, bot_settings)
                     elif bot_settings.strategy == 'scalp':
-                        buy_signal = check_scalping_buy_signal(df, bot_settings)
                         if bot_settings.signals_extended:
-                            sell_signal = check_scalping_sell_signal(df, bot_settings) or current_price <= trailing_stop_price
+                            buy_signal = check_scalping_buy_signal_with_ma50(df, bot_settings)
+                            sell_signal = check_scalping_sell_signal_with_ma50(df, bot_settings)
                         else:
-                            sell_signal = current_price <= trailing_stop_price
+                            buy_signal = check_scalping_buy_signal(df, bot_settings)
+                            sell_signal = check_scalping_sell_signal(df, bot_settings)
                     else:
                         buy_signal = False
                         sell_signal = False
                         logger.error(f'No strategy {bot_settings.strategy} found for bot {bot_settings.id}')
                         send_admin_email(f'Error starting bot {bot_settings.id}', f'No strategy {bot_settings.strategy} found for bot {bot_settings.id}')
-                        return
+                    
+                if current_price <= trailing_stop_price:
+                    sell_signal = True
                     
                 #buy_signal = True # SZTUCZNA INGERENCJA
                 
                 if not current_trade.is_active and buy_signal:
                     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} buy signal!")
-                    place_buy_order(bot_settings.id)
-                    trailing_stop_price = float(current_price) * (1 - float(trailing_stop_pct))
+                    buy_success, amount = place_buy_order(bot_settings.id)
                     
                     logger.debug(f"{bot_settings.strategy} BUY: current_price type: {current_price}, trailing_stop_pct type: {trailing_stop_pct}")
 
-                    save_trailing_stop_loss(trailing_stop_price, current_trade)
-                    save_previous_price(current_price, current_trade)
+                    if buy_success: 
+                        trailing_stop_price = float(current_price) * (1 - float(trailing_stop_pct))
+                        
+                        update_current_trade(
+                            bot_id=bot_settings.id, 
+                            is_active=True,
+                            amount=amount,
+                            current_price=current_price, 
+                            previous_price=current_price, 
+                            buy_price=current_price, 
+                            trailing_stop_loss=trailing_stop_price
+                            )
+                    
                 elif current_trade.is_active and sell_signal:
                     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell signal!")
-                    place_sell_order(bot_settings.id)
+                    
+                    sell_success, amount = place_sell_order(bot_settings.id)
+
+                    if sell_success: 
+                        update_trade_history(
+                            bot_id=bot_settings.id,
+                            strategy=bot_settings.strategy,
+                            amount=amount,
+                            buy_price=current_trade.buy_price,
+                            sell_price=current_price
+                        )
+                        update_current_trade(
+                            bot_id=bot_settings.id, 
+                            is_active=False,
+                            amount=0,
+                            current_price=0, 
+                            previous_price=0, 
+                            buy_price=0, 
+                            trailing_stop_loss=0
+                            )
+                    
                 elif current_trade.is_active and price_rises:
                     logger.trade(f"{bot_settings.strategy} price rises!")
                     trailing_stop_price = update_trailing_stop_loss(
@@ -151,8 +191,13 @@ def run_single_trading_logic(bot_settings):
                         trailing_stop_price,
                         float(df['atr'].iloc[-1])
                     )
-                    save_trailing_stop_loss(trailing_stop_price, current_trade)
-                    save_previous_price(current_price, current_trade)
+
+                    update_current_trade(
+                        bot_id=bot_settings.id, 
+                        previous_price=current_price, 
+                        trailing_stop_loss=trailing_stop_price
+                        )
+                                        
                 else:
                     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} no trade signal.")
 

@@ -87,7 +87,7 @@ class BotCurrentTradeAdmin(AdminModelView):
         'bot_settings',
         'is_active', 
         'amount', 
-        'price', 
+        'current_price', 
         'buy_price',
         'previous_price', 
         'trailing_stop_loss',

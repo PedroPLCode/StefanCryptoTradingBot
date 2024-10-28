@@ -1,34 +1,12 @@
 from .. import db
-from ..models import TradesHistory
+from ..models import TradesHistory, BotCurrentTrade
 from ..utils.logging import logger
 from ..utils.app_utils import send_admin_email
 
-def save_active_trade(current_trade, amount, price, buy_price):
-    try:
-        current_trade.is_active = True
-        current_trade.amount = amount
-        current_trade.price = price
-        current_trade.buy_price = buy_price
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"Exception in save_active_trade: {str(e)}")
-        send_admin_email(f'Exception in save_active_trade', str(e))
-
-
-def save_deactivated_trade(current_trade):
-    try:
-        current_trade.is_active = False
-        current_trade.amount = None
-        current_trade.buy_price = None
-        current_trade.price = None
-        current_trade.previous_price = None
-        current_trade.trailing_stop_loss = None
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"Exception in save_deactivated_trade: {str(e)}")
-        send_admin_email(f'Exception in save_deactivated_trade', str(e))
+def round_to_step_size(amount, step_size):
+    if step_size > 0:
+        return round(amount / step_size) * step_size
+    return amount
 
 
 def update_trailing_stop_loss(current_price, trailing_stop_price, atr):
@@ -55,33 +33,55 @@ def update_trailing_stop_loss(current_price, trailing_stop_price, atr):
         return trailing_stop_price
 
 
-def save_trailing_stop_loss(trailing_stop_price, current_trade):
-    try:
-        if current_trade:
-            current_trade.trailing_stop_loss = trailing_stop_price
-            db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"Exception in save_trailing_stop_loss: {str(e)}")
-        send_admin_email(f'Exception in save_trailing_stop_loss', str(e))
+def update_current_trade(
+    bot_id=None, 
+    is_active=None, 
+    amount=None, 
+    buy_price=None, 
+    current_price=None, 
+    previous_price=None, 
+    trailing_stop_loss=None
+    ):
+    
+    if bot_id:
         
-
-def save_previous_price(price, current_trade):
-    try:
-        if current_trade:
-            current_trade.previous_price = price
+        try:
+            current_trade = BotCurrentTrade.query.filter_by(id=bot_id).first()
+            
+            if is_active != None:
+                current_trade.is_active = is_active
+            if amount != None:
+                current_trade.amount = amount
+            if buy_price != None:
+                current_trade.buy_price = buy_price
+            if current_price != None:
+                current_trade.current_price = current_price
+            if previous_price != None:
+                current_trade.previous_price = previous_price
+            if trailing_stop_loss != None:
+                current_trade.trailing_stop_loss = trailing_stop_loss
+                
             db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"Exception in save_previous_price: {str(e)}")
-        send_admin_email(f'Exception in save_previous_price', str(e))
-
-
-def save_trade_to_history(current_trade, order_type, amount, buy_price, sell_price):
+            
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Exception in update_current_trade bot {bot_id}: {str(e)}")
+            send_admin_email(f'Exception in update_current_trade bot {bot_id}', str(e))
+    
+                        
+def update_trade_history(
+    bot_id, 
+    strategy, 
+    amount, 
+    buy_price, 
+    sell_price
+    ):
+    
     try:
+        current_trade = BotCurrentTrade.query.filter_by(id=bot_id).first()
         trade = TradesHistory(
-            bot_id=current_trade.id, 
-            strategy=current_trade.bot_settings.strategy,
+            bot_id=bot_id,
+            strategy=strategy,
             amount=amount, 
             buy_price=buy_price,
             sell_price=sell_price
@@ -89,10 +89,10 @@ def save_trade_to_history(current_trade, order_type, amount, buy_price, sell_pri
         db.session.add(trade)
         db.session.commit()
         logger.info(
-            f'Transaction {trade.id}: bot: {current_trade.id} {order_type}, strategy: {current_trade.bot_settings.strategy}'
+            f'Transaction {trade.id}: bot: {bot_id}, strategy: {strategy}'
             f'amount: {amount}, symbol: {current_trade.bot_settings.symbol}, timestamp: {trade.timestamp}'
         )
     except Exception as e:
         db.session.rollback()
-        logger.error(f"Exception in save_trade_to_history: {str(e)}")
-        send_admin_email(f'Exception in save_trade_to_history', str(e))
+        logger.error(f"Exception in update_trade_history bot {bot_id}: {str(e)}")
+        send_admin_email(f'Exception in update_trade_history bot {bot_id}', str(e))

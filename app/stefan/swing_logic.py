@@ -115,10 +115,10 @@ def check_swing_buy_signal(df, bot_settings):
         latest_data = df.iloc[-1]
         mfi_value = talib.MFI(df['high'], df['low'], df['close'], df['volume'], timeperiod=bot_settings.timeperiod).iloc[-1]
 
-        if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
-            float(latest_data['macd']) > float(latest_data['macd_signal']) and
+        if (#float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
+        #    float(latest_data['macd']) > float(latest_data['macd_signal']) and
             float(latest_data['cci']) < float(bot_settings.cci_buy) and
-            float(mfi_value) < float(bot_settings.mfi_buy) and
+        #    float(mfi_value) < float(bot_settings.mfi_buy) and
             float(latest_data['close']) < float(latest_data['lower_band'])):
             return True
         
@@ -134,7 +134,7 @@ def check_swing_buy_signal(df, bot_settings):
         return False
 
 
-def check_swing_buy_signal_with_MA200(df, bot_settings):
+def check_swing_buy_signal_with_ma200(df, bot_settings):
     try:
         if df.empty or len(df) < 1:
             logger.error(f'DataFrame is empty or too short for bot {bot_settings.id}.')
@@ -156,11 +156,11 @@ def check_swing_buy_signal_with_MA200(df, bot_settings):
         mfi_value = talib.MFI(df['high'], df['low'], df['close'], df['volume'], timeperiod=bot_settings.timeperiod).iloc[-1]
 
         if (float(latest_data['close']) > float(latest_data['ma_200']) and
-            float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
-            float(latest_data['macd']) > float(latest_data['macd_signal']) and
-            float(latest_data['cci']) < float(bot_settings.cci_buy) and
-            float(mfi_value) < float(bot_settings.mfi_buy) and
-            float(latest_data['close']) < float(latest_data['lower_band'])):
+            float(latest_data['rsi']) < float(bot_settings.rsi_buy)): # and
+        #    float(latest_data['macd']) > float(latest_data['macd_signal']) and
+        #    float(latest_data['cci']) < float(bot_settings.cci_buy) and
+        #    float(mfi_value) < float(bot_settings.mfi_buy) and
+        #    float(latest_data['close']) < float(latest_data['lower_band'])):
             return True
 
         return False
@@ -184,10 +184,10 @@ def check_swing_sell_signal(df, bot_settings):
         latest_data = df.iloc[-1]
         mfi_value = talib.MFI(df['high'], df['low'], df['close'], df['volume'], timeperiod=bot_settings.timeperiod).iloc[-1]
 
-        if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(latest_data['macd']) < float(latest_data['macd_signal']) and
+        if (#float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
+        #    float(latest_data['macd']) < float(latest_data['macd_signal']) and
             float(latest_data['cci']) > float(bot_settings.cci_sell) and
-            float(mfi_value) > float(bot_settings.mfi_sell) and
+        #    float(mfi_value) > float(bot_settings.mfi_sell) and
             float(latest_data['close']) > float(latest_data['upper_band'])):
             return True
         
@@ -203,7 +203,7 @@ def check_swing_sell_signal(df, bot_settings):
         return False
 
 
-def check_swing_sell_signal_with_MA200(df, bot_settings):
+def check_swing_sell_signal_with_ma200(df, bot_settings):
     try:
         if df.empty or len(df) < 1:
             logger.error(f'DataFrame is empty or too short for bot {bot_settings.id}.')
@@ -211,14 +211,18 @@ def check_swing_sell_signal_with_MA200(df, bot_settings):
         
         latest_data = df.iloc[-1]
         
+        if 'ma_200' not in df.columns:
+            logger.trade(f"{bot_settings.strategy} missing ma_200 in df column.")
+            return False
+        
         mfi_value = talib.MFI(df['high'], df['low'], df['close'], df['volume'], timeperiod=bot_settings.timeperiod).iloc[-1]
 
         if (float(latest_data['close']) < float(latest_data['ma_200']) and
-            float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(latest_data['macd']) < float(latest_data['macd_signal']) and
-            float(latest_data['cci']) > float(bot_settings.cci_sell) and
-            float(mfi_value) > float(bot_settings.mfi_sell) and
-            float(latest_data['close']) > float(latest_data['upper_band'])):
+            float(latest_data['rsi']) > float(bot_settings.rsi_sell)): # and
+        #    float(latest_data['macd']) < float(latest_data['macd_signal']) and
+        #    float(latest_data['cci']) > float(bot_settings.cci_sell) and
+        #    float(mfi_value) > float(bot_settings.mfi_sell) and
+        #    float(latest_data['close']) > float(latest_data['upper_band'])):
             return True
         
         return False

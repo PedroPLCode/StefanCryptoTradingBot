@@ -3,7 +3,7 @@ import talib
 from ..utils.logging import logger
 from ..utils.app_utils import send_admin_email
 
-def calculate_scalp_indicators(df, bot_settings):
+def calculate_scalp_indicators(df, df_for_ma50, bot_settings):
     try:
         df['close'] = pd.to_numeric(df['close'], errors='coerce')
         df['high'] = pd.to_numeric(df['high'], errors='coerce')
@@ -13,6 +13,18 @@ def calculate_scalp_indicators(df, bot_settings):
         df['open_time'] = pd.to_datetime(df['open_time'], unit='ms')
         df['close_time'] = pd.to_datetime(df['close_time'], unit='ms')
 
+        # Obliczanie MA50
+        if not df_for_ma50.empty:
+            #logger.trade(f"Liczba wierszy w DataFrame: {len(df_for_ma200)}")
+            #logger.trade(df_for_ma200['close'])
+            #logger.trade(df_for_ma200['close'].head(10))
+            
+            df_for_ma50['ma_50'] = df_for_ma50['close'].rolling(window=50).mean()
+            ma_50_column = df_for_ma50['ma_50'].tail(len(df)).reset_index(drop=True)
+            df['ma_50'] = ma_50_column
+            
+            #logger.trade('teraz tu ma200')
+            #logger.trade(f'df z ma_200:\n{df}')
         df['rsi'] = talib.RSI(df['close'], timeperiod=bot_settings.timeperiod)
 
         df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=bot_settings.timeperiod)
@@ -59,9 +71,20 @@ def calculate_scalp_indicators(df, bot_settings):
 
         #logger.trade("After calculating indicators:\n%s", df.tail())
 
-        df.dropna(subset=['macd', 'macd_signal', 'cci', 'mfi', 'atr'], inplace=True)
+        # Ustal kolumny do usunięcia
+        columns_to_check = ['macd', 'macd_signal', 'cci', 'mfi', 'atr']
+        if not df_for_ma50.empty:
+            columns_to_check.append('ma_50')
+
+        df.dropna(subset=columns_to_check, inplace=True)
+        
+        if 'ma_50' in df.columns:
+            logger.trade(f"DataFrame zawiera kolumnę ma_50:\n{df['ma_50']}")
+        else:
+            logger.trade("DataFrame nie zawiera kolumny ma_50.")
         
         return df
+    
     except IndexError as e:
         logger.error(f'IndexError in calculate_scalp_indicators bot {bot_settings.id}: {str(e)}')
         send_admin_email(f'IndexError in calculate_scalp_indicators bot {bot_settings.id}', str(e))
@@ -84,11 +107,11 @@ def check_scalping_buy_signal(df, bot_settings):
             logger.error(f'MACD or MACD signal is NaN for bot {bot_settings.id}. Latest data: {latest_data}')
             return False
         
-        if (latest_data['rsi'] < bot_settings.rsi_buy and
-            latest_data['macd'] < latest_data['macd_signal'] and
-            latest_data['cci'] < bot_settings.cci_buy and
-            latest_data['mfi'] < bot_settings.mfi_buy and
-            latest_data['close'] < latest_data['lower_band']):
+        if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
+            float(latest_data['macd']) < float(latest_data['macd_signal'])): # and
+        #    float(latest_data['cci']) < float(bot_settings.cci_buy) and
+        #    float(latest_data['mfi']) < float(bot_settings.mfi_buy) and
+        #    float(latest_data['close']) < float(latest_data['lower_band'])):
             return True
             
         return False
@@ -102,6 +125,42 @@ def check_scalping_buy_signal(df, bot_settings):
         send_admin_email(f'Exception in check_scalping_buy_signal bot {bot_settings.id}', str(e))
         return False
             
+            
+def check_scalping_buy_signal_with_ma50(df, bot_settings):
+    try:
+        if df.empty or len(df) < 1:
+            logger.error(f'DataFrame is empty or too short for bot {bot_settings.id}.')
+            return False
+        
+        latest_data = df.iloc[-1]
+        
+        if 'ma_50' not in df.columns:
+            logger.trade(f"{bot_settings.strategy} missing ma_50 in df column.")
+            return False
+
+        if pd.isna(latest_data['macd']) or pd.isna(latest_data['macd_signal']):
+            logger.error(f'MACD or MACD signal is NaN for bot {bot_settings.id}. Latest data: {latest_data}')
+            return False
+        
+        if (float(latest_data['close']) > float(latest_data['ma_50']) and 
+            float(latest_data['rsi']) < float(bot_settings.rsi_buy)): # and
+        #    float(latest_data['macd']) < float(latest_data['macd_signal']) and
+        #    float(latest_data['cci']) < float(bot_settings.cci_buy) and
+        #    float(latest_data['mfi']) < float(bot_settings.mfi_buy) and
+        #    float(latest_data['close']) < float(latest_data['lower_band'])):
+            return True
+            
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_scalping_buy_signal bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_scalping_buy_signal bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_scalping_buy_signal bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_scalping_buy_signal bot {bot_settings.id}', str(e))
+        return False
+    
 
 def check_scalping_sell_signal(df, bot_settings):
     try:
@@ -112,11 +171,45 @@ def check_scalping_sell_signal(df, bot_settings):
         latest_data = df.iloc[-1]
         logger.trade(f'DataFrame is ok bot {bot_settings.id}.')
 
-        if (latest_data['rsi'] > bot_settings.rsi_sell and
-            latest_data['macd'] > latest_data['macd_signal'] and
-            latest_data['cci'] > bot_settings.cci_sell and
-            latest_data['mfi'] > bot_settings.mfi_sell and
-            latest_data['close'] > latest_data['upper_band']):
+        if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
+            float(latest_data['macd']) > float(latest_data['macd_signal'])): # and
+        #    float(latest_data['cci']) > float(bot_settings.cci_sell) and
+        #    float(latest_data['mfi']) > float(bot_settings.mfi_sell) and
+        #    float(latest_data['close']) > float(latest_data['upper_band'])):
+            return True
+        
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_scalping_sell_signal bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_scalping_sell_signal bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_scalping_sell_signal bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_scalping_sell_signal bot {bot_settings.id}', str(e))
+        return False
+    
+    
+def check_scalping_sell_signal_with_ma50(df, bot_settings):
+    try:
+        if df.empty:
+            logger.error(f'DataFrame is empty for bot {bot_settings.id}.')
+            return False
+        
+        latest_data = df.iloc[-1]
+        
+        if 'ma_50' not in df.columns:
+            logger.trade(f"{bot_settings.strategy} missing ma_50 in df column.")
+            return False
+        
+        logger.trade(f'DataFrame is ok bot {bot_settings.id}.')
+
+        if (float(latest_data['close']) < float(latest_data['ma_50']) and
+            float(latest_data['rsi']) > float(bot_settings.rsi_sell)): # and
+        #    float(latest_data['macd']) > float(latest_data['macd_signal']) and
+        #    float(latest_data['cci']) > float(bot_settings.cci_sell) and
+        #    float(latest_data['mfi']) > float(bot_settings.mfi_sell) and
+        #    float(latest_data['close']) > float(latest_data['upper_band'])):
             return True
         
         return False

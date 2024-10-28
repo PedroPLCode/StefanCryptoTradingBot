@@ -6,7 +6,7 @@ class BotCurrentTrade(db.Model):
     is_active = db.Column(db.Boolean, nullable=False, default=False)
     amount = db.Column(db.Float, default=0, nullable=True)
     buy_price = db.Column(db.Float, default=0, nullable=True)
-    price = db.Column(db.Float, default=0, nullable=True)
+    current_price = db.Column(db.Float, default=0, nullable=True)
     previous_price = db.Column(db.Float, default=0, nullable=True)
     trailing_stop_loss = db.Column(db.Float, default=0, nullable=True)
     

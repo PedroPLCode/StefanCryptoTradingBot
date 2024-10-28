@@ -27,7 +27,7 @@ def start_bot(bot_id):
         bot_settings = BotSettings.query.filter_by(id=bot_id).first()
 
         if bot_settings:
-            start_single_bot(bot_settings, current_user)
+            start_single_bot(bot_settings.id, current_user)
         else:
             flash(f'Settings for bot {bot_id} not found.', 'danger')
             send_admin_email('Bot not started.', f'Settings for bot {bot_id} not found.')
@@ -53,10 +53,10 @@ def stop_bot(bot_id):
         bot_settings = BotSettings.query.filter_by(id=bot_id).first()
         
         if bot_settings.bot_current_trade.is_active:
-            place_sell_order(bot_settings)
+            place_sell_order(bot_settings.id)
         
         if bot_settings:
-            stop_single_bot(bot_settings, current_user)
+            stop_single_bot(bot_settings.id, current_user)
         else:
             flash(f'Settings for bot {bot_id} not found.', 'danger')
             send_admin_email('Bot not stopped.', f'Settings for bot {bot_id} not found.')

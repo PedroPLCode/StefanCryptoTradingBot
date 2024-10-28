@@ -8,21 +8,25 @@ from ..utils.logging import logger
 
 load_dotenv()
 
-def get_binance_api_credentials(bot_id=None):
-    if bot_id:
-        api_key = os.environ.get(f'BINANCE_BOT{bot_id}_API_KEY')
-        api_secret = os.environ.get(f'BINANCE_BOT{bot_id}_API_SECRET')
+def get_binance_api_credentials(bot_id=None, testnet=False):
+    if testnet:
+        api_key = os.environ.get('BINANCE_TESTNET_API_KEY')
+        api_secret = os.environ.get('BINANCE_TESTNET_API_SECRET')
     else:
-        api_key = os.environ.get('BINANCE_GENERAL_API_KEY')
-        api_secret = os.environ.get('BINANCE_GENERAL_API_SECRET')
+        if bot_id:
+            api_key = os.environ.get(f'BINANCE_BOT{bot_id}_API_KEY')
+            api_secret = os.environ.get(f'BINANCE_BOT{bot_id}_API_SECRET')
+        else:
+            api_key = os.environ.get('BINANCE_GENERAL_API_KEY')
+            api_secret = os.environ.get('BINANCE_GENERAL_API_SECRET')
     
     return api_key, api_secret
 
 
-def create_binance_client(bot_id=None):
+def create_binance_client(bot_id=None, testnet=False):
     try:
-        api_key, api_secret = get_binance_api_credentials(bot_id)
-        return Client(api_key, api_secret)
+        api_key, api_secret = get_binance_api_credentials(bot_id, testnet)
+        return Client(api_key, api_secret, testnet=testnet)
     except Exception as e:
         from ..utils.app_utils import send_admin_email
         logger.error(f"Exception in create_binance_client: {str(e)}")
@@ -57,7 +61,7 @@ def get_exchange_info(bot_id):
         send_admin_email(f'Exception in get_exchange_info', str(e))
 
 
-def fetch_full_data(symbol, interval='1m', lookback='4h'):
+def fetch_data(symbol, interval='1m', lookback='4h'):
     from ..utils.app_utils import send_admin_email
     try: 
         klines = general_client.get_historical_klines(symbol, interval, lookback)
@@ -90,50 +94,6 @@ def fetch_full_data(symbol, interval='1m', lookback='4h'):
     except Exception as e:
         logger.error(f"Exception in fetch_full_data: {str(e)}")
         send_admin_email(f'Exception in fetch_full_data', str(e))
-        return None
-
-
-def fetch_data_for_ma200(symbol, interval='1d', lookback='200d'):
-    from ..utils.app_utils import send_admin_email
-    try: 
-        klines = general_client.get_historical_klines(symbol, interval, lookback)
-        df_for_ma200 = pd.DataFrame(
-            klines, 
-            columns=[
-                'open_time', 
-                'open', 
-                'high', 
-                'low', 
-                'close', 
-                'volume', 
-                'close_time', 
-                'quote_asset_volume', 
-                'number_of_trades', 
-                'taker_buy_base_asset_volume', 
-                'taker_buy_quote_asset_volume', 
-                'ignore'
-            ]
-        )
-
-        df_for_ma200['close'] = df_for_ma200['close'].astype(float)
-
-        return df_for_ma200[['close']]
-    
-    except BinanceAPIException as e:
-        logger.error(f"BinanceAPIException in fetch_data_for_ma200: {str(e)}")
-        send_admin_email(f'BinanceAPIException in fetch_data_for_ma200', str(e))
-        return None
-    except ConnectionError as e:
-        logger.error(f"ConnectionError in fetch_data_for_ma200: {str(e)}")
-        send_admin_email(f'ConnectionError in fetch_data_for_ma200', str(e))
-        return None
-    except TimeoutError as e:
-        logger.error(f"TimeoutError in fetch_data_for_ma200: {str(e)}")
-        send_admin_email(f'TimeoutError in fetch_data_for_ma200', str(e))
-        return None
-    except Exception as e:
-        logger.error(f"Exception in fetch_data_for_ma200: {str(e)}")
-        send_admin_email(f'Exception in fetch_data_for_ma200', str(e))
         return None
 
 
@@ -199,8 +159,10 @@ def get_minimum_order_quantity(bot_id, symbol):
             if f['filterType'] == 'LOT_SIZE':
                 min_qty = float(f['minQty'])
                 step_size = float(f['stepSize'])
+                logger.trade(f'step_size: {step_size}')
                 decimal_places = len(str(step_size).split('.')[-1]) if '.' in str(step_size) else 0
-                return min_qty, decimal_places
+                logger.trade(f'decimal_places: {decimal_places}')
+                return min_qty, step_size
         return None, 0
     except BinanceAPIException as e:
         logger.error(f'BinanceAPIException in get_minimum_order_quantity: {str(e)}')
@@ -250,19 +212,17 @@ def get_minimum_order_value(bot_id, symbol):
 
 
 def place_buy_order(bot_id):
-    from .logic_utils import save_active_trade
+    from .logic_utils import round_to_step_size
     from ..utils.app_utils import send_admin_email
     
     try:    
         bot_settings = BotSettings.query.get(bot_id)
         symbol = bot_settings.symbol
-        current_trade = bot_settings.bot_current_trade
-        bot_id = bot_settings.id
-        bot_client = create_binance_client(bot_id)
+        bot_client = create_binance_client(bot_id=bot_id, testnet=True)
         cryptocoin_symbol = symbol[:3]
         stablecoin_symbol = symbol[-4:]
         
-        #get_exchange_info(bot_settings.id) # temp here
+        #get_exchange_info(bot_settings.id) # temporary here
 
         balance = get_account_balance(bot_id, [stablecoin_symbol, cryptocoin_symbol])
         stablecoin_balance = float(balance.get(stablecoin_symbol, '0.0'))
@@ -277,13 +237,13 @@ def place_buy_order(bot_id):
 
         amount_to_buy = (stablecoin_balance * 0.9) / price
         
-        min_qty, decimal_places = get_minimum_order_quantity(bot_settings.id, symbol)
+        min_qty, step_size = get_minimum_order_quantity(bot_settings.id, symbol)
         min_qty = min_qty if min_qty is not None else 0
                 
         min_notional = get_minimum_order_value(bot_settings.id, symbol)
         min_notional = min_notional if min_notional is not None else 0.0
         
-        amount_to_buy = round(amount_to_buy, decimal_places)
+        amount_to_buy = round_to_step_size(amount_to_buy, step_size)
         
         logger.debug(f"stablecoin_balance: {stablecoin_balance}, price: {price}, amount_to_buy: {amount_to_buy}")
 
@@ -294,14 +254,12 @@ def place_buy_order(bot_id):
 
         if amount_to_buy >= min_qty:
             if required_stablecoin >= min_notional:
+                logger.trade(f'amount_to_buy: {amount_to_buy}')
                 bot_client.order_market_buy(symbol=symbol, quantity=amount_to_buy)
                 logger.trade(f'Bot {bot_settings.id} Buy {amount_to_buy} {cryptocoin_symbol} at price {price}')
-                save_active_trade(
-                    current_trade, 
-                    amount=amount_to_buy, 
-                    price=price,
-                    buy_price=price
-                )
+                buy_success = True
+                return buy_success, amount_to_buy
+      
             else:
                 logger.info(f'Bot {bot_settings.id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}. Minimum order value is {min_notional}.')
         else:
@@ -322,15 +280,12 @@ def place_buy_order(bot_id):
 
 
 def place_sell_order(bot_id):
-    from .logic_utils import save_trade_to_history, save_deactivated_trade
     from ..utils.app_utils import send_admin_email
 
     try:
         bot_settings = BotSettings.query.get(bot_id)
         symbol = bot_settings.symbol
-        current_trade = bot_settings.bot_current_trade
-        bot_id = bot_settings.id
-        bot_client = create_binance_client(bot_id)
+        bot_client = create_binance_client(bot_id=bot_id, testnet=True)
         cryptocoin_symbol = symbol[:3]
         stablecoin_symbol = symbol[-4:]
 
@@ -345,20 +300,15 @@ def place_sell_order(bot_id):
             logger.info(f'Bot {bot_settings.id} Not enough {cryptocoin_symbol} to sell.')
             return
 
-        min_qty, decimal_places = get_minimum_order_quantity(bot_settings.id, symbol)
+        min_qty, step_size = get_minimum_order_quantity(bot_settings.id, symbol)
         min_qty = min_qty if min_qty is not None else 0
 
         if crypto_balance >= min_qty:
             bot_client.order_market_sell(symbol=symbol, quantity=crypto_balance)
             logger.info(f'Bot {bot_settings.id} Sell {crypto_balance} {cryptocoin_symbol} at price {price}')
+            sell_success = True
+            return sell_success, crypto_balance
             
-            save_deactivated_trade(current_trade)
-            save_trade_to_history(
-                current_trade, 
-                amount=crypto_balance, 
-                buy_price=bot_settings.bot_current_trade.buy_price,
-                sell_price=price
-            )
         else:
             logger.info(f'Bot {bot_settings.id} Not enough {cryptocoin_symbol} to sell. Minimum order quantity is {min_qty}.')
 
