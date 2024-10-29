@@ -1,0 +1,47 @@
+'scalp' BTC ETH
+run interval 1min
+trailing_stop_pct=0.01 or 0.005
+interval="1m"
+lookback_period="45m"
+timeperiod=5
+cci_buy=-50
+cci_sel=50
+rsi_buy=35
+rsi_sell=65
+mfi_buy=30
+mfi_sell=70
+
+'swing' LTC ADA SOL
+run interval 30min
+trailing_stop_pct=0.03 or 0.05
+interval="30m"
+lookback_period="1d"
+timeperiod=14
+cci_buy=-100 (or -50)
+cci_sel=100 (or 50)
+rsi_buy=30
+rsi_sell=70
+mfi_buy=20 (or 30)
+mfi_sell=80 (or 70)
+
+mfi_value = talib.MFI(df['high'], df['low'], df['close'], df['volume'], timeperiod=bot_settings.timeperiod).iloc[-1]
+
+examples of buy signals:
+float(latest_data['rsi']) < float(bot_settings.rsi_buy)
+float(latest_data['macd']) < float(latest_data['macd_signal'])
+float(latest_data['cci']) < float(bot_settings.cci_buy)
+float(latest_data['mfi']) < float(bot_settings.mfi_buy)
+float(mfi_value) < float(bot_settings.mfi_buy)
+float(latest_data['close']) < float(latest_data['lower_band'])
+float(latest_data['close']) > float(latest_data['ma_50'])
+float(latest_data['close']) > float(latest_data['ma_200'])
+
+examples of sell signals:
+float(latest_data['macd']) > float(latest_data['macd_signal'])
+float(latest_data['mfi']) > float(bot_settings.mfi_sell)
+float(mfi_value) > float(bot_settings.mfi_sell)
+float(latest_data['close']) > float(latest_data['upper_band'])
+float(latest_data['rsi']) > float(bot_settings.rsi_sell)
+float(latest_data['cci']) > float(bot_settings.cci_sell)
+float(latest_data['close']) < float(latest_data['ma_50'])
+float(latest_data['close']) > float(latest_data['ma_200'])

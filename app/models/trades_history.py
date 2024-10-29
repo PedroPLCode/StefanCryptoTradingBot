@@ -13,11 +13,7 @@ class TradesHistory(db.Model):
     
     def __repr__(self):
         return (
-            f'<TradesHistory:\n'
-            f'id: {self.id}\n'
-            f'amount: {self.amount}\n'
-            f'buy_price: {self.buy_price}\n'
-            f'sell_price: {self.sell_price}\n'
-            f'timestamp: {self.timestamp}\n'
-            f'bot_id: {self.bot_id}>'
+            f'id: {self.id}, amount: {self.amount}\n'
+            f'buy_price: {self.buy_price}, sell_price: {self.sell_price}\n'
+            f'timestamp: {self.timestamp}, bot_id: {self.bot_id}>'
         )

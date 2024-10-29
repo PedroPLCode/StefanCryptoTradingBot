@@ -112,7 +112,7 @@ def stop_all():
 @login_required
 def refresh():
     if not current_user.control_panel_access:
-        logger.warning(f'{current_user.login} tried to control Bot without permission.')
+        logger.warning(f'{current_user.login} tried to Refresh control panel without permission.')
         flash(f'Error. User {current_user.login} is not allowed to control Bot.', 'danger')
         return redirect(url_for('main.user_panel_view'))
     
@@ -131,7 +131,7 @@ def refresh():
 @login_required
 def report():
     if not current_user.email_raports_receiver:
-        logger.warning(f'{current_user.login} tried to get email rapirt.')
+        logger.warning(f'{current_user.login} tried to get email rapirt without permission.')
         flash(f'Error. User {current_user.login} is not allowed receiving email raports.', 'danger')
         return redirect(url_for('main.user_panel_view'))
     

@@ -12,29 +12,15 @@ def calculate_scalp_indicators(df, df_for_ma50, bot_settings):
         
         df['open_time'] = pd.to_datetime(df['open_time'], unit='ms')
         df['close_time'] = pd.to_datetime(df['close_time'], unit='ms')
-
-        # Obliczanie MA50
-        if not df_for_ma50.empty:
-            #logger.trade(f"Liczba wierszy w DataFrame: {len(df_for_ma200)}")
-            #logger.trade(df_for_ma200['close'])
-            #logger.trade(df_for_ma200['close'].head(10))
             
-            df_for_ma50['ma_50'] = df_for_ma50['close'].rolling(window=50).mean()
-            ma_50_column = df_for_ma50['ma_50'].tail(len(df)).reset_index(drop=True)
-            df['ma_50'] = ma_50_column
-            
-            #logger.trade('teraz tu ma200')
-            #logger.trade(f'df z ma_200:\n{df}')
         df['rsi'] = talib.RSI(df['close'], timeperiod=bot_settings.timeperiod)
 
         df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=bot_settings.timeperiod)
 
         df.dropna(subset=['close'], inplace=True)
         
-        #logger.trade("Data length before calculating MACD: %d", len(df))
-        
         if len(df) < 26 + 14:
-            logger.error('Not enough data points for MACD calculation.')
+            logger.trade('Not enough data points for MACD calculation.')
             return df
 
         df['macd'], df['macd_signal'], _ = talib.MACD(
@@ -44,6 +30,11 @@ def calculate_scalp_indicators(df, df_for_ma50, bot_settings):
             signalperiod=bot_settings.timeperiod // 2
         )
 
+        if not df_for_ma50.empty:    
+            df_for_ma50['ma_50'] = df_for_ma50['close'].rolling(window=50).mean()
+            ma_50_column = df_for_ma50['ma_50'].tail(len(df)).reset_index(drop=True)
+            df['ma_50'] = ma_50_column
+
         df['upper_band'], df['middle_band'], df['lower_band'] = talib.BBANDS(
             df['close'],
             timeperiod=bot_settings.timeperiod,
@@ -51,8 +42,6 @@ def calculate_scalp_indicators(df, df_for_ma50, bot_settings):
             nbdevdn=2,
             matype=0
         )
-        
-        #logger.trade("Before calculating indicators:\n%s", df.tail())
         
         df['cci'] = talib.CCI(
             df['high'],
@@ -69,19 +58,11 @@ def calculate_scalp_indicators(df, df_for_ma50, bot_settings):
             timeperiod=bot_settings.timeperiod
         )
 
-        #logger.trade("After calculating indicators:\n%s", df.tail())
-
-        # Ustal kolumny do usunięcia
         columns_to_check = ['macd', 'macd_signal', 'cci', 'mfi', 'atr']
         if not df_for_ma50.empty:
             columns_to_check.append('ma_50')
 
         df.dropna(subset=columns_to_check, inplace=True)
-        
-        if 'ma_50' in df.columns:
-            logger.trade(f"DataFrame zawiera kolumnę ma_50:\n{df['ma_50']}")
-        else:
-            logger.trade("DataFrame nie zawiera kolumny ma_50.")
         
         return df
     
@@ -97,21 +78,19 @@ def calculate_scalp_indicators(df, df_for_ma50, bot_settings):
 
 def check_scalping_buy_signal(df, bot_settings):
     try:
-        if df.empty or len(df) < 1:
-            logger.error(f'DataFrame is empty or too short for bot {bot_settings.id}.')
-            return False
-        
         latest_data = df.iloc[-1]
+        
+        if df.empty or len(df) < 1:
+            logger.trade(f'DataFrame is empty or too short for bot {bot_settings.id}.')
+            return False
 
         if pd.isna(latest_data['macd']) or pd.isna(latest_data['macd_signal']):
-            logger.error(f'MACD or MACD signal is NaN for bot {bot_settings.id}. Latest data: {latest_data}')
+            logger.trade(f'MACD or MACD signal is NaN for bot {bot_settings.id}. Latest data: {latest_data}')
             return False
         
-        if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
-            float(latest_data['macd']) < float(latest_data['macd_signal'])): # and
-        #    float(latest_data['cci']) < float(bot_settings.cci_buy) and
-        #    float(latest_data['mfi']) < float(bot_settings.mfi_buy) and
-        #    float(latest_data['close']) < float(latest_data['lower_band'])):
+        if ((float(latest_data['rsi']) < float(bot_settings.rsi_buy) or
+            float(latest_data['cci']) < float(bot_settings.cci_buy)) and
+            float(latest_data['close']) < float(latest_data['lower_band'])):
             return True
             
         return False
@@ -126,28 +105,25 @@ def check_scalping_buy_signal(df, bot_settings):
         return False
             
             
-def check_scalping_buy_signal_with_ma50(df, bot_settings):
+def check_scalping_buy_signal_extended(df, bot_settings):
     try:
-        if df.empty or len(df) < 1:
-            logger.error(f'DataFrame is empty or too short for bot {bot_settings.id}.')
-            return False
-        
         latest_data = df.iloc[-1]
         
+        if df.empty or len(df) < 1:
+            logger.trade(f'DataFrame is empty or too short for bot {bot_settings.id}.')
+            return False
+
         if 'ma_50' not in df.columns:
             logger.trade(f"{bot_settings.strategy} missing ma_50 in df column.")
             return False
-
-        if pd.isna(latest_data['macd']) or pd.isna(latest_data['macd_signal']):
-            logger.error(f'MACD or MACD signal is NaN for bot {bot_settings.id}. Latest data: {latest_data}')
-            return False
         
-        if (float(latest_data['close']) > float(latest_data['ma_50']) and 
-            float(latest_data['rsi']) < float(bot_settings.rsi_buy)): # and
-        #    float(latest_data['macd']) < float(latest_data['macd_signal']) and
-        #    float(latest_data['cci']) < float(bot_settings.cci_buy) and
-        #    float(latest_data['mfi']) < float(bot_settings.mfi_buy) and
-        #    float(latest_data['close']) < float(latest_data['lower_band'])):
+        if pd.isna(latest_data['macd']) or pd.isna(latest_data['macd_signal']):
+            logger.trade(f'MACD or MACD signal is NaN for bot {bot_settings.id}. Latest data: {latest_data}')
+            return False
+
+        if ((float(latest_data['rsi']) < float(bot_settings.rsi_buy) or 
+            float(latest_data['cci']) < float(bot_settings.cci_buy)) and
+            float(latest_data['close']) > float(latest_data['ma_50'])):
             return True
             
         return False
@@ -164,18 +140,19 @@ def check_scalping_buy_signal_with_ma50(df, bot_settings):
 
 def check_scalping_sell_signal(df, bot_settings):
     try:
-        if df.empty:
-            logger.error(f'DataFrame is empty for bot {bot_settings.id}.')
+        latest_data = df.iloc[-1]
+        
+        if df.empty or len(df) < 1:
+            logger.trade(f'DataFrame is empty or too short for bot {bot_settings.id}.')
             return False
         
-        latest_data = df.iloc[-1]
-        logger.trade(f'DataFrame is ok bot {bot_settings.id}.')
+        if pd.isna(latest_data['macd']) or pd.isna(latest_data['macd_signal']):
+            logger.trade(f'MACD or MACD signal is NaN for bot {bot_settings.id}. Latest data: {latest_data}')
+            return False
 
-        if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(latest_data['macd']) > float(latest_data['macd_signal'])): # and
-        #    float(latest_data['cci']) > float(bot_settings.cci_sell) and
-        #    float(latest_data['mfi']) > float(bot_settings.mfi_sell) and
-        #    float(latest_data['close']) > float(latest_data['upper_band'])):
+        if ((float(latest_data['rsi']) > float(bot_settings.rsi_sell) or
+            float(latest_data['cci']) > float(bot_settings.cci_sell)) and
+            float(latest_data['close']) > float(latest_data['upper_band'])):
             return True
         
         return False
@@ -190,26 +167,25 @@ def check_scalping_sell_signal(df, bot_settings):
         return False
     
     
-def check_scalping_sell_signal_with_ma50(df, bot_settings):
+def check_scalping_sell_signal_extended(df, bot_settings):
     try:
-        if df.empty:
-            logger.error(f'DataFrame is empty for bot {bot_settings.id}.')
-            return False
-        
         latest_data = df.iloc[-1]
         
+        if df.empty or len(df) < 1:
+            logger.trade(f'DataFrame is empty or too short for bot {bot_settings.id}.')
+            return False
+
         if 'ma_50' not in df.columns:
             logger.trade(f"{bot_settings.strategy} missing ma_50 in df column.")
             return False
         
-        logger.trade(f'DataFrame is ok bot {bot_settings.id}.')
-
-        if (float(latest_data['close']) < float(latest_data['ma_50']) and
-            float(latest_data['rsi']) > float(bot_settings.rsi_sell)): # and
-        #    float(latest_data['macd']) > float(latest_data['macd_signal']) and
-        #    float(latest_data['cci']) > float(bot_settings.cci_sell) and
-        #    float(latest_data['mfi']) > float(bot_settings.mfi_sell) and
-        #    float(latest_data['close']) > float(latest_data['upper_band'])):
+        if pd.isna(latest_data['macd']) or pd.isna(latest_data['macd_signal']):
+            logger.trade(f'MACD or MACD signal is NaN for bot {bot_settings.id}. Latest data: {latest_data}')
+            return False
+        
+        if ((float(latest_data['rsi']) > float(bot_settings.rsi_sell) or
+            float(latest_data['cci']) > float(bot_settings.cci_sell)) and
+            float(latest_data['close']) < float(latest_data['ma_50'])):
             return True
         
         return False

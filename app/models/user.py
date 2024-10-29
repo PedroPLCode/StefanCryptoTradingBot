@@ -38,7 +38,7 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return (
-            f'<BotSettings:\n'
+            f'<User:\n'
             f'id: {self.id}\n'
             f'login: {self.login}\n'
             f'name: {self.name}>'

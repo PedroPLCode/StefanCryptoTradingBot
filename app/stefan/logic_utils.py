@@ -88,9 +88,9 @@ def update_trade_history(
         )
         db.session.add(trade)
         db.session.commit()
-        logger.info(
+        logger.trade(
             f'Transaction {trade.id}: bot: {bot_id}, strategy: {strategy}'
-            f'amount: {amount}, symbol: {current_trade.bot_settings.symbol}, timestamp: {trade.timestamp}'
+            f'amount: {amount}, symbol: {current_trade.bot_settings.symbol} saved in database.'
         )
     except Exception as e:
         db.session.rollback()

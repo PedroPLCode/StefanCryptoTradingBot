@@ -3,7 +3,6 @@ import os
 from flask_mail import Message
 from app.models import User, TradesHistory, BotSettings
 from werkzeug.security import generate_password_hash
-import logging
 from flask import flash, current_app
 from .. import db
 from .logging import logger
@@ -88,11 +87,11 @@ def send_logs_via_email():
                     log_content = log_file.read()
                     
                 send_admin_email(f"{subject + log} - {log}", log_content)
-                logging.info(f"Successfully sent email with log: {log}")
+                logger.info(f"Successfully sent email with log: {log}")
             else:
-                logging.warning(f"Log file does not exist: {log_file_path}")
+                logger.warning(f"Log file does not exist: {log_file_path}")
         except Exception as e:
-            logging.error(f"Exception in send_logs_via_email log {log}: {str(e)}")
+            logger.error(f"Exception in send_logs_via_email log {log}: {str(e)}")
             send_admin_email(f"Exception in send_logs_via_email log {log}", str(e))
 
 
@@ -106,11 +105,11 @@ def clear_logs():
             if os.path.exists(log_file_path):
                 with open(log_file_path, 'w') as log_file:
                     log_file.write('Log file cleared.')
-                logging.info(f"Successfully cleared log file: {log_file_path}")
+                logger.info(f"Successfully cleared log file: {log_file_path}")
             else:
-                logging.warning(f"Log file does not exist: {log_file_path}")
+                logger.warning(f"Log file does not exist: {log_file_path}")
         except Exception as e:
-            logging.error(f"Exception in clear_logs log {log}: {str(e)}")
+            logger.error(f"Exception in clear_logs log {log}: {str(e)}")
             send_admin_email(f"Exception in clear_logs log {log}", str(e))
 
 
@@ -128,7 +127,7 @@ def generate_trade_report(period):
 
         all_bots = BotSettings.query.all()
         
-        report_data = f"{period} Raport: Date {now.strftime('%Y-%m-%d')}\n\n"
+        report_data = f"{period} Report: Date {now.strftime('%Y-%m-%d')}\n\n"
 
         for single_bot in all_bots:
             trades_in_period = (
@@ -147,7 +146,7 @@ def generate_trade_report(period):
 
                 for trade in trades_in_period:
                     profit_percentage = calculate_profit_percentage(trade.buy_price, trade.sell_price)
-                    report_data += (f"id: {trade.id}, bot_id: {trade.bot_id} {trade.bot_settings.strategy}, {trade.type} {trade.bot_settings.symbol}, "
+                    report_data += (f"id: {trade.id}, bot_id: {trade.bot_id} {trade.bot_settings.strategy} {trade.bot_settings.symbol}, "
                                     f"amount: {trade.amount} {trade.bot_settings.symbol[:3]}, buy_price: {trade.buy_price:.2f} {trade.bot_settings.symbol[-4:]}, "
                                     f"sell_price: {trade.sell_price:.2f} {trade.bot_settings.symbol[-4:]}, profit_percentage: {profit_percentage:.2f}%, "
                                     f"timestamp: {trade.timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n")
@@ -155,10 +154,10 @@ def generate_trade_report(period):
         return report_data
     
     except Exception as e:
-        logging.error(f"Exception in generate_trade_report log period {period}: {str(e)}")
+        logger.error(f"Exception in generate_trade_report log period {period}: {str(e)}")
         send_admin_email(f"Exception in generate_trade_report log period {period}", str(e))
     except ValueError as e:
-        logging.error(f"ValueError in generate_trade_report log period {period}: {str(e)}")
+        logger.error(f"ValueError in generate_trade_report log period {period}: {str(e)}")
         send_admin_email(f"ValueError in generate_trade_report log period {period}", str(e))
 
 
@@ -169,7 +168,7 @@ def send_email(email, subject, body):
             message = Message(subject=subject, recipients=[email])
             message.body = body
             mail.send(message)
-            logger.info(f'Email "{subject}" sent to {email}.')
+            logger.info(f'Email "{subject}" to {email} sent succesfully.')
             return True
     except Exception as e:
         logger.error(f"Exception in send_email subject {subject} email {email}: {str(e)}")
@@ -200,7 +199,7 @@ def send_admin_email(subject, body):
             for user in users:
                 success = send_email(user.email, subject, body)
                 if not success:
-                    logger.error(f"Failed to send email to {user.email}. {subject} {body}")
+                    logger.error(f"Failed to send admin email to {user.email}. {subject} {body}")
     except Exception as e:
         logger.error(f"Exception in send_admin_email: {str(e)}")
 
@@ -227,7 +226,7 @@ def start_single_bot(bot_id, current_user):
         else:
             bot_settings.bot_running = True
             db.session.commit()
-            logger.info(f'Bot {bot_settings.id} has been started.')
+            logger.trade(f'Bot {bot_settings.id} has been started.')
             flash(f'Bot {bot_settings.id} has been started.', 'success')
             send_admin_email(f'Bot {bot_settings.id} started.', f'Bot {bot_settings.id} has been started by {current_user.login}.')
     except Exception as e:
@@ -244,7 +243,7 @@ def stop_single_bot(bot_id, current_user):
         else:
             bot_settings.bot_running = False
             db.session.commit()
-            logger.info(f'Bot {bot_settings.id} has been stopped.')
+            logger.trade(f'Bot {bot_settings.id} has been stopped.')
             flash(f'Bot {bot_settings.id} has been stopped.', 'success')
             send_admin_email(f'Bot {bot_settings.id} stopped.', f'Bot {bot_settings.id} has been stopped by {current_user.login if current_user.login else current_user}.')
     except Exception as e:

@@ -58,7 +58,7 @@ def register():
                     logger.error(f'Error sending registration error email {str(email_error)}')
 
         else:
-            logger.info(f'{user_exists.login} {user_exists.email} trying to create new user from {user_ip}. User already exists.')
+            logger.warning(f'{user_exists.login} {user_exists.email} trying to create new user from {user_ip}. User already exists.')
             flash('This login or email is already in use.', 'danger')
     else:
         for field, errors in form.errors.items():
@@ -123,7 +123,6 @@ def logout():
     try:
         login = current_user.login
         logout_user()
-        logger.info(f'User {login} logged out.')
         flash(f'User {login} logged out successfully.', 'success')
     except Exception as e:
         logger.error(f'Error during logout: {str(e)}')
