@@ -70,8 +70,6 @@ def manage_trading_logic(bot_settings, current_trade, current_price, trailing_st
 
     if current_price <= trailing_stop_price:
         sell_signal = True
-
-    sell_signal = True # SZTUCZNE DO TESTÓW
     
     if not current_trade.is_active and buy_signal:
         execute_buy_order(bot_settings, current_price, trailing_stop_pct)
@@ -120,7 +118,7 @@ def check_signals(bot_settings, df):
 
 
 def execute_buy_order(bot_settings, current_price, trailing_stop_pct):
-    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} get BUY signal.")
+    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} BUY signal.")
     buy_success, amount = place_buy_order(bot_settings.id)
 
     if buy_success:
@@ -138,7 +136,7 @@ def execute_buy_order(bot_settings, current_price, trailing_stop_pct):
 
 
 def execute_sell_order(bot_settings, current_trade, current_price):
-    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} get SELL signal.")
+    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} SELL signal.")
     sell_success, amount = place_sell_order(bot_settings.id)
 
     if sell_success:
@@ -178,7 +176,9 @@ def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
 
 def round_to_step_size(amount, step_size):
     if step_size > 0:
-        return round(amount / step_size) * step_size
+        decimal_places = len(str(step_size).split('.')[-1])
+        logger.trade(f'step_size: {step_size}, decimal_places: {decimal_places}')
+        return round(amount, decimal_places)
     return amount
 
 

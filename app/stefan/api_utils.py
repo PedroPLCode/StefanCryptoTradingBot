@@ -35,31 +35,6 @@ def create_binance_client(bot_id=None, testnet=False):
 general_client = create_binance_client(None)
 
 
-#Not in use.
-def get_exchange_info(bot_id):
-    try:
-        bot_client = create_binance_client(bot_id)
-        bot_settings = BotSettings.query.get(bot_id)
-        exchange_info = bot_client.get_exchange_info()
-        symbol_info = next((s for s in exchange_info['symbols'] if s['symbol'] == bot_settings.symbol), None)
-
-        if symbol_info:
-            min_notional = None
-            for filter in symbol_info['filters']:
-                if filter['filterType'] == 'NOTIONAL':
-                    min_notional = float(filter['minNotional'])
-                    logger.trade(f'Minimum order amount {bot_settings.symbol}: {min_notional} USDC')
-                elif filter['filterType'] == 'LOT_SIZE':
-                    min_qty = float(filter['minQty'])
-                    logger.trade(f'Minimum order {bot_settings.symbol}: {min_qty}')
-        else:
-            logger.trade(f'No info for {bot_settings.symbol}')
-    except Exception as e:
-        from ..utils.app_utils import send_admin_email
-        logger.error(f"Exception in get_exchange_info: {str(e)}")
-        send_admin_email(f'Exception in get_exchange_info', str(e))
-
-
 def fetch_data(symbol, interval='1m', lookback='4h'):
     from ..utils.app_utils import send_admin_email
     try: 
@@ -158,27 +133,24 @@ def get_minimum_order_quantity(bot_id, symbol):
             if f['filterType'] == 'LOT_SIZE':
                 min_qty = float(f['minQty'])
                 step_size = float(f['stepSize'])
-                logger.trade(f'step_size: {step_size}')
-                decimal_places = len(str(step_size).split('.')[-1]) if '.' in str(step_size) else 0
-                logger.trade(f'decimal_places: {decimal_places}')
                 return min_qty, step_size
-        return None, 0
+        return 0, 0
     except BinanceAPIException as e:
         logger.error(f'BinanceAPIException in get_minimum_order_quantity: {str(e)}')
         send_admin_email(f'BinanceAPIException in get_minimum_order_quantity', str(e))
-        return None
+        return None, 0
     except ConnectionError as e:
         logger.error(f"ConnectionError in get_minimum_order_quantity: {str(e)}")
         send_admin_email(f'ConnectionError in get_minimum_order_quantity', str(e))
-        return None
+        return None, 0
     except TimeoutError as e:
         logger.error(f"TimeoutError in get_minimum_order_quantity: {str(e)}")
         send_admin_email(f'TimeoutError in get_minimum_order_quantity', str(e))
-        return None
+        return None, 0
     except Exception as e:
         logger.error(f"Exception in get_minimum_order_quantity: {str(e)}")
         send_admin_email(f'Exception in get_minimum_order_quantity', str(e))
-        return None
+        return None, 0
     
     
 def get_minimum_order_value(bot_id, symbol):
@@ -217,7 +189,7 @@ def place_buy_order(bot_id):
     try:    
         bot_settings = BotSettings.query.get(bot_id)
         symbol = bot_settings.symbol
-        bot_client = create_binance_client(bot_id=bot_id, testnet=True)
+        bot_client = create_binance_client(bot_id=bot_id) #testnet=True
         cryptocoin_symbol = symbol[:3]
         stablecoin_symbol = symbol[-4:]
 
@@ -231,7 +203,9 @@ def place_buy_order(bot_id):
         amount_to_buy = (stablecoin_balance * 0.9) / price
         
         min_qty, step_size = get_minimum_order_quantity(bot_settings.id, symbol)
-        min_qty = min_qty if min_qty is not None else 0
+        if min_qty is None or step_size is None: 
+            logger.trade(f'place_buy_order() Bot {bot_settings.id} Invalid minimum order quantity or step size for symbol: {symbol}.')
+            return False, False
                 
         min_notional = get_minimum_order_value(bot_settings.id, symbol)
         min_notional = min_notional if min_notional is not None else 0.0
@@ -245,12 +219,20 @@ def place_buy_order(bot_id):
             logger.trade(f'place_buy_order() Bot {bot_settings.id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}. Required: {required_stablecoin}, Available: {stablecoin_balance}.')
             return False, False
 
-        if amount_to_buy >= min_qty:
+        if amount_to_buy > 0 and amount_to_buy >= min_qty:
             if required_stablecoin >= min_notional:
-                bot_client.order_market_buy(symbol=symbol, quantity=amount_to_buy)
-                logger.trade(f'place_buy_order() Bot {bot_settings.id} Buy {amount_to_buy} {cryptocoin_symbol} at price {price}. Completed.')
-                return True, amount_to_buy
-      
+                order_response = bot_client.order_market_buy(symbol=symbol, quantity=amount_to_buy)
+                order_id = order_response['orderId'] or None
+                order_status = order_response['status'] or None
+                logger.trade(f'place_buy_order() Bot {bot_settings.id} Buy {amount_to_buy} {cryptocoin_symbol} at price {price}.')
+                
+                if order_status == 'FILLED':
+                    logger.trade(f'place_buy_order() Bot {bot_settings.id} Order {order_id} filled successfully.')
+                    return True, amount_to_buy
+                else:
+                    logger.trade(f'place_buy_order() Bot {bot_settings.id} Order {order_id} not filled. Status: {order_response["status"]}.')
+                    return False, False
+
             else:
                 logger.trade(f'place_buy_order() Bot {bot_settings.id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}. Minimum order value is {min_notional}.')
                 return False, False
@@ -278,7 +260,7 @@ def place_sell_order(bot_id):
     try:
         bot_settings = BotSettings.query.get(bot_id)
         symbol = bot_settings.symbol
-        bot_client = create_binance_client(bot_id=bot_id, testnet=True)
+        bot_client = create_binance_client(bot_id=bot_id) #testnet=True
         cryptocoin_symbol = symbol[:3]
         stablecoin_symbol = symbol[-4:]
 
@@ -293,9 +275,17 @@ def place_sell_order(bot_id):
         min_qty = min_qty if min_qty is not None else 0
 
         if crypto_balance >= min_qty:
-            bot_client.order_market_sell(symbol=symbol, quantity=crypto_balance)
-            logger.trade(f'place_sell_order() Bot {bot_settings.id} Sell {crypto_balance} {cryptocoin_symbol} at price {price}. Completed.')
-            return True, crypto_balance
+            order_response = bot_client.order_market_sell(symbol=symbol, quantity=crypto_balance)
+            order_id = order_response['orderId'] or None
+            order_status = order_response['status'] or None
+            logger.trade(f'place_sell_order() Bot {bot_settings.id} Sell {crypto_balance} {cryptocoin_symbol} at price {price}.')
+            
+            if order_status == 'FILLED':
+                logger.trade(f'place_buy_order() Bot {bot_settings.id} Order {order_id} filled successfully.')
+                return True, crypto_balance
+            else:
+                logger.trade(f'place_buy_order() Bot {bot_settings.id} Order {order_id} not filled. Status: {order_response["status"]}.')
+                return False, False
             
         else:
             logger.trade(f'place_sell_order() Bot {bot_settings.id} Not enough {cryptocoin_symbol} to sell. Minimum order quantity is {min_qty}.')
