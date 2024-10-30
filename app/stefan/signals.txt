@@ -24,24 +24,22 @@ rsi_sell=70
 mfi_buy=20 (or 30)
 mfi_sell=80 (or 70)
 
-mfi_value = talib.MFI(df['high'], df['low'], df['close'], df['volume'], timeperiod=bot_settings.timeperiod).iloc[-1]
-
 examples of buy signals:
 float(latest_data['rsi']) < float(bot_settings.rsi_buy)
-float(latest_data['macd']) < float(latest_data['macd_signal'])
 float(latest_data['cci']) < float(bot_settings.cci_buy)
+float(latest_data['macd']) < float(latest_data['macd_signal'])
 float(latest_data['mfi']) < float(bot_settings.mfi_buy)
-float(mfi_value) < float(bot_settings.mfi_buy)
 float(latest_data['close']) < float(latest_data['lower_band'])
 float(latest_data['close']) > float(latest_data['ma_50'])
 float(latest_data['close']) > float(latest_data['ma_200'])
+float(latest_data['close']) > float(latest_data['ema'])
 
 examples of sell signals:
-float(latest_data['macd']) > float(latest_data['macd_signal'])
-float(latest_data['mfi']) > float(bot_settings.mfi_sell)
-float(mfi_value) > float(bot_settings.mfi_sell)
-float(latest_data['close']) > float(latest_data['upper_band'])
 float(latest_data['rsi']) > float(bot_settings.rsi_sell)
 float(latest_data['cci']) > float(bot_settings.cci_sell)
+float(latest_data['macd']) > float(latest_data['macd_signal'])
+float(latest_data['mfi']) > float(bot_settings.mfi_sell)
+float(latest_data['close']) > float(latest_data['upper_band'])
 float(latest_data['close']) < float(latest_data['ma_50'])
-float(latest_data['close']) > float(latest_data['ma_200'])
+float(latest_data['close']) < float(latest_data['ma_200'])
+float(latest_data['close']) < float(latest_data['ema'])
