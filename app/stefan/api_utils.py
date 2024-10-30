@@ -243,19 +243,20 @@ def place_buy_order(bot_id):
         required_stablecoin = amount_to_buy * price
         if required_stablecoin > stablecoin_balance:
             logger.trade(f'place_buy_order() Bot {bot_settings.id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}. Required: {required_stablecoin}, Available: {stablecoin_balance}.')
-            return
+            return False, False
 
         if amount_to_buy >= min_qty:
             if required_stablecoin >= min_notional:
                 bot_client.order_market_buy(symbol=symbol, quantity=amount_to_buy)
                 logger.trade(f'place_buy_order() Bot {bot_settings.id} Buy {amount_to_buy} {cryptocoin_symbol} at price {price}. Completed.')
-                buy_success = True
-                return buy_success, amount_to_buy
+                return True, amount_to_buy
       
             else:
                 logger.trade(f'place_buy_order() Bot {bot_settings.id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}. Minimum order value is {min_notional}.')
+                return False, False
         else:
             logger.trade(f'place_buy_order() Bot {bot_settings.id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}. Minimum order quantity is {min_qty}.')
+            return False, False
 
     except BinanceAPIException as e:
         logger.error(f'Bot {bot_id} BinanceAPIException in place_buy_order: {str(e)}')
@@ -294,11 +295,11 @@ def place_sell_order(bot_id):
         if crypto_balance >= min_qty:
             bot_client.order_market_sell(symbol=symbol, quantity=crypto_balance)
             logger.trade(f'place_sell_order() Bot {bot_settings.id} Sell {crypto_balance} {cryptocoin_symbol} at price {price}. Completed.')
-            sell_success = True
-            return sell_success, crypto_balance
+            return True, crypto_balance
             
         else:
             logger.trade(f'place_sell_order() Bot {bot_settings.id} Not enough {cryptocoin_symbol} to sell. Minimum order quantity is {min_qty}.')
+            return False, False
 
     except BinanceAPIException as e:
         logger.error(f'Bot {bot_id} BinanceAPIException in place_sell_order: {str(e)}')

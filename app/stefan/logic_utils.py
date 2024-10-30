@@ -71,6 +71,8 @@ def manage_trading_logic(bot_settings, current_trade, current_price, trailing_st
     if current_price <= trailing_stop_price:
         sell_signal = True
 
+    sell_signal = True # SZTUCZNE DO TESTÓW
+    
     if not current_trade.is_active and buy_signal:
         execute_buy_order(bot_settings, current_price, trailing_stop_pct)
     elif current_trade.is_active and sell_signal:
