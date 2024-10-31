@@ -69,7 +69,18 @@ def calculate_swing_indicators(df, df_for_ma, bot_settings):
             timeperiod=bot_settings.timeperiod
         )
 
-        columns_to_check = ['macd', 'macd_signal', 'cci', 'upper_band', 'lower_band', 'mfi', 'atr', 'ema']
+        df['stoch_k'], df['stoch_d'] = talib.STOCH(
+            df['high'],
+            df['low'],
+            df['close'],
+            fastk_period=14,
+            slowk_period=3,
+            slowk_matype=0,
+            slowd_period=3,
+            slowd_matype=0
+        )
+        
+        columns_to_check = ['macd', 'macd_signal', 'cci', 'upper_band', 'lower_band', 'mfi', 'atr', 'ema', 'stoch_k', 'stoch_d']
 
         df.dropna(subset=columns_to_check, inplace=True)
 
@@ -85,7 +96,7 @@ def calculate_swing_indicators(df, df_for_ma, bot_settings):
         return False
 
 
-def check_swing_buy_signal(df, bot_settings):
+def check_swing_buy_signal_v1(df, bot_settings):
     from .logic_utils import is_df_valid
     try:        
         if not is_df_valid(df, bot_settings.id):
@@ -108,34 +119,9 @@ def check_swing_buy_signal(df, bot_settings):
         logger.error(f'Exception in check_swing_buy_signal bot {bot_settings.id}: {str(e)}')
         send_admin_email(f'Exception in check_swing_buy_signal bot {bot_settings.id}', str(e))
         return False
-
-
-def check_swing_buy_signal_extended(df, bot_settings):
-    from .logic_utils import is_df_valid
-    try:
-        if not is_df_valid(df, bot_settings.id):
-            return False
-
-        latest_data = df.iloc[-1]
-        
-        if (float(latest_data['close']) < float(latest_data['lower_band']) and
-            float(latest_data['close']) > float(latest_data['ma_50'])):
-            
-            return True
-
-        return False
     
-    except IndexError as e:
-        logger.error(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
-        return False
-
-
-def check_swing_sell_signal(df, bot_settings):
+    
+def check_swing_sell_signal_v1(df, bot_settings):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
@@ -160,7 +146,144 @@ def check_swing_sell_signal(df, bot_settings):
         return False
 
 
-def check_swing_sell_signal_extended(df, bot_settings):
+def check_swing_buy_signal_v2(df, bot_settings):
+    from .logic_utils import is_df_valid
+    try:
+        if not is_df_valid(df, bot_settings.id):
+            return False
+
+        latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
+
+        if (float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
+            float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) < float(bot_settings.stoch_buy) and 
+            float(latest_data['close']) < float(latest_data['lower_band'])):
+            
+            return True
+
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+
+
+def check_swing_sell_signal_v2(df, bot_settings):
+    from .logic_utils import is_df_valid
+    try:
+        if not is_df_valid(df, bot_settings.id):
+            return False
+
+        latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
+
+        if (float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
+            float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) > float(bot_settings.stoch_sell) and
+            float(latest_data['close']) > float(latest_data['upper_band'])):
+            
+            return True
+        
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+    
+    
+def check_swing_buy_signal_v3(df, bot_settings):
+    from .logic_utils import is_df_valid
+    try:
+        if not is_df_valid(df, bot_settings.id):
+            return False
+
+        latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
+        
+        if (float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
+            float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) < float(bot_settings.stoch_buy) and 
+            float(latest_data['rsi']) < float(bot_settings.rsi_buy)):
+            
+            return True
+
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+
+
+def check_swing_sell_signal_v3(df, bot_settings):
+    from .logic_utils import is_df_valid
+    try:
+        if not is_df_valid(df, bot_settings.id):
+            return False
+
+        latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
+
+        if (float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
+            float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) > float(bot_settings.stoch_sell) and
+            float(latest_data['rsi']) > float(bot_settings.rsi_sell)):
+            
+            return True
+        
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+    
+    
+def check_swing_buy_signal_v4(df, bot_settings):
+    from .logic_utils import is_df_valid
+    try:
+        if not is_df_valid(df, bot_settings.id):
+            return False
+
+        latest_data = df.iloc[-1]
+        
+        if (float(latest_data['close']) < float(latest_data['lower_band']) and
+            float(latest_data['close']) > float(latest_data['ma_50'])):
+            
+            return True
+
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+
+
+def check_swing_sell_signal_v4(df, bot_settings):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
@@ -170,6 +293,111 @@ def check_swing_sell_signal_extended(df, bot_settings):
 
         if (float(latest_data['close']) > float(latest_data['upper_band']) and 
             float(latest_data['close']) < float(latest_data['ma_50'])):
+            
+            return True
+        
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+    
+    
+def check_swing_buy_signal_v5(df, bot_settings):
+    from .logic_utils import is_df_valid
+    try:
+        if not is_df_valid(df, bot_settings.id):
+            return False
+
+        latest_data = df.iloc[-1]
+        
+        if (float(latest_data['close']) > float(latest_data['ema']) and
+            float(latest_data['close']) > float(latest_data['ma_50'])):
+            
+            return True
+
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+
+
+def check_swing_sell_signal_v5(df, bot_settings):
+    from .logic_utils import is_df_valid
+    try:
+        if not is_df_valid(df, bot_settings.id):
+            return False
+
+        latest_data = df.iloc[-1]
+
+        if (float(latest_data['close']) < float(latest_data['ema']) and 
+            float(latest_data['close']) < float(latest_data['ma_50'])):
+            
+            return True
+        
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+    
+def check_swing_buy_signal_v6(df, bot_settings):
+    from .logic_utils import is_df_valid
+    try:
+        if not is_df_valid(df, bot_settings.id):
+            return False
+
+        latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
+        
+        if (float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
+            float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) < float(bot_settings.stoch_buy) and
+            float(latest_data['close']) > float(latest_data['ema'])):
+            
+            return True
+
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+
+
+def check_swing_sell_signal_v6(df, bot_settings):
+    from .logic_utils import is_df_valid
+    try:
+        if not is_df_valid(df, bot_settings.id):
+            return False
+
+        latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
+
+        if (float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
+            float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) > float(bot_settings.stoch_sell) and 
+            float(latest_data['close']) < float(latest_data['ema'])):
             
             return True
         

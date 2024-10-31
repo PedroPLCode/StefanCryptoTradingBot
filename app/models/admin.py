@@ -66,6 +66,7 @@ class BotSettingsAdmin(AdminModelView):
         'bot_running', 
         'symbol', 
         'strategy',
+        'algorithm',
         'comment',
         'trailing_stop_pct', 
         'cci_buy',
@@ -74,10 +75,11 @@ class BotSettingsAdmin(AdminModelView):
         'rsi_sell',
         'mfi_buy',
         'mfi_sell',
+        'stoch_buy',
+        'stoch_sell',
         'timeperiod',
         'interval', 
         'lookback_period', 
-        'signals_extended',
     )
     
     

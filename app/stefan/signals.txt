@@ -1,3 +1,58 @@
+SIGNALS:
+
+latest_data = df.iloc[-1]
+previous_data = df.iloc[-2]
+
+
+examples of buy signals:
+
+float(latest_data['rsi']) < float(bot_settings.rsi_buy)
+
+float(latest_data['cci']) < float(bot_settings.cci_buy)
+
+float(latest_data['macd']) < float(latest_data['macd_signal'])
+
+float(latest_data['mfi']) < float(bot_settings.mfi_buy)
+
+float(latest_data['close']) < float(latest_data['lower_band'])
+
+float(latest_data['close']) > float(latest_data['ma_50'])
+
+float(latest_data['close']) > float(latest_data['ma_200'])
+
+float(latest_data['close']) > float(latest_data['ema'])
+
+float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
+float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
+float(latest_data['stoch_k']) < float(bot_settings.stoch_buy)
+
+
+examples of sell signals:
+
+float(latest_data['rsi']) > float(bot_settings.rsi_sell)
+
+float(latest_data['cci']) > float(bot_settings.cci_sell)
+
+float(latest_data['macd']) > float(latest_data['macd_signal'])
+
+float(latest_data['mfi']) > float(bot_settings.mfi_sell)
+
+float(latest_data['close']) > float(latest_data['upper_band'])
+
+float(latest_data['close']) < float(latest_data['ma_50'])
+
+float(latest_data['close']) < float(latest_data['ma_200'])
+
+float(latest_data['close']) < float(latest_data['ema'])
+
+float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
+float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
+float(latest_data['stoch_k']) > float(bot_settings.stoch_sell)
+
+--
+
+SCALPING:
+
 'scalp' BTC ETH
 run interval 1min
 trailing_stop_pct=0.01 or 0.005
@@ -10,6 +65,19 @@ rsi_buy=35
 rsi_sell=65
 mfi_buy=30
 mfi_sell=70
+stoch_buy=20
+stoch_sell=80
+
+algorithm 1: RSI
+algorithm 2: CCI + EMA
+algorithm 3: MACD
+algorithm 4: MFI + Boilinger Bands
+algorithm 5: Stochastic
+algorithm 6: EMA
+
+--
+
+SWING TRADING:
 
 'swing' LTC ADA SOL
 run interval 30min
@@ -23,23 +91,12 @@ rsi_buy=30
 rsi_sell=70
 mfi_buy=20 (or 30)
 mfi_sell=80 (or 70)
+stoch_buy=20
+stoch_sell=80
 
-examples of buy signals:
-float(latest_data['rsi']) < float(bot_settings.rsi_buy)
-float(latest_data['cci']) < float(bot_settings.cci_buy)
-float(latest_data['macd']) < float(latest_data['macd_signal'])
-float(latest_data['mfi']) < float(bot_settings.mfi_buy)
-float(latest_data['close']) < float(latest_data['lower_band'])
-float(latest_data['close']) > float(latest_data['ma_50'])
-float(latest_data['close']) > float(latest_data['ma_200'])
-float(latest_data['close']) > float(latest_data['ema'])
-
-examples of sell signals:
-float(latest_data['rsi']) > float(bot_settings.rsi_sell)
-float(latest_data['cci']) > float(bot_settings.cci_sell)
-float(latest_data['macd']) > float(latest_data['macd_signal'])
-float(latest_data['mfi']) > float(bot_settings.mfi_sell)
-float(latest_data['close']) > float(latest_data['upper_band'])
-float(latest_data['close']) < float(latest_data['ma_50'])
-float(latest_data['close']) < float(latest_data['ma_200'])
-float(latest_data['close']) < float(latest_data['ema'])
+algorithm 1: RSI + MACD
+algorithm 2: Stochastic + Boilinger
+algorithm 3: RSI + Stochastic
+algorithm 4: MA50 + Boilinger
+algorithm 5: EMA + MA50
+algorithm 6: EMA + Stochastic

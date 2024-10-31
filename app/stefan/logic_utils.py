@@ -9,17 +9,33 @@ from .api_utils import (
 )
 from .scalping_logic import (
     calculate_scalp_indicators,
-    check_scalping_buy_signal, 
-    check_scalping_sell_signal,
-    check_scalping_buy_signal_extended,
-    check_scalping_sell_signal_extended
+    check_scalping_buy_signal_v1,
+    check_scalping_sell_signal_v1,
+    check_scalping_buy_signal_v2,
+    check_scalping_sell_signal_v2,
+    check_scalping_buy_signal_v3,
+    check_scalping_sell_signal_v3,
+    check_scalping_buy_signal_v4,
+    check_scalping_sell_signal_v4,
+    check_scalping_buy_signal_v5,
+    check_scalping_sell_signal_v5,
+    check_scalping_buy_signal_v6,
+    check_scalping_sell_signal_v6
 )
 from .swing_logic import (
     calculate_swing_indicators,
-    check_swing_buy_signal,
-    check_swing_sell_signal,
-    check_swing_buy_signal_extended,
-    check_swing_sell_signal_extended
+    check_swing_buy_signal_v1,
+    check_swing_sell_signal_v1,
+    check_swing_buy_signal_v2,
+    check_swing_sell_signal_v2,
+    check_swing_buy_signal_v3,
+    check_swing_sell_signal_v3,
+    check_swing_buy_signal_v4,
+    check_swing_sell_signal_v4,
+    check_swing_buy_signal_v5,
+    check_swing_sell_signal_v5,
+    check_swing_buy_signal_v6,
+    check_swing_sell_signal_v6
 )
 
 def is_df_valid(df, bot_id):
@@ -91,6 +107,8 @@ def check_signals(bot_settings, df):
         bot_settings.cci_sell,
         bot_settings.mfi_buy,
         bot_settings.mfi_sell,
+        bot_settings.stoch_buy,
+        bot_settings.stoch_sell,
         bot_settings.timeperiod
     ])
 
@@ -98,22 +116,52 @@ def check_signals(bot_settings, df):
         logger.trade(f'bot {bot_settings.id} {bot_settings.strategy} missing indicators in database')
         send_admin_email(f'Error starting bot {bot_settings.id}', f'Missing indicators in database for bot {bot_settings.id} {bot_settings.strategy}')
         return None, None
-
+    
+    if bot_settings.algorithm < 1 or bot_settings.algorithm > 6:
+        logger.trade(f'Wrong algorithm {bot_settings.algorithm} declared for bot {bot_settings.id} {bot_settings.strategy}')
+        send_admin_email(f'Wrong algorithm bot {bot_settings.id}', f'Wrong algorithm {bot_settings.algorithm} declared for bot {bot_settings.id} {bot_settings.strategy}')
+        return None, None
+    
     buy_signal, sell_signal = None, None
+    
     if bot_settings.strategy == 'swing':
-        if bot_settings.signals_extended:
-            buy_signal = check_swing_buy_signal_extended(df, bot_settings)
-            sell_signal = check_swing_sell_signal_extended(df, bot_settings)
-        else:
-            buy_signal = check_swing_buy_signal(df, bot_settings)
-            sell_signal = check_swing_sell_signal(df, bot_settings)
+        if bot_settings.algorithm == 1:
+            buy_signal = check_swing_buy_signal_v1(df, bot_settings)
+            sell_signal = check_swing_sell_signal_v1(df, bot_settings)
+        elif bot_settings.algorithm == 2:
+            buy_signal = check_swing_buy_signal_v2(df, bot_settings)
+            sell_signal = check_swing_sell_signal_v2(df, bot_settings)
+        elif bot_settings.algorithm == 3:
+            buy_signal = check_swing_buy_signal_v3(df, bot_settings)
+            sell_signal = check_swing_sell_signal_v3(df, bot_settings)
+        elif bot_settings.algorithm == 4:
+            buy_signal = check_swing_buy_signal_v4(df, bot_settings)
+            sell_signal = check_swing_sell_signal_v4(df, bot_settings)
+        elif bot_settings.algorithm == 5:
+            buy_signal = check_swing_buy_signal_v5(df, bot_settings)
+            sell_signal = check_swing_sell_signal_v5(df, bot_settings)
+        elif bot_settings.algorithm == 6:
+            buy_signal = check_swing_buy_signal_v6(df, bot_settings)
+            sell_signal = check_swing_sell_signal_v6(df, bot_settings)
     elif bot_settings.strategy == 'scalp':
-        if bot_settings.signals_extended:
-            buy_signal = check_scalping_buy_signal_extended(df, bot_settings)
-            sell_signal = check_scalping_sell_signal_extended(df, bot_settings)
-        else:
-            buy_signal = check_scalping_buy_signal(df, bot_settings)
-            sell_signal = check_scalping_sell_signal(df, bot_settings)
+        if bot_settings.algorithm == 1:
+            buy_signal = check_scalping_buy_signal_v1(df, bot_settings)
+            sell_signal = check_scalping_sell_signal_v1(df, bot_settings)
+        elif bot_settings.algorithm == 2:
+            buy_signal = check_scalping_buy_signal_v2(df, bot_settings)
+            sell_signal = check_scalping_sell_signal_v2(df, bot_settings)
+        elif bot_settings.algorithm == 3:
+            buy_signal = check_scalping_buy_signal_v3(df, bot_settings)
+            sell_signal = check_scalping_sell_signal_v3(df, bot_settings)
+        elif bot_settings.algorithm == 4:
+            buy_signal = check_scalping_buy_signal_v4(df, bot_settings)
+            sell_signal = check_scalping_sell_signal_v4(df, bot_settings)
+        elif bot_settings.algorithm == 5:
+            buy_signal = check_scalping_buy_signal_v5(df, bot_settings)
+            sell_signal = check_scalping_sell_signal_v5(df, bot_settings)
+        elif bot_settings.algorithm == 6:
+            buy_signal = check_scalping_buy_signal_v6(df, bot_settings)
+            sell_signal = check_scalping_sell_signal_v6(df, bot_settings)
     return buy_signal, sell_signal
 
 
