@@ -20,7 +20,8 @@ def calculate_swing_indicators(df, df_for_ma, bot_settings):
 
         df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=bot_settings.timeperiod)
         
-        df['ema'] = talib.EMA(df['close'], timeperiod=9)
+        df['ema_fast'] = talib.EMA(df['close'], timeperiod=24)
+        df['ema_slow'] = talib.EMA(df['close'], timeperiod=48)
 
         df['rsi'] = talib.RSI(df['close'], timeperiod=bot_settings.timeperiod)
 
@@ -36,6 +37,8 @@ def calculate_swing_indicators(df, df_for_ma, bot_settings):
             slowperiod=2 * bot_settings.timeperiod,
             signalperiod=bot_settings.timeperiod // 2
         )
+        
+        df['macd_histogram'] = df['macd'] - df['macd_signal']
         
         if not df_for_ma.empty:
             df_for_ma['ma_200'] = df_for_ma['close'].rolling(window=200).mean()
@@ -103,9 +106,11 @@ def check_swing_buy_signal_v1(df, bot_settings):
             return False
         
         latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
         
         if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
-            float(latest_data['macd']) < float(latest_data['macd_signal'])):
+            float(previous_data['macd']) < float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) > float(latest_data['macd_signal'])):
             
             return True
         
@@ -128,9 +133,11 @@ def check_swing_sell_signal_v1(df, bot_settings):
             return False
         
         latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
         
         if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(latest_data['macd']) > float(latest_data['macd_signal'])):
+            float(previous_data['macd']) > float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) < float(latest_data['macd_signal'])):
             
             return True
         
@@ -315,8 +322,10 @@ def check_swing_buy_signal_v5(df, bot_settings):
             return False
 
         latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
         
-        if (float(latest_data['close']) > float(latest_data['ema']) and
+        if (float(previous_data['ema_fast']) < float(previous_data['ema_slow']) and 
+            float(latest_data['ema_fast']) > float(latest_data['ema_slow']) and
             float(latest_data['close']) > float(latest_data['ma_50'])):
             
             return True
@@ -340,8 +349,10 @@ def check_swing_sell_signal_v5(df, bot_settings):
             return False
 
         latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
 
-        if (float(latest_data['close']) < float(latest_data['ema']) and 
+        if (float(previous_data['ema_fast']) > float(previous_data['ema_slow']) and
+            float(latest_data['ema_fast']) < float(latest_data['ema_slow']) and 
             float(latest_data['close']) < float(latest_data['ma_50'])):
             
             return True
@@ -366,10 +377,10 @@ def check_swing_buy_signal_v6(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
         
-        if (float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
-            float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
-            float(latest_data['stoch_k']) < float(bot_settings.stoch_buy) and
-            float(latest_data['close']) > float(latest_data['ema'])):
+        if (float(previous_data['macd']) < float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) > float(latest_data['macd_signal']) and
+            float(previous_data['ema_fast']) < float(previous_data['ema_slow']) and 
+            float(latest_data['ema_fast']) > float(latest_data['ema_slow'])):
             
             return True
 
@@ -394,10 +405,10 @@ def check_swing_sell_signal_v6(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
 
-        if (float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
-            float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
-            float(latest_data['stoch_k']) > float(bot_settings.stoch_sell) and 
-            float(latest_data['close']) < float(latest_data['ema'])):
+        if (float(previous_data['macd']) > float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) < float(latest_data['macd_signal']) and 
+            float(previous_data['ema_fast']) > float(previous_data['ema_slow']) and
+            float(latest_data['ema_fast']) < float(latest_data['ema_slow'])):
             
             return True
         

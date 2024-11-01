@@ -1,50 +1,80 @@
-SIGNALS:
-
 latest_data = df.iloc[-1]
 previous_data = df.iloc[-2]
 
+--
 
-examples of buy signals:
+EXAMPLES OF BUY SIGNALS:
 
+RSI
 float(latest_data['rsi']) < float(bot_settings.rsi_buy)
 
+CCI
 float(latest_data['cci']) < float(bot_settings.cci_buy)
 
-float(latest_data['macd']) < float(latest_data['macd_signal'])
+MACD
+float(previous_data['macd']) < float(previous_data['macd_signal']) and 
+float(latest_data['macd']) > float(latest_data['macd_signal'])
 
+MACD histogram
+float(previous_data['macd_histogram']) < 0 and 
+float(latest_data['macd_histogram']) > 0
+
+MFI
 float(latest_data['mfi']) < float(bot_settings.mfi_buy)
 
+Boilinger Bands
 float(latest_data['close']) < float(latest_data['lower_band'])
 
+MA50
 float(latest_data['close']) > float(latest_data['ma_50'])
 
+MA200
 float(latest_data['close']) > float(latest_data['ma_200'])
 
-float(latest_data['close']) > float(latest_data['ema'])
+EMA Fast and EMA Slow
+float(previous_data['ema_fast']) < float(previous_data['ema_slow']) and 
+float(latest_data['ema_fast']) > float(latest_data['ema_slow'])
 
+Stochastic
 float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
 float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
 float(latest_data['stoch_k']) < float(bot_settings.stoch_buy)
 
+--
 
-examples of sell signals:
+EXAMPLES OF SELL SIGNALS:
 
+RSI
 float(latest_data['rsi']) > float(bot_settings.rsi_sell)
 
+CCI
 float(latest_data['cci']) > float(bot_settings.cci_sell)
 
-float(latest_data['macd']) > float(latest_data['macd_signal'])
+MACD
+float(previous_data['macd']) > float(previous_data['macd_signal']) and 
+float(latest_data['macd']) < float(latest_data['macd_signal'])
 
+MACD histogram
+float(previous_data['macd_histogram']) > 0 and 
+float(latest_data['macd_histogram']) < 0
+
+MFI
 float(latest_data['mfi']) > float(bot_settings.mfi_sell)
 
+Boilinger Bands
 float(latest_data['close']) > float(latest_data['upper_band'])
 
+MA50
 float(latest_data['close']) < float(latest_data['ma_50'])
 
+MA200
 float(latest_data['close']) < float(latest_data['ma_200'])
 
-float(latest_data['close']) < float(latest_data['ema'])
+EMA Fast and EMA Slow
+float(previous_data['ema_fast']) > float(previous_data['ema_slow']) and
+float(latest_data['ema_fast']) < float(latest_data['ema_slow'])
 
+Stochastic
 float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
 float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
 float(latest_data['stoch_k']) > float(bot_settings.stoch_sell)
@@ -68,12 +98,12 @@ mfi_sell=70
 stoch_buy=20
 stoch_sell=80
 
-algorithm 1: RSI
-algorithm 2: CCI + EMA
-algorithm 3: MACD
+algorithm 1: RSI                            *
+algorithm 2: CCI + EMA 9 and EMA 21
+algorithm 3: MACD with Histogram            *
 algorithm 4: MFI + Boilinger Bands
 algorithm 5: Stochastic
-algorithm 6: EMA
+algorithm 6: EMA 9 and EMA 21               **
 
 --
 
@@ -94,9 +124,9 @@ mfi_sell=80 (or 70)
 stoch_buy=20
 stoch_sell=80
 
-algorithm 1: RSI + MACD
+algorithm 1: RSI + MACD                      **
 algorithm 2: Stochastic + Boilinger
-algorithm 3: RSI + Stochastic
+algorithm 3: RSI + Stochastic                *
 algorithm 4: MA50 + Boilinger
-algorithm 5: EMA + MA50
-algorithm 6: EMA + Stochastic
+algorithm 5: EMA 24 and EMA 48 + MA50
+algorithm 6: EMA 24 and EMA 48 + MACD        *

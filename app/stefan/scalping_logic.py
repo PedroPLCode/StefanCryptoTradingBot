@@ -17,7 +17,8 @@ def calculate_scalp_indicators(df, bot_settings):
 
         df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=bot_settings.timeperiod)
 
-        df['ema'] = talib.EMA(df['close'], timeperiod=9)
+        df['ema_fast'] = talib.EMA(df['close'], timeperiod=9)
+        df['ema_slow'] = talib.EMA(df['close'], timeperiod=21)
 
         df.dropna(subset=['close'], inplace=True)
         
@@ -31,6 +32,8 @@ def calculate_scalp_indicators(df, bot_settings):
             slowperiod=2 * bot_settings.timeperiod,
             signalperiod=bot_settings.timeperiod // 2
         )
+        
+        df['macd_histogram'] = df['macd'] - df['macd_signal']
 
         df['upper_band'], df['middle_band'], df['lower_band'] = talib.BBANDS(
             df['close'],
@@ -114,7 +117,7 @@ def check_scalping_sell_signal_v1(df, bot_settings):
         
         latest_data = df.iloc[-1]
 
-        if float(latest_data['rsi']) > float(bot_settings.rsi_buy):
+        if float(latest_data['rsi']) > float(bot_settings.rsi_sell):
             
             return True
         
@@ -137,9 +140,11 @@ def check_scalping_buy_signal_v2(df, bot_settings):
             return False
         
         latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
 
         if (float(latest_data['cci']) < float(bot_settings.cci_buy) and
-            float(latest_data['close']) > float(latest_data['ema'])):
+            float(previous_data['ema_fast']) < float(previous_data['ema_slow']) and 
+            float(latest_data['ema_fast']) > float(latest_data['ema_slow'])):
             
             return True
             
@@ -162,9 +167,11 @@ def check_scalping_sell_signal_v2(df, bot_settings):
             return False
 
         latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
         
-        if (float(latest_data['cci']) > float(bot_settings.cci_buy) and
-            float(latest_data['close']) < float(latest_data['ema'])):
+        if (float(latest_data['cci']) > float(bot_settings.cci_sell) and
+            float(previous_data['ema_fast']) > float(previous_data['ema_slow']) and
+            float(latest_data['ema_fast']) < float(latest_data['ema_slow'])):
             
             return True
         
@@ -187,8 +194,12 @@ def check_scalping_buy_signal_v3(df, bot_settings):
             return False
         
         latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
 
-        if float(latest_data['macd']) < float(latest_data['macd_signal']):
+        if (float(previous_data['macd']) < float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) > float(latest_data['macd_signal']) and
+            float(previous_data['macd_histogram']) < 0 and 
+            float(latest_data['macd_histogram']) > 0):
             
             return True
             
@@ -211,8 +222,12 @@ def check_scalping_sell_signal_v3(df, bot_settings):
             return False
 
         latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
         
-        if float(latest_data['macd']) > float(latest_data['macd_signal']):
+        if (float(previous_data['macd']) > float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) < float(latest_data['macd_signal']) and 
+            float(previous_data['macd_histogram']) > 0 and 
+            float(latest_data['macd_histogram']) < 0):
             
             return True
         
@@ -337,13 +352,14 @@ def check_scalping_buy_signal_v6(df, bot_settings):
     try:
         if not is_df_valid(df, bot_settings.id):
             return False
-        
-        latest_data = df.iloc[-1]
 
-        if float(latest_data['close']) > float(latest_data['ema']):
-            
+        latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
+
+        if (float(previous_data['ema_fast']) < float(previous_data['ema_slow']) and 
+            float(latest_data['ema_fast']) > float(latest_data['ema_slow'])):
             return True
-            
+        
         return False
     
     except IndexError as e:
@@ -354,18 +370,20 @@ def check_scalping_buy_signal_v6(df, bot_settings):
         logger.error(f'Exception in check_scalping_buy_signal bot {bot_settings.id}: {str(e)}')
         send_admin_email(f'Exception in check_scalping_buy_signal bot {bot_settings.id}', str(e))
         return False
+
     
     
 def check_scalping_sell_signal_v6(df, bot_settings):
     from .logic_utils import is_df_valid
-    try:        
+    try:
         if not is_df_valid(df, bot_settings.id):
             return False
 
         latest_data = df.iloc[-1]
-        
-        if float(latest_data['close']) < float(latest_data['ema']):
-            
+        previous_data = df.iloc[-2]
+
+        if (float(previous_data['ema_fast']) > float(previous_data['ema_slow']) and
+            float(latest_data['ema_fast']) < float(latest_data['ema_slow'])):
             return True
         
         return False
