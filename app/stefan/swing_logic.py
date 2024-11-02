@@ -273,7 +273,8 @@ def check_swing_buy_signal_v4(df, bot_settings):
 
         latest_data = df.iloc[-1]
         
-        if (float(latest_data['close']) < float(latest_data['lower_band']) and
+        if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
+            float(latest_data['close']) < float(latest_data['lower_band']) and
             float(latest_data['close']) > float(latest_data['ma_50'])):
             
             return True
@@ -298,7 +299,8 @@ def check_swing_sell_signal_v4(df, bot_settings):
 
         latest_data = df.iloc[-1]
 
-        if (float(latest_data['close']) > float(latest_data['upper_band']) and 
+        if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and 
+            float(latest_data['close']) > float(latest_data['upper_band']) and 
             float(latest_data['close']) < float(latest_data['ma_50'])):
             
             return True

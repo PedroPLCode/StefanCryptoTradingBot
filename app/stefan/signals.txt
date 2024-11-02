@@ -100,10 +100,10 @@ stoch_sell=80
 
 algorithm 1: RSI                            *
 algorithm 2: CCI + EMA 9 and EMA 21
-algorithm 3: MACD with Histogram            *
+algorithm 3: MACD with Histogram            **
 algorithm 4: MFI + Boilinger Bands
 algorithm 5: Stochastic
-algorithm 6: EMA 9 and EMA 21               **
+algorithm 6: EMA 9 and EMA 21 (primary)     ***
 
 --
 
@@ -124,9 +124,9 @@ mfi_sell=80 (or 70)
 stoch_buy=20
 stoch_sell=80
 
-algorithm 1: RSI + MACD                      **
+algorithm 1: RSI + MACD (primary)                   ***
 algorithm 2: Stochastic + Boilinger
-algorithm 3: RSI + Stochastic                *
-algorithm 4: MA50 + Boilinger
+algorithm 3: RSI + Stochastic
+algorithm 4: RSI + Boilinger + MA50 (buy the dip)   **
 algorithm 5: EMA 24 and EMA 48 + MA50
-algorithm 6: EMA 24 and EMA 48 + MACD        *
+algorithm 6: EMA 24 and EMA 48 + MACD               *
