@@ -1,5 +1,8 @@
 import pandas as pd
 import talib
+from .. import db
+import json
+from app.models import BacktestResult
 from ..utils.logging import logger
 from .scalping_logic import (
     check_scalping_buy_signal_v1,
@@ -221,3 +224,28 @@ def select_signals_checkers(bot_settings):
     }
     buy_signal_func, sell_signal_func = strategy_map[bot_settings.strategy][bot_settings.algorithm]
     return buy_signal_func, sell_signal_func
+
+
+def update_trade_log(trade_log, current_price, latest_data, crypto_balance, usdc_balance, trailing_stop_loss):
+    trade_log.append({
+        'action': 'buy',
+        'price': float(current_price),
+        'time': int(latest_data['open_time']),
+        'crypto_balance': float(crypto_balance),
+        'usdc_balance': float(usdc_balance),
+        'trailing_stop_loss': float(trailing_stop_loss)
+    })
+    
+    
+def save_backtest_results(bot_settings, backtest_settings, initial_balance, final_balance, trade_log):
+    new_backtest = BacktestResult(
+        bot_id = bot_settings.id,
+        start_date = backtest_settings.start_date,
+        end_date = backtest_settings.end_date,
+        initial_balance = initial_balance,
+        final_balance = final_balance,
+        profit = final_balance - initial_balance,
+        trade_log=json.dumps(trade_log)
+    )
+    db.session.add(new_backtest)
+    db.session.commit()

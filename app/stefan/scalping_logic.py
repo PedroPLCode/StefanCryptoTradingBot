@@ -370,7 +370,12 @@ def check_scalping_buy_signal_v6(df, bot_settings):
 
         if (float(previous_data['ema_fast']) < float(previous_data['ema_slow']) and 
             float(latest_data['ema_fast']) > float(latest_data['ema_slow']) and
-            float(latest_data['rsi']) < float(bot_settings.rsi_buy)):
+            float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
+            float(latest_data['mfi']) < float(bot_settings.mfi_buy) and
+            float(previous_data['macd']) < float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) > float(latest_data['macd_signal']) and 
+            float(previous_data['macd_histogram']) < 0 and 
+            float(latest_data['macd_histogram']) > 0):
             
             return True
         
@@ -398,7 +403,12 @@ def check_scalping_sell_signal_v6(df, bot_settings):
 
         if (float(previous_data['ema_fast']) > float(previous_data['ema_slow']) and
             float(latest_data['ema_fast']) < float(latest_data['ema_slow']) and
-            float(latest_data['rsi']) > float(bot_settings.rsi_sell)):
+            float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
+            float(latest_data['mfi']) > float(bot_settings.mfi_sell) and
+            float(previous_data['macd']) > float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) < float(latest_data['macd_signal']) and
+            float(previous_data['macd_histogram']) > 0 and 
+            float(latest_data['macd_histogram']) < 0):
             
             return True
         

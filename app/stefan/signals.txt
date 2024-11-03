@@ -98,12 +98,12 @@ mfi_sell=70
 stoch_buy=20
 stoch_sell=80
 
-algorithm 1: RSI + MACD                     *
-algorithm 2: MFI + MACD                     **
-algorithm 3: MACD with Histogram            *
+algorithm 1: RSI + MACD                                             *
+algorithm 2: MFI + MACD                                             **
+algorithm 3: MACD with Histogram                                    *
 algorithm 4: MFI + Boilinger Bands
-algorithm 5: RSI + MFI + MACD with Histogram       TEST
-algorithm 6: RSI + EMA 9 and EMA 21
+algorithm 5: RSI + MFI + MACD with Histogram                        ***
+algorithm 6: RSI + MFI + MACD with Histogram + EMA 9 and EMA 21     
 backtested
 
 --
