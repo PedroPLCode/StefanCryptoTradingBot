@@ -122,9 +122,6 @@
                         <a href="{{ url_for('main.stop_all') }}" class="btn btn-danger w-100">Stop All Bots</a>   
                     {% endif %}
                     <a href="{{ url_for('main.refresh') }}" class="btn btn-primary w-100">Refresh</a>
-                    {% if user.email_raports_receiver %}
-                        <a href="{{ url_for('main.report') }}" class="btn btn-primary w-100">Email Report</a>
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -136,6 +133,7 @@
             <div class="card-body text-center">
                 <div class="d-flex flex-column justify-content-center align-items-center gap-2">
                     <a href="/trades" class="btn btn-primary w-100">Trades History</a>
+                    <a href="/backtest" class="btn btn-primary w-100">Backtest Panel</a>
                     <a href="/" class="btn btn-primary w-100">User Panel</a>
                     {% if user.admin_panel_access %}
                         <a href="/admin" class="btn btn-primary w-100">Admin Panel</a>

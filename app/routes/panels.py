@@ -1,6 +1,7 @@
 from flask import render_template, redirect, url_for, flash
 from flask_login import current_user
-from ..models import BotSettings
+import json
+from ..models import BotSettings, BacktestResult
 from ..utils.logging import logger
 from . import main
 from ..stefan.api_utils import (
@@ -70,6 +71,35 @@ def control_panel_view():
     except Exception as e:
         logger.error(f'Exception in control_panel_view: {str(e)}')
         send_admin_email('Exception in control_panel_view', str(e))
+        flash('An error occurred while loading the control panel. The admin has been notified.', 'danger')
+        return redirect(url_for('main.user_panel_view'))
+    
+    
+@main.route('/backtest')
+def backtest_panel_view():
+    if not current_user.is_authenticated:
+        flash('Please log in to access the backtest panel.', 'warning')
+        return redirect(url_for('main.login'))
+
+    if not current_user.control_panel_access:
+        logger.warning(f'{current_user.login} tried to access the backtest Panel without permission.')
+        flash(f'Error. User {current_user.login} is not allowed to access the backtest Panel.', 'danger')
+        return redirect(url_for('main.user_panel_view'))
+
+    try:
+        all_backtest_results = BacktestResult.query.all()
+        for result in all_backtest_results:
+            result.trade_log = json.loads(result.trade_log)
+
+        return render_template(
+            'backtest_panel.html', 
+            user=current_user, 
+            all_backtest_results=all_backtest_results,
+        )
+
+    except Exception as e:
+        logger.error(f'Exception in backtest_panel_view: {str(e)}')
+        send_admin_email('Exception in backtest_panel_view', str(e))
         flash('An error occurred while loading the control panel. The admin has been notified.', 'danger')
         return redirect(url_for('main.user_panel_view'))
     

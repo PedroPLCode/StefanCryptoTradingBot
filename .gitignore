@@ -1,6 +1,9 @@
 # personal API KEY
 PRIVATE_API_KEY.py
 
+# csv files for backtesting
+*.csv
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

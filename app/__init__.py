@@ -40,6 +40,8 @@ def create_app(config_name=None):
             MyAdminIndexView,
             UserAdmin, 
             BotSettingsAdmin,
+            BacktestSettingsAdmin,
+            BacktestResultsAdmin,
             BotCurrentTradeAdmin, 
             TradesHistoryAdmin
         )
@@ -49,11 +51,13 @@ def create_app(config_name=None):
             index_view=MyAdminIndexView(),
             template_mode='bootstrap4'
         )
-        from .models import User, BotSettings, BotCurrentTrade, TradesHistory
+        from .models import User, BotSettings, BacktestSettings, BacktestResult, BotCurrentTrade, TradesHistory
         admin.add_view(UserAdmin(User, db.session))
         admin.add_view(BotSettingsAdmin(BotSettings, db.session))
         admin.add_view(BotCurrentTradeAdmin(BotCurrentTrade, db.session))
         admin.add_view(TradesHistoryAdmin(TradesHistory, db.session))
+        admin.add_view(BacktestSettingsAdmin(BacktestSettings, db.session))
+        admin.add_view(BacktestResultsAdmin(BacktestResult, db.session))
         
         main = Blueprint('main', __name__)
 

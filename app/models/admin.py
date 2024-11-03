@@ -83,6 +83,31 @@ class BotSettingsAdmin(AdminModelView):
     )
     
     
+class BacktestSettingsAdmin(AdminModelView):
+    column_list = (
+        'id', 
+        'bot_id',
+        'start_date', 
+        'end_date',
+        'csv_file_path',
+        'initial_balance',
+        'crypto_balance',
+    )
+    
+    
+class BacktestResultsAdmin(AdminModelView):
+    column_list = (
+        'id', 
+        'bot_id',
+        'start_date', 
+        'end_date',
+        'initial_balance',
+        'final_balance',
+        'profit',
+        'trade_log'
+    )
+    
+    
 class BotCurrentTradeAdmin(AdminModelView):
     column_list = (
         'id', 

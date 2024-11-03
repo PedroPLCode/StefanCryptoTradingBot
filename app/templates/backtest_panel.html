@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StefanCryptoTradingBot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container d-flex flex-column justify-content-center align-items-center mt-3">
+
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} mt-3" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <h4 class="col-md-6 card-header text-center">StefanCryptoTradingBot</h4>
+        <p class="text-muted text-center m-0 p-0">current time: {{ date_and_time }}</p>
+
+        {% if current_user.is_authenticated %}
+            <p class="text-center text-muted m-0 p-0">{{ current_user.login }} logged in at {{ current_user.last_login }}</p>
+        {% endif %}
+
+        {% if user.control_panel_access %}
+        <div class="col-12 col-md-6 card mt-3 mb-3">
+            <div class="card-header text-center bg-light">
+                <h5>Backtesting</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="d-flex flex-column justify-content-center align-items-center gap-2">    
+                    <a href="{{ url_for('main.fetch_and_save_data_for_backtest') }}" class="btn btn-primary w-100">Fetch and Save Data</a>
+                     <a href="{{ url_for('main.run_backtest') }}" class="btn btn-primary w-100">Run Backtest</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if all_backtest_results %}
+            {% for backtest in all_backtest_results %}
+                <div class="col-12 col-md-6 card mb-3 mt-3">
+                    <div class="card-header text-center bg-light">
+                        <h5>Backtest Result {{ backtest.id }}</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <p class="text-muted m-0 p-0">Bot ID: {{ backtest.bot_id }}</p>
+                        <p class="text-muted m-0 p-0">Start Date: {{ backtest.start_date }}</p>
+                        <p class="text-muted m-0 p-0">End Date: {{ backtest.end_date }}</p>
+                        <p class="text-muted m-0 p-0">Initial Balance: {{ backtest.initial_balance }} USDC</p>
+                        <p class="text-muted m-0 p-0">Final Balance: {{ backtest.final_balance }} USDC</p>
+                        <p class="text-muted m-0 p-0">Profit: {{ backtest.profit }} USDC</p>
+
+                        <h6 class="mt-3">Trade Log:</h6>
+                        <ul class="list-group">
+                            {% for trade in backtest.trade_log %}
+                                <li class="list-group-item">
+                                    {{ trade.action | capitalize }} at price {{ trade.price }} USDC
+                                    <br>
+                                    Time: {{ trade.time }}
+                                    <br>
+                                    Crypto Balance: {{ trade.crypto_balance }} 
+                                    <br>
+                                    USDC Balance: {{ trade.usdc_balance }} 
+                                    {% if trade.trailing_stop_loss %}
+                                        <br>
+                                        Trailing Stop Loss: {{ trade.trailing_stop_loss }}
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+            
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 col-md-6 card mt-3 mb-3">
+                <div class="card-header text-center bg-light">
+                    <h5>Backtest Results</h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                        <p class="mb-1">No backtest results found.<br>Start a backtest to see results here.</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    
+        <div class="col-12 col-md-6 card mb-3">
+            <div class="card-header text-center bg-light">
+                <h5>Navigation</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                    <a href="/control" class="btn btn-primary w-100">Control Panel</a>
+                    <a href="/trades" class="btn btn-primary w-100">Trades History</a>
+                    <a href="/" class="btn btn-primary w-100">User Panel</a>
+                    {% if user.admin_panel_access %}
+                        <a href="/admin" class="btn btn-primary w-100">Admin Panel</a>
+                    {% endif %}
+                    <a href="{{ url_for('main.logout') }}" class="btn btn-danger w-100">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <footer class="col-md-6 text-center mb-3">
+            <p class="text-muted">
+                <a href="mailto:StefanCryptoTradingBot@gmail.com">StefanCryptoTradingBot@gmail.com</a>
+            </p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

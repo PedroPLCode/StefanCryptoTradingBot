@@ -212,7 +212,8 @@ def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
     trailing_stop_price = update_trailing_stop_loss(
         current_price,
         float(current_trade.trailing_stop_loss),
-        atr_value
+        atr_value,
+        bot_settings
     )
     update_current_trade(
         bot_id=bot_settings.id,
@@ -230,17 +231,18 @@ def round_to_step_size(amount, step_size):
     return amount
 
 
-def update_trailing_stop_loss(current_price, trailing_stop_price, atr):
+def update_trailing_stop_loss(current_price, trailing_stop_price, atr, bot_settings):
     try:
         current_price = float(current_price)
         trailing_stop_price = float(trailing_stop_price)
         atr = float(atr)
-
+        
         dynamic_trailing_stop = max(
             trailing_stop_price, 
             current_price * (1 - (0.5 * atr / current_price))
         )
-        minimal_trailing_stop = current_price * 0.98
+        
+        minimal_trailing_stop = current_price * (1 - bot_settings.trailing_stop_pct)
 
         return max(dynamic_trailing_stop, minimal_trailing_stop)
 

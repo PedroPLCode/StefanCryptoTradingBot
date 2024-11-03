@@ -1,6 +1,7 @@
 from flask import redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
-from ..models import BotSettings
+import pandas as pd
+from ..models import BotSettings, BacktestSettings
 from datetime import datetime
 from ..utils.logging import logger
 from . import main
@@ -151,3 +152,65 @@ def report():
         send_admin_email(f'Exception in report email {email}', str(e))
     
     return redirect(url_for('main.control_panel_view'))
+
+
+@main.route('/load_data_for_backtest')
+@login_required
+def fetch_and_save_data_for_backtest():
+    from ..stefan.backtesting import fetch_and_save_data
+    if not current_user.control_panel_access:
+        logger.warning(f'{current_user.login} tried to Load data for backtest control panel without permission.')
+        flash(f'Error. User {current_user.login} is not allowed to control Bot.', 'danger')
+        return redirect(url_for('main.user_panel_view'))
+    
+    try:
+        backtest_settings = BacktestSettings.query.first()
+        bot_settings = BotSettings.query.filter(BotSettings.id == backtest_settings.bot_id).first()
+        if bot_settings:
+            fetch_and_save_data(backtest_settings, bot_settings)
+            flash(f'Data for backtest {bot_settings.symbol} loaded and saved in {backtest_settings.csv_file_path}.', 'success')
+        else:
+            flash(f'Bot {backtest_settings.bot_id} not found. Data not loaded', 'danger')
+        return redirect(url_for('main.backtest_panel_view'))
+
+    except Exception as e:
+        logger.error(f'Exception in load_data_for_backtest: {str(e)}')
+        send_admin_email('Exception in load_data_for_backtest', str(e))
+        flash('An error occurred while Loading data for backtest. The admin has been notified.', 'danger')
+        return redirect(url_for('main.backtest_panel_view'))
+    
+
+@main.route('/run_backtest')
+@login_required
+def run_backtest():
+    from ..stefan.backtesting import backtest_strategy
+    from ..stefan.logic_utils import is_df_valid
+    if not current_user.control_panel_access:
+        logger.warning(f'{current_user.login} tried to run backtest control panel without permission.')
+        flash(f'Error. User {current_user.login} is not allowed to control Bot.', 'danger')
+        return redirect(url_for('main.user_panel_view'))
+    
+    try:
+        backtest_settings = BacktestSettings.query.first()
+        bot_settings = BotSettings.query.filter(BotSettings.id == backtest_settings.bot_id).first()
+        if bot_settings:
+            df = pd.read_csv(backtest_settings.csv_file_path)
+            if is_df_valid(df, bot_settings.id):
+                df['time'] = pd.to_datetime(df['close_time'])
+                result = backtest_strategy(df, bot_settings, backtest_settings)
+                logger.trade("Initial Balance:", result['initial_balance'])
+                logger.trade("Final Balance:", result['final_balance'])
+                logger.trade("Profit:", result['profit'])
+                logger.trade("Trade Log:", result['trade_log'])
+                flash('Backtest run. Read log file', 'success')
+            else:
+                flash('Backtest error. Dataframe empty or too short', 'danger')
+        else:
+            flash(f'Bot {backtest_settings.bot_id} not found. Cant run backtest', 'danger')
+        return redirect(url_for('main.backtest_panel_view'))
+
+    except Exception as e:
+        logger.error(f'Exception in run_backtest: {str(e)}')
+        send_admin_email('Exception in run_backtest', str(e))
+        flash('An error occurred while running backtest. The admin has been notified.', 'danger')
+        return redirect(url_for('main.backtest_panel_view'))
