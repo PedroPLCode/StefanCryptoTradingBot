@@ -99,12 +99,14 @@ class BacktestResultsAdmin(AdminModelView):
     column_list = (
         'id', 
         'bot_id',
+        'symbol',
+        'strategy',
+        'algorithm',
         'start_date', 
         'end_date',
         'initial_balance',
         'final_balance',
         'profit',
-        'trade_log'
     )
     
     

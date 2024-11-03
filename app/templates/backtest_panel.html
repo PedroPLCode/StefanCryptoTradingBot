@@ -46,7 +46,7 @@
             {% for backtest in all_backtest_results %}
                 <div class="col-12 col-md-6 card mb-3 mt-3">
                     <div class="card-header text-center bg-light">
-                        <h5>Backtest Result {{ backtest.id }}</h5>
+                        <h5>Backtest {{ backtest.id }} Result</h5>
                     </div>
                     <div class="card-body text-center">
                         <p class="text-muted m-0 p-0">Bot ID: {{ backtest.bot_id }}</p>
@@ -63,7 +63,7 @@
                         {% if backtest.trade_log %}
                         <ul class="list-group">
                             {% for trade in backtest.trade_log %}
-                                <li class="list-group-item">
+                                <li class="list-group-item text-muted">
                                     {{ trade.action | capitalize }} at price {{ trade.price }} USDC
                                     <br>
                                     Time: {{ trade.time }}

@@ -168,7 +168,7 @@ def fetch_and_save_data_for_backtest():
         bot_settings = BotSettings.query.filter(BotSettings.id == backtest_settings.bot_id).first()
         if bot_settings:
             fetch_and_save_data(backtest_settings, bot_settings)
-            flash(f'Data for backtest {bot_settings.symbol} loaded and saved in {backtest_settings.csv_file_path}.', 'success')
+            flash(f'Data for backtest {bot_settings.symbol} fetched and saved in {backtest_settings.csv_file_path}.', 'success')
         else:
             flash(f'Bot {backtest_settings.bot_id} not found. Data not loaded', 'danger')
         return redirect(url_for('main.backtest_panel_view'))
@@ -198,7 +198,7 @@ def run_backtest():
             if is_df_valid(df, bot_settings.id):
                 df['time'] = pd.to_datetime(df['close_time'])
                 backtest_strategy(df, bot_settings, backtest_settings)
-                flash('Backtest run. Read log file', 'success')
+                flash('Backtest completed. Read log file', 'success')
             else:
                 flash('Backtest error. Dataframe empty or too short', 'danger')
         else:

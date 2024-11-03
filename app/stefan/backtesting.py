@@ -56,13 +56,13 @@ def backtest_strategy(df, bot_settings, backtest_settings):
 
             buy_signal_func, sell_signal_func = select_signals_checkers(bot_settings)
             buy_signal = buy_signal_func(loop_df, bot_settings)
-            sell_signal = sell_signal_func(loop_df, bot_settings) or (current_price <= trailing_stop_loss)
+            sell_signal = sell_signal_func(loop_df, bot_settings)
+            stop_loss_activated = current_price <= trailing_stop_loss
 
-            atr = loop_df['atr'].iloc[i] if 'atr' in loop_df.columns else 0
             price_rises = current_price >= previous_price if previous_price is not None else False
 
             if crypto_balance > 0:
-                trailing_stop_loss = update_trailing_stop_loss(current_price, trailing_stop_loss, atr, bot_settings)
+                trailing_stop_loss = update_trailing_stop_loss(current_price, trailing_stop_loss, bot_settings)
 
             if buy_signal and usdc_balance > 0:
                 crypto_balance = usdc_balance / current_price
@@ -70,14 +70,15 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                 trailing_stop_loss = current_price * (1 - trailing_stop_pct)
                 update_trade_log('buy', trade_log, current_price, latest_data, crypto_balance, usdc_balance, trailing_stop_loss)
 
-            elif sell_signal and crypto_balance > 0:
+            #elif (sell_signal or stop_loss_activated) and crypto_balance > 0:
+            elif stop_loss_activated and crypto_balance > 0:
                 usdc_balance = crypto_balance * current_price
                 crypto_balance = 0
                 trailing_stop_loss = 0
                 update_trade_log('sell', trade_log, current_price, latest_data, crypto_balance, usdc_balance, trailing_stop_loss)
             
             elif crypto_balance > 0 and price_rises:
-                trailing_stop_loss = update_trailing_stop_loss(current_price, trailing_stop_loss, atr, bot_settings)
+                trailing_stop_loss = update_trailing_stop_loss(current_price, trailing_stop_loss, bot_settings)
 
             previous_price = current_price
 
