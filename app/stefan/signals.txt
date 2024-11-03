@@ -83,7 +83,7 @@ float(latest_data['stoch_k']) > float(bot_settings.stoch_sell)
 
 SCALPING:
 
-'scalp' BTC ETH
+'scalp' BTC ETH BNB SOL LTC ADA
 run interval 1min
 trailing_stop_pct=0.01 or 0.005
 interval="1m"
@@ -98,18 +98,19 @@ mfi_sell=70
 stoch_buy=20
 stoch_sell=80
 
-algorithm 1: RSI                            *
-algorithm 2: CCI + EMA 9 and EMA 21
-algorithm 3: MACD with Histogram            **
+algorithm 1: RSI + MACD                     *
+algorithm 2: MFI + MACD                     **
+algorithm 3: MACD with Histogram            *
 algorithm 4: MFI + Boilinger Bands
-algorithm 5: Stochastic
-algorithm 6: EMA 9 and EMA 21 (primary)     ***
+algorithm 5: RSI + MFI + MACD with Histogram       TEST
+algorithm 6: RSI + EMA 9 and EMA 21
+backtested
 
 --
 
 SWING TRADING:
 
-'swing' LTC ADA SOL
+'swing' BTC ETH BNB SOL LTC ADA
 run interval 30min
 trailing_stop_pct=0.03 or 0.05
 interval="30m"
@@ -124,9 +125,10 @@ mfi_sell=80 (or 70)
 stoch_buy=20
 stoch_sell=80
 
-algorithm 1: RSI + MACD (primary)                   ***
-algorithm 2: Stochastic + Boilinger
-algorithm 3: RSI + Stochastic
-algorithm 4: RSI + Boilinger + MA50 (buy the dip)   **
-algorithm 5: EMA 24 and EMA 48 + MA50
-algorithm 6: EMA 24 and EMA 48 + MACD               *
+algorithm 1: RSI + MACD                             -
+algorithm 2: RSI + MACD + MA200                     -
+algorithm 3: RSI + MACD + MA50                      -
+algorithm 4: RSI + Boilinger + MA50 (buy the dip)   -
+algorithm 5: EMA 24 and EMA 48 + MA50               -
+algorithm 6: EMA 24 and EMA 48 + MACD               -
+needs backtesting

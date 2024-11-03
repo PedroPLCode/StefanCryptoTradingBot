@@ -162,10 +162,10 @@ def check_swing_buy_signal_v2(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
 
-        if (float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
-            float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
-            float(latest_data['stoch_k']) < float(bot_settings.stoch_buy) and 
-            float(latest_data['close']) < float(latest_data['lower_band'])):
+        if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
+            float(previous_data['macd']) < float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) > float(latest_data['macd_signal']) and
+            float(latest_data['close']) > float(latest_data['ma_200'])):
             
             return True
 
@@ -190,10 +190,10 @@ def check_swing_sell_signal_v2(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
 
-        if (float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
-            float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
-            float(latest_data['stoch_k']) > float(bot_settings.stoch_sell) and
-            float(latest_data['close']) > float(latest_data['upper_band'])):
+        if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
+            float(previous_data['macd']) > float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) < float(latest_data['macd_signal']) and
+            float(latest_data['close']) < float(latest_data['ma_200'])):
             
             return True
         
@@ -218,10 +218,10 @@ def check_swing_buy_signal_v3(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
         
-        if (float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
-            float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
-            float(latest_data['stoch_k']) < float(bot_settings.stoch_buy) and 
-            float(latest_data['rsi']) < float(bot_settings.rsi_buy)):
+        if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
+            float(previous_data['macd']) < float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) > float(latest_data['macd_signal']) and
+            float(latest_data['close']) > float(latest_data['ma_50'])):
             
             return True
 
@@ -246,10 +246,10 @@ def check_swing_sell_signal_v3(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
 
-        if (float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
-            float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
-            float(latest_data['stoch_k']) > float(bot_settings.stoch_sell) and
-            float(latest_data['rsi']) > float(bot_settings.rsi_sell)):
+        if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
+            float(previous_data['macd']) > float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) < float(latest_data['macd_signal']) and
+            float(latest_data['close']) < float(latest_data['ma_50'])):
             
             return True
         

@@ -197,11 +197,7 @@ def run_backtest():
             df = pd.read_csv(backtest_settings.csv_file_path)
             if is_df_valid(df, bot_settings.id):
                 df['time'] = pd.to_datetime(df['close_time'])
-                result = backtest_strategy(df, bot_settings, backtest_settings)
-                logger.trade("Initial Balance:", result['initial_balance'])
-                logger.trade("Final Balance:", result['final_balance'])
-                logger.trade("Profit:", result['profit'])
-                logger.trade("Trade Log:", result['trade_log'])
+                backtest_strategy(df, bot_settings, backtest_settings)
                 flash('Backtest run. Read log file', 'success')
             else:
                 flash('Backtest error. Dataframe empty or too short', 'danger')
