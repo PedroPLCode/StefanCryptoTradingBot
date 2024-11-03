@@ -29,7 +29,7 @@
         {% endif %}
 
         {% if user.control_panel_access %}
-        <div class="col-12 col-md-6 card mt-3 mb-3">
+        <div class="col-12 col-md-6 card mt-3">
             <div class="card-header text-center bg-light">
                 <h5>Backtesting</h5>
             </div>
@@ -57,6 +57,7 @@
                         <p class="text-muted m-0 p-0">Profit: {{ backtest.profit }} USDC</p>
 
                         <h6 class="mt-3">Trade Log:</h6>
+                        {% if backtest.trade_log %}
                         <ul class="list-group">
                             {% for trade in backtest.trade_log %}
                                 <li class="list-group-item">
@@ -74,7 +75,9 @@
                                 </li>
                             {% endfor %}
                         </ul>
-            
+                        {% else %}
+                            <p class="text-muted m-0 p-0">No trades. adjust indicators.</p>
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}

@@ -2,7 +2,7 @@ import json
 from .. import db
 from ..utils.logging import logger
 from app.models import BacktestResult
-from .api_utils import fetch_historical_data
+from .api_utils import fetch_data
 from .logic_utils import update_trailing_stop_loss
 from .backtesting_utils import (
     calculate_backtest_scalp_indicators,
@@ -15,14 +15,23 @@ def fetch_and_save_data(backtest_settings, bot_settings):
     interval = str(bot_settings.interval)
     start_str = str(backtest_settings.start_date)
     end_str = str(backtest_settings.end_date)
-    df = fetch_historical_data(symbol, interval, start_str, end_str)
-    csv_file_path = backtest_settings.csv_file_path
-    df.to_csv(csv_file_path, index=False)
-    logger.trade(f"Data for backtest {bot_settings.symbol} saved in {csv_file_path}")
+
+    df = fetch_data(symbol=symbol, interval=interval, start_str=start_str, end_str=end_str)
+    
+    if df is not None and not df.empty:
+        csv_file_path = backtest_settings.csv_file_path
+        df.to_csv(csv_file_path, index=False)
+        logger.trade(f"Data for backtest {bot_settings.symbol} saved in {csv_file_path}")
+    else:
+        logger.trade(f"Failed to fetch data for {symbol}. Dataframe is None or empty.")
+
     return df
 
 
 def backtest_strategy(df, bot_settings, backtest_settings):
+    symbol = bot_settings.symbol
+    cryptocoin_symbol = symbol[:3]
+    stablecoin_symbol = symbol[-4:]
     initial_balance = backtest_settings.initial_balance
     crypto_balance = backtest_settings.crypto_balance
     usdc_balance = initial_balance
@@ -32,13 +41,12 @@ def backtest_strategy(df, bot_settings, backtest_settings):
     previous_price = None
     trade_log = []
     
-    logger.info("Starting backtest with initial balance: USDC %f, Crypto %f", usdc_balance, crypto_balance)
+    logger.trade(f"Starting backtest with initial balance: {stablecoin_symbol} {usdc_balance}, {cryptocoin_symbol} {crypto_balance}")
 
     start_index = 50 if bot_settings.strategy == 'scalp' else 200
     end_index = len(df) - 50
     try:
         for i in range(start_index, end_index):
-            logger.trade(f'loop: {i}')
             latest_data = df.iloc[i]
             current_price = float(latest_data['close'])
             
@@ -50,9 +58,6 @@ def backtest_strategy(df, bot_settings, backtest_settings):
             buy_signal_func, sell_signal_func = select_signals_checkers(bot_settings)
             buy_signal = buy_signal_func(df_for_this_loop, bot_settings)
             sell_signal = sell_signal_func(df_for_this_loop, bot_settings) or (current_price <= trailing_stop_loss)
-            
-            logger.trade(f'buy_signal {buy_signal}')
-            logger.trade(f'sell_signal {sell_signal}')
 
             atr = df_for_this_loop['atr'].iloc[i] if 'atr' in df_for_this_loop.columns else 0
             price_rises = current_price >= previous_price if previous_price is not None else False
@@ -72,7 +77,7 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                     'usdc_balance': float(usdc_balance),
                     'trailing_stop_loss': float(trailing_stop_loss)
                 })
-                logger.info("Buy at price %f. Crypto balance: %f, USDC balance: %f", current_price, crypto_balance, usdc_balance)
+                logger.trade("Backtest. Buy at price %f. Crypto balance: %f, USDC balance: %f", current_price, crypto_balance, usdc_balance)
 
             elif sell_signal and crypto_balance > 0:
                 usdc_balance = crypto_balance * current_price
@@ -85,7 +90,7 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                     'crypto_balance': float(crypto_balance),
                     'usdc_balance': float(usdc_balance)
                 })
-                logger.info("Sell at price %f. Crypto balance: %f, USDC balance: %f", current_price, crypto_balance, usdc_balance)
+                logger.trade("Backtest. Sell at price %f. Crypto balance: %f, USDC balance: %f", current_price, crypto_balance, usdc_balance)
             
             elif crypto_balance > 0 and price_rises:
                 trailing_stop_loss = update_trailing_stop_loss(current_price, trailing_stop_loss, atr, bot_settings)

@@ -46,7 +46,7 @@ def is_df_valid(df, bot_id):
 
 
 def fetch_data_and_validate(symbol, interval, lookback_period, bot_id):
-    df = fetch_data(symbol, interval=interval, lookback=lookback_period)
+    df = fetch_data(symbol=symbol, interval=interval, lookback=lookback_period)
     if not is_df_valid(df, bot_id):
         return None
     return df

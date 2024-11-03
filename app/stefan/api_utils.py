@@ -35,10 +35,24 @@ def create_binance_client(bot_id=None, testnet=False):
 general_client = create_binance_client(None)
 
 
-def fetch_data(symbol, interval='1m', lookback='4h'):
+def fetch_data(symbol, interval='1m', lookback='4h', start_str=None, end_str=None):
     from ..utils.app_utils import send_admin_email
     try: 
-        klines = general_client.get_historical_klines(symbol, interval, lookback)
+        klines = None
+        if not start_str and not end_str:
+            klines = general_client.get_historical_klines(
+                symbol=symbol, 
+                interval=interval, 
+                lookback=lookback
+                )
+        else:
+            klines = general_client.get_historical_klines(
+                symbol=symbol, 
+                interval=interval, 
+                start_str=str(start_str), 
+                end_str=str(end_str)
+                )
+        
         df = pd.DataFrame(
             klines, 
             columns=[
@@ -68,33 +82,6 @@ def fetch_data(symbol, interval='1m', lookback='4h'):
     except Exception as e:
         logger.error(f"Exception in fetch_full_data: {str(e)}")
         send_admin_email(f'Exception in fetch_full_data', str(e))
-        return None
-    
-    
-def fetch_historical_data(symbol, interval, start_str, end_str):
-    try:
-        klines = general_client.get_historical_klines(symbol=symbol, interval=interval) # HERE FIX NEEDED
-        df = pd.DataFrame(klines, columns=[
-            'open_time', 'open', 'high', 'low', 'close', 'volume', 'close_time', 
-            'quote_asset_volume', 'number_of_trades', 
-            'taker_buy_base_asset_volume', 'taker_buy_quote_asset_volume', 'ignore'
-        ])
-        df['close'] = df['close'].astype(float)
-        df['high'] = df['high'].astype(float)
-        df['low'] = df['low'].astype(float)
-        return df
-    
-    except BinanceAPIException as e:
-        logger.error(f'BinanceAPIException in fetch_full_data: {str(e)}')
-        return None
-    except ConnectionError as e:
-        logger.error(f"ConnectionError in fetch_full_data: {str(e)}")
-        return None
-    except TimeoutError as e:
-        logger.error(f"TimeoutError in fetch_full_data: {str(e)}")
-        return None
-    except Exception as e:
-        logger.error(f"Exception in fetch_full_data: {str(e)}")
         return None
 
 
