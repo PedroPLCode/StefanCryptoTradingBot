@@ -87,14 +87,17 @@ def manage_trading_logic(bot_settings, current_trade, current_price, trailing_st
     stop_loss_activated = False
     if current_price <= trailing_stop_price:
         stop_loss_activated = True
+        
+    full_sell_signal = stop_loss_activated or sell_signal
+    if bot_settings.sell_signal_only_trailing_stop:
+        full_sell_signal = stop_loss_activated
     
     if not current_trade.is_active and buy_signal:
         execute_buy_order(bot_settings, current_price, trailing_stop_pct)
-    #elif current_trade.is_active and (sell_signal or stop_loss_activated):
-    elif current_trade.is_active and stop_loss_activated:
+    elif current_trade.is_active and full_sell_signal:
         execute_sell_order(bot_settings, current_trade, current_price)
     elif current_trade.is_active and price_rises:
-        update_trailing_stop(bot_settings, current_trade, current_price)
+        update_trailing_stop(bot_settings, current_trade, current_price, df['atr'].iloc[-1])
     else:
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} no trade signal.")
     
@@ -209,13 +212,14 @@ def execute_sell_order(bot_settings, current_trade, current_price):
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell process completed.")
 
 
-def update_trailing_stop(bot_settings, current_trade, current_price):
+def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price rises.")
-    trailing_stop_price = update_trailing_stop_loss(
-        current_price,
-        float(current_trade.trailing_stop_loss),
-        bot_settings
-    )
+    
+    trailing_stop_price = update_trailing_stop_loss(current_price, float(current_trade.trailing_stop_loss), bot_settings)
+    
+    if bot_settings.atr_trailing_stop:
+        trailing_stop_price = update_atr_trailing_stop_loss(current_price, float(current_trade.trailing_stop_loss), atr_value, bot_settings)
+    
     update_current_trade(
         bot_id=bot_settings.id,
         previous_price=current_price,

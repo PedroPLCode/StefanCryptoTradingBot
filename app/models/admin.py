@@ -69,6 +69,8 @@ class BotSettingsAdmin(AdminModelView):
         'algorithm',
         'comment',
         'trailing_stop_pct', 
+        'sell_signal_only_trailing_stop',
+        'atr_trailing_stop',
         'cci_buy',
         'cci_sell',
         'rsi_buy',

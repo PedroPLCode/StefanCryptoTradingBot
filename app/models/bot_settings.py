@@ -8,6 +8,8 @@ class BotSettings(db.Model):
     algorithm = db.Column(db.Integer, default=1, nullable=False)
     comment = db.Column(db.String(1024), nullable=True, unique=False)
     trailing_stop_pct = db.Column(db.Float, default=0.03, nullable=False)
+    sell_signal_only_trailing_stop = db.Column(db.Boolean, default=True, nullable=False)
+    atr_trailing_stop = db.Column(db.Boolean, default=False, nullable=False)
     cci_buy = db.Column(db.Integer, default=-100, nullable=False)
     cci_sell = db.Column(db.Integer, default=100, nullable=False)
     rsi_buy = db.Column(db.Integer, default=30, nullable=False)
