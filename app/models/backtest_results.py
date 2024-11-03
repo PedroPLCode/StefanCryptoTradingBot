@@ -4,6 +4,9 @@ class BacktestResult(db.Model):
     __tablename__ = 'backtest_results'
     id = db.Column(db.Integer, primary_key=True)
     bot_id = db.Column(db.Integer, nullable=True)
+    symbol = db.Column(db.String(16), nullable=True)
+    strategy = db.Column(db.String(16), nullable=True)
+    algorithm = db.Column(db.Integer, nullable=True)
     start_date = db.Column(db.String(16), nullable=True)
     end_date = db.Column(db.String(16), nullable=True)
     initial_balance = db.Column(db.Float, nullable=True)

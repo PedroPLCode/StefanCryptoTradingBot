@@ -85,7 +85,7 @@ SCALPING:
 
 'scalp' BTC ETH BNB SOL LTC ADA
 run interval 1min
-trailing_stop_pct=0.01 or 0.005
+trailing_stop_pct=0.03 or 0.01
 interval="1m"
 lookback_period="45m"
 timeperiod=5
@@ -112,7 +112,7 @@ SWING TRADING:
 
 'swing' BTC ETH BNB SOL LTC ADA
 run interval 30min
-trailing_stop_pct=0.03 or 0.05
+trailing_stop_pct=0.05 or 0.03
 interval="30m"
 lookback_period="1d"
 timeperiod=14
@@ -125,10 +125,10 @@ mfi_sell=80 (or 70)
 stoch_buy=20
 stoch_sell=80
 
-algorithm 1: RSI + MACD                             -
-algorithm 2: RSI + MACD + MA200                     -
-algorithm 3: RSI + MACD + MA50                      -
-algorithm 4: RSI + Boilinger + MA50 (buy the dip)   -
-algorithm 5: EMA 24 and EMA 48 + MA50               -
-algorithm 6: EMA 24 and EMA 48 + MACD               -
+algorithm 1: RSI + MACD                             
+algorithm 2: RSI + MACD + MA200                     
+algorithm 3: RSI + MACD + MA50                      
+algorithm 4: RSI + Boilinger + MA50 (buy the dip)   
+algorithm 5: EMA 24 and EMA 48 + MA50               
+algorithm 6: EMA 24 and EMA 48 + MACD               
 needs backtesting

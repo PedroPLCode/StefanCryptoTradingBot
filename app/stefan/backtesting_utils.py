@@ -226,9 +226,9 @@ def select_signals_checkers(bot_settings):
     return buy_signal_func, sell_signal_func
 
 
-def update_trade_log(trade_log, current_price, latest_data, crypto_balance, usdc_balance, trailing_stop_loss):
+def update_trade_log(action, trade_log, current_price, latest_data, crypto_balance, usdc_balance, trailing_stop_loss):
     trade_log.append({
-        'action': 'buy',
+        'action': action,
         'price': float(current_price),
         'time': int(latest_data['open_time']),
         'crypto_balance': float(crypto_balance),
@@ -240,6 +240,9 @@ def update_trade_log(trade_log, current_price, latest_data, crypto_balance, usdc
 def save_backtest_results(bot_settings, backtest_settings, initial_balance, final_balance, trade_log):
     new_backtest = BacktestResult(
         bot_id = bot_settings.id,
+        symbol = bot_settings.symbol,
+        strategy = bot_settings.strategy,
+        algorithm = bot_settings.algorithm,
         start_date = backtest_settings.start_date,
         end_date = backtest_settings.end_date,
         initial_balance = initial_balance,
