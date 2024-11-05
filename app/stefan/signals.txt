@@ -102,9 +102,9 @@ algorithm 1: RSI + MACD                                             *
 algorithm 2: MFI + MACD                                             **
 algorithm 3: MACD with Histogram                                    *
 algorithm 4: MFI + Boilinger Bands
-algorithm 5: RSI + MFI + MACD with Histogram                        ***
+algorithm 5: RSI + MFI + MACD with Histogram (primary)              ***
 algorithm 6: RSI + MFI + MACD with Histogram + EMA 9 and EMA 21     
-backtested
+backtested. needs real life tests.
 
 --
 
@@ -125,10 +125,10 @@ mfi_sell=80 (or 70)
 stoch_buy=20
 stoch_sell=80
 
-algorithm 1: RSI + MACD                             
+algorithm 1: RSI + MACD (classic)                    *   
 algorithm 2: RSI + MACD + MA200                     
 algorithm 3: RSI + MACD + MA50                      
 algorithm 4: RSI + Boilinger + MA50 (buy the dip)   
 algorithm 5: EMA 24 and EMA 48 + MA50               
 algorithm 6: EMA 24 and EMA 48 + MACD               
-needs backtesting
+needs backtesting and real life tests.

@@ -1,3 +1,4 @@
+import pandas as pd
 from ..utils.logging import logger
 from .api_utils import fetch_data
 from .logic_utils import (
@@ -37,7 +38,6 @@ def backtest_strategy(df, bot_settings, backtest_settings):
     initial_balance = backtest_settings.initial_balance
     crypto_balance = backtest_settings.crypto_balance
     usdc_balance = initial_balance
-    trailing_stop_pct = float(bot_settings.trailing_stop_pct)
     current_price = None
     trailing_stop_loss = 0
     previous_price = None
@@ -47,16 +47,31 @@ def backtest_strategy(df, bot_settings, backtest_settings):
 
     start_index = 50 if bot_settings.strategy == 'scalp' else 200
     end_index = len(df) - 50
+    
     try:
         for i in range(start_index, end_index):
             latest_data = df.iloc[i]
             current_price = float(latest_data['close'])
+            loop_df = pd.DataFrame()
             
             if bot_settings.strategy == 'scalp':
-                loop_df = calculate_backtest_scalp_indicators(df.iloc[:start_index+i+1], bot_settings)
+                if (i - 45) >= start_index:
+                    loop_df = calculate_backtest_scalp_indicators(
+                        df.iloc[start_index+i-45:start_index+i+1], 
+                        bot_settings
+                        )
+                else:
+                    continue
             elif bot_settings.strategy == 'swing':
-                loop_df = calculate_backtest_swing_indicators(df.iloc[:start_index+i+1], df.iloc[:start_index+i+1], bot_settings)
-
+                if (i - 48) >= start_index and (i - 200) >= 0:
+                    loop_df = calculate_backtest_swing_indicators(
+                        df.iloc[start_index+i-48:start_index+i+1], 
+                        df.iloc[start_index+i-200:start_index+i+1], 
+                        bot_settings
+                        )
+                else:
+                    continue
+                
             buy_signal_func, sell_signal_func = select_signals_checkers(bot_settings)
             buy_signal = buy_signal_func(loop_df, bot_settings)
             sell_signal = sell_signal_func(loop_df, bot_settings)
@@ -66,39 +81,63 @@ def backtest_strategy(df, bot_settings, backtest_settings):
             if bot_settings.sell_signal_only_trailing_stop:
                 full_sell_signal = stop_loss_activated
 
-            atr = loop_df['atr'].iloc[i] if 'atr' in loop_df.columns else 0
+            atr = loop_df['atr'].iloc[-1] if 'atr' in loop_df.columns else 0
             price_rises = current_price >= previous_price if previous_price is not None else False
-
-            if crypto_balance > 0:
-                trailing_stop_loss = update_trailing_stop_loss(current_price, trailing_stop_loss, bot_settings)
-                if bot_settings.atr_trailing_stop:
-                    trailing_stop_loss = update_atr_trailing_stop_loss(current_price, trailing_stop_loss, atr, bot_settings)
-                
+            
             if buy_signal and usdc_balance > 0:
                 crypto_balance = usdc_balance / current_price
                 usdc_balance = 0
-                trailing_stop_loss = current_price * (1 - trailing_stop_pct)
-                update_trade_log('buy', trade_log, current_price, latest_data, crypto_balance, usdc_balance, trailing_stop_loss)
+                trailing_stop_loss = update_trailing_stop_loss(
+                    current_price, 
+                    trailing_stop_loss, 
+                    bot_settings
+                )
+                update_trade_log(
+                    'buy', 
+                    trade_log, 
+                    current_price, 
+                    latest_data, 
+                    crypto_balance, 
+                    usdc_balance, 
+                    trailing_stop_loss
+                )
         
             elif full_sell_signal and crypto_balance > 0:
                 usdc_balance = crypto_balance * current_price
                 crypto_balance = 0
                 trailing_stop_loss = 0
-                update_trade_log('sell', trade_log, current_price, latest_data, crypto_balance, usdc_balance, trailing_stop_loss)
+                update_trade_log(
+                    'sell', 
+                    trade_log, 
+                    current_price, 
+                    latest_data, 
+                    crypto_balance, 
+                    usdc_balance, 
+                    trailing_stop_loss
+                )
             
             elif crypto_balance > 0 and price_rises:
-                trailing_stop_loss = update_trailing_stop_loss(current_price, trailing_stop_loss, bot_settings)
+                trailing_stop_loss = update_trailing_stop_loss(
+                    current_price, 
+                    trailing_stop_loss, 
+                    bot_settings
+                    )
                 if bot_settings.atr_trailing_stop:
-                    trailing_stop_loss = update_atr_trailing_stop_loss(current_price, trailing_stop_loss, atr, bot_settings)
+                    trailing_stop_loss = update_atr_trailing_stop_loss(
+                        current_price, 
+                        trailing_stop_loss, 
+                        atr, 
+                        bot_settings
+                        )
 
             previous_price = current_price
 
-        final_balance = usdc_balance + crypto_balance * float(df.iloc[-1]['close'])
+        final_balance = usdc_balance + crypto_balance * float(df.iloc[end_index]['close'])
         logger.info("Backtest complete. Final balance: %f, Profit: %f", final_balance, final_balance - initial_balance)
         
         save_backtest_results(bot_settings, backtest_settings, initial_balance, final_balance, trade_log)
         
     except IndexError as e:
-        logger.error(f'IndexError when accessing index: {str(e)} in backtest_strategy')
+        logger.error(f'IndexError in backtest_strategy: {str(e)}')
     except Exception as e:
         logger.error(f'Exception in backtest_strategy: {str(e)}')

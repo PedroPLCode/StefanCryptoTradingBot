@@ -39,7 +39,7 @@ from .swing_logic import (
 )
 
 def is_df_valid(df, bot_id):
-    if df is None or df.empty or len(df) < 5:
+    if df is None or df.empty or len(df) < 2:
         logger.trade(f'DataFrame is empty or too short for bot {bot_id}.')
         return False
     return True
@@ -78,7 +78,7 @@ def get_current_price(df, bot_id):
         return None
 
 
-def manage_trading_logic(bot_settings, current_trade, current_price, trailing_stop_pct, df):
+def manage_trading_logic(bot_settings, current_trade, current_price, df):
     trailing_stop_price = float(current_trade.trailing_stop_loss)
     previous_price = float(current_trade.previous_price if current_trade.is_active else 0)
     price_rises = current_price >= previous_price if current_trade.is_active else False
@@ -92,12 +92,13 @@ def manage_trading_logic(bot_settings, current_trade, current_price, trailing_st
     if bot_settings.sell_signal_only_trailing_stop:
         full_sell_signal = stop_loss_activated
     
+    atr = df['atr'].iloc[-1]
     if not current_trade.is_active and buy_signal:
-        execute_buy_order(bot_settings, current_price, trailing_stop_pct)
+        execute_buy_order(bot_settings, current_price, atr)
     elif current_trade.is_active and full_sell_signal:
         execute_sell_order(bot_settings, current_trade, current_price)
     elif current_trade.is_active and price_rises:
-        update_trailing_stop(bot_settings, current_trade, current_price, df['atr'].iloc[-1])
+        update_trailing_stop(bot_settings, current_trade, current_price, atr)
     else:
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} no trade signal.")
     
@@ -170,12 +171,26 @@ def check_signals(bot_settings, df):
     return buy_signal, sell_signal
 
 
-def execute_buy_order(bot_settings, current_price, trailing_stop_pct):
+def execute_buy_order(bot_settings, current_price, atr_value):
     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} BUY signal.")
     buy_success, amount = place_buy_order(bot_settings.id)
 
     if buy_success:
-        trailing_stop_price = current_price * (1 - trailing_stop_pct)
+        
+        trailing_stop_price = update_trailing_stop_loss(
+            current_price, 
+            0, 
+            bot_settings
+        )
+        
+        if bot_settings.atr_trailing_stop:
+            trailing_stop_price = update_atr_trailing_stop_loss(
+                current_price, 
+                0, 
+                atr_value,
+                bot_settings
+            )
+
         update_current_trade(
             bot_id=bot_settings.id,
             is_active=True,
@@ -215,10 +230,18 @@ def execute_sell_order(bot_settings, current_trade, current_price):
 def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price rises.")
     
-    trailing_stop_price = update_trailing_stop_loss(current_price, float(current_trade.trailing_stop_loss), bot_settings)
+    trailing_stop_price = update_trailing_stop_loss(
+        current_price, 
+        float(current_trade.trailing_stop_loss), 
+        bot_settings
+    )
     
     if bot_settings.atr_trailing_stop:
-        trailing_stop_price = update_atr_trailing_stop_loss(current_price, float(current_trade.trailing_stop_loss), atr_value, bot_settings)
+        trailing_stop_price = update_atr_trailing_stop_loss(
+            current_price, 
+            float(current_trade.trailing_stop_loss), 
+            atr_value, bot_settings
+        )
     
     update_current_trade(
         bot_id=bot_settings.id,
@@ -240,7 +263,9 @@ def update_trailing_stop_loss(current_price, trailing_stop_price, bot_settings):
     try:
         trailing_stop_price = float(trailing_stop_price)
         current_price = float(current_price)
-        return current_price * (1 - bot_settings.trailing_stop_pct)
+        new_stop_price = current_price * (1 - bot_settings.trailing_stop_pct)
+
+        return max(trailing_stop_price, new_stop_price)
 
     except ValueError as e:
         logger.error(f"ValueError in update_trailing_stop_loss: {str(e)}")
@@ -258,14 +283,11 @@ def update_atr_trailing_stop_loss(current_price, trailing_stop_price, atr, bot_s
         trailing_stop_price = float(trailing_stop_price)
         atr = float(atr)
         
-        dynamic_trailing_stop = max(
-            trailing_stop_price, 
-            current_price * (1 - (0.5 * atr / current_price))
-        )
-        
+        dynamic_trailing_stop = current_price * (1 - (0.5 * atr / current_price))
         minimal_trailing_stop = current_price * (1 - bot_settings.trailing_stop_pct)
+        new_trailing_stop = max(dynamic_trailing_stop, minimal_trailing_stop)
 
-        return max(dynamic_trailing_stop, minimal_trailing_stop)
+        return max(trailing_stop_price, new_trailing_stop)
 
     except ValueError as e:
         logger.error(f"ValueError in update_atr_trailing_stop_loss: {str(e)}")
