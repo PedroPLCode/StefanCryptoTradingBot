@@ -283,7 +283,7 @@ def update_atr_trailing_stop_loss(current_price, trailing_stop_price, atr, bot_s
         trailing_stop_price = float(trailing_stop_price)
         atr = float(atr)
         
-        dynamic_trailing_stop = current_price * (1 - (0.5 * atr / current_price))
+        dynamic_trailing_stop = current_price * (1 - (1.5 * atr / current_price))
         minimal_trailing_stop = current_price * (1 - bot_settings.trailing_stop_pct)
         new_trailing_stop = max(dynamic_trailing_stop, minimal_trailing_stop)
 
