@@ -133,7 +133,7 @@ def backtest_strategy(df, bot_settings, backtest_settings):
             previous_price = current_price
 
         final_balance = usdc_balance + crypto_balance * float(df.iloc[end_index]['close'])
-        logger.info("Backtest complete. Final balance: %f, Profit: %f", final_balance, final_balance - initial_balance)
+        logger.trade("Backtest complete. Final balance: %f, Profit: %f", final_balance, final_balance - initial_balance)
         
         save_backtest_results(bot_settings, backtest_settings, initial_balance, final_balance, trade_log)
         

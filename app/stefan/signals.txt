@@ -118,17 +118,17 @@ lookback_period="1d"
 timeperiod=14
 cci_buy=-100 (or -50)
 cci_sel=100 (or 50)
-rsi_buy=30
-rsi_sell=70
+rsi_buy=30 (or 40)
+rsi_sell=70 (or 60)
 mfi_buy=20 (or 30)
 mfi_sell=80 (or 70)
 stoch_buy=20
 stoch_sell=80
 
-algorithm 1: RSI + MACD (classic)                    *   
-algorithm 2: RSI + MACD + MA200                     
-algorithm 3: RSI + MACD + MA50                      
-algorithm 4: RSI + Boilinger + MA50 (buy the dip)   
+algorithm 1: RSI + MACD with Histogram (classic)     ***   
+algorithm 2: RSI + MACD + MA200                      *
+algorithm 3: RSI + MACD + MA50                       **
+algorithm 4: RSI + Boilinger + MA50 (buy the dip)    *
 algorithm 5: EMA 24 and EMA 48 + MA50               
 algorithm 6: EMA 24 and EMA 48 + MACD               
-needs backtesting and real life tests.
+backtested. needs real life tests.

@@ -110,7 +110,9 @@ def check_swing_buy_signal_v1(df, bot_settings):
         
         if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
             float(previous_data['macd']) < float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) > float(latest_data['macd_signal'])):
+            float(latest_data['macd']) > float(latest_data['macd_signal']) and
+            float(previous_data['macd_histogram']) < 0 and 
+            float(latest_data['macd_histogram']) > 0):
             
             return True
         
@@ -137,7 +139,9 @@ def check_swing_sell_signal_v1(df, bot_settings):
         
         if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
             float(previous_data['macd']) > float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) < float(latest_data['macd_signal'])):
+            float(latest_data['macd']) < float(latest_data['macd_signal']) and 
+            float(previous_data['macd_histogram']) > 0 and 
+            float(latest_data['macd_histogram']) < 0):
             
             return True
         
