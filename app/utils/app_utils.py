@@ -140,9 +140,9 @@ def generate_trade_report(period):
             total_trades = len(trades_in_period)
 
             if total_trades == 0:
-                report_data += f"No transactions in last {period} for bot {single_bot.bot_id} {single_bot.strategy}.\n"
+                report_data += f"No transactions in last {period} for bot {single_bot.id} {single_bot.strategy}.\n"
             else:
-                report_data += f"Transactions count in last {period} for bot {single_bot.bot_id} {single_bot.strategy}: {total_trades}\n\n"
+                report_data += f"Transactions count in last {period} for bot {single_bot.id} {single_bot.strategy}: {total_trades}\n\n"
 
                 for trade in trades_in_period:
                     profit_percentage = calculate_profit_percentage(trade.buy_price, trade.sell_price)

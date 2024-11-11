@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from datetime import datetime, timedelta
 import pandas as pd
 from binance.client import Client
 from binance.exceptions import BinanceAPIException
@@ -40,18 +41,32 @@ def fetch_data(symbol, interval='1m', lookback='4h', start_str=None, end_str=Non
     try: 
         klines = None
         if not start_str and not end_str:
+            if lookback[-1] == 'h':
+                hours = int(lookback[:-1])
+                start_time = datetime.utcnow() - timedelta(hours=hours)
+            elif lookback[-1] == 'd':
+                days = int(lookback[:-1])
+                start_time = datetime.utcnow() - timedelta(days=days)
+            elif lookback[-1] == 'm':
+                minutes = int(lookback[:-1])
+                start_time = datetime.utcnow() - timedelta(minutes=minutes)
+            else:
+                raise ValueError("Unsupported lookback period format.")
+            
+            start_str = start_time.strftime('%Y-%m-%d %H:%M:%S')
+            
             klines = general_client.get_historical_klines(
                 symbol=symbol, 
                 interval=interval, 
-                lookback=lookback
-                )
+                start_str=start_str
+            )
         else:
             klines = general_client.get_historical_klines(
                 symbol=symbol, 
                 interval=interval, 
                 start_str=str(start_str), 
                 end_str=str(end_str)
-                )
+            )
         
         df = pd.DataFrame(
             klines, 
@@ -68,20 +83,24 @@ def fetch_data(symbol, interval='1m', lookback='4h', start_str=None, end_str=Non
         return df
     
     except BinanceAPIException as e:
-        logger.error(f'BinanceAPIException in fetch_full_data: {str(e)}')
-        send_admin_email(f'BinanceAPIException in fetch_full_data', str(e))
+        logger.error(f'BinanceAPIException in fetch_data: {str(e)}')
+        send_admin_email(f'BinanceAPIException in fetch_data', str(e))
         return None
     except ConnectionError as e:
-        logger.error(f"ConnectionError in fetch_full_data: {str(e)}")
-        send_admin_email(f'ConnectionError in fetch_full_data', str(e))
+        logger.error(f"ConnectionError in fetch_data: {str(e)}")
+        send_admin_email(f'ConnectionError in fetch_data', str(e))
         return None
     except TimeoutError as e:
-        logger.error(f"TimeoutError in fetch_full_data: {str(e)}")
-        send_admin_email(f'TimeoutError in fetch_full_data', str(e))
+        logger.error(f"TimeoutError in fetch_data: {str(e)}")
+        send_admin_email(f'TimeoutError in fetch_data', str(e))
+        return None
+    except ValueError as e:
+        logger.error(f'ValueError in get_account_balance: {str(e)}')
+        send_admin_email(f'ValueError in get_account_balance', str(e))
         return None
     except Exception as e:
-        logger.error(f"Exception in fetch_full_data: {str(e)}")
-        send_admin_email(f'Exception in fetch_full_data', str(e))
+        logger.error(f"Exception in fetch_data: {str(e)}")
+        send_admin_email(f'Exception in fetch_data', str(e))
         return None
 
 
