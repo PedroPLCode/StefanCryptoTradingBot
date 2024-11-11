@@ -15,7 +15,7 @@ from ..utils.app_utils import (
 )
 
 @main.route('/register', methods=['GET', 'POST'])
-@limiter.limit("6/hour")
+@limiter.limit("4/min")
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('main.user_panel_view'))
@@ -69,7 +69,7 @@ def register():
 
 
 @main.route('/login', methods=['GET', 'POST'])
-@limiter.limit("6/hour")
+@limiter.limit("4/min")
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('main.user_panel_view'))

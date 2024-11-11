@@ -117,7 +117,6 @@ def generate_trade_report(period):
     now = datetime.now()
     
     try:
-
         if period == '24h':
             last_period = now - timedelta(hours=24)
         elif period == '7d':
@@ -131,7 +130,8 @@ def generate_trade_report(period):
 
         for single_bot in all_bots:
             trades_in_period = (
-                single_bot.bot_trades_history
+                TradesHistory.query
+                .filter(TradesHistory.bot_id == single_bot.id)
                 .filter(TradesHistory.timestamp >= last_period)
                 .order_by(TradesHistory.timestamp.asc())
                 .all()
@@ -140,15 +140,15 @@ def generate_trade_report(period):
             total_trades = len(trades_in_period)
 
             if total_trades == 0:
-                report_data += f"No transactions in last {period} bot {trade.bot_id} {trade.bot_settings.strategy}.\n"
+                report_data += f"No transactions in last {period} for bot {single_bot.bot_id} {single_bot.strategy}.\n"
             else:
-                report_data += f"Transactions count in last {period} bot {trade.bot_id} {trade.bot_settings.strategy}: {total_trades}\n\n"
+                report_data += f"Transactions count in last {period} for bot {single_bot.bot_id} {single_bot.strategy}: {total_trades}\n\n"
 
                 for trade in trades_in_period:
                     profit_percentage = calculate_profit_percentage(trade.buy_price, trade.sell_price)
-                    report_data += (f"id: {trade.id}, bot_id: {trade.bot_id} {trade.bot_settings.strategy} {trade.bot_settings.symbol}, "
-                                    f"amount: {trade.amount} {trade.bot_settings.symbol[:3]}, buy_price: {trade.buy_price:.2f} {trade.bot_settings.symbol[-4:]}, "
-                                    f"sell_price: {trade.sell_price:.2f} {trade.bot_settings.symbol[-4:]}, profit_percentage: {profit_percentage:.2f}%, "
+                    report_data += (f"id: {trade.id}, bot_id: {trade.bot_id} {trade.strategy} {trade.symbol}, "
+                                    f"amount: {trade.amount} {trade.symbol[:3]}, buy_price: {trade.buy_price:.2f} {trade.symbol[-4:]}, "
+                                    f"sell_price: {trade.sell_price:.2f} {trade.symbol[-4:]}, profit_percentage: {profit_percentage:.2f}%, "
                                     f"timestamp: {trade.timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n")
 
         return report_data
