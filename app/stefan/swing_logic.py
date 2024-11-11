@@ -83,7 +83,7 @@ def calculate_swing_indicators(df, df_for_ma, bot_settings):
             slowd_matype=0
         )
         
-        columns_to_check = ['macd', 'macd_signal', 'cci', 'upper_band', 'lower_band', 'mfi', 'atr', 'ema', 'stoch_k', 'stoch_d']
+        columns_to_check = ['macd', 'macd_signal', 'cci', 'upper_band', 'lower_band', 'mfi', 'atr', 'stoch_k', 'stoch_d']
 
         df.dropna(subset=columns_to_check, inplace=True)
 
