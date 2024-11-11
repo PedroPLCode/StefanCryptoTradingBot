@@ -183,7 +183,7 @@ def execute_buy_order(bot_settings, current_price, atr_value):
             bot_settings
         )
         
-        if bot_settings.atr_trailing_stop:
+        if bot_settings.trailing_stop_with_atr:
             trailing_stop_price = update_atr_trailing_stop_loss(
                 current_price, 
                 0, 
@@ -236,7 +236,7 @@ def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
         bot_settings
     )
     
-    if bot_settings.atr_trailing_stop:
+    if bot_settings.trailing_stop_with_atr:
         trailing_stop_price = update_atr_trailing_stop_loss(
             current_price, 
             float(current_trade.trailing_stop_loss), 
