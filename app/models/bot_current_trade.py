@@ -4,11 +4,11 @@ class BotCurrentTrade(db.Model):
     __tablename__ = 'bot_current_trade'
     id = db.Column(db.Integer, primary_key=True)
     is_active = db.Column(db.Boolean, nullable=False, default=False)
-    amount = db.Column(db.Numeric(10, 8), default=0, nullable=True)
-    buy_price = db.Column(db.Numeric(10, 8), default=0, nullable=True)
-    current_price = db.Column(db.Numeric(10, 8), default=0, nullable=True)
-    previous_price = db.Column(db.Numeric(10, 8), default=0, nullable=True)
-    trailing_stop_loss = db.Column(db.Numeric(10, 8), default=0, nullable=True)
+    amount = db.Column(db.Float, default=0, nullable=True) # db.Numeric(10, 8) ?
+    buy_price = db.Column(db.Float, default=0, nullable=True)
+    current_price = db.Column(db.Float, default=0, nullable=True)
+    previous_price = db.Column(db.Float, default=0, nullable=True)
+    trailing_stop_loss = db.Column(db.Float, default=0, nullable=True)
     
     bot_settings_id = db.Column(db.Integer, db.ForeignKey('bot_settings.id'), nullable=False)
     bot_settings = db.relationship(
