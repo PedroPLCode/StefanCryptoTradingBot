@@ -2,7 +2,8 @@ import logging
 
 stafan_log_filemane = 'stefan.log'
 flask_log_filemane = 'flask.log'
-logs = [stafan_log_filemane, flask_log_filemane]
+gunicorn_log_filemane = 'gunicorn.log'
+logs = [stafan_log_filemane, flask_log_filemane, gunicorn_log_filemane]
 
 TRADE_LEVEL = 25
 logging.addLevelName(TRADE_LEVEL, "TRADE")

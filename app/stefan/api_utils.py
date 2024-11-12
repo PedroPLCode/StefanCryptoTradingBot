@@ -243,7 +243,7 @@ def place_buy_order(bot_id):
         min_notional = get_minimum_order_value(bot_settings.id, symbol)
         min_notional = min_notional if min_notional is not None else 0.0
         
-        amount_to_buy = round_down_to_step_size(amount_to_buy, step_size)
+        amount_to_buy = float(round_down_to_step_size(amount_to_buy, step_size))
         
         logger.trade(f"place_buy_order() Bot {bot_settings.id} Amount_to_buy: {amount_to_buy}")
 
@@ -313,7 +313,7 @@ def place_sell_order(bot_id):
         min_qty = min_qty if min_qty is not None else 0
 
         if crypto_balance >= min_qty:
-            amount_to_sell = round_down_to_step_size(crypto_balance, step_size)
+            amount_to_sell = float(round_down_to_step_size(crypto_balance, step_size))
             order_response = bot_client.order_market_sell(symbol=symbol, quantity=amount_to_sell)
             order_id = order_response['orderId'] or None
             order_status = order_response['status'] or None

@@ -71,4 +71,6 @@ def make_shell_context():
         "BotSettings": app.models.BotSettings,
         "BotCurrentTrade": app.models.BotCurrentTrade,
         "TradesHistory": app.models.TradesHistory,
+        "BacktestSettings": app.models.BacktestSettings,
+        "BacktestResult": app.models.BacktestResult,
     }
