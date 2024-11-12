@@ -254,9 +254,10 @@ def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
 
 def round_down_to_step_size(amount, step_size):
     if step_size > 0:
-        decimal_places = len(str(step_size).split('.')[-1])
+        decimal_places = len(str(step_size).split('.')[-1])  # Determine decimal precision of step_size
         scale = 10 ** decimal_places
-        return math.floor(amount * scale) / scale
+        rounded_amount = math.floor(amount * scale) / scale
+        return round(rounded_amount, decimal_places)  # Round to the same decimal places as step_size
     return amount
 
 

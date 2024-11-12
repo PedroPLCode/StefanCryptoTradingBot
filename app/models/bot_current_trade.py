@@ -4,7 +4,7 @@ class BotCurrentTrade(db.Model):
     __tablename__ = 'bot_current_trade'
     id = db.Column(db.Integer, primary_key=True)
     is_active = db.Column(db.Boolean, nullable=False, default=False)
-    amount = db.Column(db.Float, default=0, nullable=True) # db.Numeric(10, 8) ?
+    amount = db.Column(db.Float, default=0, nullable=True) # db.Numeric(10, 8)
     buy_price = db.Column(db.Float, default=0, nullable=True)
     current_price = db.Column(db.Float, default=0, nullable=True)
     previous_price = db.Column(db.Float, default=0, nullable=True)
