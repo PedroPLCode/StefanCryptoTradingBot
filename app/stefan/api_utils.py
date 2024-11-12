@@ -222,7 +222,7 @@ def place_buy_order(bot_id):
     try:    
         bot_settings = BotSettings.query.get(bot_id)
         symbol = bot_settings.symbol
-        bot_client = create_binance_client(bot_id=bot_id) #testnet=True
+        bot_client = create_binance_client(bot_id=bot_id) #testnet=True for binance sandbox
         cryptocoin_symbol = symbol[:3]
         stablecoin_symbol = symbol[-4:]
 
@@ -276,24 +276,29 @@ def place_buy_order(bot_id):
     except BinanceAPIException as e:
         logger.error(f'Bot {bot_id} BinanceAPIException in place_buy_order: {str(e)}')
         send_admin_email(f'Bot {bot_settings.id} BinanceAPIException in place_buy_order', str(e))
+        return False, False
     except ConnectionError as e:
         logger.error(f"Bot {bot_settings.id} ConnectionError in place_buy_order: {str(e)}")
         send_admin_email(f'Bot {bot_settings.id} Connection Error in place_buy_order', str(e))
+        return False, False
     except TimeoutError as e:
         logger.error(f"Bot {bot_settings.id} TimeoutError in place_buy_order:  {str(e)}")
         send_admin_email(f"Bot {bot_settings.id} TimeoutError in place_buy_order", str(e))
+        return False, False
     except Exception as e:
         logger.error(f"Bot {bot_settings.id} Exception in place_buy_order: {str(e)}")
         send_admin_email(f'Bot {bot_settings.id} Exception in place_buy_order', str(e))
+        return False, False
 
 
 def place_sell_order(bot_id):
     from ..utils.app_utils import send_admin_email
+    from .logic_utils import round_to_step_size
 
     try:
         bot_settings = BotSettings.query.get(bot_id)
         symbol = bot_settings.symbol
-        bot_client = create_binance_client(bot_id=bot_id) #testnet=True
+        bot_client = create_binance_client(bot_id=bot_id) #testnet=True for binance sandbox
         cryptocoin_symbol = symbol[:3]
         stablecoin_symbol = symbol[-4:]
 
@@ -308,6 +313,7 @@ def place_sell_order(bot_id):
         min_qty = min_qty if min_qty is not None else 0
 
         if crypto_balance >= min_qty:
+            crypto_balance = round_to_step_size(crypto_balance, step_size)
             order_response = bot_client.order_market_sell(symbol=symbol, quantity=crypto_balance)
             order_id = order_response['orderId'] or None
             order_status = order_response['status'] or None
@@ -327,15 +333,19 @@ def place_sell_order(bot_id):
     except BinanceAPIException as e:
         logger.error(f'Bot {bot_id} BinanceAPIException in place_sell_order: {str(e)}')
         send_admin_email(f'Bot {bot_settings.id} BinanceAPIException in place_sell_order', str(e))
+        return False, False
     except ConnectionError as e:
         logger.error(f"Bot {bot_settings.id} ConnectionError in place_sell_order: {str(e)}")
         send_admin_email(f'Bot {bot_settings.id} ConnectionError in place_sell_order', str(e))
+        return False, False
     except TimeoutError as e:
         logger.error(f"Bot {bot_settings.id} TimeoutError in place_sell_order: {str(e)}")
         send_admin_email(f"Bot {bot_settings.id} TimeoutError in place_sell_order", str(e))
+        return False, False
     except Exception as e:
         logger.error(f"Bot {bot_settings.id} Exception in place_sell_order: {str(e)}")
         send_admin_email(f'Bot {bot_settings.id} Exception in place_sell_order', str(e))
+        return False, False
 
 
 def fetch_system_status():

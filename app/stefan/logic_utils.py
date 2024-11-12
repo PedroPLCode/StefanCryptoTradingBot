@@ -1,4 +1,5 @@
 from .. import db
+import math
 from ..models import TradesHistory, BotCurrentTrade
 from ..utils.logging import logger
 from ..utils.app_utils import send_admin_email
@@ -251,12 +252,18 @@ def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} previous price and trailing stop loss updated.")
 
 
-def round_to_step_size(amount, step_size):
+def round_down_to_step_size(amount, step_size):
     if step_size > 0:
         decimal_places = len(str(step_size).split('.')[-1])
-        logger.trade(f'step_size: {step_size}, decimal_places: {decimal_places}')
-        return round(amount, decimal_places)
+        scale = 10 ** decimal_places
+        return math.floor(amount * scale) / scale
     return amount
+
+
+# not in use - delete maybe ?
+#def round_quantity(quantity, step_size):
+#    precision = int(-math.log10(float(step_size)))
+#    return round(quantity, precision)
 
 
 def update_trailing_stop_loss(current_price, trailing_stop_price, bot_settings):
