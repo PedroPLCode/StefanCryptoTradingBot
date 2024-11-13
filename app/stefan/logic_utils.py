@@ -210,7 +210,7 @@ def execute_sell_order(bot_settings, current_trade, current_price):
 
     if sell_success:
         update_trade_history(
-            bot_id=bot_settings.id,
+            bot_settings=bot_settings,
             strategy=bot_settings.strategy,
             amount=amount,
             buy_price=current_trade.buy_price,
@@ -338,21 +338,32 @@ def update_current_trade(
     
                         
 def update_trade_history(
-    bot_id, 
+    bot_settings, 
     strategy, 
     amount, 
     buy_price, 
     sell_price
     ):
     
+    from .api_utils import get_account_balance
+        
     try:
+        bot_id = bot_settings.id
+        symbol = bot_settings.symbol
+        cryptocoin_symbol = symbol[:3]
+        stablecoin_symbol = symbol[-4:]
+
+        balance = get_account_balance(bot_id, [stablecoin_symbol, cryptocoin_symbol])
+        stablecoin_balance = float(balance.get(stablecoin_symbol, 0))
+    
         current_trade = BotCurrentTrade.query.filter_by(id=bot_id).first()
         trade = TradesHistory(
             bot_id=bot_id,
             strategy=strategy,
             amount=amount, 
             buy_price=buy_price,
-            sell_price=sell_price
+            sell_price=sell_price,
+            stablecoin_balance=stablecoin_balance
         )
         db.session.add(trade)
         db.session.commit()

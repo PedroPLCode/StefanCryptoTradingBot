@@ -133,5 +133,6 @@ class TradesHistoryAdmin(AdminModelView):
         'amount', 
         'buy_price', 
         'sell_price',
+        'stablecoin_balance',
         'timestamp'
     )

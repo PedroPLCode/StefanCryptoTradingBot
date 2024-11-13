@@ -1,5 +1,11 @@
 from datetime import datetime, timedelta
 import os
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
+from io import BytesIO
+import base64
 from flask_mail import Message
 from app.models import User, TradesHistory, BotSettings
 from werkzeug.security import generate_password_hash
@@ -70,6 +76,48 @@ def calculate_profit_percentage(buy_price, sell_price):
         logger.error(f"Exception in calculate_profit_percentage: {str(e)}")
         send_admin_email(f"Exception in calculate_profit_percentage", str(e))
         return 'unknown'
+    
+    
+def create_balance_plot(df):
+    try:
+        if df.empty or df['stablecoin_balance'].isnull().all():
+            logger.warning("create_balance_plot: No data available in the DataFrame to plot.")
+            return None 
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+        
+        for i in range(1, len(df)):
+            x_values = [df['trade_id'].iloc[i - 1], df['trade_id'].iloc[i]]
+            y_values = [df['stablecoin_balance'].iloc[i - 1], df['stablecoin_balance'].iloc[i]]
+            
+            color = 'g' if y_values[1] > y_values[0] else 'r'
+            
+            ax.plot(x_values, y_values, marker='o', color=color, linestyle='-')
+        
+        #ax.set_title('Account Balance After Each Transaction')
+        #ax.set_xlabel('trade.id')
+        #ax.set_ylabel('trade.stablecoin_balance')
+        ax.grid(True)
+        
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+        
+        img = BytesIO()
+        fig.savefig(img, format='png')
+        img.seek(0)
+        plt.close(fig)
+
+        plot_url = base64.b64encode(img.getvalue()).decode('utf8')
+        return plot_url
+
+    except Exception as e:
+        logger.error(f"Exception in create_balance_plot: {str(e)}")
+        send_admin_email("Exception in create_balance_plot", str(e))
+        return None
 
 
 def send_logs_via_email():

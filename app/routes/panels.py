@@ -1,6 +1,7 @@
 from flask import render_template, redirect, url_for, flash
 from flask_login import current_user
 import json
+import pandas as pd
 from ..models import BotSettings, BacktestResult
 from ..utils.logging import logger
 from . import main
@@ -106,6 +107,8 @@ def backtest_panel_view():
     
 @main.route('/trades')
 def current_trades_view():
+    from ..utils.app_utils import create_balance_plot
+
     if not current_user.is_authenticated:
         flash('Please log in to access the trades panel.', 'warning')
         return redirect(url_for('main.login'))
@@ -117,6 +120,21 @@ def current_trades_view():
 
     try:
         all_bots = BotSettings.query.all()
+
+        for bot in all_bots:
+            valid_trades = [trade for trade in bot.bot_trades_history if trade.stablecoin_balance]
+            if valid_trades:
+                bot.transaction_data = {
+                    'trade_id': [trade.id for trade in valid_trades],
+                    'stablecoin_balance': [trade.stablecoin_balance for trade in valid_trades]
+                }
+                df = pd.DataFrame(bot.transaction_data)
+                if not df.empty and df['stablecoin_balance'].sum() > 0:
+                    bot.plot_url = create_balance_plot(df)
+                else:
+                    bot.plot_url = None
+            else:
+                bot.plot_url = None
 
         return render_template(
             'trades_history.html', 

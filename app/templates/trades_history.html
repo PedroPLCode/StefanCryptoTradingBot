@@ -37,9 +37,14 @@
                     <div class="card-body text-center">
                         <div class="d-flex flex-column justify-content-center align-items-center gap-2">
                             {% if single_bot.bot_trades_history %}
+
+                                {% if single_bot.plot_url %}
+                                <img src="data:image/png;base64,{{ single_bot.plot_url }}" alt="Account balance" style="max-width: 100%; height: auto; max-height: 300px;">
+                                {% endif %}
+
                                 {% for trade in single_bot.bot_trades_history %}
                                 {% set profit_percentage = ((trade.sell_price - trade.buy_price) / trade.buy_price) * 100 %}
-                                <p class="mb-1">id: {{ trade.id }} strategy {{ trade.strategy }} amount: {{ trade.amount }} {{ trade.bot_settings.symbol[:3] }}, buy_price: ${{ '%.2f'|format(trade.buy_price) }} {{ trade.bot_settings.symbol[:-4] }}, sell_price: ${{ '%.2f'|format(trade.sell_price) }} {{ trade.bot_settings.symbol[:-4] }}, profit: {{ profit_percentage | round(2) }}%, timestamp: {{ trade.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                                <p class="{{ 'text-success' if profit_percentage > 0 else 'text-danger' }} mb-1">id: {{ trade.id }} strategy {{ trade.strategy }} amount: {{ trade.amount }} {{ trade.bot_settings.symbol[:3] }}, buy_price: ${{ '%.2f'|format(trade.buy_price) }} {{ trade.bot_settings.symbol[:-4] }}, sell_price: ${{ '%.2f'|format(trade.sell_price) }} {{ trade.bot_settings.symbol[:-4] }}, profit: {{ profit_percentage | round(2) }}%, timestamp: {{ trade.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
                                 {% endfor %}
                             {% else %}
                                 <p class="mb-1">List empty.<br>Boring...<br>Lets do some trades!</p>
