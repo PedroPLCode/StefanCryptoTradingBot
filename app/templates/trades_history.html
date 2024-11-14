@@ -44,7 +44,7 @@
 
                                 {% for trade in single_bot.bot_trades_history %}
                                 {% set profit_percentage = ((trade.sell_price - trade.buy_price) / trade.buy_price) * 100 %}
-                                <p class="{{ 'text-success' if profit_percentage > 0 else 'text-danger' }} mb-1">id: {{ trade.id }} strategy {{ trade.strategy }} amount: {{ trade.amount }} {{ trade.bot_settings.symbol[:3] }}, buy_price: ${{ '%.2f'|format(trade.buy_price) }} {{ trade.bot_settings.symbol[:-4] }}, sell_price: ${{ '%.2f'|format(trade.sell_price) }} {{ trade.bot_settings.symbol[:-4] }}, profit: {{ profit_percentage | round(2) }}%, timestamp: {{ trade.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                                <p class="{% if profit_percentage > 0 %}text-success{% elif profit_percentage < 0 %}text-danger{% else %}text-muted{% endif %} mb-1">id: {{ trade.id }}, timestamp: {{ trade.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}<br>{{ trade.bot_settings.symbol }} {{ trade.strategy }}, algorithm {{ trade.bot_settings.algorithm }}<br>buy_price: ${{ '%.2f'|format(trade.buy_price) }} {{ trade.bot_settings.symbol[:-4] }}, sell_price: ${{ '%.2f'|format(trade.sell_price) }} {{ trade.bot_settings.symbol[:-4] }}<br>amount: {{ trade.amount }} {{ trade.bot_settings.symbol[:3] }}, balance: {{ trade.stablecoin_balance }} USDC<br>profit: {{ profit_percentage | round(2) }}%</p>
                                 {% endfor %}
                             {% else %}
                                 <p class="mb-1">List empty.<br>Boring...<br>Lets do some trades!</p>
@@ -56,7 +56,7 @@
         {% else %}
             <div class="col-12 col-md-6 card mt-3 mb-3">
                 <div class="card-header text-center bg-light">
-                    <h5>Trades History: last 7 days</h5>
+                    <h5>Trades History: 7 days period</h5>
                 </div>
                 <div class="card-body text-center">
                     <div class="d-flex flex-column justify-content-center align-items-center gap-2">

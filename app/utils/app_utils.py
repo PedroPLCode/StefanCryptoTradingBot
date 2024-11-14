@@ -3,7 +3,6 @@ import os
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
 from io import BytesIO
 import base64
 from flask_mail import Message
@@ -77,40 +76,41 @@ def calculate_profit_percentage(buy_price, sell_price):
         send_admin_email(f"Exception in calculate_profit_percentage", str(e))
         return 'unknown'
     
-    
+
 def create_balance_plot(df):
     try:
         if df.empty or df['stablecoin_balance'].isnull().all():
             logger.warning("create_balance_plot: No data available in the DataFrame to plot.")
             return None 
 
-        fig, ax = plt.subplots(figsize=(10, 6))
-        
+        fig, ax = plt.subplots(figsize=(14, 6))
+
+        color_increase = '#2ca02c'  # Green
+        color_decrease = '#d62728'  # Red
+
         for i in range(1, len(df)):
             x_values = [df['trade_id'].iloc[i - 1], df['trade_id'].iloc[i]]
             y_values = [df['stablecoin_balance'].iloc[i - 1], df['stablecoin_balance'].iloc[i]]
             
-            color = 'g' if y_values[1] > y_values[0] else 'r'
-            
-            ax.plot(x_values, y_values, marker='o', color=color, linestyle='-')
-        
-        #ax.set_title('Account Balance After Each Transaction')
-        #ax.set_xlabel('trade.id')
-        #ax.set_ylabel('trade.stablecoin_balance')
+            color = color_increase if y_values[1] > y_values[0] else color_decrease
+            ax.plot(x_values, y_values, marker='o', color=color, linestyle='-', linewidth=4)
+
+        df['moving_avg'] = df['stablecoin_balance'].rolling(window=5).mean()
+        ax.plot(df['trade_id'], df['moving_avg'], color='blue', linestyle='--', linewidth=4)
+
         ax.grid(True)
-        
-        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-        
+        ax.legend()
+
         ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.spines['left'].set_visible(False)
         ax.spines['bottom'].set_visible(False)
-        
+        ax.spines['left'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+
         img = BytesIO()
-        fig.savefig(img, format='png')
+        fig.savefig(img, format='png', bbox_inches='tight')
         img.seek(0)
         plt.close(fig)
-
+        
         plot_url = base64.b64encode(img.getvalue()).decode('utf8')
         return plot_url
 
@@ -134,7 +134,7 @@ def send_logs_via_email():
                 with open(log_file_path, 'r') as log_file:
                     log_content = log_file.read()
                     
-                send_admin_email(f"{subject + log} - {log}", log_content)
+                send_admin_email(f"{subject}: {log}", log_content)
                 logger.info(f"Successfully sent email with log: {log}")
             else:
                 logger.warning(f"Log file does not exist: {log_file_path}")
@@ -152,7 +152,7 @@ def clear_logs():
         try:
             if os.path.exists(log_file_path):
                 with open(log_file_path, 'w') as log_file:
-                    log_file.write('Log file cleared.')
+                    log_file.write('Log file cleared.\n')
                 logger.info(f"Successfully cleared log file: {log_file_path}")
             else:
                 logger.warning(f"Log file does not exist: {log_file_path}")
@@ -190,14 +190,13 @@ def generate_trade_report(period):
             if total_trades == 0:
                 report_data += f"No transactions in last {period} for bot {single_bot.id} {single_bot.strategy}.\n"
             else:
-                report_data += f"Transactions count in last {period} for bot {single_bot.id} {single_bot.strategy}: {total_trades}\n\n"
+                report_data += f"Bot {single_bot.id} {single_bot.strategy}\nTransactions count in last {period}: {total_trades}\n\n"
 
                 for trade in trades_in_period:
                     profit_percentage = calculate_profit_percentage(trade.buy_price, trade.sell_price)
-                    report_data += (f"id: {trade.id}, bot_id: {trade.bot_id} {trade.strategy} {trade.symbol}, "
-                                    f"amount: {trade.amount} {trade.symbol[:3]}, buy_price: {trade.buy_price:.2f} {trade.symbol[-4:]}, "
-                                    f"sell_price: {trade.sell_price:.2f} {trade.symbol[-4:]}, profit_percentage: {profit_percentage:.2f}%, "
-                                    f"timestamp: {trade.timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n")
+                    report_data += (f"id: {trade.id}, timestamp: {trade.timestamp.strftime('%Y-%m-%d %H:%M:%S')}, {trade.bot_settings.symbol} {trade.bot_settings.strategy}, "
+                                    f"amount: {trade.amount} {trade.bot_settings.symbol[:3]}, buy_price: {trade.buy_price:.2f} {trade.bot_settings.symbol[-4:]}, "
+                                    f"sell_price: {trade.sell_price:.2f} {trade.bot_settings.symbol[-4:]}, profit_percentage: {profit_percentage:.2f}%\n")
 
         return report_data
     
