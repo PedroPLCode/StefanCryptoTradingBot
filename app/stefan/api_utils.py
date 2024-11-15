@@ -230,26 +230,26 @@ def place_buy_order(bot_id):
         stablecoin_balance = float(balance.get(stablecoin_symbol, '0.0'))
         price = float(fetch_current_price(symbol))
         
-        logger.trade(f'place_buy_order() Bot {bot_settings.id} Fetched stablecoin balance: {stablecoin_balance}')
-        logger.trade(f'place_buy_order() Bot {bot_settings.id} Fetched price for {symbol}: {price}')
+        logger.trade(f'place_buy_order() Bot {bot_id} Fetched stablecoin balance: {stablecoin_balance}')
+        logger.trade(f'place_buy_order() Bot {bot_id} Fetched price for {symbol}: {price}')
 
         amount_to_buy = (stablecoin_balance * 0.9) / price
         
-        min_qty, step_size = get_minimum_order_quantity(bot_settings.id, symbol)
+        min_qty, step_size = get_minimum_order_quantity(bot_id, symbol)
         if min_qty is None or step_size is None: 
-            logger.trade(f'place_buy_order() Bot {bot_settings.id} Invalid minimum order quantity or step size for symbol: {symbol}.')
+            logger.trade(f'place_buy_order() Bot {bot_id} Invalid minimum order quantity or step size for symbol: {symbol}.')
             return False, False
                 
-        min_notional = get_minimum_order_value(bot_settings.id, symbol)
+        min_notional = get_minimum_order_value(bot_id, symbol)
         min_notional = min_notional if min_notional is not None else 0.0
         
         amount_to_buy = float(round_down_to_step_size(amount_to_buy, step_size))
         
-        logger.trade(f"place_buy_order() Bot {bot_settings.id} Amount_to_buy: {amount_to_buy}")
+        logger.trade(f"place_buy_order() Bot {bot_id} Amount_to_buy: {amount_to_buy}")
 
         required_stablecoin = amount_to_buy * price
         if required_stablecoin > stablecoin_balance:
-            logger.trade(f'place_buy_order() Bot {bot_settings.id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}. Required: {required_stablecoin}, Available: {stablecoin_balance}.')
+            logger.trade(f'place_buy_order() Bot {bot_id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}. Required: {required_stablecoin}, Available: {stablecoin_balance}.')
             return False, False
 
         if amount_to_buy > 0 and amount_to_buy >= min_qty:
@@ -257,37 +257,37 @@ def place_buy_order(bot_id):
                 order_response = bot_client.order_market_buy(symbol=symbol, quantity=amount_to_buy)
                 order_id = order_response['orderId'] or None
                 order_status = order_response['status'] or None
-                logger.trade(f'place_buy_order() Bot {bot_settings.id} Buy {amount_to_buy} {cryptocoin_symbol} at price {price}.')
+                logger.trade(f'place_buy_order() Bot {bot_id} Buy {amount_to_buy} {cryptocoin_symbol} at price {price}.')
                 
                 if order_status == 'FILLED':
-                    logger.trade(f'place_buy_order() Bot {bot_settings.id} Order {order_id} filled successfully.')
+                    logger.trade(f'place_buy_order() Bot {bot_id} Order {order_id} filled successfully.')
                     return True, amount_to_buy
                 else:
-                    logger.trade(f'place_buy_order() Bot {bot_settings.id} Order {order_id} not filled. Status: {order_response["status"]}.')
+                    logger.trade(f'place_buy_order() Bot {bot_id} Order {order_id} not filled. Status: {order_response["status"]}.')
                     return False, False
 
             else:
-                logger.trade(f'place_buy_order() Bot {bot_settings.id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}. Minimum order value is {min_notional}.')
+                logger.trade(f'place_buy_order() Bot {bot_id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}. Minimum order value is {min_notional}.')
                 return False, False
         else:
-            logger.trade(f'place_buy_order() Bot {bot_settings.id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}. Minimum order quantity is {min_qty}.')
+            logger.trade(f'place_buy_order() Bot {bot_id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}. Minimum order quantity is {min_qty}.')
             return False, False
 
     except BinanceAPIException as e:
         logger.error(f'Bot {bot_id} BinanceAPIException in place_buy_order: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} BinanceAPIException in place_buy_order', str(e))
+        send_admin_email(f'Bot {bot_id} BinanceAPIException in place_buy_order', str(e))
         return False, False
     except ConnectionError as e:
-        logger.error(f"Bot {bot_settings.id} ConnectionError in place_buy_order: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Connection Error in place_buy_order', str(e))
+        logger.error(f"Bot {bot_id} ConnectionError in place_buy_order: {str(e)}")
+        send_admin_email(f'Bot {bot_id} Connection Error in place_buy_order', str(e))
         return False, False
     except TimeoutError as e:
-        logger.error(f"Bot {bot_settings.id} TimeoutError in place_buy_order:  {str(e)}")
-        send_admin_email(f"Bot {bot_settings.id} TimeoutError in place_buy_order", str(e))
+        logger.error(f"Bot {bot_id} TimeoutError in place_buy_order:  {str(e)}")
+        send_admin_email(f"Bot {bot_id} TimeoutError in place_buy_order", str(e))
         return False, False
     except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in place_buy_order: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in place_buy_order', str(e))
+        logger.error(f"Bot {bot_id} Exception in place_buy_order: {str(e)}")
+        send_admin_email(f'Bot {bot_id} Exception in place_buy_order', str(e))
         return False, False
 
 
@@ -306,53 +306,53 @@ def place_sell_order(bot_id):
         crypto_balance = float(balance.get(cryptocoin_symbol, 0))
         price = float(fetch_current_price(symbol))
 
-        logger.trade(f'place_sell_order() Bot {bot_settings.id} Fetched balance for {cryptocoin_symbol}: {crypto_balance}')
-        logger.trade(f'place_sell_order() Bot {bot_settings.id} Fetched price for {symbol}: {price}')
+        logger.trade(f'place_sell_order() Bot {bot_id} Fetched balance for {cryptocoin_symbol}: {crypto_balance}')
+        logger.trade(f'place_sell_order() Bot {bot_id} Fetched price for {symbol}: {price}')
 
-        min_qty, step_size = get_minimum_order_quantity(bot_settings.id, symbol)
+        min_qty, step_size = get_minimum_order_quantity(bot_id, symbol)
         min_qty = min_qty if min_qty is not None else 0
 
         if crypto_balance >= min_qty:
             amount_to_sell = float(round_down_to_step_size(crypto_balance, step_size))
             crypto_balance = float(crypto_balance)
             
-            logger.trade('crypto_balance', crypto_balance)
-            logger.trade('min_qty', min_qty)
-            logger.trade('step_size', step_size)
-            logger.trade('amount_to_sell', amount_to_sell)
-            logger.trade('float(crypto_balance)', float(crypto_balance))
+            logger.trade(f'crypto_balance {crypto_balance}')
+            logger.trade(f'min_qty {min_qty}')
+            logger.trade(f'step_size {step_size}')
+            logger.trade(f'amount_to_sell {amount_to_sell}')
+            logger.trade(f'float(crypto_balance) {float(crypto_balance)}')
             
             order_response = bot_client.order_market_sell(symbol=symbol, quantity=amount_to_sell)
             order_id = order_response['orderId'] or None
             order_status = order_response['status'] or None
-            logger.trade(f'place_sell_order() Bot {bot_settings.id} Sell {crypto_balance} {cryptocoin_symbol} at price {price}.')
+            logger.trade(f'place_sell_order() Bot {bot_id} Sell {crypto_balance} {cryptocoin_symbol} at price {price}.')
             
             if order_status == 'FILLED':
-                logger.trade(f'place_buy_order() Bot {bot_settings.id} Order {order_id} filled successfully.')
+                logger.trade(f'place_buy_order() Bot {bot_id} Order {order_id} filled successfully.')
                 return True, crypto_balance
             else:
-                logger.trade(f'place_buy_order() Bot {bot_settings.id} Order {order_id} not filled. Status: {order_response["status"]}.')
+                logger.trade(f'place_buy_order() Bot {bot_id} Order {order_id} not filled. Status: {order_response["status"]}.')
                 return False, False
             
         else:
-            logger.trade(f'place_sell_order() Bot {bot_settings.id} Not enough {cryptocoin_symbol} to sell. Minimum order quantity is {min_qty}.')
+            logger.trade(f'place_sell_order() Bot {bot_id} Not enough {cryptocoin_symbol} to sell. Minimum order quantity is {min_qty}.')
             return False, False
 
     except BinanceAPIException as e:
         logger.error(f'Bot {bot_id} BinanceAPIException in place_sell_order: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} BinanceAPIException in place_sell_order', str(e))
+        send_admin_email(f'Bot {bot_id} BinanceAPIException in place_sell_order', str(e))
         return False, False
     except ConnectionError as e:
-        logger.error(f"Bot {bot_settings.id} ConnectionError in place_sell_order: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} ConnectionError in place_sell_order', str(e))
+        logger.error(f"Bot {bot_id} ConnectionError in place_sell_order: {str(e)}")
+        send_admin_email(f'Bot {bot_id} ConnectionError in place_sell_order', str(e))
         return False, False
     except TimeoutError as e:
-        logger.error(f"Bot {bot_settings.id} TimeoutError in place_sell_order: {str(e)}")
-        send_admin_email(f"Bot {bot_settings.id} TimeoutError in place_sell_order", str(e))
+        logger.error(f"Bot {bot_id} TimeoutError in place_sell_order: {str(e)}")
+        send_admin_email(f"Bot {bot_id} TimeoutError in place_sell_order", str(e))
         return False, False
     except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in place_sell_order: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in place_sell_order', str(e))
+        logger.error(f"Bot {bot_id} Exception in place_sell_order: {str(e)}")
+        send_admin_email(f'Bot {bot_id} Exception in place_sell_order', str(e))
         return False, False
 
 

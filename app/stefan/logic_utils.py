@@ -336,6 +336,15 @@ def update_current_trade(
             logger.error(f"Exception in update_current_trade bot {bot_id}: {str(e)}")
             send_admin_email(f'Exception in update_current_trade bot {bot_id}', str(e))
     
+
+def next_trade_id(bot_id):
+    max_existing_trade_id = (
+        db.session.query(db.func.max(TradesHistory.trade_id))
+        .filter_by(bot_id=bot_id)
+        .scalar()
+    )
+    return (max_existing_trade_id or 0) + 1
+
                         
 def update_trade_history(
     bot_settings, 
@@ -359,6 +368,7 @@ def update_trade_history(
         current_trade = BotCurrentTrade.query.filter_by(id=bot_id).first()
         trade = TradesHistory(
             bot_id=bot_id,
+            trade_id=next_trade_id(bot_id),
             strategy=strategy,
             amount=amount, 
             buy_price=buy_price,

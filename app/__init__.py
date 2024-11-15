@@ -149,13 +149,6 @@ with app.app_context():
             run_all_scalp_trading_bots, 
             run_all_swing_trading_bots
         )
-    from .utils.app_utils import (
-        send_logs_via_email,
-        send_report_via_email
-    )
-    
-    send_logs_via_email()
-    send_report_via_email()
     run_all_scalp_trading_bots()
     run_all_swing_trading_bots()
     start_scheduler()

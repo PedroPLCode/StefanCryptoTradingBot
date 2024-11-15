@@ -304,9 +304,9 @@ def stop_all_bots(current_user):
     with current_app.app_context():
         for bot_settings in all_bots_settings:
             try:
-                if bot_settings.bot_current_trade.is_active:
-                    place_sell_order(bot_settings)
                 bot_id = bot_settings.id
+                if bot_settings.bot_current_trade.is_active:
+                    place_sell_order(bot_id)
                 stop_single_bot(bot_id, current_user)
             except Exception as e:
                 logger.error(f'Exception in stop_all_bots: {str(e)}')

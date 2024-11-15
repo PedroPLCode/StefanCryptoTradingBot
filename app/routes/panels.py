@@ -125,7 +125,7 @@ def current_trades_view():
             valid_trades = [trade for trade in bot.bot_trades_history if trade.stablecoin_balance]
             if valid_trades:
                 bot.transaction_data = {
-                    'trade_id': [trade.id for trade in valid_trades],
+                    'trade_id': [trade.trade_id for trade in valid_trades],
                     'stablecoin_balance': [trade.stablecoin_balance for trade in valid_trades]
                 }
                 df = pd.DataFrame(bot.transaction_data)
