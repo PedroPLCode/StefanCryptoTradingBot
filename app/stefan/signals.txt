@@ -91,13 +91,13 @@ lookback_period="45m"
 timeperiod=5
 cci_buy=-50
 cci_sel=50
-rsi_buy=35
-rsi_sell=65
+rsi_buy=30 (or 35)
+rsi_sell=70 (or 65)
 mfi_buy=30
 mfi_sell=70
 stoch_buy=20
 stoch_sell=80
-atr_calc=1.5 (or 2)
+atr_calc=1-2
 
 algorithm 1: RSI + MACD                                             *
 algorithm 2: MFI + MACD                                             **
@@ -125,7 +125,7 @@ mfi_buy=20 (or 30)
 mfi_sell=80 (or 70)
 stoch_buy=20
 stoch_sell=80
-atr_calc=1.5 (or 2)
+atr_calc=3-7
 
 algorithm 1: RSI + MACD with Histogram (classic)     ***   
 algorithm 2: RSI + MACD + MA200                      *

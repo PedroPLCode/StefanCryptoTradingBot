@@ -190,11 +190,11 @@ def generate_trade_report(period):
             if total_trades == 0:
                 report_data += f"No transactions in last {period} for bot {single_bot.id} {single_bot.strategy}.\n"
             else:
-                report_data += f"Bot {single_bot.id} {single_bot.strategy}\nTransactions count in last {period}: {total_trades}\n\n"
+                report_data += f"Bot {single_bot.id} {single_bot.strategy.upper()}\nTransactions count in last {period}: {total_trades}\n\n"
 
                 for trade in trades_in_period:
                     profit_percentage = calculate_profit_percentage(trade.buy_price, trade.sell_price)
-                    report_data += (f"id: {trade.id}, timestamp: {trade.timestamp.strftime('%Y-%m-%d %H:%M:%S')}, {trade.bot_settings.symbol} {trade.bot_settings.strategy}, "
+                    report_data += (f"id: {trade.id}, timestamp: {trade.timestamp.strftime('%Y-%m-%d %H:%M:%S')}, {trade.bot_settings.symbol} {trade.bot_settings.strategy.upper()}, "
                                     f"amount: {trade.amount} {trade.bot_settings.symbol[:3]}, buy_price: {trade.buy_price:.2f} {trade.bot_settings.symbol[-4:]}, "
                                     f"sell_price: {trade.sell_price:.2f} {trade.bot_settings.symbol[-4:]}, profit_percentage: {profit_percentage:.2f}%\n")
 

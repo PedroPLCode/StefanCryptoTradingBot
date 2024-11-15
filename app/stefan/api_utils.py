@@ -314,6 +314,14 @@ def place_sell_order(bot_id):
 
         if crypto_balance >= min_qty:
             amount_to_sell = float(round_down_to_step_size(crypto_balance, step_size))
+            crypto_balance = float(crypto_balance)
+            
+            logger.trade('crypto_balance', crypto_balance)
+            logger.trade('min_qty', min_qty)
+            logger.trade('step_size', step_size)
+            logger.trade('amount_to_sell', amount_to_sell)
+            logger.trade('float(crypto_balance)', float(crypto_balance))
+            
             order_response = bot_client.order_market_sell(symbol=symbol, quantity=amount_to_sell)
             order_id = order_response['orderId'] or None
             order_status = order_response['status'] or None

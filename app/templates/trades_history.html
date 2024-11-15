@@ -32,7 +32,7 @@
             {% for single_bot in all_bots %}
                 <div class="col-12 col-md-6 card mt-3 mb-3">
                     <div class="card-header text-center bg-light">
-                        <h5>Trades History {{single_bot.id}} {{single_bot.comment}}: last 7 days</h5>
+                        <h5>Trades History Bot {{ single_bot.id }}<br>{{ single_bot.strategy | upper }} {{ single_bot.symbol }}<br>{{ single_bot.comment }}<br>7 days period</h5>
                     </div>
                     <div class="card-body text-center">
                         <div class="d-flex flex-column justify-content-center align-items-center gap-2">

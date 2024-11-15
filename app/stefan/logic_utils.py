@@ -258,7 +258,7 @@ def round_down_to_step_size(amount, step_size):
         scale = 10 ** decimal_places
         rounded_amount = math.floor(amount * scale) / scale
         return float(round(rounded_amount, decimal_places))
-    return amount
+    return float(amount)
 
 
 def update_trailing_stop_loss(current_price, trailing_stop_price, bot_settings):
