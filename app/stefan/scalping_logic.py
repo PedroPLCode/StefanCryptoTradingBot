@@ -17,8 +17,8 @@ def calculate_scalp_indicators(df, bot_settings):
 
         df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=bot_settings.timeperiod)
 
-        df['ema_fast'] = talib.EMA(df['close'], timeperiod=9)
-        df['ema_slow'] = talib.EMA(df['close'], timeperiod=21)
+        df['ema_fast'] = talib.EMA(df['close'], timeperiod=bot_settings.ema_fast_timeperiod)
+        df['ema_slow'] = talib.EMA(df['close'], timeperiod=bot_settings.ema_slow_timeperiod)
 
         df.dropna(subset=['close'], inplace=True)
         
@@ -28,18 +28,18 @@ def calculate_scalp_indicators(df, bot_settings):
 
         df['macd'], df['macd_signal'], _ = talib.MACD(
             df['close'],
-            fastperiod=bot_settings.timeperiod,
-            slowperiod=2 * bot_settings.timeperiod,
-            signalperiod=bot_settings.timeperiod // 2
+            fastperiod=bot_settings.macd_timeperiod,
+            slowperiod=bot_settings.macd_timeperiod * 2,
+            signalperiod=bot_settings.macd_signalperiod
         )
         
         df['macd_histogram'] = df['macd'] - df['macd_signal']
 
         df['upper_band'], df['middle_band'], df['lower_band'] = talib.BBANDS(
             df['close'],
-            timeperiod=bot_settings.timeperiod,
-            nbdevup=2,
-            nbdevdn=2,
+            timeperiod=bot_settings.boilinger_timeperiod,
+            nbdevup=bot_settings.boilinger_nbdev,
+            nbdevdn=bot_settings.boilinger_nbdev,
             matype=0
         )
         
@@ -62,10 +62,10 @@ def calculate_scalp_indicators(df, bot_settings):
             df['high'],
             df['low'],
             df['close'],
-            fastk_period=14,
-            slowk_period=3,
+            fastk_period=bot_settings.stock_k_timeperiod,
+            slowk_period=bot_settings.stock_d_timeperiod,
             slowk_matype=0,
-            slowd_period=3,
+            slowd_period=bot_settings.stock_d_timeperiod,
             slowd_matype=0
         )
 
@@ -256,9 +256,12 @@ def check_scalping_buy_signal_v4(df, bot_settings):
             return False
         
         latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
 
-        if (float(latest_data['mfi']) < float(bot_settings.mfi_buy) and
-            float(latest_data['close']) < float(latest_data['lower_band'])):
+        if (float(latest_data['close']) < float(latest_data['lower_band']) and
+            float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
+            float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) < float(bot_settings.stoch_buy)):
             
             return True
             
@@ -281,9 +284,12 @@ def check_scalping_sell_signal_v4(df, bot_settings):
             return False
 
         latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
         
-        if (float(latest_data['mfi']) > float(bot_settings.mfi_sell) and
-            float(latest_data['close']) > float(latest_data['upper_band'])):
+        if (float(latest_data['close']) > float(latest_data['upper_band']) and
+            float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
+            float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) > float(bot_settings.stoch_sell)):
             
             return True
         

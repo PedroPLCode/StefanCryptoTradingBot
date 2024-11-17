@@ -88,22 +88,30 @@ run interval 1min
 trailing_stop_pct=0.03 or 0.01
 interval="1m"
 lookback_period="45m"
-timeperiod=5
+timeperiod=14/9/5
+macd_timeperiod=12-26,
+macd_signalperiod=9,
+boilinger_timeperiod=20,
+boilinger_nbdev=2,
+stock_k_timeperiod=14,
+stock_d_timeperiod=3,
+ema_fast_timeperiod=9,
+ema_slow_timeperiod=21,
 cci_buy=-50
 cci_sel=50
-rsi_buy=30 (or 35)
-rsi_sell=70 (or 65)
+rsi_buy=20/30/35
+rsi_sell=80/70/65
 mfi_buy=30
 mfi_sell=70
 stoch_buy=20
 stoch_sell=80
 atr_calc=1-2
 
-algorithm 1: RSI + MACD                                             *
-algorithm 2: MFI + MACD                                             **
+algorithm 1: RSI + MACD (primary)                                   ***
+algorithm 2: MFI + MACD                                             *
 algorithm 3: MACD with Histogram                                    *
-algorithm 4: MFI + Boilinger Bands
-algorithm 5: RSI + MFI + MACD with Histogram (primary)              ***
+algorithm 4: Stochastic + Boilinger Bands (secondary)               ***
+algorithm 5: RSI + MFI + MACD with Histogram                        **
 algorithm 6: RSI + MFI + MACD with Histogram + EMA 9 and EMA 21     
 backtested. needs real life tests.
 
@@ -116,7 +124,15 @@ run interval 30min
 trailing_stop_pct=0.05 or 0.03
 interval="30m"
 lookback_period="1d"
-timeperiod=14
+timeperiod=14/9
+macd_timeperiod=12-26,
+macd_signalperiod=9,
+boilinger_timeperiod=20,
+boilinger_nbdev=2,
+stock_k_timeperiod=14,
+stock_d_timeperiod=3,
+ema_fast_timeperiod=24,
+ema_slow_timeperiod=48,
 cci_buy=-100 (or -50)
 cci_sel=100 (or 50)
 rsi_buy=30 (or 40)
