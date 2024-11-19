@@ -47,7 +47,7 @@ def calculate_scalp_indicators(df, bot_settings):
             df['high'],
             df['low'],
             df['close'],
-            timeperiod=bot_settings.timeperiod
+            timeperiod=bot_settings.cci_timeperiod
         )
 
         df['mfi'] = talib.MFI(
@@ -55,7 +55,7 @@ def calculate_scalp_indicators(df, bot_settings):
             df['low'],
             df['close'],
             df['volume'],
-            timeperiod=bot_settings.timeperiod
+            timeperiod=bot_settings.mfi_timeperiod
         )
         
         df['stoch_k'], df['stoch_d'] = talib.STOCH(
@@ -373,15 +373,12 @@ def check_scalping_buy_signal_v6(df, bot_settings):
 
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
-
-        if (float(previous_data['ema_fast']) < float(previous_data['ema_slow']) and 
-            float(latest_data['ema_fast']) > float(latest_data['ema_slow']) and
-            float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
+        
+        if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
+            float(latest_data['cci']) < float(bot_settings.cci_buy) and
             float(latest_data['mfi']) < float(bot_settings.mfi_buy) and
             float(previous_data['macd']) < float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) > float(latest_data['macd_signal']) and 
-            float(previous_data['macd_histogram']) < 0 and 
-            float(latest_data['macd_histogram']) > 0):
+            float(latest_data['macd']) > float(latest_data['macd_signal'])):
             
             return True
         
@@ -407,14 +404,11 @@ def check_scalping_sell_signal_v6(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
 
-        if (float(previous_data['ema_fast']) > float(previous_data['ema_slow']) and
-            float(latest_data['ema_fast']) < float(latest_data['ema_slow']) and
-            float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
+        if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
+            float(latest_data['cci']) > float(bot_settings.cci_sell) and
             float(latest_data['mfi']) > float(bot_settings.mfi_sell) and
             float(previous_data['macd']) > float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) < float(latest_data['macd_signal']) and
-            float(previous_data['macd_histogram']) > 0 and 
-            float(latest_data['macd_histogram']) < 0):
+            float(latest_data['macd']) < float(latest_data['macd_signal'])):
             
             return True
         

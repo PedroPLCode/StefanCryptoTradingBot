@@ -61,7 +61,7 @@ def calculate_swing_indicators(df, df_for_ma, bot_settings):
             df['high'],
             df['low'],
             df['close'],
-            timeperiod=bot_settings.timeperiod
+            timeperiod=bot_settings.cci_timeperiod
         )
 
         df['mfi'] = talib.MFI(
@@ -69,7 +69,7 @@ def calculate_swing_indicators(df, df_for_ma, bot_settings):
             df['low'],
             df['close'],
             df['volume'],
-            timeperiod=bot_settings.timeperiod
+            timeperiod=bot_settings.mfi_timeperiod
         )
 
         df['stoch_k'], df['stoch_d'] = talib.STOCH(

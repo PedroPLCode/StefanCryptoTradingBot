@@ -89,6 +89,8 @@ trailing_stop_pct=0.03 or 0.01
 interval="1m"
 lookback_period="45m"
 timeperiod=14/9/5
+cci_timeperiod=14/9/5,
+mfi_timeperiod=14/9/5
 macd_timeperiod=12-26,
 macd_signalperiod=9,
 boilinger_timeperiod=20,
@@ -107,12 +109,19 @@ stoch_buy=20
 stoch_sell=80
 atr_calc=1-2
 
+RSI(5/7/9)
+CCI(5/7/9)
+MFI(6/8)
+MACD(6,13,5/8,16,6)
+Stochastic(5/9,3)
+Boilinger(20/2)
+
 algorithm 1: RSI + MACD (primary)                                   ***
 algorithm 2: MFI + MACD                                             *
 algorithm 3: MACD with Histogram                                    *
 algorithm 4: Stochastic + Boilinger Bands (secondary)               ***
 algorithm 5: RSI + MFI + MACD with Histogram                        **
-algorithm 6: RSI + MFI + MACD with Histogram + EMA 9 and EMA 21     
+algorithm 6: RSI + MFI + CCI + MACD                        tests needed  
 backtested. needs real life tests.
 
 --
@@ -125,6 +134,8 @@ trailing_stop_pct=0.05 or 0.03
 interval="30m"
 lookback_period="1d"
 timeperiod=14/9
+cci_timeperiod=14/9/5,
+mfi_timeperiod=14/9/5
 macd_timeperiod=12-26,
 macd_signalperiod=9,
 boilinger_timeperiod=20,
@@ -142,6 +153,11 @@ mfi_sell=80 (or 70)
 stoch_buy=20
 stoch_sell=80
 atr_calc=3-7
+
+RSI(14)
+MACD(12,24,9/24,48,9)
+Stochastic(14,3)
+Boilinger(20/2)
 
 algorithm 1: RSI + MACD with Histogram (classic)     ***   
 algorithm 2: RSI + MACD + MA200                      *
