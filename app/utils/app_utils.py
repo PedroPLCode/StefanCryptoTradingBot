@@ -273,9 +273,9 @@ def start_single_bot(bot_id, current_user):
         else:
             bot_settings.bot_running = True
             db.session.commit()
-            logger.trade(f'Bot {bot_settings.id} has been started.')
+            logger.trade(f'Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} has been started.')
             flash(f'Bot {bot_settings.id} has been started.', 'success')
-            send_admin_email(f'Bot {bot_settings.id} started.', f'Bot {bot_settings.id} has been started by {current_user.login}.')
+            send_admin_email(f'Bot {bot_settings.id} started.', f'Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} has been started by {current_user.login}.')
     except Exception as e:
         db.session.rollback()
         logger.error(f'Exception in start_single_bot bot {bot_settings.id}: {str(e)}')
@@ -290,9 +290,9 @@ def stop_single_bot(bot_id, current_user):
         else:
             bot_settings.bot_running = False
             db.session.commit()
-            logger.trade(f'Bot {bot_settings.id} has been stopped.')
+            logger.trade(f'Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} has been stopped.')
             flash(f'Bot {bot_settings.id} has been stopped.', 'success')
-            send_admin_email(f'Bot {bot_settings.id} stopped.', f'Bot {bot_settings.id} has been stopped by {current_user.login if current_user.login else current_user}.')
+            send_admin_email(f'Bot {bot_settings.id} stopped.', f'Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} has been stopped by {current_user.login if current_user.login else current_user}.')
     except Exception as e:
         db.session.rollback()
         logger.error(f'Exception in stop_single_bot bot {bot_settings.id}: {str(e)}')

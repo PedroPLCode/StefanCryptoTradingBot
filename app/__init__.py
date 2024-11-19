@@ -51,7 +51,14 @@ def create_app(config_name=None):
             index_view=MyAdminIndexView(),
             template_mode='bootstrap4'
         )
-        from .models import User, BotSettings, BacktestSettings, BacktestResult, BotCurrentTrade, TradesHistory
+        from .models import (
+            User, 
+            BotSettings, 
+            BacktestSettings, 
+            BacktestResult, 
+            BotCurrentTrade, 
+            TradesHistory
+        )
         admin.add_view(UserAdmin(User, db.session))
         admin.add_view(BotSettingsAdmin(BotSettings, db.session))
         admin.add_view(BotCurrentTradeAdmin(BotCurrentTrade, db.session))
@@ -62,7 +69,6 @@ def create_app(config_name=None):
         main = Blueprint('main', __name__)
 
         logger.info('Flask app initialized.')
-        logger.trade('Stefan Bot initialized.')
         
     except Exception as e:
         logger.error(f'Exception Error initializing Flask app: {e}')
@@ -137,21 +143,12 @@ def start_scheduler():
             days=7
         )
         scheduler.start()
-        logger.info('Scheduler started successfully.')
+        logger.info('Scheduler started successfully (one instance). Stefan Bot initialized.')
     except Exception as e:
         logger.error(f'Exception Error starting scheduler: {e}')
         with app.app_context():
             from .utils.app_utils import send_admin_email
             send_admin_email('Scheduler Exception Error', str(e))
-
-with app.app_context():
-    from .stefan.trading_bot import (
-            run_all_scalp_trading_bots, 
-            run_all_swing_trading_bots
-        )
-    run_all_scalp_trading_bots()
-    run_all_swing_trading_bots()
-    start_scheduler()
 
 from .routes import main
 app.register_blueprint(main)
