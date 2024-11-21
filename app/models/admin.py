@@ -135,6 +135,8 @@ class BotCurrentTradeAdmin(AdminModelView):
         'buy_price',
         'previous_price', 
         'trailing_stop_loss',
+        'price_rises_counter',
+        'buy_timestamp',
     )
     
 class TradesHistoryAdmin(AdminModelView):
@@ -146,5 +148,7 @@ class TradesHistoryAdmin(AdminModelView):
         'buy_price', 
         'sell_price',
         'stablecoin_balance',
-        'timestamp'
+        'price_rises_counter',
+        'buy_timestamp',
+        'sell_timestamp',
     )

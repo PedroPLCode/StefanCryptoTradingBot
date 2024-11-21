@@ -1,4 +1,5 @@
 from .. import db
+from datetime import datetime as dt
 import math
 from ..models import TradesHistory, BotCurrentTrade
 from ..utils.logging import logger
@@ -199,7 +200,8 @@ def execute_buy_order(bot_settings, current_price, atr_value):
             current_price=current_price,
             previous_price=current_price,
             buy_price=current_price,
-            trailing_stop_loss=trailing_stop_price
+            trailing_stop_loss=trailing_stop_price,
+            buy_timestamp=dt.utcnow()
         )
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} buy process completed.")
 
@@ -214,7 +216,9 @@ def execute_sell_order(bot_settings, current_trade, current_price):
             strategy=bot_settings.strategy,
             amount=amount,
             buy_price=current_trade.buy_price,
-            sell_price=current_price
+            sell_price=current_price,
+            price_rises_counter=current_trade.price_rises_counter,
+            buy_timestamp=current_trade.buy_timestamp
         )
         update_current_trade(
             bot_id=bot_settings.id,
@@ -223,7 +227,8 @@ def execute_sell_order(bot_settings, current_trade, current_price):
             current_price=0,
             previous_price=0,
             buy_price=0,
-            trailing_stop_loss=0
+            trailing_stop_loss=0,
+            price_rises_counter=0,
         )
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell process completed.")
 
@@ -247,7 +252,8 @@ def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
     update_current_trade(
         bot_id=bot_settings.id,
         previous_price=current_price,
-        trailing_stop_loss=trailing_stop_price
+        trailing_stop_loss=trailing_stop_price,
+        price_rises=True
     )
     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} previous price and trailing stop loss updated.")
 
@@ -308,7 +314,9 @@ def update_current_trade(
     buy_price=None, 
     current_price=None, 
     previous_price=None, 
-    trailing_stop_loss=None
+    trailing_stop_loss=None,
+    buy_timestamp=None,
+    price_rises=None,
     ):
     
     if bot_id:
@@ -328,6 +336,12 @@ def update_current_trade(
                 current_trade.previous_price = previous_price
             if trailing_stop_loss != None:
                 current_trade.trailing_stop_loss = trailing_stop_loss
+            if buy_timestamp != None:
+                current_trade.buy_timestamp = buy_timestamp
+            if price_rises != None:
+                current_counter = current_trade.price_rises_counter
+                updated_counter = current_counter + 1
+                current_trade.price_rises_counter = updated_counter
                 
             db.session.commit()
             
@@ -351,7 +365,9 @@ def update_trade_history(
     strategy, 
     amount, 
     buy_price, 
-    sell_price
+    sell_price,
+    price_rises_counter,
+    buy_timestamp
     ):
     
     from .api_utils import get_account_balance
@@ -373,7 +389,10 @@ def update_trade_history(
             amount=amount, 
             buy_price=buy_price,
             sell_price=sell_price,
-            stablecoin_balance=stablecoin_balance
+            stablecoin_balance=stablecoin_balance,
+            price_rises_counter=price_rises_counter,
+            buy_timestamp=buy_timestamp,
+            sell_timestamp=dt.utcnow()
         )
         db.session.add(trade)
         db.session.commit()
