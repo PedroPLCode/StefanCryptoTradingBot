@@ -194,9 +194,9 @@ def generate_trade_report(period):
 
                 for trade in trades_in_period:
                     profit_percentage = calculate_profit_percentage(trade.buy_price, trade.sell_price)
-                    report_data += (f"id: {trade.id}, timestamp: {trade.timestamp.strftime('%Y-%m-%d %H:%M:%S')}, {trade.bot_settings.symbol} {trade.bot_settings.strategy.upper()}, "
-                                    f"amount: {trade.amount} {trade.bot_settings.symbol[:3]}, buy_price: {trade.buy_price:.2f} {trade.bot_settings.symbol[-4:]}, "
-                                    f"sell_price: {trade.sell_price:.2f} {trade.bot_settings.symbol[-4:]}, profit_percentage: {profit_percentage:.2f}%\n")
+                    report_data += (f"id: {trade.id} {trade.bot_settings.symbol} {trade.bot_settings.strategy.upper()}\nbuy_timestamp: {trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S')}\nsell_timestamp: {trade.sell_timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                                    f"amount: {trade.amount} {trade.bot_settings.symbol[:3]}\nbuy_price: {trade.buy_price:.2f} {trade.bot_settings.symbol[-4:]}\nsell_price: {trade.sell_price:.2f} {trade.bot_settings.symbol[-4:]}\n"
+                                    f"price_rises_counter: {trade.price_rises_counter}\nprofit_percentage: {profit_percentage:.2f}%\n")
 
         return report_data
     
