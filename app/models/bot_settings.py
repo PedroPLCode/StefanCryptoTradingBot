@@ -20,6 +20,8 @@ class BotSettings(db.Model):
     stoch_buy = db.Column(db.Integer, default=20, nullable=False)
     stoch_sell = db.Column(db.Integer, default=80, nullable=False)
     timeperiod = db.Column(db.Integer, default=14, nullable=False)
+    rsi_timeperiod = db.Column(db.Integer, default=14, nullable=False)
+    atr_timeperiod = db.Column(db.Integer, default=14, nullable=False)
     cci_timeperiod = db.Column(db.Integer, default=14, nullable=False)
     mfi_timeperiod = db.Column(db.Integer, default=14, nullable=False)
     macd_timeperiod = db.Column(db.Integer, default=14, nullable=False)

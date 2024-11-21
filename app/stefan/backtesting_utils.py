@@ -51,16 +51,17 @@ def calculate_backtest_scalp_indicators(df, bot_settings):
 
         df['rsi'] = talib.RSI(df['close'], timeperiod=bot_settings.timeperiod)
         df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=bot_settings.timeperiod)
-        df['ema_fast'] = talib.EMA(df['close'], timeperiod=9)
-        df['ema_slow'] = talib.EMA(df['close'], timeperiod=21)
+        
+        df['ema_fast'] = talib.EMA(df['close'], timeperiod=bot_settings.ema_fast_timeperiod)
+        df['ema_slow'] = talib.EMA(df['close'], timeperiod=bot_settings.ema_slow_timeperiod)
 
         df.dropna(subset=['ema_fast', 'ema_slow'], inplace=True)
 
         macd, macd_signal, macd_histogram = talib.MACD(
             df['close'],
-            fastperiod=bot_settings.timeperiod,
-            slowperiod=2 * bot_settings.timeperiod,
-            signalperiod=bot_settings.timeperiod // 2
+            fastperiod=bot_settings.macd_timeperiod,
+            slowperiod=2 * bot_settings.macd_timeperiod,
+            signalperiod=bot_settings.macd_signalperiod
         )
         df['macd'] = macd
         df['macd_signal'] = macd_signal
@@ -68,9 +69,9 @@ def calculate_backtest_scalp_indicators(df, bot_settings):
 
         upper_band, middle_band, lower_band = talib.BBANDS(
             df['close'],
-            timeperiod=bot_settings.timeperiod,
-            nbdevup=2,
-            nbdevdn=2,
+            timeperiod=bot_settings.boilinger_timeperiod,
+            nbdevup=bot_settings.boilinger_nbdev,
+            nbdevdn=bot_settings.boilinger_nbdev,
             matype=0
         )
         df['upper_band'] = upper_band
@@ -81,7 +82,7 @@ def calculate_backtest_scalp_indicators(df, bot_settings):
             df['high'],
             df['low'],
             df['close'],
-            timeperiod=bot_settings.timeperiod
+            timeperiod=bot_settings.cci_timeperiod
         )
 
         df['mfi'] = talib.MFI(
@@ -89,17 +90,17 @@ def calculate_backtest_scalp_indicators(df, bot_settings):
             df['low'],
             df['close'],
             df['volume'],
-            timeperiod=bot_settings.timeperiod
+            timeperiod=bot_settings.mfi_timeperiod
         )
 
         stoch_k, stoch_d = talib.STOCH(
             df['high'],
             df['low'],
             df['close'],
-            fastk_period=14,
-            slowk_period=3,
+            fastk_period=bot_settings.stock_k_timeperiod,
+            slowk_period=bot_settings.stock_d_timeperiod,
             slowk_matype=0,
-            slowd_period=3,
+            slowd_period=bot_settings.stock_d_timeperiod,
             slowd_matype=0
         )
         df['stoch_k'] = stoch_k
@@ -133,12 +134,12 @@ def calculate_backtest_swing_indicators(df, df_for_ma, bot_settings):
         df['open_time'] = pd.to_datetime(df['open_time'], unit='ms')
         df['close_time'] = pd.to_datetime(df['close_time'], unit='ms')
 
-        df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=bot_settings.timeperiod)
+        df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=bot_settings.atr_timeperiod)
 
-        df['ema_fast'] = talib.EMA(df['close'], timeperiod=24)
-        df['ema_slow'] = talib.EMA(df['close'], timeperiod=48)
+        df['ema_fast'] = talib.EMA(df['close'], timeperiod=bot_settings.ema_fast_timeperiod)
+        df['ema_slow'] = talib.EMA(df['close'], timeperiod=bot_settings.ema_slow_timeperiod)
 
-        df['rsi'] = talib.RSI(df['close'], timeperiod=bot_settings.timeperiod)
+        df['rsi'] = talib.RSI(df['close'], timeperiod=bot_settings.rsi_timeperiod)
 
         df.dropna(subset=['close'], inplace=True)
 
@@ -148,9 +149,9 @@ def calculate_backtest_swing_indicators(df, df_for_ma, bot_settings):
 
         macd, macd_signal, _ = talib.MACD(
             df['close'],
-            fastperiod=bot_settings.timeperiod,
-            slowperiod=2 * bot_settings.timeperiod,
-            signalperiod=bot_settings.timeperiod // 2
+            fastperiod=bot_settings.macd_timeperiod,
+            slowperiod=2 * bot_settings.macd_timeperiod,
+            signalperiod=bot_settings.macd_signalperiod
         )
         df['macd'] = macd
         df['macd_signal'] = macd_signal
@@ -165,26 +166,26 @@ def calculate_backtest_swing_indicators(df, df_for_ma, bot_settings):
 
         upper_band, middle_band, lower_band = talib.BBANDS(
             df['close'],
-            timeperiod=bot_settings.timeperiod,
-            nbdevup=2,
-            nbdevdn=2,
+            timeperiod=bot_settings.boilinger_timeperiod,
+            nbdevup=bot_settings.boilinger_nbdev,
+            nbdevdn=bot_settings.boilinger_nbdev,
             matype=0
         )
         df['upper_band'] = upper_band
         df['middle_band'] = middle_band
         df['lower_band'] = lower_band
 
-        df['cci'] = talib.CCI(df['high'], df['low'], df['close'], timeperiod=bot_settings.timeperiod)
-        df['mfi'] = talib.MFI(df['high'], df['low'], df['close'], df['volume'], timeperiod=bot_settings.timeperiod)
+        df['cci'] = talib.CCI(df['high'], df['low'], df['close'], timeperiod=bot_settings.cci_timeperiod)
+        df['mfi'] = talib.MFI(df['high'], df['low'], df['close'], df['volume'], timeperiod=bot_settings.mfi_timeperiod)
 
         stoch_k, stoch_d = talib.STOCH(
             df['high'],
             df['low'],
             df['close'],
-            fastk_period=14,
-            slowk_period=3,
+            fastk_period=bot_settings.stock_k_timeperiod,
+            slowk_period=bot_settings.stock_d_timeperiod,
             slowk_matype=0,
-            slowd_period=3,
+            slowd_period=bot_settings.stock_d_timeperiod,
             slowd_matype=0
         )
         df['stoch_k'] = stoch_k

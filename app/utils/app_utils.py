@@ -275,7 +275,7 @@ def start_single_bot(bot_id, current_user):
             db.session.commit()
             logger.trade(f'Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} has been started.')
             flash(f'Bot {bot_settings.id} has been started.', 'success')
-            send_admin_email(f'Bot {bot_settings.id} started.', f'Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} has been started by {current_user.login}.')
+            send_admin_email(f'Bot {bot_settings.id} started.', f'Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} has been started by {current_user.login}.\nComment: {bot_settings.comment}')
     except Exception as e:
         db.session.rollback()
         logger.error(f'Exception in start_single_bot bot {bot_settings.id}: {str(e)}')

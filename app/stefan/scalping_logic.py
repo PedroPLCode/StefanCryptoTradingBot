@@ -13,9 +13,9 @@ def calculate_scalp_indicators(df, bot_settings):
         df['open_time'] = pd.to_datetime(df['open_time'], unit='ms')
         df['close_time'] = pd.to_datetime(df['close_time'], unit='ms')
             
-        df['rsi'] = talib.RSI(df['close'], timeperiod=bot_settings.timeperiod)
+        df['rsi'] = talib.RSI(df['close'], timeperiod=bot_settings.rsi_timeperiod)
 
-        df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=bot_settings.timeperiod)
+        df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=bot_settings.atr_timeperiod)
 
         df['ema_fast'] = talib.EMA(df['close'], timeperiod=bot_settings.ema_fast_timeperiod)
         df['ema_slow'] = talib.EMA(df['close'], timeperiod=bot_settings.ema_slow_timeperiod)

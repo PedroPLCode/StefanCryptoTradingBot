@@ -81,6 +81,8 @@ class BotSettingsAdmin(AdminModelView):
         'stoch_buy',
         'stoch_sell',
         'timeperiod',
+        'rsi_timeperiod',
+        'atr_timeperiod',
         'cci_timeperiod',
         'mfi_timeperiod',
         'macd_timeperiod',
