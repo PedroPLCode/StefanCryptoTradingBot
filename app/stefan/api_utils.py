@@ -313,25 +313,25 @@ def place_sell_order(bot_id):
         min_qty = min_qty if min_qty is not None else 0
 
         if crypto_balance >= min_qty:
-            amount_to_sell = float(round_down_to_step_size(crypto_balance, step_size))
-            crypto_balance = float(crypto_balance)
+            #amount_to_sell = float(round_down_to_step_size(crypto_balance, step_size))
+            #crypto_balance = float(crypto_balance)
             
             logger.trade(f'crypto_balance {crypto_balance}')
             logger.trade(f'min_qty {min_qty}')
             logger.trade(f'step_size {step_size}')
-            logger.trade(f'amount_to_sell {amount_to_sell}')
-            logger.trade(f'float(crypto_balance) {float(crypto_balance)}')
+            #logger.trade(f'amount_to_sell {amount_to_sell}')
+            #logger.trade(f'float(crypto_balance) {float(crypto_balance)}')
             
-            order_response = bot_client.order_market_sell(symbol=symbol, quantity=amount_to_sell)
+            order_response = bot_client.order_market_sell(symbol=symbol, quantity=crypto_balance) #amount_to_sell
             order_id = order_response['orderId'] or None
             order_status = order_response['status'] or None
             logger.trade(f'place_sell_order() Bot {bot_id} Sell {crypto_balance} {cryptocoin_symbol} at price {price}.')
             
             if order_status == 'FILLED':
-                logger.trade(f'place_buy_order() Bot {bot_id} Order {order_id} filled successfully.')
+                logger.trade(f'place_sell_order() Bot {bot_id} Order {order_id} filled successfully.')
                 return True, crypto_balance
             else:
-                logger.trade(f'place_buy_order() Bot {bot_id} Order {order_id} not filled. Status: {order_response["status"]}.')
+                logger.trade(f'place_sell_order() Bot {bot_id} Order {order_id} not filled. Status: {order_response["status"]}.')
                 return False, False
             
         else:

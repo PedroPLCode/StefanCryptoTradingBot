@@ -120,7 +120,7 @@ def create_balance_plot(df):
         return None
 
 
-def send_logs_via_email():
+def send_logs_via_email_and_clear_logs():
     now = datetime.now()
     today = now.strftime('%Y-%m-%d')
     subject = f"{today} Daily Stefan Logs"
@@ -141,6 +141,7 @@ def send_logs_via_email():
         except Exception as e:
             logger.error(f"Exception in send_logs_via_email log {log}: {str(e)}")
             send_admin_email(f"Exception in send_logs_via_email log {log}", str(e))
+    clear_logs()
 
 
 def clear_logs():
@@ -223,7 +224,7 @@ def send_email(email, subject, body):
         return False
 
 
-def send_report_via_email():
+def send_trade_report_via_email():
     try:
         now = datetime.now()
         today = now.strftime('%Y-%m-%d')
@@ -235,8 +236,8 @@ def send_report_via_email():
                 if not success:
                     logger.error(f"Failed to send 24h report to {user.email}.")
     except Exception as e:
-        logger.error(f"Exception in send_report_via_email email {user.email}: {str(e)}")
-        send_admin_email(f"Exception in send_report_via_email email {user.email}", str(e))
+        logger.error(f"Exception in send_trade_report_via_email email {user.email}: {str(e)}")
+        send_admin_email(f"Exception in send_trade_report_via_email email {user.email}", str(e))
 
 
 def send_admin_email(subject, body):

@@ -107,9 +107,8 @@ def start_scheduler():
             run_all_swing_trading_bots
         )
         from .utils.app_utils import (
-            send_report_via_email, 
-            send_logs_via_email, 
-            clear_logs, 
+            send_trade_report_via_email, 
+            send_logs_via_email_and_clear_logs, 
             clear_old_trade_history
         )
         scheduler.add_job(
@@ -123,17 +122,12 @@ def start_scheduler():
             minutes=30
         )
         scheduler.add_job(
-            func=partial(run_job_with_context, send_logs_via_email),
+            func=partial(run_job_with_context, send_logs_via_email_and_clear_logs),
             trigger='interval',
             hours=24
         )
         scheduler.add_job(
-            func=partial(run_job_with_context, clear_logs),
-            trigger='interval',
-            hours=24
-        )
-        scheduler.add_job(
-            func=partial(run_job_with_context, send_report_via_email),
+            func=partial(run_job_with_context, send_trade_report_via_email),
             trigger="interval",
             hours=24
         )
