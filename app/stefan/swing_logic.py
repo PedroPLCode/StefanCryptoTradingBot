@@ -83,7 +83,14 @@ def calculate_swing_indicators(df, df_for_ma, bot_settings):
             slowd_matype=0
         )
         
-        columns_to_check = ['macd', 'macd_signal', 'cci', 'upper_band', 'lower_band', 'mfi', 'atr', 'stoch_k', 'stoch_d']
+        df['psar'] = talib.SAR(
+            df['high'],
+            df['low'],
+            acceleration=bot_settings.psar_acceleration,
+            maximum=bot_settings.psar_maximum
+        )
+        
+        columns_to_check = ['macd', 'macd_signal', 'cci', 'upper_band', 'lower_band', 'mfi', 'atr', 'stoch_k', 'stoch_d', 'psar']
 
         df.dropna(subset=columns_to_check, inplace=True)
 

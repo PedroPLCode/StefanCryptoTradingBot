@@ -93,6 +93,8 @@ class BotSettingsAdmin(AdminModelView):
         'stock_d_timeperiod',
         'ema_fast_timeperiod',
         'ema_slow_timeperiod',
+        'psar_acceleration',
+        'psar_maximum',
         'interval', 
         'lookback_period', 
     )

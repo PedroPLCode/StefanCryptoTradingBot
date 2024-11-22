@@ -25,6 +25,9 @@ float(latest_data['mfi']) < float(bot_settings.mfi_buy)
 Boilinger Bands
 float(latest_data['close']) < float(latest_data['lower_band'])
 
+Parabolic SAR
+float(latest_data['close']) > float(latest_data['psar'])
+
 MA50
 float(latest_data['close']) > float(latest_data['ma_50'])
 
@@ -64,6 +67,9 @@ float(latest_data['mfi']) > float(bot_settings.mfi_sell)
 Boilinger Bands
 float(latest_data['close']) > float(latest_data['upper_band'])
 
+Parabolic SAR
+float(latest_data['close']) < float(latest_data['psar'])
+
 MA50
 float(latest_data['close']) < float(latest_data['ma_50'])
 
@@ -99,6 +105,8 @@ boilinger_timeperiod=20,
 boilinger_nbdev=2,
 stock_k_timeperiod=14,
 stock_d_timeperiod=3,
+psar_acceleration=0.01/0.02,
+psar_maximum=0.15/0.2/0.25,
 ema_fast_timeperiod=9,
 ema_slow_timeperiod=21,
 cci_buy=-50
@@ -118,12 +126,12 @@ MACD(6,13,5/8,16,6)
 Stochastic(5/9,3)
 Boilinger(20/2)
 
-algorithm 1: RSI + MACD (primary)                                   ***
-algorithm 2: MFI + MACD                                             *
+algorithm 1: RSI + MACD (primary)                                   **
+algorithm 2: PSAR + RSI + MACD                                      *
 algorithm 3: MACD with Histogram                                    *
-algorithm 4: Stochastic + Boilinger Bands (secondary)               ***
-algorithm 5: RSI + MFI + MACD with Histogram                        **
-algorithm 6: RSI + CCI + MFI + MACD                             (in test)
+algorithm 4: Stochastic + Boilinger Bands (secondary)               **
+algorithm 5: RSI + MFI + MACD with Histogram                        *
+algorithm 6: RSI + CCI + MFI + MACD                                 *
 backtested. needs real life tests.
 
 --
@@ -148,6 +156,8 @@ stock_k_timeperiod=14,
 stock_d_timeperiod=3,
 ema_fast_timeperiod=24,
 ema_slow_timeperiod=48,
+psar_acceleration=0.01/0.02/0.03,
+psar_maximum=0.1/0.2,
 cci_buy=-100 (or -50)
 cci_sel=100 (or 50)
 rsi_buy=30 (or 40)

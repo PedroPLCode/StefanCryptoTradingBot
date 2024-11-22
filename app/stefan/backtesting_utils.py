@@ -106,6 +106,13 @@ def calculate_backtest_scalp_indicators(df, bot_settings):
         df['stoch_k'] = stoch_k
         df['stoch_d'] = stoch_d
         
+        df['psar'] = talib.SAR(
+            df['high'],
+            df['low'],
+            acceleration=bot_settings.psar_acceleration,
+            maximum=bot_settings.psar_maximum
+        )
+        
         columns_to_check = ['macd', 'macd_signal', 'macd_histogram', 'cci', 'upper_band', 'lower_band', 'mfi', 'atr', 'ema_fast', 'ema_slow', 'stoch_k', 'stoch_d']
 
         df.dropna(subset=columns_to_check, inplace=True)
@@ -190,6 +197,13 @@ def calculate_backtest_swing_indicators(df, df_for_ma, bot_settings):
         )
         df['stoch_k'] = stoch_k
         df['stoch_d'] = stoch_d
+        
+        df['psar'] = talib.SAR(
+            df['high'],
+            df['low'],
+            acceleration=bot_settings.psar_acceleration,
+            maximum=bot_settings.psar_maximum
+        )
 
         columns_to_check = ['macd', 'macd_signal', 'cci', 'upper_band', 'lower_band', 'mfi', 'atr', 'ema_fast', 'ema_slow', 'stoch_k', 'stoch_d']
         df.dropna(subset=columns_to_check, inplace=True)

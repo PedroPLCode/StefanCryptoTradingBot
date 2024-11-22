@@ -88,6 +88,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
 
     stop_loss_activated = False
     if current_price <= trailing_stop_price:
+        logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} stop_loss_activated.")
         stop_loss_activated = True
         
     full_sell_signal = stop_loss_activated or sell_signal

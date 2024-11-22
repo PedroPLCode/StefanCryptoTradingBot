@@ -68,8 +68,15 @@ def calculate_scalp_indicators(df, bot_settings):
             slowd_period=bot_settings.stock_d_timeperiod,
             slowd_matype=0
         )
+        
+        df['psar'] = talib.SAR(
+            df['high'],
+            df['low'],
+            acceleration=bot_settings.psar_acceleration,
+            maximum=bot_settings.psar_maximum
+        )
 
-        columns_to_check = ['macd', 'macd_signal', 'cci', 'upper_band', 'lower_band', 'mfi', 'atr', 'stoch_k', 'stoch_d']
+        columns_to_check = ['macd', 'macd_signal', 'cci', 'upper_band', 'lower_band', 'mfi', 'atr', 'stoch_k', 'stoch_d', 'psar']
 
         df.dropna(subset=columns_to_check, inplace=True)
         
@@ -148,7 +155,8 @@ def check_scalping_buy_signal_v2(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
 
-        if (float(latest_data['mfi']) < float(bot_settings.mfi_buy) and
+        if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
+            float(latest_data['close']) > float(latest_data['psar']) and
             float(previous_data['macd']) < float(previous_data['macd_signal']) and 
             float(latest_data['macd']) > float(latest_data['macd_signal'])):
             
@@ -175,7 +183,8 @@ def check_scalping_sell_signal_v2(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
         
-        if (float(latest_data['mfi']) > float(bot_settings.mfi_sell) and
+        if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
+            float(latest_data['close']) < float(latest_data['psar']) and
             float(previous_data['macd']) > float(previous_data['macd_signal']) and 
             float(latest_data['macd']) < float(latest_data['macd_signal'])):
             

@@ -4,7 +4,7 @@ timeout = 256
 
 accesslog = '/home/stefan/StefanCryptoTradingBot/gunicorn.log'
 errorlog = '/home/stefan/StefanCryptoTradingBot/gunicorn.log'
-loglevel = 'info'  # debug, info, warning, error, critical
+loglevel = 'info' # debug, info, warning, error, critical
 
 def when_ready(server):
     from app import start_scheduler

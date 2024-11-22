@@ -32,6 +32,8 @@ class BotSettings(db.Model):
     stock_d_timeperiod = db.Column(db.Integer, default=3, nullable=False)
     ema_fast_timeperiod = db.Column(db.Integer, default=9, nullable=False)
     ema_slow_timeperiod = db.Column(db.Integer, default=21, nullable=False)
+    psar_acceleration = db.Column(db.Float, default=0.02, nullable=False)
+    psar_maximum = db.Column(db.Float, default=0.2, nullable=False)
     interval = db.Column(db.String(16), default="30m", nullable=False)
     lookback_period = db.Column(db.String(16), default="1d", nullable=False)
     bot_running = db.Column(db.Boolean, default=False, nullable=False)
