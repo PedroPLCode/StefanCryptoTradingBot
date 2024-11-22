@@ -122,7 +122,7 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                     trailing_stop_loss, 
                     bot_settings
                     )
-                if bot_settings.atr_trailing_stop:
+                if bot_settings.trailing_stop_with_atr:
                     trailing_stop_loss = update_atr_trailing_stop_loss(
                         current_price, 
                         trailing_stop_loss, 

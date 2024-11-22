@@ -31,7 +31,7 @@
         {% if user.control_panel_access %}
         <div class="col-12 col-md-6 card mt-3">
             <div class="card-header text-center bg-light">
-                <h5>Backtesting</h5>
+                <h5>Backtesting Panel</h5>
             </div>
             <div class="card-body text-center">
                 <div class="d-flex flex-column justify-content-center align-items-center gap-2">    
@@ -42,60 +42,68 @@
         </div>
         {% endif %}
 
-        {% if all_backtest_results %}
+        <div class="col-12 col-md-6 card mt-3 mb-3">
+            <div class="card-header text-center bg-light">
+                <h5>Backtests Results</h5>
+            </div>
+            {% if all_backtest_results %}
+            <div class="card-body text-center">
+                <div class="accordion" id="botsAccordion">
             {% for backtest in all_backtest_results %}
-                <div class="col-12 col-md-6 card mb-3 mt-3">
-                    <div class="card-header text-center bg-light">
-                        <h5>Backtest {{ backtest.id }} Result</h5>
-                    </div>
-                    <div class="card-body text-center">
-                        <p class="text-muted m-0 p-0">Bot ID: {{ backtest.bot_id }}</p>
-                        <p class="text-muted m-0 p-0">Symbol: {{ backtest.symbol }}</p>
-                        <p class="text-muted m-0 p-0">Strategy: {{ backtest.strategy }}</p>
-                        <p class="text-muted m-0 p-0">Algorithm: {{ backtest.algorithm }}</p>
-                        <p class="text-muted m-0 p-0">Start Date: {{ backtest.start_date }}</p>
-                        <p class="text-muted m-0 p-0">End Date: {{ backtest.end_date }}</p>
-                        <p class="text-muted m-0 p-0">Initial Balance: {{ backtest.initial_balance }} USDC</p>
-                        <p class="text-muted m-0 p-0">Final Balance: {{ backtest.final_balance }} USDC</p>
-                        <p class="text-muted m-0 p-0">Profit: {{ backtest.profit }} USDC</p>
-                        <p class="text-muted m-0 p-0">Trades Count: {{ backtest.trade_log|length /2 }}</p>
+                    <div class="accordion-item">
+                        <div class="accordion-header d-flex justify-content-center" id="heading{{ backtest.id }}">
+                            <button class="accordion-button collapsed text-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ backtest.id }}" aria-expanded="false" aria-controls="collapse{{ backtest.id }}">
+                                <p class="w-100 text-center m-0 p-0">Backtest {{ backtest.id }} Result</p>
+                            </button>
+                        </div>
+                        <div id="collapse{{ backtest.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ backtest.id }}" data-bs-parent="#botsAccordion">
+                            <div class="accordion-body">
+                                <p class="text-muted m-0 p-0">Bot ID: {{ backtest.bot_id }}</p>
+                                <p class="text-muted m-0 p-0">Symbol: {{ backtest.symbol }}</p>
+                                <p class="text-muted m-0 p-0">Strategy: {{ backtest.strategy }}</p>
+                                <p class="text-muted m-0 p-0">Algorithm: {{ backtest.algorithm }}</p>
+                                <p class="text-muted m-0 p-0">Start Date: {{ backtest.start_date }}</p>
+                                <p class="text-muted m-0 p-0">End Date: {{ backtest.end_date }}</p>
+                                <p class="text-muted m-0 p-0">Initial Balance: {{ backtest.initial_balance }} USDC</p>
+                                <p class="text-muted m-0 p-0">Final Balance: {{ backtest.final_balance }} USDC</p>
+                                <p class="text-muted m-0 p-0">Profit: {{ backtest.profit }} USDC</p>
+                                <p class="text-muted m-0 p-0">Trades Count: {{ backtest.trade_log|length /2 }}</p>
 
-                        <h6 class="mt-3">Trade Log:</h6>
-                        {% if backtest.trade_log %}
-                        <ul class="list-group">
-                            {% for trade in backtest.trade_log %}
-                                <li class="list-group-item text-muted">
-                                    {{ trade.action | capitalize }} at price {{ trade.price }} USDC
-                                    <br>
-                                    Time: {{ trade.time }}
-                                    <br>
-                                    Crypto Balance: {{ trade.crypto_balance }} 
-                                    <br>
-                                    USDC Balance: {{ trade.usdc_balance }} 
-                                    {% if trade.trailing_stop_loss %}
+                                <h6 class="mt-3">Trade Log:</h6>
+                                {% if backtest.trade_log %}
+                                <ul class="list-group">
+                                    {% for trade in backtest.trade_log %}
+                                    <li class="list-group-item text-muted">
+                                        {{ trade.action | capitalize }} at price {{ trade.price }} USDC
                                         <br>
-                                        Trailing Stop Loss: {{ trade.trailing_stop_loss }}
-                                    {% endif %}
-                                </li>
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                            <p class="text-muted m-0 p-0">No trades. adjust indicators.</p>
-                        {% endif %}
+                                        Time: {{ trade.time }}
+                                        <br>
+                                        Crypto Balance: {{ trade.crypto_balance }} 
+                                        <br>
+                                        USDC Balance: {{ trade.usdc_balance }} 
+                                        {% if trade.trailing_stop_loss %}
+                                            <br>
+                                            Trailing Stop Loss: {{ trade.trailing_stop_loss }}
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                                {% else %}
+                                    <p class="text-muted m-0 p-0">No trades. adjust indicators.</p>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
-                </div>
-            {% endfor %}
-        {% else %}
-            <div class="col-12 col-md-6 card mt-3 mb-3">
-                <div class="card-header text-center bg-light">
-                    <h5>Backtest Results</h5>
-                </div>
-                <div class="card-body text-center">
-                    <div class="d-flex flex-column justify-content-center align-items-center gap-2">
-                        <p class="mb-1">No backtest results found.<br>Start a backtest to see results here.</p>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
+        </div>
+        {% else %}
+        <div class="card-body text-center">
+            <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                <p class="mb-1">No backtest results found.<br>Start a backtest to see results here.</p>
+            </div>
+        </div>
         {% endif %}
     
         <div class="col-12 col-md-6 card mb-3">

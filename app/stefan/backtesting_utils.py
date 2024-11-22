@@ -150,7 +150,7 @@ def calculate_backtest_swing_indicators(df, df_for_ma, bot_settings):
 
         df.dropna(subset=['close'], inplace=True)
 
-        if len(df) < (26 + 14):
+        if len(df) < (bot_settings.macd_timeperiod * 2):
             logger.error('Not enough data points for MACD calculation.')
             return df
 
