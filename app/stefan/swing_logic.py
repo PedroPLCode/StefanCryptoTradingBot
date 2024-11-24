@@ -90,6 +90,8 @@ def calculate_swing_indicators(df, df_for_ma, bot_settings):
             maximum=bot_settings.psar_maximum
         )
         
+        df['vwap'] = (df['close'] * df['volume']).cumsum() / df['volume'].cumsum()
+        
         columns_to_check = ['macd', 'macd_signal', 'cci', 'upper_band', 'lower_band', 'mfi', 'atr', 'stoch_k', 'stoch_d', 'psar']
 
         df.dropna(subset=columns_to_check, inplace=True)

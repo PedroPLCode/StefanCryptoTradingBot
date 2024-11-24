@@ -43,6 +43,12 @@ float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
 float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
 float(latest_data['stoch_k']) < float(bot_settings.stoch_buy)
 
+VMAP
+float(latest_data['close']) > float(latest_data['vwap'])
+
+Volume 
+float(latest_data['volume']) > float(previous_data['volume'])
+
 --
 
 EXAMPLES OF SELL SIGNALS:
@@ -85,6 +91,12 @@ float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
 float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
 float(latest_data['stoch_k']) > float(bot_settings.stoch_sell)
 
+VMAP
+float(latest_data['close']) < float(latest_data['vwap'])
+
+Volume
+float(latest_data['volume']) < float(previous_data['volume'])
+
 --
 
 SCALPING:
@@ -126,13 +138,31 @@ MACD(6,13,5/8,16,6)
 Stochastic(5/9,3)
 Boilinger(20/2)
 
-algorithm 1: RSI + MACD (primary)                                   **
-algorithm 2: PSAR + RSI + MACD                                      *
-algorithm 3: MACD with Histogram                                    *
-algorithm 4: Stochastic + Boilinger Bands (secondary)               **
-algorithm 5: RSI + MFI + MACD with Histogram                        *
-algorithm 6: RSI + CCI + MFI + MACD                                 *
-backtested. needs real life tests.
+algorithm 1:
+(primary) 
+RSI(7) + MACD(6,12,5)
+
+algorithm 2: 
+(secondary)
+Stochastic(9,3,3) + Boilinger(20,2)
+
+algorithm 3: 
+(bullish uptrend)
+EMA(9,21) + RSI(7) + MACD(6,12,5)
+
+algorithm 4: 
+(bearish downtrend)
+RSI(7) + MACD(6,12,5) + Stochastic(9,3,3) + VMAP
+
+algorithm 5: 
+(sideways trend)
+RSI(7) + Boilinger(20,2) + Stochastic(9,3,3) + VMAP
+
+algorithm 6: 
+(bearish downtrend simplified)
+EMA(9) + RSI(7) + VMAP
+
+all backtested. needs real life tests.
 
 --
 

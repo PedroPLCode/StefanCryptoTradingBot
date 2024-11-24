@@ -76,6 +76,8 @@ def calculate_scalp_indicators(df, bot_settings):
             maximum=bot_settings.psar_maximum
         )
 
+        df['vwap'] = (df['close'] * df['volume']).cumsum() / df['volume'].cumsum()
+
         columns_to_check = ['macd', 'macd_signal', 'cci', 'upper_band', 'lower_band', 'mfi', 'atr', 'stoch_k', 'stoch_d', 'psar']
 
         df.dropna(subset=columns_to_check, inplace=True)
@@ -101,6 +103,9 @@ def check_scalping_buy_signal_v1(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
         
+        # Primary - Buy Signal:
+        # - RSI indicates potential upward movement (oversold)
+        # - MACD crosses the signal line from below (confirmation of trend strength)
         if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
             float(previous_data['macd']) < float(previous_data['macd_signal']) and 
             float(latest_data['macd']) > float(latest_data['macd_signal'])):
@@ -128,6 +133,9 @@ def check_scalping_sell_signal_v1(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
 
+        # Primary - Sell Signal:
+        # - RSI is indicates overheated market
+        # - MACD crosses the signal line from above (weakening of the upward trend)
         if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
             float(previous_data['macd']) > float(previous_data['macd_signal']) and 
             float(latest_data['macd']) < float(latest_data['macd_signal'])):
@@ -155,10 +163,14 @@ def check_scalping_buy_signal_v2(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
 
-        if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
-            float(latest_data['close']) > float(latest_data['psar']) and
-            float(previous_data['macd']) < float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) > float(latest_data['macd_signal'])):
+        # Secondary - Buy Signal:
+        # Current price is below the lower Bollinger Band, suggesting an oversold condition.
+        # Stochastic K crosses above the Stochastic D, indicating a potential bullish reversal.
+        # Stochastic K is below the specified buy threshold, confirming the possibility of an upward move.
+        if (float(latest_data['close']) < float(latest_data['lower_band']) and
+            float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
+            float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) < float(bot_settings.stoch_buy)):
             
             return True
             
@@ -183,10 +195,14 @@ def check_scalping_sell_signal_v2(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
         
-        if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(latest_data['close']) < float(latest_data['psar']) and
-            float(previous_data['macd']) > float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) < float(latest_data['macd_signal'])):
+        # Secondary - Sell Signal:
+        # Current price is above the upper Bollinger Band, indicating an overbought condition.
+        # Stochastic K crosses below the Stochastic D, suggesting a potential bearish reversal.
+        # Stochastic K is above the specified sell threshold, confirming the possibility of a downward move.
+        if (float(latest_data['close']) > float(latest_data['upper_band']) and
+            float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
+            float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) > float(bot_settings.stoch_sell)):
             
             return True
         
@@ -201,7 +217,7 @@ def check_scalping_sell_signal_v2(df, bot_settings):
         send_admin_email(f'Exception in check_scalping_sell_signal bot {bot_settings.id}', str(e))
         return False
     
-    
+            
 def check_scalping_buy_signal_v3(df, bot_settings):
     from .logic_utils import is_df_valid
     try:
@@ -211,10 +227,15 @@ def check_scalping_buy_signal_v3(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
 
-        if (float(previous_data['macd']) < float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) > float(latest_data['macd_signal']) and
-            float(previous_data['macd_histogram']) < 0 and 
-            float(latest_data['macd_histogram']) > 0):
+        # Bullish uptrend - Buy Signal:
+        # - RSI indicates potential upward movement (oversold)
+        # - Closing price is above the fast EMA and slow EMA
+        # - MACD crosses the signal line from below (confirmation of trend strength)
+        if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
+            float(latest_data['close']) > float(latest_data['ema_fast']) and
+            float(latest_data['close']) > float(latest_data['ema_slow']) and
+            float(previous_data['macd']) < float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) > float(latest_data['macd_signal'])):
             
             return True
             
@@ -239,10 +260,15 @@ def check_scalping_sell_signal_v3(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
         
-        if (float(previous_data['macd']) > float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) < float(latest_data['macd_signal']) and 
-            float(previous_data['macd_histogram']) > 0 and 
-            float(latest_data['macd_histogram']) < 0):
+        # Bullish uptrend - Sell Signal:
+        # - RSI indicates overheated market
+        # - Closing price drops below the fast EMA and slow EMA
+        # - MACD crosses the signal line from above (weakening of the upward trend)
+        if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
+            float(latest_data['close']) < float(latest_data['ema_fast']) and
+            float(latest_data['close']) < float(latest_data['ema_slow']) and
+            float(previous_data['macd']) > float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) < float(latest_data['macd_signal'])):
             
             return True
         
@@ -266,11 +292,17 @@ def check_scalping_buy_signal_v4(df, bot_settings):
         
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
-
-        if (float(latest_data['close']) < float(latest_data['lower_band']) and
-            float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
+        
+        # Bearish downtrend - Buy Signal:
+        # - RSI is indicates potential upward movement (oversold)
+        # - MACD crosses the signal line from below (confirmation of trend strength)
+        # - Stochastic K is above D 
+        # - Current price above VWAP
+        if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
+            float(previous_data['macd']) < float(previous_data['macd_signal']) and
+            float(latest_data['macd']) > float(latest_data['macd_signal']) and
             float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
-            float(latest_data['stoch_k']) < float(bot_settings.stoch_buy)):
+            float(latest_data['close']) > float(latest_data['vwap'])):
             
             return True
             
@@ -284,7 +316,7 @@ def check_scalping_buy_signal_v4(df, bot_settings):
         logger.error(f'Exception in check_scalping_buy_signal bot {bot_settings.id}: {str(e)}')
         send_admin_email(f'Exception in check_scalping_buy_signal bot {bot_settings.id}', str(e))
         return False
-    
+
     
 def check_scalping_sell_signal_v4(df, bot_settings):
     from .logic_utils import is_df_valid
@@ -295,10 +327,16 @@ def check_scalping_sell_signal_v4(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
         
-        if (float(latest_data['close']) > float(latest_data['upper_band']) and
-            float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
+        # Bearish downtrend - Sell Signal:
+        # - RSI is indicates overheated market
+        # - MACD crosses the signal line from above (weakening of the upward trend)
+        # - Stochastic K is lower than D
+        # - Current price below VWAP
+        if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
+            float(previous_data['macd']) > float(previous_data['macd_signal']) and
+            float(latest_data['macd']) < float(latest_data['macd_signal']) and
             float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
-            float(latest_data['stoch_k']) > float(bot_settings.stoch_sell)):
+            float(latest_data['close']) < float(latest_data['vwap'])):
             
             return True
         
@@ -323,12 +361,16 @@ def check_scalping_buy_signal_v5(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
 
+        # Sideways trend - Buy Signal:
+        # - RSI indicates potential upward movement (oversold)
+        # - Price approaches the lower Bollinger Band
+        # - Stochastic K crosses above D from below
+        # - Price is above the VWAP
         if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
-            float(latest_data['mfi']) < float(bot_settings.mfi_buy) and
-            float(previous_data['macd']) < float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) > float(latest_data['macd_signal']) and 
-            float(previous_data['macd_histogram']) < 0 and 
-            float(latest_data['macd_histogram']) > 0):
+            float(latest_data['close']) <= float(latest_data['lower_band']) and
+            float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and 
+            float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
+            float(latest_data['close']) > float(latest_data['vwap'])):
             
             return True
             
@@ -353,12 +395,16 @@ def check_scalping_sell_signal_v5(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
         
+        # Sideways trend - Sell Signal:
+        # - RSI is indicates overheated market
+        # - Price approaches the upper Bollinger Band
+        # - Stochastic K crosses below D from above
+        # - Price is below the VWAP
         if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(latest_data['mfi']) > float(bot_settings.mfi_sell) and
-            float(previous_data['macd']) > float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) < float(latest_data['macd_signal']) and
-            float(previous_data['macd_histogram']) > 0 and 
-            float(latest_data['macd_histogram']) < 0):
+            float(latest_data['close']) >= float(latest_data['upper_band']) and
+            float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
+            float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
+            float(latest_data['close']) < float(latest_data['vwap'])):
             
             return True
         
@@ -383,11 +429,13 @@ def check_scalping_buy_signal_v6(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
         
+        # Bearish downtrend simplified - Buy Signal:
+        # - RSI is indicates potential upward movement (oversold)
+        # - Current close price above fast EMA
+        # - Current price above VWAP
         if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
-            float(latest_data['cci']) < float(bot_settings.cci_buy) and
-            float(latest_data['mfi']) < float(bot_settings.mfi_buy) and
-            float(previous_data['macd']) < float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) > float(latest_data['macd_signal'])):
+            float(latest_data['close']) > float(latest_data['ema_fast']) and
+            float(latest_data['close']) > float(latest_data['vwap'])):
             
             return True
         
@@ -413,11 +461,13 @@ def check_scalping_sell_signal_v6(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
 
+        # Bearish downtrend simplified - Sell Signal:
+        # - RSI is indicates overheated market
+        # - Current close below fast EMA
+        # - Current price below VWAP
         if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(latest_data['cci']) > float(bot_settings.cci_sell) and
-            float(latest_data['mfi']) > float(bot_settings.mfi_sell) and
-            float(previous_data['macd']) > float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) < float(latest_data['macd_signal'])):
+            float(latest_data['close']) < float(latest_data['ema_fast']) and
+            float(latest_data['close']) < float(latest_data['vwap'])):
             
             return True
         
