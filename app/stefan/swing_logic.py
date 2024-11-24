@@ -119,9 +119,7 @@ def check_swing_buy_signal_v1(df, bot_settings):
         
         if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
             float(previous_data['macd']) < float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) > float(latest_data['macd_signal']) and
-            float(previous_data['macd_histogram']) < 0 and 
-            float(latest_data['macd_histogram']) > 0):
+            float(latest_data['macd']) > float(latest_data['macd_signal'])):
             
             return True
         
@@ -148,9 +146,7 @@ def check_swing_sell_signal_v1(df, bot_settings):
         
         if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
             float(previous_data['macd']) > float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) < float(latest_data['macd_signal']) and 
-            float(previous_data['macd_histogram']) > 0 and 
-            float(latest_data['macd_histogram']) < 0):
+            float(latest_data['macd']) < float(latest_data['macd_signal'])):
             
             return True
         
@@ -176,9 +172,10 @@ def check_swing_buy_signal_v2(df, bot_settings):
         previous_data = df.iloc[-2]
 
         if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
-            float(previous_data['macd']) < float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) > float(latest_data['macd_signal']) and
-            float(latest_data['close']) > float(latest_data['ma_200'])):
+            float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
+            float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) < float(bot_settings.stoch_buy) and
+            float(latest_data['close']) > float(latest_data['vwap'])):
             
             return True
 
@@ -204,9 +201,10 @@ def check_swing_sell_signal_v2(df, bot_settings):
         previous_data = df.iloc[-2]
 
         if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(previous_data['macd']) > float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) < float(latest_data['macd_signal']) and
-            float(latest_data['close']) < float(latest_data['ma_200'])):
+            float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
+            float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) > float(bot_settings.stoch_sell) and 
+            float(latest_data['close']) < float(latest_data['vwap'])):
             
             return True
         
@@ -232,9 +230,9 @@ def check_swing_buy_signal_v3(df, bot_settings):
         previous_data = df.iloc[-2]
         
         if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
-            float(previous_data['macd']) < float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) > float(latest_data['macd_signal']) and
-            float(latest_data['close']) > float(latest_data['ma_50'])):
+            float(previous_data['ema_fast']) < float(previous_data['ema_slow']) and 
+            float(latest_data['ema_fast']) > float(latest_data['ema_slow']) and 
+            float(latest_data['close']) > float(latest_data['vwap'])):
             
             return True
 
@@ -260,9 +258,9 @@ def check_swing_sell_signal_v3(df, bot_settings):
         previous_data = df.iloc[-2]
 
         if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(previous_data['macd']) > float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) < float(latest_data['macd_signal']) and
-            float(latest_data['close']) < float(latest_data['ma_50'])):
+            float(previous_data['ema_fast']) > float(previous_data['ema_slow']) and
+            float(latest_data['ema_fast']) < float(latest_data['ema_slow']) and 
+            float(latest_data['close']) < float(latest_data['vwap'])):
             
             return True
         
@@ -339,9 +337,10 @@ def check_swing_buy_signal_v5(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
         
-        if (float(previous_data['ema_fast']) < float(previous_data['ema_slow']) and 
-            float(latest_data['ema_fast']) > float(latest_data['ema_slow']) and
-            float(latest_data['close']) > float(latest_data['ma_50'])):
+        if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
+            float(previous_data['macd']) < float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) > float(latest_data['macd_signal']) and
+            float(latest_data['ema_fast']) > float(latest_data['ema_slow'])):
             
             return True
 
@@ -366,9 +365,10 @@ def check_swing_sell_signal_v5(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
 
-        if (float(previous_data['ema_fast']) > float(previous_data['ema_slow']) and
-            float(latest_data['ema_fast']) < float(latest_data['ema_slow']) and 
-            float(latest_data['close']) < float(latest_data['ma_50'])):
+        if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
+            float(previous_data['macd']) > float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) < float(latest_data['macd_signal']) and
+            float(latest_data['ema_fast']) < float(latest_data['ema_slow'])):
             
             return True
         
@@ -392,9 +392,9 @@ def check_swing_buy_signal_v6(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
         
-        if (float(previous_data['macd']) < float(previous_data['macd_signal']) and 
+        if (float(latest_data['close']) > float(latest_data['vwap']) and
+            float(previous_data['macd']) < float(previous_data['macd_signal']) and 
             float(latest_data['macd']) > float(latest_data['macd_signal']) and
-            float(previous_data['ema_fast']) < float(previous_data['ema_slow']) and 
             float(latest_data['ema_fast']) > float(latest_data['ema_slow'])):
             
             return True
@@ -420,9 +420,9 @@ def check_swing_sell_signal_v6(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
 
-        if (float(previous_data['macd']) > float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) < float(latest_data['macd_signal']) and 
-            float(previous_data['ema_fast']) > float(previous_data['ema_slow']) and
+        if (float(latest_data['close']) < float(latest_data['vwap']) and
+            float(previous_data['macd']) > float(previous_data['macd_signal']) and 
+            float(latest_data['macd']) < float(latest_data['macd_signal']) and
             float(latest_data['ema_fast']) < float(latest_data['ema_slow'])):
             
             return True

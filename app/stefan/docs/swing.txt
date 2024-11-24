@@ -1,0 +1,62 @@
+SWING TRADING:
+
+'swing' BTC ETH BNB SOL LTC ADA
+run interval 30min
+trailing_stop_pct=0.05 or 0.03
+interval="30m"
+lookback_period="1d"
+timeperiod=14/9
+rsi_timeperiod=14/9
+atr_timeperiod=14/9
+cci_timeperiod=14/9/5,
+mfi_timeperiod=14/9/5
+macd_timeperiod=12-26,
+macd_signalperiod=9,
+boilinger_timeperiod=20,
+boilinger_nbdev=2,
+stock_k_timeperiod=14,
+stock_d_timeperiod=3,
+ema_fast_timeperiod=24,
+ema_slow_timeperiod=48,
+psar_acceleration=0.01/0.02/0.03,
+psar_maximum=0.1/0.2,
+cci_buy=-100 (or -50)
+cci_sel=100 (or 50)
+rsi_buy=30 (or 40)
+rsi_sell=70 (or 60)
+mfi_buy=20 (or 30)
+mfi_sell=80 (or 70)
+stoch_buy=20
+stoch_sell=80
+atr_calc=3-7
+
+RSI(14)
+MACD(12,24,9/24,48,9)
+Stochastic(14,3)
+Boilinger(20/2)
+
+algorithm 1: 
+(classic)
+RSI(14) + MACD(12,24,9)
+
+algorithm 2: 
+(bullish uptrend)
+RSI(14) + Stochastic(14,3) + VMAP
+
+algorithm 3: 
+(bearish downtrend)
+RSI(14) + EMA(24,48) + VMAP
+
+algorithm 4:
+(buy the dip)
+RSI(14) + Boilinger(20,2) + MA50
+
+algorithm 5: 
+(sideways trend)
+RSI(14) + EMA(9,21) + MACD(12,24,9)
+
+algorithm 6:
+(additional)
+EMA(9,21) + MACD(12,24,9) + VMAP
+
+all backtested. needs real life tests.

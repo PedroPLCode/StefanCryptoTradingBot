@@ -1,0 +1,64 @@
+SCALPING:
+
+'scalp' BTC ETH BNB SOL LTC ADA
+run interval 1min
+trailing_stop_pct=0.03 or 0.01
+interval="1m"
+lookback_period="45m"
+timeperiod=14/9/5
+rsi_timeperiod=14/9/5
+atr_timeperiod=14/9/5
+cci_timeperiod=14/9/5,
+mfi_timeperiod=14/9/5
+macd_timeperiod=12-26,
+macd_signalperiod=9,
+boilinger_timeperiod=20,
+boilinger_nbdev=2,
+stock_k_timeperiod=14,
+stock_d_timeperiod=3,
+psar_acceleration=0.01/0.02,
+psar_maximum=0.15/0.2/0.25,
+ema_fast_timeperiod=9,
+ema_slow_timeperiod=21,
+cci_buy=-50
+cci_sel=50
+rsi_buy=20/30/35
+rsi_sell=80/70/65
+mfi_buy=30
+mfi_sell=70
+stoch_buy=20
+stoch_sell=80
+atr_calc=1-2
+
+RSI(5/7/9)
+CCI(5/7/9)
+MFI(6/8)
+MACD(6,13,5/8,16,6)
+Stochastic(5/9,3)
+Boilinger(20/2)
+
+algorithm 1:
+(primary) 
+RSI(7) + MACD(6,12,5)
+
+algorithm 2: 
+(secondary)
+Stochastic(9,3,3) + Boilinger(20,2)
+
+algorithm 3: 
+(bullish uptrend)
+EMA(9,21) + RSI(7) + MACD(6,12,5)
+
+algorithm 4: 
+(bearish downtrend)
+RSI(7) + MACD(6,12,5) + Stochastic(9,3,3) + VMAP
+
+algorithm 5: 
+(sideways trend)
+RSI(7) + Boilinger(20,2) + Stochastic(9,3,3) + VMAP
+
+algorithm 6: 
+(bearish downtrend simplified)
+EMA(9) + RSI(7) + VMAP
+
+all backtested. needs real life tests.
