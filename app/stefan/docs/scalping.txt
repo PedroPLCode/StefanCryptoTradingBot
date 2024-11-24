@@ -43,7 +43,7 @@ RSI(7) + MACD(6,12,5)
 
 algorithm 2: 
 (secondary)
-Stochastic(9,3,3) + Boilinger(20,2)
+Stochastic(5,3) + Boilinger(20,2)
 
 algorithm 3: 
 (bullish uptrend)
@@ -51,14 +51,14 @@ EMA(9,21) + RSI(7) + MACD(6,12,5)
 
 algorithm 4: 
 (bearish downtrend)
-RSI(7) + MACD(6,12,5) + Stochastic(9,3,3) + VMAP
+RSI(7) + MACD(6,12,5) + Stochastic(5,3) + VMAP
 
 algorithm 5: 
 (sideways trend)
-RSI(7) + Boilinger(20,2) + Stochastic(9,3,3) + VMAP
+RSI(7) + Boilinger(20,2) + Stochastic(5,3) + VMAP
 
 algorithm 6: 
-(bearish downtrend simplified)
-EMA(9) + RSI(7) + VMAP
+(bearish downtrend additional)
+Stochastic RSI(5,3) + Boilinger(20,2)
 
 all backtested. needs real life tests.

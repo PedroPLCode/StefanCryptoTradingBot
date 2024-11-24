@@ -69,6 +69,18 @@ def calculate_scalp_indicators(df, bot_settings):
             slowd_matype=0
         )
         
+        df['stoch_rsi'] = talib.RSI(df['rsi'], timeperiod=bot_settings.stoch_rsi_timeperiod)
+        df['stoch_rsi_k'], df['stoch_rsi_d'] = talib.STOCH(
+            df['stoch_rsi'],
+            df['stoch_rsi'],
+            df['stoch_rsi'],
+            fastk_period=bot_settings.stoch_rsi_k_timeperiod,
+            slowk_period=bot_settings.stoch_rsi_d_timeperiod,
+            slowk_matype=0,
+            slowd_period=bot_settings.stoch_rsi_d_timeperiod,
+            slowd_matype=0
+        )
+        
         df['psar'] = talib.SAR(
             df['high'],
             df['low'],
@@ -387,9 +399,9 @@ def check_scalping_buy_signal_v6(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
         
-        if (float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
-            float(latest_data['close']) > float(latest_data['ema_fast']) and
-            float(latest_data['close']) > float(latest_data['vwap'])):
+        if (float(latest_data['close']) < float(latest_data['lower_band']) and
+            float(latest_data['stoch_rsi_k']) < float(bot_settings.stoch_buy) and
+            float(latest_data['stoch_rsi_k']) > float(latest_data['stoch_rsi_d'])):
             
             return True
         
@@ -415,9 +427,9 @@ def check_scalping_sell_signal_v6(df, bot_settings):
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
 
-        if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(latest_data['close']) < float(latest_data['ema_fast']) and
-            float(latest_data['close']) < float(latest_data['vwap'])):
+        if (float(latest_data['close']) > float(latest_data['upper_band']) and
+            float(latest_data['stoch_rsi_k']) > float(bot_settings.stoch_sell) and
+            float(latest_data['stoch_rsi_k']) < float(latest_data['stoch_rsi_d'])):
             
             return True
         

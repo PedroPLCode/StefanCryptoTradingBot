@@ -56,7 +56,7 @@ algorithm 5:
 RSI(14) + EMA(9,21) + MACD(12,24,9)
 
 algorithm 6:
-(additional)
-EMA(9,21) + MACD(12,24,9) + VMAP
+(bearish downtrend additional)
+Stochastic RSI(14,3) + Boilinger(20,2)
 
 all backtested. needs real life tests.

@@ -43,6 +43,10 @@ float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
 float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
 float(latest_data['stoch_k']) < float(bot_settings.stoch_buy)
 
+Stochastic RSI
+float(latest_data['stoch_rsi_k']) < float(bot_settings.stoch_buy) and
+float(latest_data['stoch_rsi_k']) > float(latest_data['stoch_rsi_d'])
+
 VMAP
 float(latest_data['close']) > float(latest_data['vwap'])
 
@@ -90,6 +94,10 @@ Stochastic
 float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
 float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
 float(latest_data['stoch_k']) > float(bot_settings.stoch_sell)
+
+Stochastic RSI
+float(latest_data['stoch_rsi_k']) > float(bot_settings.stoch_sell) and
+float(latest_data['stoch_rsi_k']) < float(latest_data['stoch_rsi_d'])
 
 VMAP
 float(latest_data['close']) < float(latest_data['vwap'])
