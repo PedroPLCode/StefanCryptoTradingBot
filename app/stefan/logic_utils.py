@@ -108,6 +108,50 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} loop completed.")
 
 
+def check_trend(df):
+    try:
+        
+        latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
+            
+        adx_trend = (latest_data['adx'] > 25 and latest_data['adx'] > previous_data['adx'])
+        avg_adx = sum(df.iloc[-5:]) / 5
+        di_difference_increasing = (abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) > 
+                                    abs(float(previous_data['plus_di']) - float(previous_data['minus_di'])))
+        significant_move = (latest_data['high'] - latest_data['low']) > latest_data['atr']
+
+        uptrend = (float(latest_data['plus_di']) > float(latest_data['minus_di']) and 
+                adx_trend and 
+                di_difference_increasing and 
+                latest_data['rsi'] < 70 and 
+                float(latest_data['plus_di']) > 20 and
+                significant_move)
+
+        downtrend = (float(latest_data['plus_di']) < float(latest_data['minus_di']) and 
+                    adx_trend and 
+                    di_difference_increasing and 
+                    float(latest_data['minus_di']) > 20 and 
+                    latest_data['rsi'] > 30 and
+                    significant_move)
+
+        horizontal = (latest_data['adx'] < avg_adx and 
+                    abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) < 5)
+        
+        if uptrend:
+            return 'uptrend'
+        elif downtrend:
+            return 'downtrend'
+        elif horizontal:
+            return 'horizontal'
+        else:
+            return None
+        
+    except Exception as e:
+        logger.error(f"Exception in check_trend: {str(e)}")
+        send_admin_email(f'Exception in check_trend', str(e))
+        return None
+    
+
 def check_signals(bot_settings, df):
     indicators_ok = all([
         bot_settings.rsi_buy,
@@ -132,45 +176,46 @@ def check_signals(bot_settings, df):
         return None, None
     
     buy_signal, sell_signal = None, None
+    trend = check_trend(df)
     
     if bot_settings.strategy == 'swing':
         if bot_settings.algorithm == 1:
-            buy_signal = check_swing_buy_signal_v1(df, bot_settings)
-            sell_signal = check_swing_sell_signal_v1(df, bot_settings)
+            buy_signal = check_swing_buy_signal_v1(df, bot_settings, trend)
+            sell_signal = check_swing_sell_signal_v1(df, bot_settings, trend)
         elif bot_settings.algorithm == 2:
-            buy_signal = check_swing_buy_signal_v2(df, bot_settings)
-            sell_signal = check_swing_sell_signal_v2(df, bot_settings)
+            buy_signal = check_swing_buy_signal_v2(df, bot_settings, trend)
+            sell_signal = check_swing_sell_signal_v2(df, bot_settings, trend)
         elif bot_settings.algorithm == 3:
-            buy_signal = check_swing_buy_signal_v3(df, bot_settings)
-            sell_signal = check_swing_sell_signal_v3(df, bot_settings)
+            buy_signal = check_swing_buy_signal_v3(df, bot_settings, trend)
+            sell_signal = check_swing_sell_signal_v3(df, bot_settings, trend)
         elif bot_settings.algorithm == 4:
-            buy_signal = check_swing_buy_signal_v4(df, bot_settings)
-            sell_signal = check_swing_sell_signal_v4(df, bot_settings)
+            buy_signal = check_swing_buy_signal_v4(df, bot_settings, trend)
+            sell_signal = check_swing_sell_signal_v4(df, bot_settings, trend)
         elif bot_settings.algorithm == 5:
-            buy_signal = check_swing_buy_signal_v5(df, bot_settings)
-            sell_signal = check_swing_sell_signal_v5(df, bot_settings)
+            buy_signal = check_swing_buy_signal_v5(df, bot_settings, trend)
+            sell_signal = check_swing_sell_signal_v5(df, bot_settings, trend)
         elif bot_settings.algorithm == 6:
-            buy_signal = check_swing_buy_signal_v6(df, bot_settings)
-            sell_signal = check_swing_sell_signal_v6(df, bot_settings)
+            buy_signal = check_swing_buy_signal_v6(df, bot_settings, trend)
+            sell_signal = check_swing_sell_signal_v6(df, bot_settings, trend)
     elif bot_settings.strategy == 'scalp':
         if bot_settings.algorithm == 1:
-            buy_signal = check_scalping_buy_signal_v1(df, bot_settings)
-            sell_signal = check_scalping_sell_signal_v1(df, bot_settings)
+            buy_signal = check_scalping_buy_signal_v1(df, bot_settings, trend)
+            sell_signal = check_scalping_sell_signal_v1(df, bot_settings, trend)
         elif bot_settings.algorithm == 2:
-            buy_signal = check_scalping_buy_signal_v2(df, bot_settings)
-            sell_signal = check_scalping_sell_signal_v2(df, bot_settings)
+            buy_signal = check_scalping_buy_signal_v2(df, bot_settings, trend)
+            sell_signal = check_scalping_sell_signal_v2(df, bot_settings, trend)
         elif bot_settings.algorithm == 3:
-            buy_signal = check_scalping_buy_signal_v3(df, bot_settings)
-            sell_signal = check_scalping_sell_signal_v3(df, bot_settings)
+            buy_signal = check_scalping_buy_signal_v3(df, bot_settings, trend)
+            sell_signal = check_scalping_sell_signal_v3(df, bot_settings, trend)
         elif bot_settings.algorithm == 4:
-            buy_signal = check_scalping_buy_signal_v4(df, bot_settings)
-            sell_signal = check_scalping_sell_signal_v4(df, bot_settings)
+            buy_signal = check_scalping_buy_signal_v4(df, bot_settings, trend)
+            sell_signal = check_scalping_sell_signal_v4(df, bot_settings, trend)
         elif bot_settings.algorithm == 5:
-            buy_signal = check_scalping_buy_signal_v5(df, bot_settings)
-            sell_signal = check_scalping_sell_signal_v5(df, bot_settings)
+            buy_signal = check_scalping_buy_signal_v5(df, bot_settings, trend)
+            sell_signal = check_scalping_sell_signal_v5(df, bot_settings, trend)
         elif bot_settings.algorithm == 6:
-            buy_signal = check_scalping_buy_signal_v6(df, bot_settings)
-            sell_signal = check_scalping_sell_signal_v6(df, bot_settings)
+            buy_signal = check_scalping_buy_signal_v6(df, bot_settings, trend)
+            sell_signal = check_scalping_sell_signal_v6(df, bot_settings, trend)
     return buy_signal, sell_signal
 
 

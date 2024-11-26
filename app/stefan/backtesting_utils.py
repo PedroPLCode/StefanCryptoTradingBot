@@ -113,6 +113,27 @@ def calculate_backtest_scalp_indicators(df, bot_settings):
             maximum=bot_settings.psar_maximum
         )
         
+        df['adx'] = talib.ADX(
+            df['high'],
+            df['low'],
+            df['close'],
+            timeperiod=bot_settings.adx_timeperiod
+        )
+        
+        df['plus_di'] = talib.PLUS_DI(
+            df['high'],
+            df['low'],
+            df['close'],
+            timeperiod=bot_settings.adx_timeperiod
+        )
+
+        df['minus_di'] = talib.MINUS_DI(
+            df['high'],
+            df['low'],
+            df['close'],
+            timeperiod=bot_settings.adx_timeperiod
+        )
+        
         df['vwap'] = (df['close'] * df['volume']).cumsum() / df['volume'].cumsum()
         
         columns_to_check = ['macd', 'macd_signal', 'macd_histogram', 'cci', 'upper_band', 'lower_band', 'mfi', 'atr', 'ema_fast', 'ema_slow', 'stoch_k', 'stoch_d']
@@ -205,6 +226,27 @@ def calculate_backtest_swing_indicators(df, df_for_ma, bot_settings):
             df['low'],
             acceleration=bot_settings.psar_acceleration,
             maximum=bot_settings.psar_maximum
+        )
+        
+        df['adx'] = talib.ADX(
+            df['high'],
+            df['low'],
+            df['close'],
+            timeperiod=bot_settings.adx_timeperiod
+        )
+        
+        df['plus_di'] = talib.PLUS_DI(
+            df['high'],
+            df['low'],
+            df['close'],
+            timeperiod=bot_settings.adx_timeperiod
+        )
+
+        df['minus_di'] = talib.MINUS_DI(
+            df['high'],
+            df['low'],
+            df['close'],
+            timeperiod=bot_settings.adx_timeperiod
         )
         
         df['vwap'] = (df['close'] * df['volume']).cumsum() / df['volume'].cumsum()

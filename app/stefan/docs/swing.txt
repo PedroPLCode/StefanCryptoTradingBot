@@ -5,7 +5,9 @@ run interval 30min
 trailing_stop_pct=0.05 or 0.03
 interval="30m"
 lookback_period="1d"
+avg_volume_period=5
 timeperiod=14/9
+adx_timeperiod=14
 rsi_timeperiod=14/9
 atr_timeperiod=14/9
 cci_timeperiod=14/9/5,
@@ -35,9 +37,10 @@ MACD(12,24,9/24,48,9)
 Stochastic(14,3)
 Boilinger(20/2)
 
-algorithm 1: 
-(classic)
-RSI(14) + MACD(12,24,9)
+algorithm 1: *run
+(classic for uptrend and horizontal trend)
+intervals 30min, ATR(14, x5), AvgVolPeriod(5)
+if not downtrend RSI(14) + MACD(12,24,9) + Volume
 
 algorithm 2: 
 (bullish uptrend)
@@ -52,11 +55,14 @@ algorithm 4:
 RSI(14) + Boilinger(20,2) + MA50
 
 algorithm 5: 
-(sideways trend)
+(horizontal trend)
 RSI(14) + EMA(9,21) + MACD(12,24,9)
 
-algorithm 6:
-(bearish downtrend additional)
-Stochastic RSI(14,3) + Boilinger(20,2)
+algorithm 6: *run
+(intelligent)
+intervals 30min, ATR(14, x5), AvgVolPeriod(5)
+if uptrend RSI(14, 30/70) + MACD(12,24,9) + MA(50) + BoilingerBands(20,2) + Volume
+if horizontal RSI(14, 30/70) + BoilingerBands(20,2) + Stochastic(14,3, 20/80) + Volume
+if downtrend dont trade RSI(14, 30/70) + BoilingerBands(20,2) + MACD(12,24,9) + Stochastic(14,3, 20/80)
 
 all backtested. needs real life tests.

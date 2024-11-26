@@ -2,6 +2,7 @@ import pandas as pd
 from ..utils.logging import logger
 from .api_utils import fetch_data
 from .logic_utils import (
+    check_trend,
     update_trailing_stop_loss,
     update_atr_trailing_stop_loss
 )
@@ -73,8 +74,9 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                     continue
                 
             buy_signal_func, sell_signal_func = select_signals_checkers(bot_settings)
-            buy_signal = buy_signal_func(loop_df, bot_settings)
-            sell_signal = sell_signal_func(loop_df, bot_settings)
+            trend = check_trend(df)
+            buy_signal = buy_signal_func(loop_df, bot_settings, trend)
+            sell_signal = sell_signal_func(loop_df, bot_settings, trend)
             stop_loss_activated = current_price <= trailing_stop_loss
             
             full_sell_signal = stop_loss_activated or sell_signal
