@@ -108,48 +108,56 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} loop completed.")
 
 
-def check_trend(df):
+def check_trend(df, bot_settings):
     try:
         
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
-            
-        adx_trend = (latest_data['adx'] > 25 and latest_data['adx'] > previous_data['adx'])
-        avg_adx = sum(df.iloc[-5:]) / 5
+        
+        avg_volume_period = bot_settings.avg_volume_period
+        avg_adx = df['adx'].iloc[-avg_volume_period:].mean()
+        adx_trend = (float(latest_data['adx']) > 25 and float(latest_data['adx']) > float(avg_adx))
+        
+        avg_plus_di = df['plus_di'].iloc[-avg_volume_period:].mean()
+        avg_minus_di = df['minus_di'].iloc[-avg_volume_period:].mean()
         di_difference_increasing = (abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) > 
-                                    abs(float(previous_data['plus_di']) - float(previous_data['minus_di'])))
-        significant_move = (latest_data['high'] - latest_data['low']) > latest_data['atr']
+                                    abs(float(avg_plus_di) - float(avg_minus_di)))
+        
+        significant_move = (float(latest_data['high']) - float(latest_data['low']) > float(latest_data['atr']))
 
-        uptrend = (float(latest_data['plus_di']) > float(latest_data['minus_di']) and 
+        uptrend = (float(latest_data['plus_di']) > float(avg_minus_di) and 
                 adx_trend and 
                 di_difference_increasing and 
-                latest_data['rsi'] < 70 and 
+                float(latest_data['rsi']) < 70 and 
                 float(latest_data['plus_di']) > 20 and
                 significant_move)
 
-        downtrend = (float(latest_data['plus_di']) < float(latest_data['minus_di']) and 
+        downtrend = (float(latest_data['plus_di']) < float(avg_minus_di) and 
                     adx_trend and 
                     di_difference_increasing and 
                     float(latest_data['minus_di']) > 20 and 
-                    latest_data['rsi'] > 30 and
+                    float(latest_data['rsi']) > 30 and
                     significant_move)
 
         horizontal = (latest_data['adx'] < avg_adx and 
                     abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) < 5)
         
         if uptrend:
+            logger.trade(f"Bot {bot_settings.id} {bot_settings.strategy} have BULLISH UPTREND")
             return 'uptrend'
         elif downtrend:
+            logger.trade(f"Bot {bot_settings.id} {bot_settings.strategy} have BEARISH DOWNTREND")
             return 'downtrend'
         elif horizontal:
+            logger.trade(f"Bot {bot_settings.id} {bot_settings.strategy} have HORIZONTAL TREND")
             return 'horizontal'
         else:
-            return None
+            return 'none'
         
     except Exception as e:
         logger.error(f"Exception in check_trend: {str(e)}")
         send_admin_email(f'Exception in check_trend', str(e))
-        return None
+        return 'none'
     
 
 def check_signals(bot_settings, df):
@@ -176,7 +184,7 @@ def check_signals(bot_settings, df):
         return None, None
     
     buy_signal, sell_signal = None, None
-    trend = check_trend(df)
+    trend = check_trend(df, bot_settings)
     
     if bot_settings.strategy == 'swing':
         if bot_settings.algorithm == 1:

@@ -3,6 +3,7 @@ previous_data = df.iloc[-2]
 
 avg_volume_period = bot_settings.avg_volume_period
 avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
+avg_rsi = df['rsi'].iloc[-avg_volume_period:].mean()
 
 adx_trend = (latest_data['adx'] > 25 and latest_data['adx'] > previous_data['adx'])
 avg_adx = sum(df.iloc[-5:]) / 5
@@ -34,6 +35,7 @@ EXAMPLES OF BUY SIGNALS:
 RSI
 float(latest_data['rsi']) < float(bot_settings.rsi_buy)
 float(latest_data['rsi']) > float(previous_data['rsi'])
+float(latest_data['rsi']) > float(avg_rsi) and
 
 CCI
 float(latest_data['cci']) < float(bot_settings.cci_buy)

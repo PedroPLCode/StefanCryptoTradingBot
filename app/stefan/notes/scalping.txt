@@ -39,33 +39,38 @@ MACD(6,13,5/8,16,6)
 Stochastic(5/9,3)
 Boilinger(20/2)
 
-algorithm 1: *run
+algorithm 1: *ready RUN
 (primary for uptrend) 
 intervals 1min, ATR(14, x1.5), AvgVolPeriod(5)
 if not downtrend RSI(7) + MACD(6,12,5) + Volume
 
-algorithm 2: *run
+algorithm 2: *ready RUN
 (secondary for horizontal trend)
 intervals 1min, ATR(14, x1.5), AvgVolPeriod(5)
 if not downtrend Stochastic(5,3) + Boilinger(20,2) + Volume
 
-algorithm 3: 
-(bullish uptrend)
-EMA(9,21) + RSI(7) + MACD(6,12,5)
+algorithm 3: *ready RUN
+(testing)
+intervals 1min, ATR(14, x1.5), AvgVolPeriod(5)
+if not downtrend StochasticRSI(5,3) + Boilinger(20,2) + Volume
 
-algorithm 4: 
-(bearish downtrend)
-RSI(7) + MACD(6,12,5) + Stochastic(5,3) + VMAP
+algorithm 4: *ready
+(testing)
+intervals 1min, ATR(14, x1.5), AvgVolPeriod(5)
+if not downtrend RSI(7) + EMA(9,21) + Volume
 
-algorithm 5: 
-(horizontal trend)
-RSI(7) + Boilinger(20,2) + Stochastic(5,3) + VMAP
-
-algorithm 6: *run
-(intelligent)
+algorithm 5: *ready RUN
+(intelligent simple)
 intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(5)
-if uptrend RSI(7, 30/70) + EMA(9,21) + MACD(12,24,9) + Volumen
-if horizontal RSI(7, 30/70) + BoilingerBands(20,2) + Stochastic(14,3, 20/80) + Volumen
-if downtrend dont trade RSI(7, 30/70) + BoilingerBands(20,2) + PSAR
+if uptrend RSI(7, 30/70) + MACD(12,24,9) + Volume
+if horizontal BoilingerBands(20,2) + Stochastic(14,3, 20/80) + Volume
+if downtrend dont trade
+
+algorithm 6: *ready
+(intelligent extended)
+intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(5)
+if uptrend RSI(7, 30/70) + EMA(9,21) + MACD(12,24,9) + Volume
+if horizontal RSI(7, 30/70) + BoilingerBands(20,2) + Stochastic(14,3, 20/80) + Volume
+if downtrend dont trade
 
 all backtested. needs real life tests.
