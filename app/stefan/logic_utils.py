@@ -120,7 +120,7 @@ def check_trend(df, bot_settings):
         
         avg_volume_period = bot_settings.avg_volume_period
         avg_adx = df['adx'].iloc[-avg_volume_period:].mean()
-        adx_trend = (float(latest_data['adx']) > 25 and float(latest_data['adx']) > float(avg_adx))
+        adx_trend = (float(latest_data['adx']) > 25 or float(latest_data['adx']) > float(avg_adx))
         
         avg_plus_di = df['plus_di'].iloc[-avg_volume_period:].mean()
         avg_minus_di = df['minus_di'].iloc[-avg_volume_period:].mean()
@@ -143,7 +143,7 @@ def check_trend(df, bot_settings):
                     float(latest_data['rsi']) > 30 and
                     significant_move)
 
-        horizontal = (latest_data['adx'] < avg_adx and 
+        horizontal = (latest_data['adx'] < avg_adx or avg_adx < 20 or 
                     abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) < 5)
         
         if uptrend:
@@ -156,7 +156,7 @@ def check_trend(df, bot_settings):
             logger.trade(f"Bot {bot_settings.id} {bot_settings.strategy} have HORIZONTAL TREND")
             return 'horizontal'
         else:
-            logger.trade(f"Bot {bot_settings.id} {bot_settings.strategy} NO TREND FOUND")
+            logger.trade(f"Bot {bot_settings.id} {bot_settings.strategy} no trend found")
             return 'none'
         
     except Exception as e:
