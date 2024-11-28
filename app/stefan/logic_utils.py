@@ -22,7 +22,9 @@ from .scalping_logic import (
     check_scalping_buy_signal_v5,
     check_scalping_sell_signal_v5,
     check_scalping_buy_signal_v6,
-    check_scalping_sell_signal_v6
+    check_scalping_sell_signal_v6,
+    check_scalping_buy_signal_v7,
+    check_scalping_sell_signal_v7,
 )
 from .swing_logic import (
     calculate_swing_indicators,
@@ -37,7 +39,9 @@ from .swing_logic import (
     check_swing_buy_signal_v5,
     check_swing_sell_signal_v5,
     check_swing_buy_signal_v6,
-    check_swing_sell_signal_v6
+    check_swing_sell_signal_v6,
+    check_swing_buy_signal_v7,
+    check_swing_sell_signal_v7,
 )
 
 def is_df_valid(df, bot_id):
@@ -178,7 +182,7 @@ def check_signals(bot_settings, df):
         send_admin_email(f'Error starting bot {bot_settings.id}', f'Missing indicators in database for bot {bot_settings.id} {bot_settings.strategy}')
         return None, None
     
-    if bot_settings.algorithm < 1 or bot_settings.algorithm > 6:
+    if bot_settings.algorithm < 1 or bot_settings.algorithm > 7:
         logger.trade(f'Wrong algorithm {bot_settings.algorithm} declared for bot {bot_settings.id} {bot_settings.strategy}')
         send_admin_email(f'Wrong algorithm bot {bot_settings.id}', f'Wrong algorithm {bot_settings.algorithm} declared for bot {bot_settings.id} {bot_settings.strategy}')
         return None, None
@@ -205,6 +209,9 @@ def check_signals(bot_settings, df):
         elif bot_settings.algorithm == 6:
             buy_signal = check_swing_buy_signal_v6(df, bot_settings, trend)
             sell_signal = check_swing_sell_signal_v6(df, bot_settings, trend)
+        elif bot_settings.algorithm == 7:
+            buy_signal = check_swing_buy_signal_v7(df, bot_settings, trend)
+            sell_signal = check_swing_sell_signal_v7(df, bot_settings, trend)
     elif bot_settings.strategy == 'scalp':
         if bot_settings.algorithm == 1:
             buy_signal = check_scalping_buy_signal_v1(df, bot_settings, trend)
@@ -224,6 +231,9 @@ def check_signals(bot_settings, df):
         elif bot_settings.algorithm == 6:
             buy_signal = check_scalping_buy_signal_v6(df, bot_settings, trend)
             sell_signal = check_scalping_sell_signal_v6(df, bot_settings, trend)
+        elif bot_settings.algorithm == 7:
+            buy_signal = check_scalping_buy_signal_v7(df, bot_settings, trend)
+            sell_signal = check_scalping_sell_signal_v7(df, bot_settings, trend)
     return buy_signal, sell_signal
 
 

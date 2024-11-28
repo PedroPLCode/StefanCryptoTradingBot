@@ -16,7 +16,9 @@ from .scalping_logic import (
     check_scalping_buy_signal_v5,
     check_scalping_sell_signal_v5,
     check_scalping_buy_signal_v6,
-    check_scalping_sell_signal_v6
+    check_scalping_sell_signal_v6,
+    check_scalping_buy_signal_v7,
+    check_scalping_sell_signal_v7
 )
 from .swing_logic import (
     check_swing_buy_signal_v1,
@@ -30,7 +32,9 @@ from .swing_logic import (
     check_swing_buy_signal_v5,
     check_swing_sell_signal_v5,
     check_swing_buy_signal_v6,
-    check_swing_sell_signal_v6
+    check_swing_sell_signal_v6,
+    check_swing_buy_signal_v7,
+    check_swing_sell_signal_v7
 )
 
 def calculate_backtest_scalp_indicators(df, bot_settings):
@@ -273,6 +277,7 @@ def select_signals_checkers(bot_settings):
             4: (check_swing_buy_signal_v4, check_swing_sell_signal_v4),
             5: (check_swing_buy_signal_v5, check_swing_sell_signal_v5),
             6: (check_swing_buy_signal_v6, check_swing_sell_signal_v6),
+            7: (check_swing_buy_signal_v7, check_swing_sell_signal_v7),
         },
         'scalp': {
             1: (check_scalping_buy_signal_v1, check_scalping_sell_signal_v1),
@@ -281,6 +286,7 @@ def select_signals_checkers(bot_settings):
             4: (check_scalping_buy_signal_v4, check_scalping_sell_signal_v4),
             5: (check_scalping_buy_signal_v5, check_scalping_sell_signal_v5),
             6: (check_scalping_buy_signal_v6, check_scalping_sell_signal_v6),
+            7: (check_scalping_buy_signal_v7, check_scalping_sell_signal_v7),
         }
     }
     buy_signal_func, sell_signal_func = strategy_map[bot_settings.strategy][bot_settings.algorithm]

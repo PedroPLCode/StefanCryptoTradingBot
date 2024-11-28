@@ -3,8 +3,8 @@ from .. import db
 class BotSettings(db.Model):
     __tablename__ = 'bot_settings'
     id = db.Column(db.Integer, primary_key=True)
-    symbol = db.Column(db.String(16), default="SOLUSDC", nullable=False)
-    strategy = db.Column(db.String(16), default="swing", nullable=False)
+    symbol = db.Column(db.String(16), default="BTCUSDC", nullable=False)
+    strategy = db.Column(db.String(16), default="scalp", nullable=False)
     algorithm = db.Column(db.Integer, default=1, nullable=False)
     comment = db.Column(db.String(1024), nullable=True, unique=False)
     trailing_stop_pct = db.Column(db.Float, default=0.03, nullable=False)
@@ -39,8 +39,8 @@ class BotSettings(db.Model):
     ema_slow_timeperiod = db.Column(db.Integer, default=21, nullable=False)
     psar_acceleration = db.Column(db.Float, default=0.02, nullable=False)
     psar_maximum = db.Column(db.Float, default=0.2, nullable=False)
-    interval = db.Column(db.String(16), default="30m", nullable=False)
-    lookback_period = db.Column(db.String(16), default="1d", nullable=False)
+    interval = db.Column(db.String(16), default="1m", nullable=False)
+    lookback_period = db.Column(db.String(16), default="45m", nullable=False)
     bot_running = db.Column(db.Boolean, default=False, nullable=False)
     
     bot_current_trade = db.relationship(

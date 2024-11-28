@@ -211,7 +211,6 @@ def check_swing_buy_signal_v2(df, bot_settings, trend):
         previous_data = df.iloc[-2]
         avg_volume_period = bot_settings.avg_volume_period
         avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
-        avg_stoch_k = df['stoch_k'].iloc[-avg_volume_period:].mean()
 
         if (trend != 'downtrend' and 
             float(latest_data['close']) < float(latest_data['lower_band']) and
@@ -269,7 +268,6 @@ def check_swing_buy_signal_v3(df, bot_settings, trend):
             return False
 
         latest_data = df.iloc[-1]
-        previous_data = df.iloc[-2]
         avg_volume_period = bot_settings.avg_volume_period
         avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
         avg_stoch_rsi_k = df['stoch_rsi_k'].iloc[-avg_volume_period:].mean()
@@ -329,7 +327,6 @@ def check_swing_buy_signal_v4(df, bot_settings, trend):
             return False
 
         latest_data = df.iloc[-1]
-        previous_data = df.iloc[-2]
         avg_volume_period = bot_settings.avg_volume_period
         avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
         avg_rsi = df['rsi'].iloc[-avg_volume_period:].mean()
@@ -552,4 +549,51 @@ def check_swing_sell_signal_v6(df, bot_settings, trend):
     except Exception as e:
         logger.error(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
         send_admin_email(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        return False
+    
+    
+def check_swing_buy_signal_v7(df, bot_settings, trend):
+    from .logic_utils import is_df_valid
+    try:
+        if not is_df_valid(df, bot_settings.id):
+            return False
+        
+        latest_data = df.iloc[-1]
+        avg_volume_period = bot_settings.avg_volume_period
+        avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
+        
+        if (trend == 'uptrend' and 
+            float(latest_data['volume']) > float(avg_volume)):
+            return True
+            
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_swing_buy_signal_v7 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_buy_signal_v7 bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_swing_buy_signal_v7 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_buy_signal_v7 bot {bot_settings.id}', str(e))
+        return False
+    
+    
+def check_swing_sell_signal_v7(df, bot_settings, trend):
+    from .logic_utils import is_df_valid
+    try:
+        if not is_df_valid(df, bot_settings.id):
+            return False
+        
+        if trend == 'downtrend':
+            return True
+        
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_swing_sell_signal_v7 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_sell_signal_v7 bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_swing_sell_signal_v7 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_sell_signal_v7 bot {bot_settings.id}', str(e))
         return False
