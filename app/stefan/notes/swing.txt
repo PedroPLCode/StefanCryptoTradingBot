@@ -40,35 +40,35 @@ Boilinger(20/2)
 algorithm 1: *ready
 (primary for uptrend) 
 intervals 30min, ATR(14, x5), AvgVolPeriod(5)
-if not downtrend RSI(14) + MACD(12,24,9) + Volume
+if not downtrend: RSI(14) + MACD(12,24,9) + Volume
 
 algorithm 2: *ready
 (secondary for horizontal trend)
 intervals 30min, ATR(14, x5), AvgVolPeriod(5)
-if not downtrend Stochastic(14,3) + Boilinger(20,2) + Volume
+if not downtrend: Stochastic(14,3) + Boilinger(20,2) + Volume
 
 algorithm 3: *ready
 (testing)
 intervals 30min, ATR(14, x5), AvgVolPeriod(5)
-if not downtrend StochasticRSI(14,3) + Boilinger(20,2) + Volume
+if not downtrend: StochasticRSI(14,3) + Boilinger(20,2) + Volume
 
 algorithm 4: *ready
 (buy the dip)
 intervals 30min, ATR(14, x5), AvgVolPeriod(5)
-if not downtrend RSI(14) + Boilinger(20,2) + MA50 + Volume
+if not downtrend: RSI(14) + Boilinger(20,2) + MA50 + Volume
 
 algorithm 5: *ready RUN
 (intelligent simple)
 intervals 30min, ATR(14, x5), AvgVolPeriod(5)
-if uptrend RSI(14, 30/70) + MACD(12,24,9) + Volume
-if horizontal BoilingerBands(20,2) + Stochastic(14,3, 20/80) + Volume
+if uptrend: RSI(14, 30/70) + MACD(12,24,9) + Volume
+if horizontal: BoilingerBands(20,2) + Stochastic(14,3, 20/80) + Volume
 if downtrend dont trade
 
 algorithm 6: *ready
 (intelligent extended)
 intervals 30min, ATR(14, x5), AvgVolPeriod(5)
-if uptrend RSI(14, 30/70) + MACD(12,24,9) + MA(50) + BoilingerBands(20,2) + Volume
-if horizontal RSI(14, 30/70) + BoilingerBands(20,2) + Stochastic(14,3, 20/80) + Volume
+if uptrend: RSI(14, 30/70) + MACD(12,24,9) + MA(50) + BoilingerBands(20,2) + Volume
+if horizontal: RSI(14, 30/70) + BoilingerBands(20,2) + Stochastic(14,3, 20/80) + Volume
 if downtrend dont trade
 
 all backtested. needs real life tests.

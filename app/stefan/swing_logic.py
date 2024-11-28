@@ -211,6 +211,7 @@ def check_swing_buy_signal_v2(df, bot_settings, trend):
         previous_data = df.iloc[-2]
         avg_volume_period = bot_settings.avg_volume_period
         avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
+        avg_stoch_k = df['stoch_k'].iloc[-avg_volume_period:].mean()
 
         if (trend != 'downtrend' and 
             float(latest_data['close']) < float(latest_data['lower_band']) and
@@ -271,9 +272,11 @@ def check_swing_buy_signal_v3(df, bot_settings, trend):
         previous_data = df.iloc[-2]
         avg_volume_period = bot_settings.avg_volume_period
         avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
+        avg_stoch_rsi_k = df['stoch_rsi_k'].iloc[-avg_volume_period:].mean()
 
         if (trend != 'downtrend' and
             float(latest_data['stoch_rsi_k']) < float(bot_settings.stoch_buy) and
+            float(latest_data['stoch_rsi_k']) > float(avg_stoch_rsi_k) and
             float(latest_data['stoch_rsi_k']) > float(latest_data['stoch_rsi_d']) and
             float(latest_data['close']) < float(latest_data['lower_band']) and
             float(latest_data['volume']) > float(avg_volume)):
