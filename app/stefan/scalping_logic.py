@@ -62,10 +62,10 @@ def calculate_scalp_indicators(df, bot_settings):
             df['high'],
             df['low'],
             df['close'],
-            fastk_period=bot_settings.stock_k_timeperiod,
-            slowk_period=bot_settings.stock_d_timeperiod,
+            fastk_period=bot_settings.stoch_k_timeperiod,
+            slowk_period=bot_settings.stoch_d_timeperiod,
             slowk_matype=0,
-            slowd_period=bot_settings.stock_d_timeperiod,
+            slowd_period=bot_settings.stoch_d_timeperiod,
             slowd_matype=0
         )
         

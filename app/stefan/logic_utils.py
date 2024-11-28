@@ -88,7 +88,8 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
     trailing_stop_price = float(current_trade.trailing_stop_loss)
     previous_price = float(current_trade.previous_price if current_trade.is_active else 0)
     price_rises = current_price >= previous_price if current_trade.is_active else False
-    buy_signal, sell_signal = check_signals(bot_settings, df)
+    trend = check_trend(df, bot_settings)
+    buy_signal, sell_signal = check_signals(bot_settings, df, trend)
 
     stop_loss_activated = False
     if current_price <= trailing_stop_price:
@@ -116,7 +117,6 @@ def check_trend(df, bot_settings):
     try:
         
         latest_data = df.iloc[-1]
-        previous_data = df.iloc[-2]
         
         avg_volume_period = bot_settings.avg_volume_period
         avg_adx = df['adx'].iloc[-avg_volume_period:].mean()
@@ -156,6 +156,7 @@ def check_trend(df, bot_settings):
             logger.trade(f"Bot {bot_settings.id} {bot_settings.strategy} have HORIZONTAL TREND")
             return 'horizontal'
         else:
+            logger.trade(f"Bot {bot_settings.id} {bot_settings.strategy} NO TREND FOUND")
             return 'none'
         
     except Exception as e:
@@ -164,7 +165,7 @@ def check_trend(df, bot_settings):
         return 'none'
     
 
-def check_signals(bot_settings, df):
+def check_signals(bot_settings, df, trend):
     indicators_ok = all([
         bot_settings.rsi_buy,
         bot_settings.rsi_sell,
@@ -188,7 +189,6 @@ def check_signals(bot_settings, df):
         return None, None
     
     buy_signal, sell_signal = None, None
-    trend = check_trend(df, bot_settings)
     
     if bot_settings.strategy == 'swing':
         if bot_settings.algorithm == 1:
