@@ -53,8 +53,8 @@ def calculate_backtest_scalp_indicators(df, bot_settings):
             logger.trade('Not enough data points for MACD calculation.')
             return df
 
-        df['rsi'] = talib.RSI(df['close'], timeperiod=bot_settings.timeperiod)
-        df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=bot_settings.timeperiod)
+        df['rsi'] = talib.RSI(df['close'], timeperiod=bot_settings.rsi_timeperiod)
+        df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=bot_settings.atr_timeperiod)
         
         df['ema_fast'] = talib.EMA(df['close'], timeperiod=bot_settings.ema_fast_timeperiod)
         df['ema_slow'] = talib.EMA(df['close'], timeperiod=bot_settings.ema_slow_timeperiod)

@@ -1,32 +1,43 @@
 latest_data = df.iloc[-1]
 previous_data = df.iloc[-2]
 
-avg_calc_period = bot_settings.avg_calc_period
-avg_volume = df['volume'].iloc[-avg_calc_period:].mean()
-avg_rsi = df['rsi'].iloc[-avg_calc_period:].mean()
+avg_volume_period = bot_settings.avg_volume_period
+avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
 
-adx_trend = (latest_data['adx'] > 25 and latest_data['adx'] > previous_data['adx'])
-avg_adx = sum(df.iloc[-5:]) / 5
-di_difference_increasing = (abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) > 
-                            abs(float(previous_data['plus_di']) - float(previous_data['minus_di'])))
-significant_move = (latest_data['high'] - latest_data['low']) > latest_data['atr']
+avg_rsi_period = bot_settings.avg_rsi_period
+avg_rsi = df['rsi'].iloc[-avg_rsi_period:].mean()
 
-uptrend = (float(latest_data['plus_di']) > float(latest_data['minus_di']) and 
-        adx_trend and 
-        di_difference_increasing and 
-        latest_data['rsi'] < 70 and 
-        float(latest_data['plus_di']) > 20 and
-        significant_move)
+avg_stoch_rsi_k_period = bot_settings.avg_stoch_rsi_k_period
+avg_stoch_rsi_k = df['stoch_rsi_k'].iloc[-avg_stoch_rsi_k_period:].mean()
 
-downtrend = (float(latest_data['plus_di']) < float(latest_data['minus_di']) and 
-            adx_trend and 
-            di_difference_increasing and 
-            float(latest_data['minus_di']) > 20 and 
-            latest_data['rsi'] > 30 and
-            significant_move)
+avg_adx_period = bot_settings.avg_adx_period
+        avg_adx = df['adx'].iloc[-avg_adx_period:].mean()
+        adx_trend = (float(latest_data['adx']) > float(bot_settings.adx_strong_trend) or float(latest_data['adx']) > float(avg_adx))
+        
+        avg_di_period = bot_settings.avg_di_period
+        avg_plus_di = df['plus_di'].iloc[-avg_di_period:].mean()
+        avg_minus_di = df['minus_di'].iloc[-avg_di_period:].mean()
+        di_difference_increasing = (abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) > 
+                                    abs(float(avg_plus_di) - float(avg_minus_di)))
+        
+        significant_move = (float(latest_data['high']) - float(latest_data['low']) > float(latest_data['atr']))
 
-horizontal = (latest_data['adx'] < avg_adx and 
-            abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) < 5)
+        uptrend = (float(latest_data['plus_di']) > float(avg_minus_di) and 
+                adx_trend and 
+                di_difference_increasing and 
+                float(latest_data['rsi']) < float(bot_settings.rsi_sell) and 
+                float(latest_data['plus_di']) > float(bot_settings.adx_weak_trend) and
+                significant_move)
+
+        downtrend = (float(latest_data['plus_di']) < float(avg_minus_di) and 
+                    adx_trend and 
+                    di_difference_increasing and 
+                    float(latest_data['minus_di']) > float(bot_settings.adx_weak_trend) and 
+                    float(latest_data['rsi']) > float(bot_settings.rsi_buy) and
+                    significant_move)
+
+        horizontal = (latest_data['adx'] < avg_adx or avg_adx < float(bot_settings.adx_weak_trend) or 
+                    abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) < float(bot_settings.adx_no_trend))
 
 --
 

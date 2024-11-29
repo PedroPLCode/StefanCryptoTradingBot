@@ -5,7 +5,14 @@ run interval 1min
 trailing_stop_pct=0.03 or 0.01
 interval="1m"
 lookback_period="45m"
-avg_calc_period=5
+avg_adx_period=7
+avg_di_period=7
+avg_rsi_period=7
+avg_volume_period=7
+avg_stoch_rsi_k_period=7
+adx_strong_trend=25
+adx_weak_trend=20
+adx_no_trend=5
 timeperiod=14
 di_timeperiod=14
 adx_timeperiod=14
@@ -42,41 +49,41 @@ Boilinger(20/2)
 
 algorithm 1: *ready RUN
 (primary for uptrend) 
-intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(5)
+intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
 if not downtrend: RSI(7, 30/70) + MACD(6,12,5) + Volume
 
 algorithm 2: *ready RUN
 (secondary for horizontal trend)
-intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(5)
+intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
 if not downtrend: Stochastic(7,3) + Boilinger(20,2) + Volume
 
 algorithm 3: *ready RUN
 (testing)
-intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(5)
+intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
 if not downtrend: StochasticRSI(7,7,3) + Boilinger(20,2) + Volume
 
 algorithm 4: *ready
 (testing)
-intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(5)
+intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
 if not downtrend: RSI(7, 30/70) + EMA(9,21) + Volume
 
 algorithm 5: *ready RUN
 (intelligent simple)
-intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(5)
+intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
 if uptrend: RSI(7, 30/70) + MACD(6,12,5) + Volume
 if horizontal: BoilingerBands(20,2) + Stochastic(7,3, 20/80) + Volume
 if downtrend dont trade
 
 algorithm 6: *ready RUN
 (intelligent extended)
-intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(5)
+intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
 if uptrend: RSI(7, 30/70) + EMA(9,21) + MACD(6,12,5) + Volume
 if horizontal: RSI(7, 30/70) + BoilingerBands(20,2) + Stochastic(7,3, 20/80) + Volume
 if downtrend dont trade
 
 algorithm 7: *ready
 (uptrend downtrend only)
-intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(5)
+intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
 trend + Volume
 
 all backtested. needs real life tests.

@@ -22,6 +22,7 @@
         {% if admin_view.extra_css %}
           {% for css_url in admin_view.extra_css %}
             <link href="{{ css_url }}" rel="stylesheet">
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
           {% endfor %}
         {% endif %}
         <style>

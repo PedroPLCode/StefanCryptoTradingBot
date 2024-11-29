@@ -118,12 +118,13 @@ def check_trend(df, bot_settings):
         
         latest_data = df.iloc[-1]
         
-        avg_calc_period = bot_settings.avg_calc_period
-        avg_adx = df['adx'].iloc[-avg_calc_period:].mean()
-        adx_trend = (float(latest_data['adx']) > 25 or float(latest_data['adx']) > float(avg_adx))
+        avg_adx_period = bot_settings.avg_adx_period
+        avg_adx = df['adx'].iloc[-avg_adx_period:].mean()
+        adx_trend = (float(latest_data['adx']) > float(bot_settings.adx_strong_trend) or float(latest_data['adx']) > float(avg_adx))
         
-        avg_plus_di = df['plus_di'].iloc[-avg_calc_period:].mean()
-        avg_minus_di = df['minus_di'].iloc[-avg_calc_period:].mean()
+        avg_di_period = bot_settings.avg_di_period
+        avg_plus_di = df['plus_di'].iloc[-avg_di_period:].mean()
+        avg_minus_di = df['minus_di'].iloc[-avg_di_period:].mean()
         di_difference_increasing = (abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) > 
                                     abs(float(avg_plus_di) - float(avg_minus_di)))
         
@@ -132,19 +133,19 @@ def check_trend(df, bot_settings):
         uptrend = (float(latest_data['plus_di']) > float(avg_minus_di) and 
                 adx_trend and 
                 di_difference_increasing and 
-                float(latest_data['rsi']) < 70 and 
-                float(latest_data['plus_di']) > 20 and
+                float(latest_data['rsi']) < float(bot_settings.rsi_sell) and 
+                float(latest_data['plus_di']) > float(bot_settings.adx_weak_trend) and
                 significant_move)
 
         downtrend = (float(latest_data['plus_di']) < float(avg_minus_di) and 
                     adx_trend and 
                     di_difference_increasing and 
-                    float(latest_data['minus_di']) > 20 and 
-                    float(latest_data['rsi']) > 30 and
+                    float(latest_data['minus_di']) > float(bot_settings.adx_weak_trend) and 
+                    float(latest_data['rsi']) > float(bot_settings.rsi_buy) and
                     significant_move)
 
-        horizontal = (latest_data['adx'] < avg_adx or avg_adx < 20 or 
-                    abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) < 5)
+        horizontal = (latest_data['adx'] < avg_adx or avg_adx < float(bot_settings.adx_weak_trend) or 
+                    abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) < float(bot_settings.adx_no_trend))
         
         if uptrend:
             logger.trade(f"Bot {bot_settings.id} {bot_settings.strategy} have BULLISH UPTREND")
@@ -174,8 +175,7 @@ def check_signals(bot_settings, df, trend):
         bot_settings.mfi_buy,
         bot_settings.mfi_sell,
         bot_settings.stoch_buy,
-        bot_settings.stoch_sell,
-        bot_settings.timeperiod
+        bot_settings.stoch_sell
     ])
 
     if not indicators_ok:

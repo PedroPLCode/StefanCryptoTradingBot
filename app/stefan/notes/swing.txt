@@ -5,7 +5,14 @@ run interval 30min
 trailing_stop_pct=0.05 or 0.03
 interval="30m"
 lookback_period="1d"
-avg_calc_period=5
+avg_adx_period=7
+avg_di_period=7
+avg_rsi_period=7
+avg_volume_period=7
+avg_stoch_rsi_k_period=7
+adx_strong_trend=25
+adx_weak_trend=20
+adx_no_trend=5
 timeperiod=14
 di_timeperiod=14
 adx_timeperiod=14

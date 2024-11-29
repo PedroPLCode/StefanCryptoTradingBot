@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StefanCryptoTradingBot</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 
 <body>
@@ -80,15 +81,26 @@
                                 {% endfor %}
                                 <p class="text-muted m-0 p-0">Strategy: {{ bot_info.strategy | upper }}</p>
                                 <p class="text-muted m-0 p-0">Algorithm: {{ bot_info.algorithm }}</p>
-                                <p class="text-muted m-0 p-0">Comment: {{ bot_info.comment }}</p>
+                                <p class="text-muted m-0 p-0">Lookback Period: {{ bot_info.lookback_period }}</p>
+                                <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>
+                                <p class="text-muted m-0 p-0 border-bottom">Comment: {{ bot_info.comment }}</p>
+
                                 <p class="text-muted m-0 p-0">Trailing Stop Loss: {{ bot_info.trailing_stop_pct }}</p>
                                 <p class="text-muted m-0 p-0">Sell signal only Trailing Stop: {{ bot_info.sell_signal_only_trailing_stop }}</p>
                                 <p class="text-muted m-0 p-0">ATR Trailing Stop Loss: {{ bot_info.trailing_stop_with_atr }}</p>
-                                <p class="text-muted m-0 p-0">ATR Trailing Stop Multiplicator: {{ bot_info.trailing_stop_atr_calc }}</p>
-                                <p class="text-muted m-0 p-0">Lookback Period: {{ bot_info.lookback_period }}</p>
-                                <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>
-                                <p class="text-muted m-0 p-0">Avg Calc Period: {{ bot_info.avg_calc_period }}</p>
-                                <p class="text-muted m-0 p-0">General Time Period: {{ bot_info.timeperiod }}</p>
+                                <p class="text-muted m-0 p-0 border-bottom">ATR Trailing Stop Multiplicator: {{ bot_info.trailing_stop_atr_calc }}</p>
+
+                                <p class="text-muted m-0 p-0">Avg ADX Period: {{ bot_info.avg_adx_period }}</p>
+                                <p class="text-muted m-0 p-0">Avg DI Period: {{ bot_info.avg_di_period }}</p>
+                                <p class="text-muted m-0 p-0">Avg RSI Period: {{ bot_info.avg_rsi_period }}</p>
+                                <p class="text-muted m-0 p-0">Avg Volume Period: {{ bot_info.avg_volume_period }}</p>
+                                <p class="text-muted m-0 p-0 border-bottom">Avg Stoch RSI K Period: {{ bot_info.avg_stoch_rsi_k_period }}</p>
+
+                                <p class="text-muted m-0 p-0">ADX Strong Trend: {{ bot_info.adx_strong_trend }}</p>
+                                <p class="text-muted m-0 p-0">ADX Weak Trend: {{ bot_info.adx_weak_trend }}</p>
+                                <p class="text-muted m-0 p-0 border-bottom">ADX No Trend: {{ bot_info.adx_no_trend }}</p>
+
+                                <p class="text-muted m-0 p-0">General Time Period: {{ bot_info.general_timeperiod }}</p>
                                 <p class="text-muted m-0 p-0">DI Time Period: {{ bot_info.di_timeperiod }}</p>
                                 <p class="text-muted m-0 p-0">ADX Time Period: {{ bot_info.adx_timeperiod }}</p>
                                 <p class="text-muted m-0 p-0">RSI Time Period: {{ bot_info.rsi_timeperiod }}</p>
@@ -107,14 +119,15 @@
                                 <p class="text-muted m-0 p-0">EMA Fast Time Period: {{ bot_info.ema_fast_timeperiod }}</p>
                                 <p class="text-muted m-0 p-0">EMA Slow Time Period: {{ bot_info.ema_slow_timeperiod }}</p>
                                 <p class="text-muted m-0 p-0">Parabolic SAR Acceleration: {{ bot_info.psar_acceleration }}</p>
-                                <p class="text-muted m-0 p-0">Parabolic SAR Maximum: {{ bot_info.psar_maximum }}</p>
+                                <p class="text-muted m-0 p-0 border-bottom">Parabolic SAR Maximum: {{ bot_info.psar_maximum }}</p>
+
                                 <p class="text-muted m-0 p-0">CCI Settings: buy {{ bot_info.cci_buy }} / sell {{ bot_info.cci_sell }}</p>
                                 <p class="text-muted m-0 p-0">RSI Settings: buy {{ bot_info.rsi_buy }} / sell {{ bot_info.rsi_sell }}</p>
                                 <p class="text-muted m-0 p-0">MFI Settings: buy {{ bot_info.mfi_buy }} / sell {{ bot_info.mfi_sell }}</p>
                                 <p class="text-muted m-0 p-0">Stochastic Settings: buy {{ bot_info.stoch_buy }} / sell {{ bot_info.stoch_sell }}</p>
-                                <p class="text-muted m-0 p-0" style="{% if bot_info.bot_current_trade.is_active %}border-top: 1px solid #ccc;{% endif %}">Current Trade Active: <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{{ bot_info.bot_current_trade.is_active }}</span></p>
+                                <p class="text-muted m-0 p-0 {% if bot_info.bot_current_trade.is_active %}border-top{% endif %}">Current Trade Active: <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{{ bot_info.bot_current_trade.is_active }}</span></p>
                                 {% if bot_info.bot_current_trade.is_active %}
-                                    <p class="text-muted m-0 p-0" style="border-bottom: 1px solid #ccc;">buy_timestamp {{ bot_info.bot_current_trade.buy_timestamp }}<br>amount {{ bot_info.bot_current_trade.amount }}<br>buy_price {{ bot_info.bot_current_trade.buy_price }}<br>current_price {{ bot_info.bot_current_trade.current_price }}<br>trailing_stop_loss {{ bot_info.bot_current_trade.trailing_stop_loss }}<br>price_rises_counter {{ bot_info.bot_current_trade.price_rises_counter }}</p>
+                                    <p class="text-muted m-0 p-0 border-bottom">buy_timestamp {{ bot_info.bot_current_trade.buy_timestamp }}<br>amount {{ bot_info.bot_current_trade.amount }}<br>buy_price {{ bot_info.bot_current_trade.buy_price }}<br>current_price {{ bot_info.bot_current_trade.current_price }}<br>trailing_stop_loss {{ bot_info.bot_current_trade.trailing_stop_loss }}<br>price_rises_counter {{ bot_info.bot_current_trade.price_rises_counter }}</p>
                                 {% endif %}
                                 <p class="text-muted m-0 p-0">Bot Running: <span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{{ bot_info.bot_running }}</span></p>
                                 <p class="text-muted m-0 p-0">Trades Count: {{ bot_info.bot_trades_history|length }}</p>
