@@ -1,9 +1,9 @@
 latest_data = df.iloc[-1]
 previous_data = df.iloc[-2]
 
-avg_volume_period = bot_settings.avg_volume_period
-avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
-avg_rsi = df['rsi'].iloc[-avg_volume_period:].mean()
+avg_calc_period = bot_settings.avg_calc_period
+avg_volume = df['volume'].iloc[-avg_calc_period:].mean()
+avg_rsi = df['rsi'].iloc[-avg_calc_period:].mean()
 
 adx_trend = (latest_data['adx'] > 25 and latest_data['adx'] > previous_data['adx'])
 avg_adx = sum(df.iloc[-5:]) / 5

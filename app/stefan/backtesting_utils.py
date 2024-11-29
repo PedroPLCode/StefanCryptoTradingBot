@@ -128,14 +128,14 @@ def calculate_backtest_scalp_indicators(df, bot_settings):
             df['high'],
             df['low'],
             df['close'],
-            timeperiod=bot_settings.adx_timeperiod
+            timeperiod=bot_settings.di_timeperiod
         )
 
         df['minus_di'] = talib.MINUS_DI(
             df['high'],
             df['low'],
             df['close'],
-            timeperiod=bot_settings.adx_timeperiod
+            timeperiod=bot_settings.di_timeperiod
         )
         
         df['vwap'] = (df['close'] * df['volume']).cumsum() / df['volume'].cumsum()
@@ -243,14 +243,14 @@ def calculate_backtest_swing_indicators(df, df_for_ma, bot_settings):
             df['high'],
             df['low'],
             df['close'],
-            timeperiod=bot_settings.adx_timeperiod
+            timeperiod=bot_settings.di_timeperiod
         )
 
         df['minus_di'] = talib.MINUS_DI(
             df['high'],
             df['low'],
             df['close'],
-            timeperiod=bot_settings.adx_timeperiod
+            timeperiod=bot_settings.di_timeperiod
         )
         
         df['vwap'] = (df['close'] * df['volume']).cumsum() / df['volume'].cumsum()

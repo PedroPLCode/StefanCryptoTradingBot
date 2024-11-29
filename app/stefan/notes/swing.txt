@@ -5,8 +5,9 @@ run interval 30min
 trailing_stop_pct=0.05 or 0.03
 interval="30m"
 lookback_period="1d"
-avg_volume_period=5
-timeperiod=14/9
+avg_calc_period=5
+timeperiod=14
+di_timeperiod=14
 adx_timeperiod=14
 rsi_timeperiod=14/9
 atr_timeperiod=14/9

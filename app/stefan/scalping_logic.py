@@ -99,14 +99,14 @@ def calculate_scalp_indicators(df, bot_settings):
             df['high'],
             df['low'],
             df['close'],
-            timeperiod=bot_settings.adx_timeperiod
+            timeperiod=bot_settings.di_timeperiod
         )
 
         df['minus_di'] = talib.MINUS_DI(
             df['high'],
             df['low'],
             df['close'],
-            timeperiod=bot_settings.adx_timeperiod
+            timeperiod=bot_settings.di_timeperiod
         )
 
         df['vwap'] = (df['close'] * df['volume']).cumsum() / df['volume'].cumsum()
@@ -135,9 +135,9 @@ def check_scalping_buy_signal_v1(df, bot_settings, trend):
         
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
-        avg_volume_period = bot_settings.avg_volume_period
-        avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
-        avg_rsi = df['rsi'].iloc[-avg_volume_period:].mean()
+        avg_calc_period = bot_settings.avg_calc_period
+        avg_volume = df['volume'].iloc[-avg_calc_period:].mean()
+        avg_rsi = df['rsi'].iloc[-avg_calc_period:].mean()
         
         if (trend != 'downtrend' and 
             float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
@@ -195,8 +195,8 @@ def check_scalping_buy_signal_v2(df, bot_settings, trend):
         
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
-        avg_volume_period = bot_settings.avg_volume_period
-        avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
+        avg_calc_period = bot_settings.avg_calc_period
+        avg_volume = df['volume'].iloc[-avg_calc_period:].mean()
 
         if (trend != 'downtrend' and 
             float(latest_data['close']) < float(latest_data['lower_band']) and
@@ -254,9 +254,9 @@ def check_scalping_buy_signal_v3(df, bot_settings, trend):
             return False
         
         latest_data = df.iloc[-1]
-        avg_volume_period = bot_settings.avg_volume_period
-        avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
-        avg_stoch_rsi_k = df['stoch_rsi_k'].iloc[-avg_volume_period:].mean()
+        avg_calc_period = bot_settings.avg_calc_period
+        avg_volume = df['volume'].iloc[-avg_calc_period:].mean()
+        avg_stoch_rsi_k = df['stoch_rsi_k'].iloc[-avg_calc_period:].mean()
 
         if (trend != 'downtrend' and 
             float(latest_data['close']) < float(latest_data['lower_band']) and
@@ -313,9 +313,9 @@ def check_scalping_buy_signal_v4(df, bot_settings, trend):
         
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
-        avg_volume_period = bot_settings.avg_volume_period
-        avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
-        avg_rsi = df['rsi'].iloc[-avg_volume_period:].mean()
+        avg_calc_period = bot_settings.avg_calc_period
+        avg_volume = df['volume'].iloc[-avg_calc_period:].mean()
+        avg_rsi = df['rsi'].iloc[-avg_calc_period:].mean()
 
         if (trend != 'downtrend' and 
             float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
@@ -373,9 +373,9 @@ def check_scalping_buy_signal_v5(df, bot_settings, trend):
         
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
-        avg_volume_period = bot_settings.avg_volume_period
-        avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
-        avg_rsi = df['rsi'].iloc[-avg_volume_period:].mean()
+        avg_calc_period = bot_settings.avg_calc_period
+        avg_volume = df['volume'].iloc[-avg_calc_period:].mean()
+        avg_rsi = df['rsi'].iloc[-avg_calc_period:].mean()
         
         if (trend == 'uptrend' and 
             float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
@@ -457,9 +457,9 @@ def check_scalping_buy_signal_v6(df, bot_settings, trend):
 
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
-        avg_volume_period = bot_settings.avg_volume_period
-        avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
-        avg_rsi = df['rsi'].iloc[-avg_volume_period:].mean()
+        avg_calc_period = bot_settings.avg_calc_period
+        avg_volume = df['volume'].iloc[-avg_calc_period:].mean()
+        avg_rsi = df['rsi'].iloc[-avg_calc_period:].mean()
         
         if (trend == 'uptrend' and 
             float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
@@ -547,8 +547,8 @@ def check_scalping_buy_signal_v7(df, bot_settings, trend):
             return False
         
         latest_data = df.iloc[-1]
-        avg_volume_period = bot_settings.avg_volume_period
-        avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
+        avg_calc_period = bot_settings.avg_calc_period
+        avg_volume = df['volume'].iloc[-avg_calc_period:].mean()
         
         if (trend == 'uptrend' and 
             float(latest_data['volume']) > float(avg_volume)):

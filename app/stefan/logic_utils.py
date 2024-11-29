@@ -118,12 +118,12 @@ def check_trend(df, bot_settings):
         
         latest_data = df.iloc[-1]
         
-        avg_volume_period = bot_settings.avg_volume_period
-        avg_adx = df['adx'].iloc[-avg_volume_period:].mean()
+        avg_calc_period = bot_settings.avg_calc_period
+        avg_adx = df['adx'].iloc[-avg_calc_period:].mean()
         adx_trend = (float(latest_data['adx']) > 25 or float(latest_data['adx']) > float(avg_adx))
         
-        avg_plus_di = df['plus_di'].iloc[-avg_volume_period:].mean()
-        avg_minus_di = df['minus_di'].iloc[-avg_volume_period:].mean()
+        avg_plus_di = df['plus_di'].iloc[-avg_calc_period:].mean()
+        avg_minus_di = df['minus_di'].iloc[-avg_calc_period:].mean()
         di_difference_increasing = (abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) > 
                                     abs(float(avg_plus_di) - float(avg_minus_di)))
         
