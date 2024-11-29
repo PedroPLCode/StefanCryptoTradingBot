@@ -72,7 +72,9 @@ instance/
 .webassets-cache
 
 #db migrations
+migrations/*
 migrations/
+migrations
 
 # Scrapy stuff:
 .scrapy

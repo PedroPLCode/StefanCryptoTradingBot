@@ -181,8 +181,8 @@ def generate_trade_report(period):
             trades_in_period = (
                 TradesHistory.query
                 .filter(TradesHistory.bot_id == single_bot.id)
-                .filter(TradesHistory.timestamp >= last_period)
-                .order_by(TradesHistory.timestamp.asc())
+                .filter(TradesHistory.sell_timestamp >= last_period)
+                .order_by(TradesHistory.sell_timestamp.asc())
                 .all()
             )
             
@@ -256,7 +256,7 @@ def clear_old_trade_history():
     try:
         one_month_ago = datetime.now() - timedelta(days=30)
         db.session.query(TradesHistory).filter(
-            TradesHistory.timestamp < one_month_ago
+            TradesHistory.sell_timestamp < one_month_ago
         ).delete()
         db.session.commit()
         logger.info("Trade history older than one month cleared successfully.")
