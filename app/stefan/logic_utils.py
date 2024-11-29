@@ -85,34 +85,61 @@ def get_current_price(df, bot_id):
 
 
 def manage_trading_logic(bot_settings, current_trade, current_price, df):
-    trailing_stop_price = float(current_trade.trailing_stop_loss)
-    previous_price = float(current_trade.previous_price if current_trade.is_active else 0)
-    price_rises = current_price >= previous_price if current_trade.is_active else False
-    trend = check_trend(df, bot_settings)
-    buy_signal, sell_signal = check_signals(bot_settings, df, trend)
+    try:
+        trailing_stop_price = float(current_trade.trailing_stop_loss)
+        previous_price = float(current_trade.previous_price if current_trade.is_active else 0)
+        price_rises = current_price >= previous_price if current_trade.is_active else False
+        trend = check_trend(df, bot_settings)
+        avg_volume, avg_rsi, avg_stoch_rsi_k = calculate_averages(df, bot_settings)
+        latest_data = df.iloc[-1]
+        previous_data = df.iloc[-2]
+        buy_signal, sell_signal = check_signals(bot_settings, df, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data)
 
-    stop_loss_activated = False
-    if current_price <= trailing_stop_price:
-        logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} stop_loss_activated.")
-        stop_loss_activated = True
+        stop_loss_activated = False
+        if current_price <= trailing_stop_price:
+            logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} stop_loss_activated.")
+            stop_loss_activated = True
+            
+        full_sell_signal = stop_loss_activated or sell_signal
+        if bot_settings.sell_signal_only_trailing_stop:
+            full_sell_signal = stop_loss_activated
         
-    full_sell_signal = stop_loss_activated or sell_signal
-    if bot_settings.sell_signal_only_trailing_stop:
-        full_sell_signal = stop_loss_activated
-    
-    atr = df['atr'].iloc[-1]
-    if not current_trade.is_active and buy_signal:
-        execute_buy_order(bot_settings, current_price, atr)
-    elif current_trade.is_active and full_sell_signal:
-        execute_sell_order(bot_settings, current_trade, current_price)
-    elif current_trade.is_active and price_rises:
-        update_trailing_stop(bot_settings, current_trade, current_price, atr)
-    else:
-        logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} no trade signal.")
-    
-    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} loop completed.")
+        atr = df['atr'].iloc[-1]
+        if not current_trade.is_active and buy_signal:
+            execute_buy_order(bot_settings, current_price, atr)
+        elif current_trade.is_active and full_sell_signal:
+            execute_sell_order(bot_settings, current_trade, current_price)
+        elif current_trade.is_active and price_rises:
+            update_trailing_stop(bot_settings, current_trade, current_price, atr)
+        else:
+            logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} no trade signal.")
+        
+        logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} loop completed.")
+        
+    except Exception as e:
+        logger.error(f"Exception in manage_trading_logic: {str(e)}")
+        send_admin_email(f'Exception in manage_trading_logic', str(e))
 
 
+def calculate_averages(df, bot_settings):
+    try:
+        avg_volume_period = bot_settings.avg_volume_period
+        avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
+            
+        avg_rsi_period = bot_settings.avg_rsi_period
+        avg_rsi = df['rsi'].iloc[-avg_rsi_period:].mean()
+        
+        avg_stoch_rsi_k_period = bot_settings.avg_stoch_rsi_k_period
+        avg_stoch_rsi_k = df['stoch_rsi_k'].iloc[-avg_stoch_rsi_k_period:].mean()
+        
+        return avg_volume, avg_rsi, avg_stoch_rsi_k
+    
+    except Exception as e:
+        logger.error(f"Exception in calculate_averages: {str(e)}")
+        send_admin_email(f'Exception in calculate_averages', str(e))
+        return None, None, None
+    
+    
 def check_trend(df, bot_settings):
     try:
         
@@ -165,171 +192,188 @@ def check_trend(df, bot_settings):
         send_admin_email(f'Exception in check_trend', str(e))
         return 'none'
     
+    
+def get_signal_functions(strategy, algorithm):
+    try:
+        strategy_prefix = 'swing' if strategy == 'swing' else 'scalping'
+        buy_func_name = f"check_{strategy_prefix}_buy_signal_v{algorithm}"
+        sell_func_name = f"check_{strategy_prefix}_sell_signal_v{algorithm}"
+        
+        buy_func = globals().get(buy_func_name)
+        sell_func = globals().get(sell_func_name)
+        
+        if not buy_func or not sell_func:
+            raise ValueError(f"Functions for strategy {strategy}, algorytm {algorithm} not found.")
+        
+        return buy_func, sell_func
 
-def check_signals(bot_settings, df, trend):
-    indicators_ok = all([
-        bot_settings.rsi_buy,
-        bot_settings.rsi_sell,
-        bot_settings.cci_buy,
-        bot_settings.cci_sell,
-        bot_settings.mfi_buy,
-        bot_settings.mfi_sell,
-        bot_settings.stoch_buy,
-        bot_settings.stoch_sell
-    ])
+    except Exception as e:
+        logger.error(f"Exception in check_signals: {str(e)}")
+        send_admin_email(f'Exception in check_signals', str(e))
+        return None, None
 
-    if not indicators_ok:
-        logger.trade(f'bot {bot_settings.id} {bot_settings.strategy} missing indicators in database')
-        send_admin_email(f'Error starting bot {bot_settings.id}', f'Missing indicators in database for bot {bot_settings.id} {bot_settings.strategy}')
+
+def get_signals(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+    try:
+        buy_func, sell_func = get_signal_functions(bot_settings.strategy, bot_settings.algorithm)
+        
+        buy_signal = buy_func(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data)
+        sell_signal = sell_func(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data)
+        
+        return buy_signal, sell_signal
+
+    except Exception as e:
+        logger.error(f"Exception in check_signals: {str(e)}")
+        send_admin_email(f'Exception in check_signals', str(e))
         return None, None
+
+
+def check_signals(bot_settings, df, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+    try:
+        indicators_ok = all([
+            bot_settings.rsi_buy,
+            bot_settings.rsi_sell,
+            bot_settings.cci_buy,
+            bot_settings.cci_sell,
+            bot_settings.mfi_buy,
+            bot_settings.mfi_sell,
+            bot_settings.stoch_buy,
+            bot_settings.stoch_sell
+        ])
+
+        if not indicators_ok:
+            logger.trade(f'bot {bot_settings.id} {bot_settings.strategy} missing indicators in database')
+            send_admin_email(f'Error starting bot {bot_settings.id}', f'Missing indicators in database for bot {bot_settings.id} {bot_settings.strategy}')
+            return None, None
+        
+        if bot_settings.algorithm < 1 or bot_settings.algorithm > 7:
+            logger.trade(f'Wrong algorithm {bot_settings.algorithm} declared for bot {bot_settings.id} {bot_settings.strategy}')
+            send_admin_email(f'Wrong algorithm bot {bot_settings.id}', f'Wrong algorithm {bot_settings.algorithm} declared for bot {bot_settings.id} {bot_settings.strategy}')
+            return None, None
+        
+        buy_signal, sell_signal = get_signals(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data)
+        
+        return buy_signal, sell_signal
     
-    if bot_settings.algorithm < 1 or bot_settings.algorithm > 7:
-        logger.trade(f'Wrong algorithm {bot_settings.algorithm} declared for bot {bot_settings.id} {bot_settings.strategy}')
-        send_admin_email(f'Wrong algorithm bot {bot_settings.id}', f'Wrong algorithm {bot_settings.algorithm} declared for bot {bot_settings.id} {bot_settings.strategy}')
+    except Exception as e:
+        logger.error(f"Exception in check_signals: {str(e)}")
+        send_admin_email(f'Exception in check_signals', str(e))
         return None, None
-    
-    buy_signal, sell_signal = None, None
-    
-    if bot_settings.strategy == 'swing':
-        if bot_settings.algorithm == 1:
-            buy_signal = check_swing_buy_signal_v1(df, bot_settings, trend)
-            sell_signal = check_swing_sell_signal_v1(df, bot_settings, trend)
-        elif bot_settings.algorithm == 2:
-            buy_signal = check_swing_buy_signal_v2(df, bot_settings, trend)
-            sell_signal = check_swing_sell_signal_v2(df, bot_settings, trend)
-        elif bot_settings.algorithm == 3:
-            buy_signal = check_swing_buy_signal_v3(df, bot_settings, trend)
-            sell_signal = check_swing_sell_signal_v3(df, bot_settings, trend)
-        elif bot_settings.algorithm == 4:
-            buy_signal = check_swing_buy_signal_v4(df, bot_settings, trend)
-            sell_signal = check_swing_sell_signal_v4(df, bot_settings, trend)
-        elif bot_settings.algorithm == 5:
-            buy_signal = check_swing_buy_signal_v5(df, bot_settings, trend)
-            sell_signal = check_swing_sell_signal_v5(df, bot_settings, trend)
-        elif bot_settings.algorithm == 6:
-            buy_signal = check_swing_buy_signal_v6(df, bot_settings, trend)
-            sell_signal = check_swing_sell_signal_v6(df, bot_settings, trend)
-        elif bot_settings.algorithm == 7:
-            buy_signal = check_swing_buy_signal_v7(df, bot_settings, trend)
-            sell_signal = check_swing_sell_signal_v7(df, bot_settings, trend)
-    elif bot_settings.strategy == 'scalp':
-        if bot_settings.algorithm == 1:
-            buy_signal = check_scalping_buy_signal_v1(df, bot_settings, trend)
-            sell_signal = check_scalping_sell_signal_v1(df, bot_settings, trend)
-        elif bot_settings.algorithm == 2:
-            buy_signal = check_scalping_buy_signal_v2(df, bot_settings, trend)
-            sell_signal = check_scalping_sell_signal_v2(df, bot_settings, trend)
-        elif bot_settings.algorithm == 3:
-            buy_signal = check_scalping_buy_signal_v3(df, bot_settings, trend)
-            sell_signal = check_scalping_sell_signal_v3(df, bot_settings, trend)
-        elif bot_settings.algorithm == 4:
-            buy_signal = check_scalping_buy_signal_v4(df, bot_settings, trend)
-            sell_signal = check_scalping_sell_signal_v4(df, bot_settings, trend)
-        elif bot_settings.algorithm == 5:
-            buy_signal = check_scalping_buy_signal_v5(df, bot_settings, trend)
-            sell_signal = check_scalping_sell_signal_v5(df, bot_settings, trend)
-        elif bot_settings.algorithm == 6:
-            buy_signal = check_scalping_buy_signal_v6(df, bot_settings, trend)
-            sell_signal = check_scalping_sell_signal_v6(df, bot_settings, trend)
-        elif bot_settings.algorithm == 7:
-            buy_signal = check_scalping_buy_signal_v7(df, bot_settings, trend)
-            sell_signal = check_scalping_sell_signal_v7(df, bot_settings, trend)
-    return buy_signal, sell_signal
 
 
 def execute_buy_order(bot_settings, current_price, atr_value):
-    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} BUY signal.")
-    buy_success, amount = place_buy_order(bot_settings.id)
+    try:
+        logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} BUY signal.")
+        buy_success, amount = place_buy_order(bot_settings.id)
 
-    if buy_success:
+        if buy_success:
+            
+            trailing_stop_price = update_trailing_stop_loss(
+                current_price, 
+                0, 
+                bot_settings
+            )
+            
+            if bot_settings.trailing_stop_with_atr:
+                trailing_stop_price = update_atr_trailing_stop_loss(
+                    current_price, 
+                    0, 
+                    atr_value,
+                    bot_settings
+                )
+
+            update_current_trade(
+                bot_id=bot_settings.id,
+                is_active=True,
+                amount=amount,
+                current_price=current_price,
+                previous_price=current_price,
+                buy_price=current_price,
+                trailing_stop_loss=trailing_stop_price,
+                buy_timestamp=dt.utcnow()
+            )
+            logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} buy process completed.")
+
+    except Exception as e:
+        logger.error(f"Exception in execute_buy_order: {str(e)}")
+        send_admin_email(f'Exception in execute_buy_order', str(e))
+
+
+def execute_sell_order(bot_settings, current_trade, current_price):
+    try:
+        logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} SELL signal.")
+        sell_success, amount = place_sell_order(bot_settings.id)
+
+        if sell_success:
+            update_trade_history(
+                bot_settings=bot_settings,
+                strategy=bot_settings.strategy,
+                amount=amount,
+                buy_price=current_trade.buy_price,
+                sell_price=current_price,
+                price_rises_counter=current_trade.price_rises_counter,
+                buy_timestamp=current_trade.buy_timestamp
+            )
+            update_current_trade(
+                bot_id=bot_settings.id,
+                is_active=False,
+                amount=0,
+                current_price=0,
+                previous_price=0,
+                buy_price=0,
+                trailing_stop_loss=0,
+                reset_price_rises_counter=True,
+            )
+            logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell process completed.")
+            
+    except Exception as e:
+        logger.error(f"Exception in execute_sell_order: {str(e)}")
+        send_admin_email(f'Exception in execute_sell_order', str(e))
+
+
+def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
+    try:
+        logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price rises.")
         
         trailing_stop_price = update_trailing_stop_loss(
             current_price, 
-            0, 
+            float(current_trade.trailing_stop_loss), 
             bot_settings
         )
         
         if bot_settings.trailing_stop_with_atr:
             trailing_stop_price = update_atr_trailing_stop_loss(
                 current_price, 
-                0, 
-                atr_value,
-                bot_settings
+                float(current_trade.trailing_stop_loss), 
+                atr_value, bot_settings
             )
-
+        
         update_current_trade(
             bot_id=bot_settings.id,
-            is_active=True,
-            amount=amount,
-            current_price=current_price,
             previous_price=current_price,
-            buy_price=current_price,
             trailing_stop_loss=trailing_stop_price,
-            buy_timestamp=dt.utcnow()
+            price_rises=True
         )
-        logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} buy process completed.")
-
-
-def execute_sell_order(bot_settings, current_trade, current_price):
-    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} SELL signal.")
-    sell_success, amount = place_sell_order(bot_settings.id)
-
-    if sell_success:
-        update_trade_history(
-            bot_settings=bot_settings,
-            strategy=bot_settings.strategy,
-            amount=amount,
-            buy_price=current_trade.buy_price,
-            sell_price=current_price,
-            price_rises_counter=current_trade.price_rises_counter,
-            buy_timestamp=current_trade.buy_timestamp
-        )
-        update_current_trade(
-            bot_id=bot_settings.id,
-            is_active=False,
-            amount=0,
-            current_price=0,
-            previous_price=0,
-            buy_price=0,
-            trailing_stop_loss=0,
-            reset_price_rises_counter=True,
-        )
-        logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell process completed.")
-
-
-def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
-    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price rises.")
-    
-    trailing_stop_price = update_trailing_stop_loss(
-        current_price, 
-        float(current_trade.trailing_stop_loss), 
-        bot_settings
-    )
-    
-    if bot_settings.trailing_stop_with_atr:
-        trailing_stop_price = update_atr_trailing_stop_loss(
-            current_price, 
-            float(current_trade.trailing_stop_loss), 
-            atr_value, bot_settings
-        )
-    
-    update_current_trade(
-        bot_id=bot_settings.id,
-        previous_price=current_price,
-        trailing_stop_loss=trailing_stop_price,
-        price_rises=True
-    )
-    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} previous price and trailing stop loss updated.")
+        logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} previous price and trailing stop loss updated.")
+        
+    except Exception as e:
+        logger.error(f"Exception in update_trailing_stop: {str(e)}")
+        send_admin_email(f'Exception in update_trailing_stop', str(e))
 
 
 def round_down_to_step_size(amount, step_size):
-    if step_size > 0:
-        amount_decimal = Decimal(str(amount))
-        step_size_decimal = Decimal(str(step_size))
-        rounded_amount = (amount_decimal // step_size_decimal) * step_size_decimal
-        return float(rounded_amount)
-    return float(amount)
-
+    try:
+        if step_size > 0:
+            amount_decimal = Decimal(str(amount))
+            step_size_decimal = Decimal(str(step_size))
+            rounded_amount = (amount_decimal // step_size_decimal) * step_size_decimal
+            return float(rounded_amount)
+        return float(amount)
+    
+    except Exception as e:
+            logger.error(f"Exception in round_down_to_step_size: {str(e)}")
+            send_admin_email(f'Exception in round_down_to_step_size', str(e))
+        
 
 def update_trailing_stop_loss(current_price, trailing_stop_price, bot_settings):
     try:
@@ -419,12 +463,18 @@ def update_current_trade(
     
 
 def next_trade_id(bot_id):
-    max_existing_trade_id = (
-        db.session.query(db.func.max(TradesHistory.trade_id))
-        .filter_by(bot_id=bot_id)
-        .scalar()
-    )
-    return (max_existing_trade_id or 0) + 1
+    try:
+        max_existing_trade_id = (
+            db.session.query(db.func.max(TradesHistory.trade_id))
+            .filter_by(bot_id=bot_id)
+            .scalar()
+        )
+        return (max_existing_trade_id or 0) + 1
+
+    except Exception as e:
+        logger.error(f"Exception in next_trade_id: {str(e)}")
+        send_admin_email(f'Exception in next_trade_id', str(e))
+        return None
 
                         
 def update_trade_history(

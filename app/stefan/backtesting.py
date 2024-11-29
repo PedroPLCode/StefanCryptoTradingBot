@@ -3,6 +3,7 @@ from ..utils.logging import logger
 from .api_utils import fetch_data
 from .logic_utils import (
     check_trend,
+    calculate_averages,
     update_trailing_stop_loss,
     update_atr_trailing_stop_loss
 )
@@ -51,8 +52,6 @@ def backtest_strategy(df, bot_settings, backtest_settings):
     
     try:
         for i in range(start_index, end_index):
-            latest_data = df.iloc[i]
-            current_price = float(latest_data['close'])
             loop_df = pd.DataFrame()
             
             if bot_settings.strategy == 'scalp':
@@ -72,11 +71,15 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                         )
                 else:
                     continue
-                
+            
+            latest_data = loop_df.iloc[-1]
+            previous_data = loop_df.iloc[-2]
+            current_price = float(latest_data['close'])
             buy_signal_func, sell_signal_func = select_signals_checkers(bot_settings)
-            trend = check_trend(df)
+            trend = check_trend(loop_df)
+            avg_volume, avg_rsi, avg_stoch_rsi_k = calculate_averages(loop_df, bot_settings)
             buy_signal = buy_signal_func(loop_df, bot_settings, trend)
-            sell_signal = sell_signal_func(loop_df, bot_settings, trend)
+            sell_signal = sell_signal_func(loop_df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data)
             stop_loss_activated = current_price <= trailing_stop_loss
             
             full_sell_signal = stop_loss_activated or sell_signal

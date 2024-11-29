@@ -46,6 +46,12 @@
                         <div id="collapse{{ bot_info.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ bot_info.id }}" data-bs-parent="#botsAccordion">
                             <div class="accordion-body">
                                 <p class="text-muted m-0 p-0">Symbol: {{ bot_info.symbol }}</p>
+                                <p class="text-muted m-0 p-0">Strategy: {{ bot_info.strategy | upper }}</p>
+                                <p class="text-muted m-0 p-0">Algorithm: {{ bot_info.algorithm }}</p>
+                                <p class="text-muted m-0 p-0">Comment: {{ bot_info.comment }}</p>
+                                <p class="text-muted m-0 p-0">Lookback Period: {{ bot_info.lookback_period }}</p>
+                                <p class="text-muted m-0 p-0 border-bottom">Interval: {{ bot_info.interval }}</p>
+
                                 {% for balance in bot_info.balance %}
                                     {% if balance.asset != 'USDC' %}
                                         <p class="text-muted m-0 p-0">Current {{ balance.asset }} Price: {{ balance.price }} USDC</p>
@@ -79,13 +85,8 @@
                                         {% endif %} )
                                     </p>
                                 {% endfor %}
-                                <p class="text-muted m-0 p-0">Strategy: {{ bot_info.strategy | upper }}</p>
-                                <p class="text-muted m-0 p-0">Algorithm: {{ bot_info.algorithm }}</p>
-                                <p class="text-muted m-0 p-0">Lookback Period: {{ bot_info.lookback_period }}</p>
-                                <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>
-                                <p class="text-muted m-0 p-0 border-bottom">Comment: {{ bot_info.comment }}</p>
 
-                                <p class="text-muted m-0 p-0">Trailing Stop Loss: {{ bot_info.trailing_stop_pct }}</p>
+                                <p class="text-muted m-0 p-0 border-top">Trailing Stop Loss: {{ bot_info.trailing_stop_pct }}</p>
                                 <p class="text-muted m-0 p-0">Sell signal only Trailing Stop: {{ bot_info.sell_signal_only_trailing_stop }}</p>
                                 <p class="text-muted m-0 p-0">ATR Trailing Stop Loss: {{ bot_info.trailing_stop_with_atr }}</p>
                                 <p class="text-muted m-0 p-0 border-bottom">ATR Trailing Stop Multiplicator: {{ bot_info.trailing_stop_atr_calc }}</p>
@@ -124,8 +125,8 @@
                                 <p class="text-muted m-0 p-0">CCI Settings: buy {{ bot_info.cci_buy }} / sell {{ bot_info.cci_sell }}</p>
                                 <p class="text-muted m-0 p-0">RSI Settings: buy {{ bot_info.rsi_buy }} / sell {{ bot_info.rsi_sell }}</p>
                                 <p class="text-muted m-0 p-0">MFI Settings: buy {{ bot_info.mfi_buy }} / sell {{ bot_info.mfi_sell }}</p>
-                                <p class="text-muted m-0 p-0">Stochastic Settings: buy {{ bot_info.stoch_buy }} / sell {{ bot_info.stoch_sell }}</p>
-                                <p class="text-muted m-0 p-0 {% if bot_info.bot_current_trade.is_active %}border-top{% endif %}">Current Trade Active: <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{{ bot_info.bot_current_trade.is_active }}</span></p>
+                                <p class="text-muted m-0 p-0 border-bottom">Stochastic Settings: buy {{ bot_info.stoch_buy }} / sell {{ bot_info.stoch_sell }}</p>
+                                <p class="text-muted m-0 p-0">Current Trade Active: <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{{ bot_info.bot_current_trade.is_active }}</span></p>
                                 {% if bot_info.bot_current_trade.is_active %}
                                     <p class="text-muted m-0 p-0 border-bottom">buy_timestamp {{ bot_info.bot_current_trade.buy_timestamp }}<br>amount {{ bot_info.bot_current_trade.amount }}<br>buy_price {{ bot_info.bot_current_trade.buy_price }}<br>current_price {{ bot_info.bot_current_trade.current_price }}<br>trailing_stop_loss {{ bot_info.bot_current_trade.trailing_stop_loss }}<br>price_rises_counter {{ bot_info.bot_current_trade.price_rises_counter }}</p>
                                 {% endif %}
