@@ -292,7 +292,7 @@ def execute_sell_order(bot_settings, current_trade, current_price):
             previous_price=0,
             buy_price=0,
             trailing_stop_loss=0,
-            price_rises_counter=0,
+            price_rises=False,
         )
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell process completed.")
 
@@ -402,10 +402,12 @@ def update_current_trade(
                 current_trade.trailing_stop_loss = trailing_stop_loss
             if buy_timestamp != None:
                 current_trade.buy_timestamp = buy_timestamp
-            if price_rises != None:
+            if price_rises == True:
                 current_counter = current_trade.price_rises_counter
                 updated_counter = current_counter + 1
                 current_trade.price_rises_counter = updated_counter
+            if price_rises == False:
+                current_trade.price_rises_counter = 0
                 
             db.session.commit()
             
