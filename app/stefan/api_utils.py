@@ -233,17 +233,16 @@ def place_buy_order(bot_id):
         logger.trade(f'place_buy_order() Bot {bot_id} Fetched stablecoin balance: {stablecoin_balance}')
         logger.trade(f'place_buy_order() Bot {bot_id} Fetched price for {symbol}: {price}')
 
-        amount_to_buy = (stablecoin_balance * 0.9) / price
-        
+        affordable_amount = (stablecoin_balance * 0.95) / price
         min_qty, step_size = get_minimum_order_quantity(bot_id, symbol)
+        amount_to_buy = float(round_down_to_step_size(affordable_amount, step_size))
+        
         if min_qty is None or step_size is None: 
             logger.trade(f'place_buy_order() Bot {bot_id} Invalid minimum order quantity or step size for symbol: {symbol}.')
             return False, False
                 
         min_notional = get_minimum_order_value(bot_id, symbol)
         min_notional = min_notional if min_notional is not None else 0.0
-        
-        amount_to_buy = float(round_down_to_step_size(amount_to_buy, step_size))
         
         logger.trade(f"place_buy_order() Bot {bot_id} Amount_to_buy: {amount_to_buy}")
 
@@ -313,23 +312,21 @@ def place_sell_order(bot_id):
         min_qty = min_qty if min_qty is not None else 0
 
         if crypto_balance >= min_qty:
-            #amount_to_sell = float(round_down_to_step_size(crypto_balance, step_size))
-            #crypto_balance = float(crypto_balance)
+            amount_to_sell = float(round_down_to_step_size(crypto_balance, step_size))
             
             logger.trade(f'crypto_balance {crypto_balance}')
             logger.trade(f'min_qty {min_qty}')
             logger.trade(f'step_size {step_size}')
-            #logger.trade(f'amount_to_sell {amount_to_sell}')
-            #logger.trade(f'float(crypto_balance) {float(crypto_balance)}')
+            logger.trade(f'amount_to_sell {amount_to_sell}')
             
-            order_response = bot_client.order_market_sell(symbol=symbol, quantity=crypto_balance) #amount_to_sell
+            order_response = bot_client.order_market_sell(symbol=symbol, quantity=amount_to_sell) #crypto_balance
             order_id = order_response['orderId'] or None
             order_status = order_response['status'] or None
-            logger.trade(f'place_sell_order() Bot {bot_id} Sell {crypto_balance} {cryptocoin_symbol} at price {price}.')
+            logger.trade(f'place_sell_order() Bot {bot_id} Sell {amount_to_sell} {cryptocoin_symbol} at price {price}.')
             
             if order_status == 'FILLED':
                 logger.trade(f'place_sell_order() Bot {bot_id} Order {order_id} filled successfully.')
-                return True, crypto_balance
+                return True, amount_to_sell
             else:
                 logger.trade(f'place_sell_order() Bot {bot_id} Order {order_id} not filled. Status: {order_response["status"]}.')
                 return False, False

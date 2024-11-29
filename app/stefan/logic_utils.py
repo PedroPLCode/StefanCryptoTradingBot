@@ -1,6 +1,6 @@
 from .. import db
 from datetime import datetime as dt
-import math
+from decimal import Decimal
 from ..models import TradesHistory, BotCurrentTrade
 from ..utils.logging import logger
 from ..utils.app_utils import send_admin_email
@@ -324,10 +324,10 @@ def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
 
 def round_down_to_step_size(amount, step_size):
     if step_size > 0:
-        decimal_places = len(str(step_size).split('.')[-1])
-        scale = 10 ** decimal_places
-        rounded_amount = math.floor(amount * scale) / scale
-        return float(round(rounded_amount, decimal_places))
+        amount_decimal = Decimal(str(amount))
+        step_size_decimal = Decimal(str(step_size))
+        rounded_amount = (amount_decimal // step_size_decimal) * step_size_decimal
+        return float(rounded_amount)
     return float(amount)
 
 

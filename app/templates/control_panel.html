@@ -39,7 +39,7 @@
                     <div class="accordion-item">
                         <div class="accordion-header d-flex justify-content-center" id="heading{{ bot_info.id }}">
                             <button class="accordion-button collapsed text-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ bot_info.id }}" aria-expanded="false" aria-controls="collapse{{ bot_info.id }}">
-                                <p class="w-100 text-center m-0 p-0">Bot {{ bot_info.id }} {{ bot_info.strategy | upper }} {{ bot_info.symbol }} <span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{% if bot_info.bot_running %} Running {% else %} Stopped {% endif %}</span> / <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">Trade</span></p>
+                                <p class="w-100 text-center m-0 p-0">Bot {{ bot_info.id }} {{ bot_info.strategy | upper }} {{ bot_info.symbol }} <span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{% if bot_info.bot_running %} Running {% else %} Stopped {% endif %}</span> <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">Trade</span></p>
                             </button>
                         </div>
                         <div id="collapse{{ bot_info.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ bot_info.id }}" data-bs-parent="#botsAccordion">
@@ -113,7 +113,7 @@
                                 <p class="text-muted m-0 p-0">Stochastic Settings: buy {{ bot_info.stoch_buy }} / sell {{ bot_info.stoch_sell }}</p>
                                 <p class="text-muted m-0 p-0" style="{% if bot_info.bot_current_trade.is_active %}border-top: 1px solid #ccc;{% endif %}">Current Trade Active: <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{{ bot_info.bot_current_trade.is_active }}</span></p>
                                 {% if bot_info.bot_current_trade.is_active %}
-                                    <p class="text-muted m-0 p-0" style="border-bottom: 1px solid #ccc;">amount {{ bot_info.bot_current_trade.amount }}<br>buy_price {{ bot_info.bot_current_trade.buy_price }}<br>current_price {{ bot_info.bot_current_trade.current_price }}<br>trailing_stop_loss {{ bot_info.bot_current_trade.trailing_stop_loss }}</p>
+                                    <p class="text-muted m-0 p-0" style="border-bottom: 1px solid #ccc;">buy_timestamp {{ bot_info.bot_current_trade.buy_timestamp }}<br>amount {{ bot_info.bot_current_trade.amount }}<br>buy_price {{ bot_info.bot_current_trade.buy_price }}<br>current_price {{ bot_info.bot_current_trade.current_price }}<br>trailing_stop_loss {{ bot_info.bot_current_trade.trailing_stop_loss }}<br>price_rises_counter {{ bot_info.bot_current_trade.price_rises_counter }}</p>
                                 {% endif %}
                                 <p class="text-muted m-0 p-0">Bot Running: <span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{{ bot_info.bot_running }}</span></p>
                                 <p class="text-muted m-0 p-0">Trades Count: {{ bot_info.bot_trades_history|length }}</p>
