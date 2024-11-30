@@ -301,8 +301,6 @@ def execute_buy_order(bot_settings, current_price, atr_value):
                     bot_settings
                 )
                 
-            send_trade_email(f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} BUY.", f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} buy process completed.\namount: {amount}\nbuy_price: {current_price}\ntrailing_stop_price: {trailing_stop_price}\nbuy_timestamp: {dt.utcnow()}")
-
             update_current_trade(
                 bot_id=bot_settings.id,
                 is_active=True,
@@ -314,6 +312,19 @@ def execute_buy_order(bot_settings, current_price, atr_value):
                 buy_timestamp=dt.utcnow()
             )
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} buy process completed.")
+            
+            send_trade_email(
+                f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} BUY.",
+                (
+                    f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} "
+                    f"buy process completed.\n"
+                    f"amount: {amount}\n"
+                    f"buy_price: {current_price}\n"
+                    f"trailing_stop_price: {trailing_stop_price}\n"
+                    f"buy_timestamp: {dt.utcnow()}\n"
+                    f"buy_success: {buy_success}"
+                ),
+            )
 
     except Exception as e:
         logger.error(f"Exception in execute_buy_order: {str(e)}")
@@ -335,9 +346,7 @@ def execute_sell_order(bot_settings, current_trade, current_price):
                 price_rises_counter=current_trade.price_rises_counter,
                 buy_timestamp=current_trade.buy_timestamp
             )
-            
-            send_trade_email(f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} SELL.", f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} sell process completed.\namount: {amount}\nbuy_price: {current_trade.buy_price}\nsell_price: {current_price}\nprice_rises_counter: {current_trade.price_rises_counter}\nsell_timestamp: {dt.utcnow()}")
-            
+                        
             update_current_trade(
                 bot_id=bot_settings.id,
                 is_active=False,
@@ -350,6 +359,20 @@ def execute_sell_order(bot_settings, current_trade, current_price):
             )
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell process completed.")
             
+            send_trade_email(
+                        f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} SELL.",
+                        (
+                            f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} "
+                            f"sell process completed.\n"
+                            f"amount: {amount}\n"
+                            f"buy_price: {current_trade.buy_price}\n"
+                            f"sell_price: {current_price}\n"
+                            f"price_rises_counter: {current_trade.price_rises_counter}\n"
+                            f"sell_timestamp: {dt.utcnow()}\n"
+                            f"sell_success: {sell_success}"
+                        ),
+            )
+
     except Exception as e:
         logger.error(f"Exception in execute_sell_order: {str(e)}")
         send_admin_email(f'Exception in execute_sell_order', str(e))
