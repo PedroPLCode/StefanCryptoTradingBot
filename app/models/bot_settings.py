@@ -24,9 +24,12 @@ class BotSettings(db.Model):
     
     avg_adx_period = db.Column(db.Integer, default=7, nullable=False)
     avg_di_period = db.Column(db.Integer, default=7, nullable=False)
-    avg_rsi_period = db.Column(db.Integer, default=7, nullable=False)
-    avg_volume_period = db.Column(db.Integer, default=7, nullable=False)
-    avg_stoch_rsi_k_period = db.Column(db.Integer, default=7, nullable=False)
+    avg_rsi_period = db.Column(db.Integer, default=3, nullable=False)
+    avg_volume_period = db.Column(db.Integer, default=3, nullable=False)
+    avg_stoch_rsi_k_period = db.Column(db.Integer, default=3, nullable=False)
+    avg_macd_period = db.Column(db.Integer, default=3, nullable=False)
+    avg_stoch_period = db.Column(db.Integer, default=3, nullable=False)
+    avg_ema_period = db.Column(db.Integer, default=3, nullable=False)
     
     adx_strong_trend = db.Column(db.Integer, default=25, nullable=False)
     adx_weak_trend = db.Column(db.Integer, default=20, nullable=False)

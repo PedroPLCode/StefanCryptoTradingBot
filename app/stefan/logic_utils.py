@@ -3,7 +3,10 @@ from datetime import datetime as dt
 from decimal import Decimal
 from ..models import TradesHistory, BotCurrentTrade
 from ..utils.logging import logger
-from ..utils.app_utils import send_admin_email
+from ..utils.app_utils import (
+    send_admin_email,
+    send_trade_email
+)
 from .api_utils import (
     fetch_data,
     place_buy_order, 
@@ -90,10 +93,10 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         previous_price = float(current_trade.previous_price if current_trade.is_active else 0)
         price_rises = current_price >= previous_price if current_trade.is_active else False
         trend = check_trend(df, bot_settings)
-        avg_volume, avg_rsi, avg_stoch_rsi_k = calculate_averages(df, bot_settings)
+        avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di = calculate_averages(df, bot_settings)
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
-        buy_signal, sell_signal = check_signals(bot_settings, df, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data)
+        buy_signal, sell_signal = check_signals(bot_settings, df, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data)
 
         stop_loss_activated = False
         if current_price <= trailing_stop_price:
@@ -132,7 +135,23 @@ def calculate_averages(df, bot_settings):
         avg_stoch_rsi_k_period = bot_settings.avg_stoch_rsi_k_period
         avg_stoch_rsi_k = df['stoch_rsi_k'].iloc[-avg_stoch_rsi_k_period:].mean()
         
-        return avg_volume, avg_rsi, avg_stoch_rsi_k
+        avg_macd_period = bot_settings.avg_macd_period
+        avg_macd = df['macd'].iloc[-avg_macd_period:].mean()
+        avg_macd_signal = df['macd_signal'].iloc[-avg_macd_period:].mean()
+        
+        avg_stoch_period = bot_settings.avg_stoch_period
+        avg_stoch_k = df['stoch_k'].iloc[-avg_stoch_period:].mean()
+        avg_stoch_d = df['stoch_d'].iloc[-avg_stoch_period:].mean()
+        
+        avg_ema_period = bot_settings.avg_ema_period
+        avg_ema_fast = df['ema_fast'].iloc[-avg_ema_period:].mean()
+        avg_ema_slow = df['ema_slow'].iloc[-avg_ema_period:].mean()
+        
+        avg_di_period = bot_settings.avg_di_period
+        avg_plus_di = df['plus_di'].iloc[-avg_di_period:].mean()
+        avg_minus_di = df['minus_di'].iloc[-avg_di_period:].mean()
+        
+        return avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di
     
     except Exception as e:
         logger.error(f"Exception in calculate_averages: {str(e)}")
@@ -213,12 +232,12 @@ def get_signal_functions(strategy, algorithm):
         return None, None
 
 
-def get_signals(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+def get_signals(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
     try:
         buy_func, sell_func = get_signal_functions(bot_settings.strategy, bot_settings.algorithm)
         
-        buy_signal = buy_func(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data)
-        sell_signal = sell_func(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data)
+        buy_signal = buy_func(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data)
+        sell_signal = sell_func(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data)
         
         return buy_signal, sell_signal
 
@@ -228,7 +247,7 @@ def get_signals(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, l
         return None, None
 
 
-def check_signals(bot_settings, df, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+def check_signals(bot_settings, df, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
     try:
         indicators_ok = all([
             bot_settings.rsi_buy,
@@ -251,7 +270,7 @@ def check_signals(bot_settings, df, trend, avg_volume, avg_rsi, avg_stoch_rsi_k,
             send_admin_email(f'Wrong algorithm bot {bot_settings.id}', f'Wrong algorithm {bot_settings.algorithm} declared for bot {bot_settings.id} {bot_settings.strategy}')
             return None, None
         
-        buy_signal, sell_signal = get_signals(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data)
+        buy_signal, sell_signal = get_signals(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data)
         
         return buy_signal, sell_signal
     
@@ -281,6 +300,8 @@ def execute_buy_order(bot_settings, current_price, atr_value):
                     atr_value,
                     bot_settings
                 )
+                
+            send_trade_email(f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} BUY.", f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} buy process completed.\namount: {amount}\nbuy_price: {current_price}\ntrailing_stop_price: {trailing_stop_price}\nbuy_timestamp: {dt.utcnow()}")
 
             update_current_trade(
                 bot_id=bot_settings.id,
@@ -314,6 +335,9 @@ def execute_sell_order(bot_settings, current_trade, current_price):
                 price_rises_counter=current_trade.price_rises_counter,
                 buy_timestamp=current_trade.buy_timestamp
             )
+            
+            send_trade_email(f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} SELL.", f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} sell process completed.\namount: {amount}\nbuy_price: {current_trade.buy_price}\nsell_price: {current_price}\nprice_rises_counter: {current_trade.price_rises_counter}\nsell_timestamp: {dt.utcnow()}")
+            
             update_current_trade(
                 bot_id=bot_settings.id,
                 is_active=False,

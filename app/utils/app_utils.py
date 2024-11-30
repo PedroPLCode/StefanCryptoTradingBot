@@ -250,6 +250,18 @@ def send_admin_email(subject, body):
                     logger.error(f"Failed to send admin email to {user.email}. {subject} {body}")
     except Exception as e:
         logger.error(f"Exception in send_admin_email: {str(e)}")
+        
+
+def send_trade_email(subject, body):
+    try:
+        with current_app.app_context():
+            users = User.query.filter_by(email_trades_receiver=True).all()
+            for user in users:
+                success = send_email(user.email, subject, body)
+                if not success:
+                    logger.error(f"Failed to send trade info email to {user.email}. {subject} {body}")
+    except Exception as e:
+        logger.error(f"Exception in send_trade_email: {str(e)}")
 
 
 def clear_old_trade_history():

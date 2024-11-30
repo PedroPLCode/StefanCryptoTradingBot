@@ -7,9 +7,12 @@ interval="1m"
 lookback_period="45m"
 avg_adx_period=7
 avg_di_period=7
-avg_rsi_period=7
-avg_volume_period=7
-avg_stoch_rsi_k_period=7
+avg_rsi_period=3
+avg_volume_period=3
+avg_stoch_rsi_k_period=3
+avg_macd_period=3
+avg_stoch_period=3
+avg_ema_period=3
 adx_strong_trend=25
 adx_weak_trend=20
 adx_no_trend=5
@@ -50,17 +53,17 @@ Boilinger(20/2)
 algorithm 1: *ready RUN
 (primary for uptrend) 
 intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
-if not downtrend: RSI(7, 30/70) + MACD(6,12,5) + Volume
+if_not_downtrend: RSI(7, 30/70) MACD(6,12,5) Volume 
 
 algorithm 2: *ready RUN
 (secondary for horizontal trend)
 intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
-if not downtrend: Stochastic(7,3) + Boilinger(20,2) + Volume
+if_not_downtrend: Stochastic(7,3) Boilinger(20,2) Volume 
 
 algorithm 3: *ready RUN
 (testing)
 intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
-if not downtrend: StochasticRSI(7,7,3) + Boilinger(20,2) + Volume
+if_not_downtrend: StochasticRSI(7,7,3) Boilinger(20,2) Volume 
 
 algorithm 4: *ready
 (testing)
@@ -70,16 +73,12 @@ if not downtrend: RSI(7, 30/70) + EMA(9,21) + Volume
 algorithm 5: *ready RUN
 (intelligent simple)
 intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
-if uptrend: RSI(7, 30/70) + MACD(6,12,5) + Volume
-if horizontal: BoilingerBands(20,2) + Stochastic(7,3, 20/80) + Volume
-if downtrend dont trade
+if_trend_uptrend: RSI(7, 30/70) MACD(6,12,5) Volume if_trend_horizontal: BoilingerBands(20,2) Stochastic(7,3, 20/80) Volume if_trend_downtrend: DONT_TRADE 
 
 algorithm 6: *ready RUN
 (intelligent extended)
 intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
-if uptrend: RSI(7, 30/70) + EMA(9,21) + MACD(6,12,5) + Volume
-if horizontal: RSI(7, 30/70) + BoilingerBands(20,2) + Stochastic(7,3, 20/80) + Volume
-if downtrend dont trade
+if_trend_uptrend: RSI(7, 30/70) EMA(9,21) MACD(6,12,5) Volume if_trend_horizontal: RSI(7, 30/70) BoilingerBands(20,2) Stochastic(7,3, 20/80) Volume if_trend_downtrend: DONT_TRADE 
 
 algorithm 7: *ready
 (uptrend downtrend only)

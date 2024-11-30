@@ -40,6 +40,7 @@
                 <p class="text-muted m-0 p-0">Control Panel Access: <span class="{{ 'text-success' if user.control_panel_access else 'text-danger' }}">{{ user.control_panel_access }}</span></p>
                 <p class="text-muted m-0 p-0">Admin Panel Access: <span class="{{ 'text-success' if user.admin_panel_access else 'text-danger' }}">{{ user.admin_panel_access }}</span></p>
                 <p class="text-muted m-0 p-0">Email Reports Receiver: <span class="{{ 'text-success' if user.email_raports_receiver else 'text-danger' }}">{{ user.email_raports_receiver }}</span></p>
+                <p class="text-muted m-0 p-0">Email Trades Receiver: <span class="{{ 'text-success' if user.email_trades_receiver else 'text-danger' }}">{{ user.email_trades_receiver }}</span></p>
                 <p class="text-muted m-0 p-0">Account Suspended: <span class="{{ 'text-success' if not user.account_suspended else 'text-danger' }}">{{ user.account_suspended }}</span></p>
 
                 {% if account_status is not none %}

@@ -3,12 +3,28 @@ previous_data = df.iloc[-2]
 
 avg_volume_period = bot_settings.avg_volume_period
 avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
-
+            
 avg_rsi_period = bot_settings.avg_rsi_period
 avg_rsi = df['rsi'].iloc[-avg_rsi_period:].mean()
-
+        
 avg_stoch_rsi_k_period = bot_settings.avg_stoch_rsi_k_period
 avg_stoch_rsi_k = df['stoch_rsi_k'].iloc[-avg_stoch_rsi_k_period:].mean()
+        
+avg_macd_period = bot_settings.avg_macd_period
+avg_macd = df['macd'].iloc[-avg_macd_period:].mean()
+avg_macd_signal = df['macd_signal'].iloc[-avg_macd_period:].mean()
+        
+avg_stoch_period = bot_settings.avg_stoch_period
+avg_stoch_k = df['stoch_k'].iloc[-avg_stoch_period:].mean()
+avg_stoch_d = df['stoch_d'].iloc[-avg_stoch_period:].mean()
+        
+avg_ema_period = bot_settings.avg_ema_period
+avg_ema_fast = df['ema_fast'].iloc[-avg_ema_period:].mean()
+avg_ema_slow = df['ema_slow'].iloc[-avg_ema_period:].mean()
+        
+avg_di_period = bot_settings.avg_di_period
+avg_plus_di = df['plus_di'].iloc[-avg_di_period:].mean()
+avg_minus_di = df['minus_di'].iloc[-avg_di_period:].mean()
 
 avg_adx_period = bot_settings.avg_adx_period
         avg_adx = df['adx'].iloc[-avg_adx_period:].mean()
@@ -20,24 +36,24 @@ avg_adx_period = bot_settings.avg_adx_period
         di_difference_increasing = (abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) > 
                                     abs(float(avg_plus_di) - float(avg_minus_di)))
         
-        significant_move = (float(latest_data['high']) - float(latest_data['low']) > float(latest_data['atr']))
+significant_move = (float(latest_data['high']) - float(latest_data['low']) > float(latest_data['atr']))
 
-        uptrend = (float(latest_data['plus_di']) > float(avg_minus_di) and 
-                adx_trend and 
-                di_difference_increasing and 
-                float(latest_data['rsi']) < float(bot_settings.rsi_sell) and 
-                float(latest_data['plus_di']) > float(bot_settings.adx_weak_trend) and
-                significant_move)
+uptrend = (float(latest_data['plus_di']) > float(avg_minus_di) and 
+        adx_trend and 
+        di_difference_increasing and 
+        float(latest_data['rsi']) < float(bot_settings.rsi_sell) and 
+        float(latest_data['plus_di']) > float(bot_settings.adx_weak_trend) and
+        significant_move)
 
-        downtrend = (float(latest_data['plus_di']) < float(avg_minus_di) and 
-                    adx_trend and 
-                    di_difference_increasing and 
-                    float(latest_data['minus_di']) > float(bot_settings.adx_weak_trend) and 
-                    float(latest_data['rsi']) > float(bot_settings.rsi_buy) and
-                    significant_move)
+downtrend = (float(latest_data['plus_di']) < float(avg_minus_di) and 
+        adx_trend and 
+        di_difference_increasing and 
+        float(latest_data['minus_di']) > float(bot_settings.adx_weak_trend) and 
+        float(latest_data['rsi']) > float(bot_settings.rsi_buy) and
+        significant_move)
 
-        horizontal = (latest_data['adx'] < avg_adx or avg_adx < float(bot_settings.adx_weak_trend) or 
-                    abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) < float(bot_settings.adx_no_trend))
+horizontal = (latest_data['adx'] < avg_adx or avg_adx < float(bot_settings.adx_weak_trend) or 
+        abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) < float(bot_settings.adx_no_trend))
 
 --
 
@@ -52,8 +68,9 @@ CCI
 float(latest_data['cci']) < float(bot_settings.cci_buy)
 
 MACD
-float(previous_data['macd']) < float(previous_data['macd_signal']) and 
-float(latest_data['macd']) > float(latest_data['macd_signal'])
+(float(avg_macd) <= float(avg_macd_signal) or 
+float(previous_data['macd']) < float(previous_data['macd_signal'])) and
+float(latest_data['macd']) >= float(latest_data['macd_signal']) and
 
 MACD histogram
 float(previous_data['macd_histogram']) < 0 and 
@@ -72,12 +89,14 @@ MA200
 float(latest_data['close']) > float(latest_data['ma_200'])
 
 EMA Fast and EMA Slow
-float(previous_data['ema_fast']) < float(previous_data['ema_slow']) and 
+(float(avg_ema_fast) <= float(avg_ema_slow) or
+float(previous_data['ema_fast']) <= float(previous_data['ema_slow'])) and 
 float(latest_data['ema_fast']) > float(latest_data['ema_slow'])
 
 Stochastic
-float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
-float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
+(float(avg_stoch_k) <= float(avg_stoch_d) or
+float(previous_data['stoch_k']) <= float(previous_data['stoch_d'])) and
+float(latest_data['stoch_k']) >= float(latest_data['stoch_d']) and
 float(latest_data['stoch_k']) < float(bot_settings.stoch_buy)
 
 Stochastic RSI
@@ -96,7 +115,8 @@ float(latest_data['volume']) > float(previous_data['volume'])
 float(latest_data['volume']) > avg_volume
 
 DI
-float(previous_data['plus_di']) < float(previous_data['minus_di']) and 
+(float(avg_plus_di) <= float(avg_minus_di) or
+float(previous_data['plus_di']) <= float(previous_data['minus_di'])) and 
 float(latest_data['plus_di']) > float(latest_data['minus_di'])
 
 --
@@ -110,8 +130,9 @@ CCI
 float(latest_data['cci']) > float(bot_settings.cci_sell)
 
 MACD
-float(previous_data['macd']) > float(previous_data['macd_signal']) and 
-float(latest_data['macd']) < float(latest_data['macd_signal'])
+(float(avg_macd) >= float(avg_macd_signal) or 
+float(previous_data['macd']) >= float(previous_data['macd_signal'])) and
+float(latest_data['macd']) <= float(latest_data['macd_signal']) and
 
 MACD histogram
 float(previous_data['macd_histogram']) > 0 and 
@@ -133,11 +154,13 @@ MA200
 float(latest_data['close']) < float(latest_data['ma_200'])
 
 EMA Fast and EMA Slow
-float(previous_data['ema_fast']) > float(previous_data['ema_slow']) and
+(float(avg_ema_fast) >= float(avg_ema_slow) or
+float(previous_data['ema_fast']) >= float(previous_data['ema_slow'])) and 
 float(latest_data['ema_fast']) < float(latest_data['ema_slow'])
 
 Stochastic
-float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
+(float(avg_stoch_k) >= float(avg_stoch_d) or
+float(previous_data['stoch_k']) >= float(previous_data['stoch_d'])) and
 float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
 float(latest_data['stoch_k']) > float(bot_settings.stoch_sell)
 
@@ -153,5 +176,6 @@ float(latest_data['volume']) < float(previous_data['volume'])
 float(latest_data['volume']) < avg_volume
 
 DI
-float(previous_data['plus_di']) > float(previous_data['minus_di']) and 
+(float(avg_plus_di) >= float(avg_minus_di) or
+float(previous_data['plus_di']) >= float(previous_data['minus_di'])) and 
 float(latest_data['plus_di']) < float(latest_data['minus_di'])

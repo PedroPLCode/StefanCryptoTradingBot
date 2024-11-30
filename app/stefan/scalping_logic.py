@@ -127,18 +127,19 @@ def calculate_scalp_indicators(df, bot_settings):
         return False
 
 
-def check_scalping_buy_signal_v1(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+def check_scalping_buy_signal_v1(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
             return False
         
         if (trend != 'downtrend' and 
-            float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
-            float(latest_data['rsi']) > float(avg_rsi) and
-            float(previous_data['macd']) < float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) > float(latest_data['macd_signal']) and
-            float(latest_data['volume']) > float(avg_volume)):
+            float(latest_data['rsi']) <= float(bot_settings.rsi_buy) and
+            float(latest_data['rsi']) >= float(avg_rsi) and
+            (float(avg_macd) <= float(avg_macd_signal) or 
+            float(previous_data['macd']) <= float(previous_data['macd_signal'])) and
+            float(latest_data['macd']) >= float(latest_data['macd_signal']) and
+            float(latest_data['volume']) >= float(avg_volume)):
 
             return True
             
@@ -154,15 +155,16 @@ def check_scalping_buy_signal_v1(df, bot_settings, trend, avg_volume, avg_rsi, a
         return False
     
     
-def check_scalping_sell_signal_v1(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+def check_scalping_sell_signal_v1(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
             return False
 
-        if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(previous_data['macd']) > float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) < float(latest_data['macd_signal'])):
+        if (float(latest_data['rsi']) >= float(bot_settings.rsi_sell) and
+            (float(avg_macd) >= float(avg_macd_signal) or 
+            float(previous_data['macd']) >= float(previous_data['macd_signal'])) and
+            float(latest_data['macd']) <= float(latest_data['macd_signal'])):
 
             return True
         
@@ -178,18 +180,19 @@ def check_scalping_sell_signal_v1(df, bot_settings, trend, avg_volume, avg_rsi, 
         return False
             
             
-def check_scalping_buy_signal_v2(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+def check_scalping_buy_signal_v2(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
             return False
 
         if (trend != 'downtrend' and 
-            float(latest_data['close']) < float(latest_data['lower_band']) and
-            float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
-            float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
-            float(latest_data['stoch_k']) < float(bot_settings.stoch_buy) and
-            float(latest_data['volume']) > float(avg_volume)):
+            float(latest_data['close']) <= float(latest_data['lower_band']) and
+            (float(avg_stoch_k) <= float(avg_stoch_d) or
+            float(previous_data['stoch_k']) <= float(previous_data['stoch_d'])) and
+            float(latest_data['stoch_k']) >= float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) <= float(bot_settings.stoch_buy) and
+            float(latest_data['volume']) >= float(avg_volume)):
             
             return True
             
@@ -205,16 +208,17 @@ def check_scalping_buy_signal_v2(df, bot_settings, trend, avg_volume, avg_rsi, a
         return False
     
     
-def check_scalping_sell_signal_v2(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+def check_scalping_sell_signal_v2(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:        
         if not is_df_valid(df, bot_settings.id):
             return False
         
-        if (float(latest_data['close']) > float(latest_data['upper_band']) and
-            float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
-            float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
-            float(latest_data['stoch_k']) > float(bot_settings.stoch_sell)):
+        if (float(latest_data['close']) >= float(latest_data['upper_band']) and
+            (float(avg_stoch_k) >= float(avg_stoch_d) or
+            float(previous_data['stoch_k']) >= float(previous_data['stoch_d'])) and
+            float(latest_data['stoch_k']) <= float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) >= float(bot_settings.stoch_sell)):
             
             return True
         
@@ -230,18 +234,18 @@ def check_scalping_sell_signal_v2(df, bot_settings, trend, avg_volume, avg_rsi, 
         return False
     
             
-def check_scalping_buy_signal_v3(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+def check_scalping_buy_signal_v3(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
             return False
 
         if (trend != 'downtrend' and 
-            float(latest_data['close']) < float(latest_data['lower_band']) and
-            float(latest_data['stoch_rsi_k']) < float(bot_settings.stoch_buy) and
-            float(latest_data['stoch_rsi_k']) > float(avg_stoch_rsi_k) and 
-            float(latest_data['stoch_rsi_k']) > float(latest_data['stoch_rsi_d']) and
-            float(latest_data['volume']) > float(avg_volume)):
+            float(latest_data['close']) <= float(latest_data['lower_band']) and
+            float(latest_data['stoch_rsi_k']) <= float(bot_settings.stoch_buy) and
+            float(latest_data['stoch_rsi_k']) >= float(avg_stoch_rsi_k) and 
+            float(latest_data['stoch_rsi_k']) >= float(latest_data['stoch_rsi_d']) and
+            float(latest_data['volume']) >= float(avg_volume)):
             
             return True
             
@@ -257,15 +261,15 @@ def check_scalping_buy_signal_v3(df, bot_settings, trend, avg_volume, avg_rsi, a
         return False
     
     
-def check_scalping_sell_signal_v3(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+def check_scalping_sell_signal_v3(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:        
         if not is_df_valid(df, bot_settings.id):
             return False
         
-        if (float(latest_data['close']) > float(latest_data['upper_band']) and
-            float(latest_data['stoch_rsi_k']) > float(bot_settings.stoch_sell) and
-            float(latest_data['stoch_rsi_k']) < float(latest_data['stoch_rsi_d'])):
+        if (float(latest_data['close']) >= float(latest_data['upper_band']) and
+            float(latest_data['stoch_rsi_k']) >= float(bot_settings.stoch_sell) and
+            float(latest_data['stoch_rsi_k']) <= float(latest_data['stoch_rsi_d'])):
             
             return True
         
@@ -281,18 +285,19 @@ def check_scalping_sell_signal_v3(df, bot_settings, trend, avg_volume, avg_rsi, 
         return False
     
     
-def check_scalping_buy_signal_v4(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+def check_scalping_buy_signal_v4(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
             return False
 
         if (trend != 'downtrend' and 
-            float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
-            float(latest_data['rsi']) > float(avg_rsi) and
-            float(previous_data['ema_fast']) < float(previous_data['ema_slow']) and 
-            float(latest_data['ema_fast']) > float(latest_data['ema_slow']) and
-            float(latest_data['volume']) > float(avg_volume)):
+            float(latest_data['rsi']) <= float(bot_settings.rsi_buy) and
+            float(latest_data['rsi']) >= float(avg_rsi) and
+            (float(avg_ema_fast) <= float(avg_ema_slow) or
+            float(previous_data['ema_fast']) <= float(previous_data['ema_slow'])) and 
+            float(latest_data['ema_fast']) >= float(latest_data['ema_slow']) and
+            float(latest_data['volume']) >= float(avg_volume)):
             
             return True
             
@@ -308,15 +313,16 @@ def check_scalping_buy_signal_v4(df, bot_settings, trend, avg_volume, avg_rsi, a
         return False
 
     
-def check_scalping_sell_signal_v4(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+def check_scalping_sell_signal_v4(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:        
         if not is_df_valid(df, bot_settings.id):
             return False
         
-        if (float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(previous_data['ema_fast']) > float(previous_data['ema_slow']) and
-            float(latest_data['ema_fast']) < float(latest_data['ema_slow'])):
+        if (float(latest_data['rsi']) >= float(bot_settings.rsi_sell) and
+            (float(avg_ema_fast) >= float(avg_ema_slow) or
+            float(previous_data['ema_fast']) >= float(previous_data['ema_slow'])) and 
+            float(latest_data['ema_fast']) <= float(latest_data['ema_slow'])):
             
             return True
         
@@ -332,27 +338,29 @@ def check_scalping_sell_signal_v4(df, bot_settings, trend, avg_volume, avg_rsi, 
         return False
     
     
-def check_scalping_buy_signal_v5(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+def check_scalping_buy_signal_v5(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
             return False
         
         if (trend == 'uptrend' and 
-            float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
-            float(latest_data['rsi']) > float(avg_rsi) and
-            float(previous_data['macd']) < float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) > float(latest_data['macd_signal']) and
-            float(latest_data['volume']) > float(avg_volume)):
+            float(latest_data['rsi']) <= float(bot_settings.rsi_buy) and
+            float(latest_data['rsi']) >= float(avg_rsi) and
+            (float(avg_macd) <= float(avg_macd_signal) or 
+            float(previous_data['macd']) <= float(previous_data['macd_signal'])) and
+            float(latest_data['macd']) >= float(latest_data['macd_signal']) and
+            float(latest_data['volume']) >= float(avg_volume)):
             
             return True
         
         elif (trend != 'downtrend' and 
-            float(latest_data['close']) < float(latest_data['lower_band']) and
-            float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
-            float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
-            float(latest_data['stoch_k']) < float(bot_settings.stoch_buy) and
-            float(latest_data['volume']) > float(avg_volume)):
+            float(latest_data['close']) <= float(latest_data['lower_band']) and
+            (float(avg_stoch_k) <= float(avg_stoch_d) or
+            float(previous_data['stoch_k']) <= float(previous_data['stoch_d'])) and
+            float(latest_data['stoch_k']) >= float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) <= float(bot_settings.stoch_buy) and
+            float(latest_data['volume']) >= float(avg_volume)):
             
             return True
             
@@ -368,30 +376,32 @@ def check_scalping_buy_signal_v5(df, bot_settings, trend, avg_volume, avg_rsi, a
         return False
     
     
-def check_scalping_sell_signal_v5(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+def check_scalping_sell_signal_v5(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:        
         if not is_df_valid(df, bot_settings.id):
             return False
         
         if (trend == 'uptrend' and 
-            float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(previous_data['macd']) > float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) < float(latest_data['macd_signal'])):
+            float(latest_data['rsi']) >= float(bot_settings.rsi_sell) and
+            (float(avg_macd) >= float(avg_macd_signal) or 
+            float(previous_data['macd']) >= float(previous_data['macd_signal'])) and
+            float(latest_data['macd']) <= float(latest_data['macd_signal'])):
             
             return True
 
         elif (trend == 'horizontal' and 
-            float(latest_data['close']) > float(latest_data['upper_band']) and
-            float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
-            float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
-            float(latest_data['stoch_k']) > float(bot_settings.stoch_sell)):
+            float(latest_data['close']) >= float(latest_data['upper_band']) and
+            (float(avg_stoch_k) >= float(avg_stoch_d) or
+            float(previous_data['stoch_k']) >= float(previous_data['stoch_d'])) and
+            float(latest_data['stoch_k']) <= float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) >= float(bot_settings.stoch_sell)):
             
             return True
         
         elif (trend == 'downtrend' and 
-            float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(latest_data['close']) > float(latest_data['upper_band'])):
+            float(latest_data['rsi']) >= float(bot_settings.rsi_sell) and
+            float(latest_data['close']) >= float(latest_data['upper_band'])):
             
             return True
         
@@ -407,31 +417,33 @@ def check_scalping_sell_signal_v5(df, bot_settings, trend, avg_volume, avg_rsi, 
         return False
     
     
-def check_scalping_buy_signal_v6(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+def check_scalping_buy_signal_v6(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
             return False
         
         if (trend == 'uptrend' and 
-            float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
-            float(latest_data['rsi']) > float(avg_rsi) and
-            float(latest_data['close']) > float(latest_data['ema_fast']) and
-            float(latest_data['close']) > float(latest_data['ema_slow']) and
-            float(previous_data['macd']) < float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) > float(latest_data['macd_signal']) and
-            float(latest_data['volume']) > float(avg_volume)):
+            float(latest_data['rsi']) <= float(bot_settings.rsi_buy) and
+            float(latest_data['rsi']) >= float(avg_rsi) and
+            float(latest_data['close']) >= float(latest_data['ema_fast']) and
+            float(latest_data['close']) >= float(latest_data['ema_slow']) and
+            (float(avg_macd) <= float(avg_macd_signal) or 
+            float(previous_data['macd']) <= float(previous_data['macd_signal'])) and
+            float(latest_data['macd']) >= float(latest_data['macd_signal']) and
+            float(latest_data['volume']) >= float(avg_volume)):
             
             return True
         
         elif (trend != 'downtrend' and 
-            float(latest_data['rsi']) < float(bot_settings.rsi_buy) and
-            float(latest_data['rsi']) > float(avg_rsi) and
-            float(latest_data['close']) < float(latest_data['lower_band']) and
-            float(previous_data['stoch_k']) < float(previous_data['stoch_d']) and
-            float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
-            float(latest_data['stoch_k']) < float(bot_settings.stoch_buy) and
-            float(latest_data['volume']) > float(avg_volume)):
+            float(latest_data['rsi']) <= float(bot_settings.rsi_buy) and
+            float(latest_data['rsi']) >= float(avg_rsi) and
+            float(latest_data['close']) <= float(latest_data['lower_band']) and
+            (float(avg_stoch_k) <= float(avg_stoch_d) or
+            float(previous_data['stoch_k']) <= float(previous_data['stoch_d'])) and
+            float(latest_data['stoch_k']) >= float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) <= float(bot_settings.stoch_buy) and
+            float(latest_data['volume']) >= float(avg_volume)):
             
             return True
         
@@ -448,32 +460,34 @@ def check_scalping_buy_signal_v6(df, bot_settings, trend, avg_volume, avg_rsi, a
         return False
 
     
-def check_scalping_sell_signal_v6(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+def check_scalping_sell_signal_v6(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
             return False
 
         if (trend == 'uptrend' and 
-            float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(latest_data['close']) < float(latest_data['ema_fast']) and
-            float(previous_data['macd']) > float(previous_data['macd_signal']) and 
-            float(latest_data['macd']) < float(latest_data['macd_signal'])):
+            float(latest_data['rsi']) >= float(bot_settings.rsi_sell) and
+            float(latest_data['close']) <= float(latest_data['ema_fast']) and
+            (float(avg_macd) >= float(avg_macd_signal) or 
+            float(previous_data['macd']) >= float(previous_data['macd_signal'])) and
+            float(latest_data['macd']) <= float(latest_data['macd_signal'])):
             
             return True
 
         elif (trend == 'horizontal' and 
-            float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(latest_data['close']) > float(latest_data['upper_band']) and
-            float(previous_data['stoch_k']) > float(previous_data['stoch_d']) and
-            float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
-            float(latest_data['stoch_k']) > float(bot_settings.stoch_sell)):
+            float(latest_data['rsi']) >= float(bot_settings.rsi_sell) and
+            float(latest_data['close']) >= float(latest_data['upper_band']) and
+            (float(avg_stoch_k) >= float(avg_stoch_d) or
+            float(previous_data['stoch_k']) >= float(previous_data['stoch_d'])) and
+            float(latest_data['stoch_k']) <= float(latest_data['stoch_d']) and
+            float(latest_data['stoch_k']) >= float(bot_settings.stoch_sell)):
             
             return True
         
         elif (trend == 'downtrend' and 
-            float(latest_data['rsi']) > float(bot_settings.rsi_sell) and
-            float(latest_data['close']) > float(latest_data['upper_band'])):
+            float(latest_data['rsi']) >= float(bot_settings.rsi_sell) and
+            float(latest_data['close']) >= float(latest_data['upper_band'])):
             return True
         
         return False
@@ -488,16 +502,17 @@ def check_scalping_sell_signal_v6(df, bot_settings, trend, avg_volume, avg_rsi, 
         return False
     
     
-def check_scalping_buy_signal_v7(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+def check_scalping_buy_signal_v7(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
             return False
         
         if (trend == 'uptrend' and 
-            float(previous_data['plus_di']) < float(previous_data['minus_di']) and 
-            float(latest_data['plus_di']) > float(latest_data['minus_di']) and
-            float(latest_data['volume']) > float(avg_volume)):
+            (float(avg_plus_di) <= float(avg_minus_di) or
+            float(previous_data['plus_di']) <= float(previous_data['minus_di'])) and 
+            float(latest_data['plus_di']) >= float(latest_data['minus_di']) and
+            float(latest_data['volume']) >= float(avg_volume)):
             
             return True
             
@@ -513,15 +528,16 @@ def check_scalping_buy_signal_v7(df, bot_settings, trend, avg_volume, avg_rsi, a
         return False
     
     
-def check_scalping_sell_signal_v7(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data):
+def check_scalping_sell_signal_v7(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
             return False
         
         if (trend == 'downtrend' and
-            float(previous_data['plus_di']) > float(previous_data['minus_di']) and 
-            float(latest_data['plus_di']) < float(latest_data['minus_di'])):
+            (float(avg_plus_di) >= float(avg_minus_di) or
+            float(previous_data['plus_di']) >= float(previous_data['minus_di'])) and 
+            float(latest_data['plus_di']) <= float(latest_data['minus_di'])):
             
             return True
         
