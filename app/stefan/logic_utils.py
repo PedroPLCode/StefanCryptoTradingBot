@@ -93,10 +93,10 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         previous_price = float(current_trade.previous_price if current_trade.is_active else 0)
         price_rises = current_price >= previous_price if current_trade.is_active else False
         trend = check_trend(df, bot_settings)
-        avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di = calculate_averages(df, bot_settings)
+        averages = calculate_averages(df, bot_settings)
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
-        buy_signal, sell_signal = check_signals(bot_settings, df, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data)
+        buy_signal, sell_signal = check_signals(bot_settings, df, trend, averages, latest_data, previous_data)
 
         stop_loss_activated = False
         if current_price <= trailing_stop_price:
@@ -126,38 +126,34 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
 
 def calculate_averages(df, bot_settings):
     try:
-        avg_volume_period = bot_settings.avg_volume_period
-        avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
-            
-        avg_rsi_period = bot_settings.avg_rsi_period
-        avg_rsi = df['rsi'].iloc[-avg_rsi_period:].mean()
+        averages = {}
         
-        avg_stoch_rsi_k_period = bot_settings.avg_stoch_rsi_k_period
-        avg_stoch_rsi_k = df['stoch_rsi_k'].iloc[-avg_stoch_rsi_k_period:].mean()
-        
-        avg_macd_period = bot_settings.avg_macd_period
-        avg_macd = df['macd'].iloc[-avg_macd_period:].mean()
-        avg_macd_signal = df['macd_signal'].iloc[-avg_macd_period:].mean()
-        
-        avg_stoch_period = bot_settings.avg_stoch_period
-        avg_stoch_k = df['stoch_k'].iloc[-avg_stoch_period:].mean()
-        avg_stoch_d = df['stoch_d'].iloc[-avg_stoch_period:].mean()
-        
-        avg_ema_period = bot_settings.avg_ema_period
-        avg_ema_fast = df['ema_fast'].iloc[-avg_ema_period:].mean()
-        avg_ema_slow = df['ema_slow'].iloc[-avg_ema_period:].mean()
-        
-        avg_di_period = bot_settings.avg_di_period
-        avg_plus_di = df['plus_di'].iloc[-avg_di_period:].mean()
-        avg_minus_di = df['minus_di'].iloc[-avg_di_period:].mean()
-        
-        return avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di
-    
+        average_mappings = {
+            'avg_volume': ('volume', bot_settings.avg_volume_period),
+            'avg_rsi': ('rsi', bot_settings.avg_rsi_period),
+            'avg_cci': ('cci', bot_settings.avg_cci_period),
+            'avg_mfi': ('mfi', bot_settings.avg_mfi_period),
+            'avg_stoch_rsi_k': ('stoch_rsi_k', bot_settings.avg_stoch_rsi_period),
+            'avg_macd': ('macd', bot_settings.avg_macd_period),
+            'avg_macd_signal': ('macd_signal', bot_settings.avg_macd_period),
+            'avg_stoch_k': ('stoch_k', bot_settings.avg_stoch_period),
+            'avg_stoch_d': ('stoch_d', bot_settings.avg_stoch_period),
+            'avg_ema_fast': ('ema_fast', bot_settings.avg_ema_period),
+            'avg_ema_slow': ('ema_slow', bot_settings.avg_ema_period),
+            'avg_plus_di': ('plus_di', bot_settings.avg_di_period),
+            'avg_minus_di': ('minus_di', bot_settings.avg_di_period),
+        }
+
+        for avg_name, (column, period) in average_mappings.items():
+            averages[avg_name] = df[column].iloc[-period:].mean()
+
+        return averages
+
     except Exception as e:
         logger.error(f"Exception in calculate_averages: {str(e)}")
-        send_admin_email(f'Exception in calculate_averages', str(e))
-        return None, None, None
-    
+        send_admin_email('Exception in calculate_averages', str(e))
+        return None
+
     
 def check_trend(df, bot_settings):
     try:
@@ -232,12 +228,12 @@ def get_signal_functions(strategy, algorithm):
         return None, None
 
 
-def get_signals(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
+def get_signals(df, bot_settings, trend, averages, latest_data, previous_data):
     try:
         buy_func, sell_func = get_signal_functions(bot_settings.strategy, bot_settings.algorithm)
         
-        buy_signal = buy_func(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data)
-        sell_signal = sell_func(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data)
+        buy_signal = buy_func(df, bot_settings, trend, averages, latest_data, previous_data)
+        sell_signal = sell_func(df, bot_settings, trend, averages, latest_data, previous_data)
         
         return buy_signal, sell_signal
 
@@ -247,7 +243,7 @@ def get_signals(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, a
         return None, None
 
 
-def check_signals(bot_settings, df, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
+def check_signals(bot_settings, df, trend, averages, latest_data, previous_data):
     try:
         indicators_ok = all([
             bot_settings.rsi_buy,
@@ -270,7 +266,7 @@ def check_signals(bot_settings, df, trend, avg_volume, avg_rsi, avg_stoch_rsi_k,
             send_admin_email(f'Wrong algorithm bot {bot_settings.id}', f'Wrong algorithm {bot_settings.algorithm} declared for bot {bot_settings.id} {bot_settings.strategy}')
             return None, None
         
-        buy_signal, sell_signal = get_signals(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data)
+        buy_signal, sell_signal = get_signals(df, bot_settings, trend, averages, latest_data, previous_data)
         
         return buy_signal, sell_signal
     

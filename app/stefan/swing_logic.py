@@ -141,7 +141,7 @@ def calculate_swing_indicators(df, df_for_ma, bot_settings):
         return False
 
 
-def check_swing_buy_signal_v1(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
+def check_swing_buy_signal_v1(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:        
         if not is_df_valid(df, bot_settings.id):
@@ -149,11 +149,11 @@ def check_swing_buy_signal_v1(df, bot_settings, trend, avg_volume, avg_rsi, avg_
         
         if (trend != 'downtrend' and 
             float(latest_data['rsi']) <= float(bot_settings.rsi_buy) and
-            float(latest_data['rsi']) >= float(avg_rsi) and
-            (float(avg_macd) <= float(avg_macd_signal) or 
+            float(latest_data['rsi']) >= float(averages['avg_rsi']) and
+            (float(averages['avg_macd']) <= float(averages['avg_macd_signal']) or 
             float(previous_data['macd']) <= float(previous_data['macd_signal'])) and
             float(latest_data['macd']) >= float(latest_data['macd_signal']) and
-            float(latest_data['volume']) >= float(avg_volume)):
+            float(latest_data['volume']) >= float(averages['avg_volume'])):
             
             return True
         
@@ -169,14 +169,14 @@ def check_swing_buy_signal_v1(df, bot_settings, trend, avg_volume, avg_rsi, avg_
         return False
     
     
-def check_swing_sell_signal_v1(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
+def check_swing_sell_signal_v1(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
             return False
         
         if (float(latest_data['rsi']) >= float(bot_settings.rsi_sell) and
-            (float(avg_macd) >= float(avg_macd_signal) or 
+            (float(averages['avg_macd']) >= float(averages['avg_macd_signal']) or 
             float(previous_data['macd']) >= float(previous_data['macd_signal'])) and
             float(latest_data['macd']) <= float(latest_data['macd_signal'])):
             
@@ -194,7 +194,7 @@ def check_swing_sell_signal_v1(df, bot_settings, trend, avg_volume, avg_rsi, avg
         return False
 
 
-def check_swing_buy_signal_v2(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
+def check_swing_buy_signal_v2(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
@@ -202,11 +202,11 @@ def check_swing_buy_signal_v2(df, bot_settings, trend, avg_volume, avg_rsi, avg_
 
         if (trend != 'downtrend' and 
             float(latest_data['close']) <= float(latest_data['lower_band']) and
-            (float(avg_stoch_k) <= float(avg_stoch_d) or
+            (float(averages['avg_stoch_k']) <= float(averages['avg_stoch_d']) or
             float(previous_data['stoch_k']) <= float(previous_data['stoch_d'])) and
             float(latest_data['stoch_k']) >= float(latest_data['stoch_d']) and
             float(latest_data['stoch_k']) <= float(bot_settings.stoch_buy) and
-            float(latest_data['volume']) >= float(avg_volume)):
+            float(latest_data['volume']) >= float(averages['avg_volume'])):
             
             return True
 
@@ -222,13 +222,13 @@ def check_swing_buy_signal_v2(df, bot_settings, trend, avg_volume, avg_rsi, avg_
         return False
 
 
-def check_swing_sell_signal_v2(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
+def check_swing_sell_signal_v2(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
             return False
 
-        if ((float(avg_stoch_k) >= float(avg_stoch_d) or
+        if ((float(averages['avg_stoch_k']) >= float(averages['avg_stoch_d']) or
             float(previous_data['stoch_k']) >= float(previous_data['stoch_d'])) and
             float(latest_data['stoch_k']) <= float(latest_data['stoch_d']) and
             float(latest_data['stoch_k']) >= float(bot_settings.stoch_sell) and 
@@ -248,7 +248,7 @@ def check_swing_sell_signal_v2(df, bot_settings, trend, avg_volume, avg_rsi, avg
         return False
     
     
-def check_swing_buy_signal_v3(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
+def check_swing_buy_signal_v3(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
@@ -256,10 +256,10 @@ def check_swing_buy_signal_v3(df, bot_settings, trend, avg_volume, avg_rsi, avg_
 
         if (trend != 'downtrend' and
             float(latest_data['stoch_rsi_k']) <= float(bot_settings.stoch_buy) and
-            float(latest_data['stoch_rsi_k']) >= float(avg_stoch_rsi_k) and
+            float(latest_data['stoch_rsi_k']) >= float(averages['avg_stoch_rsi_k']) and
             float(latest_data['stoch_rsi_k']) >= float(latest_data['stoch_rsi_d']) and
             float(latest_data['close']) <= float(latest_data['lower_band']) and
-            float(latest_data['volume']) >= float(avg_volume)):
+            float(latest_data['volume']) >= float(averages['avg_volume'])):
             
             return True
 
@@ -275,7 +275,7 @@ def check_swing_buy_signal_v3(df, bot_settings, trend, avg_volume, avg_rsi, avg_
         return False
 
 
-def check_swing_sell_signal_v3(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
+def check_swing_sell_signal_v3(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
@@ -299,7 +299,7 @@ def check_swing_sell_signal_v3(df, bot_settings, trend, avg_volume, avg_rsi, avg
         return False
     
     
-def check_swing_buy_signal_v4(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
+def check_swing_buy_signal_v4(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
@@ -307,10 +307,10 @@ def check_swing_buy_signal_v4(df, bot_settings, trend, avg_volume, avg_rsi, avg_
         
         if (trend != 'downtrend' and 
             float(latest_data['rsi']) <= float(bot_settings.rsi_buy) and
-            float(latest_data['rsi']) >= float(avg_rsi) and
+            float(latest_data['rsi']) >= float(averages['avg_rsi']) and
             float(latest_data['close']) <= float(latest_data['lower_band']) and
             float(latest_data['close']) >= float(latest_data['ma_50']) and
-            float(latest_data['volume']) >= float(avg_volume)):
+            float(latest_data['volume']) >= float(averages['avg_volume'])):
             
             return True
 
@@ -326,7 +326,7 @@ def check_swing_buy_signal_v4(df, bot_settings, trend, avg_volume, avg_rsi, avg_
         return False
 
 
-def check_swing_sell_signal_v4(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
+def check_swing_sell_signal_v4(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
@@ -350,7 +350,7 @@ def check_swing_sell_signal_v4(df, bot_settings, trend, avg_volume, avg_rsi, avg
         return False
     
     
-def check_swing_buy_signal_v5(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
+def check_swing_buy_signal_v5(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
@@ -358,21 +358,21 @@ def check_swing_buy_signal_v5(df, bot_settings, trend, avg_volume, avg_rsi, avg_
         
         if (trend == 'uptrend' and 
             float(latest_data['rsi']) <= float(bot_settings.rsi_buy) and
-            float(latest_data['rsi']) >= float(avg_rsi) and
-            (float(avg_macd) <= float(avg_macd_signal) or 
+            float(latest_data['rsi']) >= float(averages['avg_rsi']) and
+            (float(averages['avg_macd']) <= float(averages['avg_macd_signal']) or 
             float(previous_data['macd']) <= float(previous_data['macd_signal'])) and
             float(latest_data['macd']) >= float(latest_data['macd_signal']) and
-            float(latest_data['volume']) >= float(avg_volume)):
+            float(latest_data['volume']) >= float(averages['avg_volume'])):
             
             return True
         
         elif (trend != 'downtrend' and 
             float(latest_data['close']) <= float(latest_data['lower_band']) and
-            (float(avg_stoch_k) <= float(avg_stoch_d) or
+            (float(averages['avg_stoch_k']) <= float(averages['avg_stoch_d']) or
             float(previous_data['stoch_k']) <= float(previous_data['stoch_d'])) and
             float(latest_data['stoch_k']) >= float(latest_data['stoch_d']) and
             float(latest_data['stoch_k']) <= float(bot_settings.stoch_buy) and
-            float(latest_data['volume']) >= float(avg_volume)):
+            float(latest_data['volume']) >= float(averages['avg_volume'])):
             
             return True
 
@@ -388,7 +388,7 @@ def check_swing_buy_signal_v5(df, bot_settings, trend, avg_volume, avg_rsi, avg_
         return False
 
 
-def check_swing_sell_signal_v5(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
+def check_swing_sell_signal_v5(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
@@ -396,7 +396,7 @@ def check_swing_sell_signal_v5(df, bot_settings, trend, avg_volume, avg_rsi, avg
 
         if (trend == 'uptrend' and 
             float(latest_data['rsi']) >= float(bot_settings.rsi_sell) and
-            (float(avg_macd) >= float(avg_macd_signal) or 
+            (float(averages['avg_macd']) >= float(averages['avg_macd_signal']) or 
             float(previous_data['macd']) >= float(previous_data['macd_signal'])) and
             float(latest_data['macd']) <= float(latest_data['macd_signal'])):
             
@@ -404,7 +404,7 @@ def check_swing_sell_signal_v5(df, bot_settings, trend, avg_volume, avg_rsi, avg
         
         elif (trend == 'horizontal' and 
             float(latest_data['close']) >= float(latest_data['upper_band']) and
-            (float(avg_stoch_k) >= float(avg_stoch_d) or
+            (float(averages['avg_stoch_k']) >= float(averages['avg_stoch_d']) or
             float(previous_data['stoch_k']) >= float(previous_data['stoch_d'])) and
             float(latest_data['stoch_k']) <= float(latest_data['stoch_d']) and
             float(latest_data['stoch_k']) >= float(bot_settings.stoch_sell)):
@@ -428,7 +428,7 @@ def check_swing_sell_signal_v5(df, bot_settings, trend, avg_volume, avg_rsi, avg
         send_admin_email(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
         return False
     
-def check_swing_buy_signal_v6(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
+def check_swing_buy_signal_v6(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
@@ -436,25 +436,25 @@ def check_swing_buy_signal_v6(df, bot_settings, trend, avg_volume, avg_rsi, avg_
         
         if (trend == 'uptrend' and 
             float(latest_data['rsi']) <= float(bot_settings.rsi_buy) and
-            float(latest_data['rsi']) >= float(avg_rsi) and
+            float(latest_data['rsi']) >= float(averages['avg_rsi']) and
             float(latest_data['close']) <= float(latest_data['lower_band']) and
             float(latest_data['close']) >= float(latest_data['ma_50']) and
-            (float(avg_macd) <= float(avg_macd_signal) or 
+            (float(averages['avg_macd']) <= float(averages['avg_macd_signal']) or 
             float(previous_data['macd']) <= float(previous_data['macd_signal'])) and
             float(latest_data['macd']) >= float(latest_data['macd_signal']) and
-            float(latest_data['volume']) >= float(avg_volume)):
+            float(latest_data['volume']) >= float(averages['avg_volume'])):
             
             return True
         
         elif (trend != 'downtrend' and 
             float(latest_data['rsi']) <= float(bot_settings.rsi_buy) and
-            float(latest_data['rsi']) >= float(avg_rsi) and
+            float(latest_data['rsi']) >= float(averages['avg_rsi']) and
             float(latest_data['close']) <= float(latest_data['lower_band']) and
-            (float(avg_stoch_k) <= float(avg_stoch_d) or
+            (float(averages['avg_stoch_k']) <= float(averages['avg_stoch_d']) or
             float(previous_data['stoch_k']) <= float(previous_data['stoch_d'])) and
             float(latest_data['stoch_k']) >= float(latest_data['stoch_d']) and
             float(latest_data['stoch_k']) <= float(bot_settings.stoch_buy) and
-            float(latest_data['volume']) >= float(avg_volume)):
+            float(latest_data['volume']) >= float(averages['avg_volume'])):
             
             return True
 
@@ -470,7 +470,7 @@ def check_swing_buy_signal_v6(df, bot_settings, trend, avg_volume, avg_rsi, avg_
         return False
 
 
-def check_swing_sell_signal_v6(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
+def check_swing_sell_signal_v6(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
@@ -480,7 +480,7 @@ def check_swing_sell_signal_v6(df, bot_settings, trend, avg_volume, avg_rsi, avg
             float(latest_data['rsi']) >= float(bot_settings.rsi_sell) and
             float(latest_data['close']) >= float(latest_data['upper_band']) and
             float(latest_data['close']) <= float(latest_data['ma_50']) and
-            (float(avg_macd) >= float(avg_macd_signal) or 
+            (float(averages['avg_macd']) >= float(averages['avg_macd_signal']) or 
             float(previous_data['macd']) >= float(previous_data['macd_signal'])) and
             float(latest_data['macd']) <= float(latest_data['macd_signal'])):
             
@@ -489,7 +489,7 @@ def check_swing_sell_signal_v6(df, bot_settings, trend, avg_volume, avg_rsi, avg
         elif (trend == 'horizontal' and 
             float(latest_data['rsi']) >= float(bot_settings.rsi_sell) and
             float(latest_data['close']) >= float(latest_data['upper_band']) and
-            (float(avg_stoch_k) >= float(avg_stoch_d) or
+            (float(averages['avg_stoch_k']) >= float(averages['avg_stoch_d']) or
             float(previous_data['stoch_k']) >= float(previous_data['stoch_d'])) and
             float(latest_data['stoch_k']) <= float(latest_data['stoch_d']) and
             float(latest_data['stoch_k']) >= float(bot_settings.stoch_sell)):
@@ -514,17 +514,17 @@ def check_swing_sell_signal_v6(df, bot_settings, trend, avg_volume, avg_rsi, avg
         return False
     
     
-def check_swing_buy_signal_v7(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
+def check_swing_buy_signal_v7(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
             return False
         
         if (trend == 'uptrend' and 
-            (float(avg_plus_di) <= float(avg_minus_di) or
+            (float(averages['avg_plus_di']) <= float(averages['avg_minus_di']) or
             float(previous_data['plus_di']) <= float(previous_data['minus_di'])) and 
             float(latest_data['plus_di']) >= float(latest_data['minus_di']) and
-            float(latest_data['volume']) >= float(avg_volume)):
+            float(latest_data['volume']) >= float(averages['avg_volume'])):
             
             return True
             
@@ -540,14 +540,14 @@ def check_swing_buy_signal_v7(df, bot_settings, trend, avg_volume, avg_rsi, avg_
         return False
     
     
-def check_swing_sell_signal_v7(df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, avg_macd, avg_macd_signal, avg_stoch_k, avg_stoch_d, avg_ema_fast, avg_ema_slow, avg_plus_di, avg_minus_di, latest_data, previous_data):
+def check_swing_sell_signal_v7(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     try:
         if not is_df_valid(df, bot_settings.id):
             return False
         
         if (trend == 'downtrend' and
-            (float(avg_plus_di) >= float(avg_minus_di) or
+            (float(averages['avg_plus_di']) >= float(averages['avg_minus_di']) or
             float(previous_data['plus_di']) >= float(previous_data['minus_di'])) and 
             float(latest_data['plus_di']) <= float(latest_data['minus_di'])):
             
