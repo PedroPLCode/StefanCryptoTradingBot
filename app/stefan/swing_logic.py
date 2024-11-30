@@ -509,7 +509,10 @@ def check_swing_buy_signal_v7(df, bot_settings, trend, avg_volume, avg_rsi, avg_
             return False
         
         if (trend == 'uptrend' and 
+            float(previous_data['plus_di']) < float(previous_data['minus_di']) and 
+            float(latest_data['plus_di']) > float(latest_data['minus_di']) and
             float(latest_data['volume']) > float(avg_volume)):
+            
             return True
             
         return False
@@ -530,7 +533,10 @@ def check_swing_sell_signal_v7(df, bot_settings, trend, avg_volume, avg_rsi, avg
         if not is_df_valid(df, bot_settings.id):
             return False
         
-        if trend == 'downtrend':
+        if (trend == 'downtrend' and
+            float(previous_data['plus_di']) > float(previous_data['minus_di']) and 
+            float(latest_data['plus_di']) < float(latest_data['minus_di'])):
+            
             return True
         
         return False

@@ -82,6 +82,6 @@ if downtrend dont trade
 algorithm 7: *ready
 (uptrend downtrend only)
 intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
-trend + Volume
+if uptrend: DI(14) + Volume
 
 all backtested. needs real life tests.

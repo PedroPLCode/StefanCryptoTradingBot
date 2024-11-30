@@ -95,6 +95,10 @@ Volume
 float(latest_data['volume']) > float(previous_data['volume'])
 float(latest_data['volume']) > avg_volume
 
+DI
+float(previous_data['plus_di']) < float(previous_data['minus_di']) and 
+float(latest_data['plus_di']) > float(latest_data['minus_di'])
+
 --
 
 EXAMPLES OF SELL SIGNALS:
@@ -147,3 +151,7 @@ float(latest_data['close']) < float(latest_data['vwap'])
 Volume
 float(latest_data['volume']) < float(previous_data['volume'])
 float(latest_data['volume']) < avg_volume
+
+DI
+float(previous_data['plus_di']) > float(previous_data['minus_di']) and 
+float(latest_data['plus_di']) < float(latest_data['minus_di'])
