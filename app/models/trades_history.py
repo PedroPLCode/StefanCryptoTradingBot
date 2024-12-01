@@ -9,6 +9,7 @@ class TradesHistory(db.Model):
     buy_price = db.Column(db.Float, default=0, nullable=True)
     sell_price = db.Column(db.Float, default=0, nullable=True)
     stablecoin_balance = db.Column(db.Float, default=0, nullable=True)
+    trailing_stop_loss = db.Column(db.Float, default=0, nullable=True)
     price_rises_counter = db.Column(db.Integer, default=0, nullable=True)
     buy_timestamp = db.Column(db.DateTime, default=db.func.current_timestamp(), nullable=True)
     sell_timestamp = db.Column(db.DateTime, default=db.func.current_timestamp(), nullable=True)
@@ -19,5 +20,5 @@ class TradesHistory(db.Model):
         return (
             f'id: {self.id}, amount: {self.amount}\n'
             f'buy_price: {self.buy_price}, sell_price: {self.sell_price}\n'
-            f'timestamp: {self.timestamp}, bot_id: {self.bot_id}>'
+            f'buy_timestamp: {self.buy_timestamp}, sell_timestamp: {self.sell_timestamp}, bot_id: {self.bot_id}>'
         )

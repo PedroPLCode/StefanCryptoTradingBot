@@ -6,6 +6,12 @@ avg_volume = df['volume'].iloc[-avg_volume_period:].mean()
             
 avg_rsi_period = bot_settings.avg_rsi_period
 avg_rsi = df['rsi'].iloc[-avg_rsi_period:].mean()
+
+avg_cci_period = bot_settings.avg_cci_period
+avg_cci = df['rsi'].iloc[-avg_cci_period:].mean()
+
+avg_mfi_period = bot_settings.avg_mfi_period
+avg_mfi = df['rsi'].iloc[-avg_mfi_period:].mean()
         
 avg_stoch_rsi_k_period = bot_settings.avg_stoch_rsi_k_period
 avg_stoch_rsi_k = df['stoch_rsi_k'].iloc[-avg_stoch_rsi_k_period:].mean()

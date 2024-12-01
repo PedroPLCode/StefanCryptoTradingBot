@@ -61,6 +61,8 @@ class BotSettings(db.Model):
     interval = db.Column(db.String(16), default="1m", nullable=False)
     lookback_period = db.Column(db.String(16), default="45m", nullable=False)
     
+    days_period_to_clean_history = db.Column(db.Integer, default=30, nullable=False)
+    
     bot_running = db.Column(db.Boolean, default=False, nullable=False)
     
     bot_current_trade = db.relationship(

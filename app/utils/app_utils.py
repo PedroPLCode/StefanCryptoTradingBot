@@ -266,16 +266,50 @@ def send_trade_email(subject, body):
 
 def clear_old_trade_history():
     try:
-        one_month_ago = datetime.now() - timedelta(days=30)
-        db.session.query(TradesHistory).filter(
-            TradesHistory.sell_timestamp < one_month_ago
-        ).delete()
+        all_bot_settings = BotSettings.query.all()
+        errors = []
+        summary_logs = []
+        
+        for bot_settings in all_bot_settings:
+            days_to_clean_history = bot_settings.days_period_to_clean_history
+            
+            if not days_to_clean_history or not isinstance(days_to_clean_history, int) or days_to_clean_history <= 0:
+                error_message = (
+                    f"Bot {bot_settings.id} has invalid 'days_period_to_clean_history': {days_to_clean_history}"
+                )
+                logger.warning(error_message)
+                errors.append(error_message)
+                continue
+            
+            period_to_clean = datetime.now() - timedelta(days=days_to_clean_history)
+            
+            deleted_count = db.session.query(TradesHistory).filter(
+                TradesHistory.bot_id == bot_settings.id,
+                TradesHistory.sell_timestamp < period_to_clean
+            ).delete(synchronize_session=False)
+            
+            log_message = (
+                f"Bot {bot_settings.id}: {deleted_count} trades older than {days_to_clean_history} days cleared succesfully."
+            )
+            logger.trade(log_message)
+            summary_logs.append(log_message)
+
         db.session.commit()
-        logger.info("Trade history older than one month cleared successfully.")
+
+        if summary_logs:
+            summary_message = "\n".join(summary_logs)
+            logger.trade("Trade history cleaning completed:\n" + summary_message)
+            send_admin_email("Trade History Cleaning Summary", summary_message)
+
+        if errors:
+            error_message = "\n".join(errors)
+            logger.error("Errors during trade history cleaning:\n" + error_message)
+            send_admin_email("Errors in Trade History Cleaning", error_message)
+    
     except Exception as e:
         db.session.rollback()
         logger.error(f"Exception in clear_old_trade_history: {str(e)}")
-        send_admin_email(f"Exception in clear_old_trade_history", str(e))
+        send_admin_email("Exception in clear_old_trade_history", str(e))
 
 
 def start_single_bot(bot_id, current_user):

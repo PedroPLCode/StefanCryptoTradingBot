@@ -40,7 +40,7 @@
                     <div class="accordion-item">
                         <div class="accordion-header d-flex justify-content-center" id="heading{{ bot_info.id }}">
                             <button class="accordion-button collapsed text-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ bot_info.id }}" aria-expanded="false" aria-controls="collapse{{ bot_info.id }}">
-                                <p class="w-100 text-center m-0 p-0">Bot {{ bot_info.id }} {{ bot_info.strategy | upper }} {{ bot_info.symbol }} <span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{% if bot_info.bot_running %} Running {% else %} Stopped {% endif %}</span> <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">Trade</span> ({{ bot_info.bot_trades_history|length }})</p>
+                                <p class="w-100 text-center m-0 p-0">Bot {{ bot_info.id }} Algorithm {{ bot_info.algorithm }} {{ bot_info.strategy | upper }} {{ bot_info.symbol }}<br><span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{% if bot_info.bot_running %} Running {% else %} Stopped {% endif %}</span> <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{% if bot_info.bot_current_trade.is_active %} CurrentTradeActive {% else %} NoCurrentTrade {% endif %}</span> Trades: {{ bot_info.bot_trades_history|length }}</p>
                             </button>
                         </div>
                         <div id="collapse{{ bot_info.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ bot_info.id }}" data-bs-parent="#botsAccordion">
@@ -137,6 +137,7 @@
                                 {% endif %}
                                 <p class="text-muted m-0 p-0">Bot Running: <span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{{ bot_info.bot_running }}</span></p>
                                 <p class="text-muted m-0 p-0">Trades Count: {{ bot_info.bot_trades_history|length }}</p>
+                                <p class="text-muted m-0 p-0">Days to clean history: {{ bot_info.days_period_to_clean_history }}</p>
                                 <div class="mt-2 d-flex flex-column justify-content-center align-items-center gap-2">
                                     {% if bot_info.bot_running %}
                                         <a href="" class="btn btn-light w-100">Bot is running</a>

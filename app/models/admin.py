@@ -116,6 +116,7 @@ class BotSettingsAdmin(AdminModelView):
         'psar_maximum',
         'interval', 
         'lookback_period', 
+        'days_period_to_clean_history',
     )
     
     
@@ -169,6 +170,7 @@ class TradesHistoryAdmin(AdminModelView):
         'buy_price', 
         'sell_price',
         'stablecoin_balance',
+        'trailing_stop_loss',
         'price_rises_counter',
         'buy_timestamp',
         'sell_timestamp',

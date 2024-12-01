@@ -313,7 +313,7 @@ def execute_buy_order(bot_settings, current_price, atr_value):
                 f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} BUY.",
                 (
                     f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} "
-                    f"buy process completed.\n"
+                    f"buy process.\n"
                     f"amount: {amount}\n"
                     f"buy_price: {current_price}\n"
                     f"trailing_stop_price: {trailing_stop_price}\n"
@@ -339,6 +339,7 @@ def execute_sell_order(bot_settings, current_trade, current_price):
                 amount=amount,
                 buy_price=current_trade.buy_price,
                 sell_price=current_price,
+                trailing_stop_loss=current_trade.trailing_stop_loss,
                 price_rises_counter=current_trade.price_rises_counter,
                 buy_timestamp=current_trade.buy_timestamp
             )
@@ -359,11 +360,13 @@ def execute_sell_order(bot_settings, current_trade, current_price):
                         f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} SELL.",
                         (
                             f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} "
-                            f"sell process completed.\n"
+                            f"sell process.\n"
                             f"amount: {amount}\n"
                             f"buy_price: {current_trade.buy_price}\n"
                             f"sell_price: {current_price}\n"
+                            f"trailing_stop_price: {current_trade.trailing_stop_loss}\n"
                             f"price_rises_counter: {current_trade.price_rises_counter}\n"
+                            f"buy_timestamp: {current_trade.buy_timestamp}\n"
                             f"sell_timestamp: {dt.utcnow()}\n"
                             f"sell_success: {sell_success}"
                         ),
@@ -526,6 +529,7 @@ def update_trade_history(
     amount, 
     buy_price, 
     sell_price,
+    trailing_stop_loss,
     price_rises_counter,
     buy_timestamp
     ):
@@ -550,6 +554,7 @@ def update_trade_history(
             buy_price=buy_price,
             sell_price=sell_price,
             stablecoin_balance=stablecoin_balance,
+            trailing_stop_loss=trailing_stop_loss,
             price_rises_counter=price_rises_counter,
             buy_timestamp=buy_timestamp,
             sell_timestamp=dt.utcnow()

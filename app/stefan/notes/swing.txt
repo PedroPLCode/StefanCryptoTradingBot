@@ -51,40 +51,40 @@ Boilinger(20/2)
 algorithm 1: *ready
 (primary for uptrend) 
 intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
-if not downtrend: RSI(14, 30/70) + MACD(12,24,9) + Volume
+if_not_downtrend: RSI(14, 30/70) MACD(12,24,9) Volume
 
 algorithm 2: *ready
 (secondary for horizontal trend)
 intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
-if not downtrend: Stochastic(14,3) + Boilinger(20,2) + Volume
+if_not_downtrend: Stochastic(14,3) Boilinger(20,2) Volume
 
 algorithm 3: *ready
 (testing)
 intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
-if not downtrend: StochasticRSI(14,14,3) + Boilinger(20,2) + Volume
+if_not_downtrend: StochasticRSI(14,14,3) Boilinger(20,2) Volume
 
 algorithm 4: *ready
 (buy the dip)
 intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
-if not downtrend: RSI(14, 30/70) + Boilinger(20,2) + MA50 + Volume
+if_not_downtrend: RSI(14, 30/70) Boilinger(20,2) MA50 Volume
 
 algorithm 5: *ready RUN
 (intelligent simple)
 intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
-if uptrend: RSI(14, 30/70) + MACD(12,24,9) + Volume
-if horizontal: BoilingerBands(20,2) + Stochastic(14,3, 20/80) + Volume
-if downtrend dont trade
+if_trend_uptrend: RSI(14, 30/70) MACD(12,24,9) Volume
+if_trend_horizontal: BoilingerBands(20,2) Stochastic(14,3, 20/80) Volume
+if_trend_downtrend: DONT_TRADE
 
 algorithm 6: *ready
 (intelligent extended)
 intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
-if uptrend: RSI(14, 30/70) + MACD(12,24,9) + MA(50) + BoilingerBands(20,2) + Volume
-if horizontal: RSI(14, 30/70) + BoilingerBands(20,2) + Stochastic(14,3, 20/80) + Volume
-if downtrend dont trade
+if_trend_uptrend: RSI(14, 30/70) MACD(12,24,9) MA(50) BoilingerBands(20,2) Volume
+if_trend_horizontal: RSI(14, 30/70) BoilingerBands(20,2) Stochastic(14,3, 20/80) Volume
+if_trend_downtrend: DONT_TRADE
 
 algorithm 7: *ready
 (uptrend downtrend only)
 intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
-if uptrend: DI(14) + Volume
+if_trend_uptrend: DI(14) Volume
 
 all backtested. needs real life tests.

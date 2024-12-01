@@ -134,7 +134,7 @@ def start_scheduler():
         scheduler.add_job(
             func=partial(run_job_with_context, clear_old_trade_history),
             trigger="interval",
-            days=7
+            hours=24
         )
         scheduler.start()
         logger.info('Scheduler started successfully (one instance). Stefan Bot initialized.')
