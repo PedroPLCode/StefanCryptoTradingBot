@@ -42,7 +42,7 @@ def register():
                 flash('Account created successfully. Admin will contact you.', 'success')
                 
                 try:
-                    send_admin_email('New User', f'New user registered: {new_user.login}')
+                    send_admin_email('New User registered', f'New user has been registered in database.\n\nlogin: {new_user.login}\nname: {new_user.name}\nemail: {new_user.email}\ncreation_date: {new_user.creation_date}')
                 except Exception as e:
                     logger.error(f'Error sending registration email: {str(e)}')
                     flash('Registration was successful, but there was an error notifying the admin.', 'warning')

@@ -46,7 +46,7 @@
                         <div id="collapse{{ single_bot.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ single_bot.id }}" data-bs-parent="#botsAccordion">
                             <div class="accordion-body">
 
-                                <p>{{ single_bot.strategy | upper }} {{ single_bot.symbol }}<br>Comment: {{ single_bot.comment }}<br>7 days period</p>
+                                <p>Bot {{ single_bot.id }} algorithm {{ single_bot.algorithm }} {{ single_bot.strategy | upper }} {{ single_bot.symbol }}<br>Comment: {{ single_bot.comment }}<br>{{ single_bot.days_period_to_clean_history }} days period</p>
 
                                 <div class="d-flex flex-column justify-content-center align-items-center gap-2">
                                     {% if single_bot.bot_trades_history %}

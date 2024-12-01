@@ -36,11 +36,12 @@
             <div class="card-body text-center">
                 <p class="text-muted m-0 p-0">Login: {{ user.login }}</p>
                 <p class="text-muted m-0 p-0">Name: {{ user.name }}</p>
+                <p class="text-muted m-0 p-0">Comment: {{ user.comment }}</p>
                 <p class="text-muted m-0 p-0">Email: {{ user.email }}</p>
                 <p class="text-muted m-0 p-0">Control Panel Access: <span class="{{ 'text-success' if user.control_panel_access else 'text-danger' }}">{{ user.control_panel_access }}</span></p>
                 <p class="text-muted m-0 p-0">Admin Panel Access: <span class="{{ 'text-success' if user.admin_panel_access else 'text-danger' }}">{{ user.admin_panel_access }}</span></p>
                 <p class="text-muted m-0 p-0">Email Reports Receiver: <span class="{{ 'text-success' if user.email_raports_receiver else 'text-danger' }}">{{ user.email_raports_receiver }}</span></p>
-                <p class="text-muted m-0 p-0">Email Trades Receiver: <span class="{{ 'text-success' if user.email_trades_receiver else 'text-danger' }}">{{ user.email_trades_receiver }}</span></p>
+                <p class="text-muted m-0 p-0">Email Trades Receiver: <span class="{{ 'text-success' if user.email_trades_receiver else 'text-muted' }}">{{ user.email_trades_receiver }}</span></p>
                 <p class="text-muted m-0 p-0">Account Suspended: <span class="{{ 'text-success' if not user.account_suspended else 'text-danger' }}">{{ user.account_suspended }}</span></p>
 
                 {% if account_status is not none %}
@@ -66,7 +67,7 @@
                 </h5>
             </div>
             <div class="card-body text-center">
-                <p class="text-muted m-0 p-0">StefanCryptoTradingBot version 0.96</p>
+                <p class="text-muted m-0 p-0">StefanCryptoTradingBot version 1.0</p>
                 {% if user.control_panel_access %}
                     <p class="text-muted m-0 p-0">Binance API Status:
                         {% if binance_status is not none %}
