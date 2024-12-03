@@ -123,7 +123,7 @@ def create_balance_plot(df):
 def send_logs_via_email_and_clear_logs():
     now = datetime.now()
     today = now.strftime('%Y-%m-%d')
-    subject = f"{today} Daily Stefan Logs"
+    subject = f"{today} Daily Logs"
     from ..utils.logging import logs
 
     for log in logs:
@@ -134,7 +134,7 @@ def send_logs_via_email_and_clear_logs():
                 with open(log_file_path, 'r') as log_file:
                     log_content = log_file.read()
                     
-                send_admin_email(f"{subject}: {log}", log_content)
+                send_admin_email(f"{subject}: {log}", f"StafanCryptoTradingBot daily logs.\nDate {now.strftime('%Y-%m-%d')}\n{log}\n\n{log_content}")
                 logger.info(f"Successfully sent email with log: {log}")
             else:
                 logger.warning(f"Log file does not exist: {log_file_path}")
@@ -175,7 +175,7 @@ def generate_trade_report(period):
 
         all_bots = BotSettings.query.all()
         
-        report_data = f"{period} Report: Date {now.strftime('%Y-%m-%d')}\n\n"
+        report_data = f"StafanCryptoTradingBot daily trades report.\nDate {now.strftime('%Y-%m-%d')}\nLast {period} period.\n\n"
 
         for single_bot in all_bots:
             trades_in_period = (
@@ -188,10 +188,12 @@ def generate_trade_report(period):
             
             total_trades = len(trades_in_period)
 
+            report_data += f"--\nBot {single_bot.id} algorithm {single_bot.algorithm} {single_bot.strategy} {single_bot.symbol}.\ncomment: {single_bot.comment}\n"
+            
             if total_trades == 0:
-                report_data += f"\nNo transactions in last {period} for bot {single_bot.id} algorithm {single_bot.algorithm} {single_bot.strategy} {single_bot.symbol}.\ncomment: {single_bot.comment}\n\n"
+                report_data += f"\nNo transactions in last {period}.\n\n"
             else:
-                report_data += f"\nBot {single_bot.id} algorithm {single_bot.algorithm} {single_bot.strategy} {single_bot.symbol}.\ncomment: {single_bot.comment}\nTransactions count in last {period}: {total_trades}\n\n"
+                report_data += f"\nTransactions count in last {period}: {total_trades}\n\n"
 
                 for trade in trades_in_period:
                     profit_percentage = calculate_profit_percentage(trade.buy_price, trade.sell_price)
@@ -232,7 +234,7 @@ def send_trade_report_via_email():
             users = User.query.filter_by(email_raports_receiver=True).all()
             report_body = generate_trade_report('24h')
             for user in users:
-                success = send_email(user.email, f'{today} Daily Stefan Trades', report_body)
+                success = send_email(user.email, f'{today} Daily Trades Report', report_body)
                 if not success:
                     logger.error(f"Failed to send 24h report to {user.email}.")
     except Exception as e:
@@ -265,6 +267,8 @@ def send_trade_email(subject, body):
 
 
 def clear_old_trade_history():
+    now = datetime.now()
+    today = now.strftime('%Y-%m-%d')
     try:
         all_bot_settings = BotSettings.query.all()
         errors = []
@@ -296,15 +300,18 @@ def clear_old_trade_history():
 
         db.session.commit()
 
+        summary_message = f"StafanCryptoTradingBot daily cleaning report.\nDate {now.strftime('%Y-%m-%d')}\n\n"
+        error_message = f"StafanCryptoTradingBot daily cleaning.\nErrors during trade history cleaning.\nDate {now.strftime('%Y-%m-%d')}\n\n"
+        
         if summary_logs:
-            summary_message = "\n".join(summary_logs)
+            summary_message += "\n".join(summary_logs)
             logger.trade("Trade history cleaning completed:\n" + summary_message)
-            send_admin_email("Trade History Cleaning Summary", summary_message)
+            send_admin_email(f'{today} Daily Cleaning Report', summary_message)
 
         if errors:
-            error_message = "\n".join(errors)
+            error_message += "\n".join(errors)
             logger.error("Errors during trade history cleaning:\n" + error_message)
-            send_admin_email("Errors in Trade History Cleaning", error_message)
+            send_admin_email(f"{today} Errors in Daily Trade History Cleaning", error_message)
     
     except Exception as e:
         db.session.rollback()
@@ -322,7 +329,7 @@ def start_single_bot(bot_id, current_user):
             db.session.commit()
             logger.trade(f'Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} has been started.')
             flash(f'Bot {bot_settings.id} has been started.', 'success')
-            send_admin_email(f'Bot {bot_settings.id} started.', f'Bot {bot_settings.id} has been started by {current_user.name}.\n\nSymbol {bot_settings.symbol}\nStrategy {bot_settings.strategy}\nAlgorithm {bot_settings.algorithm}\n\nComment: {bot_settings.comment}')
+            send_admin_email(f'Bot {bot_settings.id} started.', f'Bot {bot_settings.id} has been started by {current_user.name}.\n\nSymbol: {bot_settings.symbol}\nStrategy: {bot_settings.strategy}\nAlgorithm: {bot_settings.algorithm}\nLookback period: {bot_settings.lookback_period}\nInterval: {bot_settings.interval}\n\nComment: {bot_settings.comment}')
     except Exception as e:
         db.session.rollback()
         logger.error(f'Exception in start_single_bot bot {bot_settings.id}: {str(e)}')
