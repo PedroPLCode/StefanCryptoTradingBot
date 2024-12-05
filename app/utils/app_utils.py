@@ -146,6 +146,8 @@ def send_logs_via_email_and_clear_logs():
 
 def clear_logs():
     from ..utils.logging import logs
+    now = datetime.now()
+    today = now.strftime('%Y-%m-%d')
     
     for log in logs:
         log_file_path = os.path.join(os.getcwd(), log)
@@ -153,7 +155,7 @@ def clear_logs():
         try:
             if os.path.exists(log_file_path):
                 with open(log_file_path, 'w') as log_file:
-                    log_file.write('Log file cleared.\n')
+                    log_file.write(f'{now}\nLog file {log_file_path} cleared succesfully at {today}.\n\n')
                 logger.info(f"Successfully cleared log file: {log_file_path}")
             else:
                 logger.warning(f"Log file does not exist: {log_file_path}")

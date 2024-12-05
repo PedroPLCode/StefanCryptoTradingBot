@@ -84,8 +84,11 @@
                         {% endif %}
                     </p>
                     <p class="text-muted m-0 p-0">System: {{ system_info }}</p>
+                    <p class="text-muted m-0 p-0">Uptime: {{ system_uptime }}</p>
                     <p class="text-muted m-0 p-0">Python: {{ python_version }}</p>
                     <p class="text-muted m-0 p-0">Flask: {{ flask_version }}</p>
+                    <p class="text-muted m-0 p-0">Gunicorn: {{ gunicorn_info }}</p>
+                    <p class="text-muted m-0 p-0">Gunicorn uptime: {{ gunicorn_uptime }}</p>
                     <p class="text-muted m-0 p-0">Numpy: {{ numpy_version }}</p>
                     <p class="text-muted m-0 p-0">Pandas: {{ pandas_version }}</p>
                     <p class="text-muted m-0 p-0">Database: {{ db_engine }}</p>
