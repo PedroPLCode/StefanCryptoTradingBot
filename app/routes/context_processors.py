@@ -57,9 +57,10 @@ def inject_system_uptime():
     return dict(system_uptime=uptime)
 
 @app.context_processor
-def inject_gunicorn_info():
+def inject_gunicorn_version():
     try:
-        gunicorn_version = subprocess.check_output(['gunicorn', '--version'], text=True).strip()
+        gunicorn_path = '/usr/local/bin/gunicorn'
+        gunicorn_version = subprocess.check_output([gunicorn_path, '--version'], text=True).strip()
     except Exception as e:
         gunicorn_version = f"Error retrieving gunicorn version: {e}"
     return dict(gunicorn_info=gunicorn_version)
