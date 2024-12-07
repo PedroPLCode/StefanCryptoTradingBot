@@ -43,13 +43,13 @@ def fetch_data(symbol, interval='1m', lookback='4h', start_str=None, end_str=Non
         if not start_str and not end_str:
             if lookback[-1] == 'h':
                 hours = int(lookback[:-1])
-                start_time = datetime.utcnow() - timedelta(hours=hours)
+                start_time = datetime.now() - timedelta(hours=hours)
             elif lookback[-1] == 'd':
                 days = int(lookback[:-1])
-                start_time = datetime.utcnow() - timedelta(days=days)
+                start_time = datetime.now() - timedelta(days=days)
             elif lookback[-1] == 'm':
                 minutes = int(lookback[:-1])
-                start_time = datetime.utcnow() - timedelta(minutes=minutes)
+                start_time = datetime.now() - timedelta(minutes=minutes)
             else:
                 raise ValueError("Unsupported lookback period format.")
             

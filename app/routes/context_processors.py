@@ -2,7 +2,6 @@ from flask import request, __version__ as flask_version
 from flask_login import current_user
 from datetime import datetime as dt
 import subprocess
-import psutil
 import platform
 import sys
 import numpy as np
@@ -28,7 +27,7 @@ def inject_current_user():
 
 @app.context_processor
 def inject_date_and_time():
-    return dict(date_and_time=dt.utcnow())
+    return dict(date_and_time=dt.now())
 
 @app.context_processor
 def inject_user_agent():
@@ -66,21 +65,14 @@ def inject_gunicorn_version():
     return dict(gunicorn_info=gunicorn_version)
 
 @app.context_processor
-def inject_gunicorn_uptime():
+def inject_nginx_version():
     try:
-        for proc in psutil.process_iter(['name', 'create_time']):
-            if 'gunicorn' in proc.info['name']:
-                create_time = datetime.fromtimestamp(proc.info['create_time'])
-                uptime_seconds = (datetime.now() - create_time).total_seconds()
-                uptime_hours, remainder = divmod(uptime_seconds, 3600)
-                uptime_minutes, uptime_seconds = divmod(remainder, 60)
-                uptime = f"{int(uptime_hours)}h {int(uptime_minutes)}m {int(uptime_seconds)}s"
-                break
-        else:
-            uptime = "Gunicorn process not found"
+        nginx_version = subprocess.run(
+            ["nginx", "-v"], stderr=subprocess.PIPE, text=True, check=True
+        ).stderr.strip()
     except Exception as e:
-        uptime = f"Error retrieving gunicorn uptime: {e}"
-    return dict(gunicorn_uptime=uptime)
+        nginx_version = f"Error retrieving nginx version: {e}"
+    return dict(nginx_info=nginx_version)
 
 @app.context_processor
 def inject_python_version():

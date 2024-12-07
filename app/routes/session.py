@@ -84,7 +84,7 @@ def login():
                 if not user.account_suspended:
                     if user.check_password(form.password.data):
                         login_user(user)
-                        user.last_login = dt.utcnow()
+                        user.last_login = dt.now()
                         db.session.commit()
                         next_page = request.args.get('next')
                         flash(f'Logged in successfully. Welcome back, {user.name}!', 'success')

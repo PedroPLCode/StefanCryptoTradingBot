@@ -305,7 +305,7 @@ def execute_buy_order(bot_settings, current_price, atr_value):
                 previous_price=current_price,
                 buy_price=current_price,
                 trailing_stop_loss=trailing_stop_price,
-                buy_timestamp=dt.utcnow()
+                buy_timestamp=dt.now()
             )
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} buy process completed.")
             
@@ -317,7 +317,7 @@ def execute_buy_order(bot_settings, current_price, atr_value):
                     f"amount: {amount}\n"
                     f"buy_price: {current_price}\n"
                     f"trailing_stop_price: {trailing_stop_price}\n"
-                    f"buy_timestamp: {dt.utcnow()}\n"
+                    f"buy_timestamp: {dt.now()}\n"
                     f"buy_success: {buy_success}"
                 ),
             )
@@ -367,7 +367,7 @@ def execute_sell_order(bot_settings, current_trade, current_price):
                             f"trailing_stop_price: {current_trade.trailing_stop_loss}\n"
                             f"price_rises_counter: {current_trade.price_rises_counter}\n"
                             f"buy_timestamp: {current_trade.buy_timestamp}\n"
-                            f"sell_timestamp: {dt.utcnow()}\n"
+                            f"sell_timestamp: {dt.now()}\n"
                             f"sell_success: {sell_success}"
                         ),
             )
@@ -557,7 +557,7 @@ def update_trade_history(
             trailing_stop_loss=trailing_stop_loss,
             price_rises_counter=price_rises_counter,
             buy_timestamp=buy_timestamp,
-            sell_timestamp=dt.utcnow()
+            sell_timestamp=dt.now()
         )
         db.session.add(trade)
         db.session.commit()

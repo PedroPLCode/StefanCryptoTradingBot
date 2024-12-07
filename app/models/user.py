@@ -11,8 +11,8 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(128), nullable=False, unique=True)
     comment = db.Column(db.String(1024), nullable=True, unique=False)
     password_hash = db.Column(db.String(128), nullable=False)
-    creation_date = db.Column(db.DateTime, nullable=False, default=dt.utcnow)
-    last_login = db.Column(db.DateTime, nullable=False, default=dt.utcnow)
+    creation_date = db.Column(db.DateTime, nullable=False, default=dt.now)
+    last_login = db.Column(db.DateTime, nullable=False, default=dt.now)
     
     control_panel_access = db.Column(db.Boolean, nullable=False, default=False)
     admin_panel_access = db.Column(db.Boolean, nullable=False, default=False)
@@ -29,7 +29,7 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
     
     def update_last_login(self):
-        self.last_login = dt.utcnow()
+        self.last_login = dt.now()
 
     def increment_login_errors(self):
         if self.login_errors is None: 

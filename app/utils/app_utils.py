@@ -134,7 +134,7 @@ def send_logs_via_email_and_clear_logs():
                 with open(log_file_path, 'r') as log_file:
                     log_content = log_file.read()
                     
-                send_admin_email(f"{subject}: {log}", f"StafanCryptoTradingBot daily logs.\nDate {now.strftime('%Y-%m-%d')}\n{log}\n\n{log_content}")
+                send_admin_email(f"{subject}: {log}", f"StafanCryptoTradingBot daily logs.\n{now}\n\n{log}\n\n{log_content}")
                 logger.info(f"Successfully sent email with log: {log}")
             else:
                 logger.warning(f"Log file does not exist: {log_file_path}")
@@ -147,15 +147,15 @@ def send_logs_via_email_and_clear_logs():
 def clear_logs():
     from ..utils.logging import logs
     now = datetime.now()
-    today = now.strftime('%Y-%m-%d')
     
     for log in logs:
         log_file_path = os.path.join(os.getcwd(), log)
+        timestamp = now.strftime("%Y-%m-%d %H:%M:%S,%f")[:-3]
         
         try:
             if os.path.exists(log_file_path):
                 with open(log_file_path, 'w') as log_file:
-                    log_file.write(f'{now}\nLog file {log_file_path} cleared succesfully at {today}.\n\n')
+                    log_file.write(f'{timestamp} CLEAN: Log file {log_file_path} cleared succesfully.\n')
                 logger.info(f"Successfully cleared log file: {log_file_path}")
             else:
                 logger.warning(f"Log file does not exist: {log_file_path}")
@@ -177,7 +177,7 @@ def generate_trade_report(period):
 
         all_bots = BotSettings.query.all()
         
-        report_data = f"StafanCryptoTradingBot daily trades report.\nDate {now.strftime('%Y-%m-%d')}\nLast {period} period.\n\n"
+        report_data = f"StafanCryptoTradingBot daily trades report.\n{now}\n\nAll trades in last {period}.\n\n"
 
         for single_bot in all_bots:
             trades_in_period = (
@@ -190,7 +190,7 @@ def generate_trade_report(period):
             
             total_trades = len(trades_in_period)
 
-            report_data += f"--\nBot {single_bot.id} algorithm {single_bot.algorithm} {single_bot.strategy} {single_bot.symbol}.\ncomment: {single_bot.comment}\n"
+            report_data += f"--\n\nBot {single_bot.id} algorithm {single_bot.algorithm} {single_bot.strategy} {single_bot.symbol}.\ncomment: {single_bot.comment}\n"
             
             if total_trades == 0:
                 report_data += f"\nNo transactions in last {period}.\n\n"
@@ -294,15 +294,18 @@ def clear_old_trade_history():
                 TradesHistory.sell_timestamp < period_to_clean
             ).delete(synchronize_session=False)
             
-            log_message = (
-                f"Bot {bot_settings.id}: {deleted_count} trades older than {days_to_clean_history} days cleared succesfully."
-            )
+            log_message = ""
+            if deleted_count > 0:
+                log_message = f"Bot {bot_settings.id}: {deleted_count} trades older than {days_to_clean_history} days cleared succesfully."
+            else:
+                log_message = f"Bot {bot_settings.id}: No trades older than {days_to_clean_history} found. Nothing to clean."
+                
             logger.trade(log_message)
             summary_logs.append(log_message)
 
         db.session.commit()
 
-        summary_message = f"StafanCryptoTradingBot daily cleaning report.\nDate {now.strftime('%Y-%m-%d')}\n\n"
+        summary_message = f"StafanCryptoTradingBot daily cleaning report.\n{now}\n\nDays to clean history: {days_to_clean_history}\n\n"
         error_message = f"StafanCryptoTradingBot daily cleaning.\nErrors during trade history cleaning.\nDate {now.strftime('%Y-%m-%d')}\n\n"
         
         if summary_logs:
