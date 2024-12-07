@@ -59,7 +59,9 @@ def inject_system_uptime():
 def inject_gunicorn_version():
     try:
         gunicorn_path = '/usr/local/bin/gunicorn'
-        gunicorn_version = subprocess.check_output([gunicorn_path, '--version'], text=True).strip()
+        gunicorn_version = subprocess.check_output([gunicorn_path, '--version'], stderr=subprocess.STDOUT, text=True).strip()
+    except FileNotFoundError:
+        nginx_version = "Nginx is not installed or not found in the system PATH."
     except Exception as e:
         gunicorn_version = f"Error retrieving gunicorn version: {e}"
     return dict(gunicorn_info=gunicorn_version)
