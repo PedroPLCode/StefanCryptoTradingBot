@@ -68,7 +68,7 @@ def inject_gunicorn_version():
 def inject_nginx_version():
     try:
         nginx_path = '/usr/local/sbin/nginx'
-        nginx_version = subprocess.check_output([nginx_path, '-v'], text=True).stderr.strip()
+        nginx_version = subprocess.check_output([nginx_path, '-v'], text=True).strip()
     except Exception as e:
         nginx_version = f"Error retrieving nginx version: {e}"
     return dict(nginx_info=nginx_version)
