@@ -222,7 +222,7 @@ def place_buy_order(bot_id):
     try:    
         bot_settings = BotSettings.query.get(bot_id)
         symbol = bot_settings.symbol
-        bot_client = create_binance_client(bot_id=bot_id) #testnet=True for binance sandbox
+        bot_client = create_binance_client(bot_id=bot_id) #add testnet=True for binance sandbox
         cryptocoin_symbol = symbol[:3]
         stablecoin_symbol = symbol[-4:]
 
@@ -297,7 +297,7 @@ def place_sell_order(bot_id):
     try:
         bot_settings = BotSettings.query.get(bot_id)
         symbol = bot_settings.symbol
-        bot_client = create_binance_client(bot_id=bot_id) #testnet=True for binance sandbox
+        bot_client = create_binance_client(bot_id=bot_id) #add testnet=True for binance sandbox
         cryptocoin_symbol = symbol[:3]
         stablecoin_symbol = symbol[-4:]
 

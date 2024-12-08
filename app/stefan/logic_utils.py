@@ -91,7 +91,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
     try:
         trailing_stop_price = float(current_trade.trailing_stop_loss)
         previous_price = float(current_trade.previous_price if current_trade.is_active else 0)
-        price_rises = current_price >= previous_price if current_trade.is_active else False
+        price_rises = current_price > previous_price if current_trade.is_active else False
         trend = check_trend(df, bot_settings)
         averages = calculate_averages(df, bot_settings)
         latest_data = df.iloc[-1]
@@ -100,7 +100,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
 
         stop_loss_activated = False
         if current_price <= trailing_stop_price:
-            logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} stop_loss_activated.")
+            logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} stop loss activated.")
             stop_loss_activated = True
             
         full_sell_signal = stop_loss_activated or sell_signal
@@ -108,6 +108,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
             full_sell_signal = stop_loss_activated
         
         atr = df['atr'].iloc[-1]
+        
         if not current_trade.is_active and buy_signal:
             execute_buy_order(bot_settings, current_price, atr)
         elif current_trade.is_active and full_sell_signal:
@@ -396,6 +397,7 @@ def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
         
         update_current_trade(
             bot_id=bot_settings.id,
+            current_price=current_price,
             previous_price=current_price,
             trailing_stop_loss=trailing_stop_price,
             price_rises=True

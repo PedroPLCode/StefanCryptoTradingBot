@@ -68,6 +68,19 @@ def show_account_balance(symbol, account_status, assets_to_include):
         return False
 
 
+def get_balance_for_symbol(account_status, cryptocoin_symbol):
+    try:
+        for balance in account_status:
+            if balance['asset'] == cryptocoin_symbol:
+                return balance['amount']
+        return 0
+    
+    except Exception as e:
+        logger.error(f"Exception in show_account_balance: {str(e)}")
+        send_admin_email(f"Exception in show_account_balance", str(e))
+        return 0
+    
+
 def calculate_profit_percentage(buy_price, sell_price):
     try:
         return ((sell_price - buy_price) / buy_price) * 100
