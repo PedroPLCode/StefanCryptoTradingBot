@@ -33,7 +33,12 @@ def create_app(config_name=None):
         mail.init_app(app)
         migrate.init_app(app, db)
         jwt.init_app(app)
-        CORS(app, resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "OPTIONS"]}})
+        CORS(app, resources={
+            r"/*": {
+                "origins": "*", 
+                "methods": ["GET", "POST", "OPTIONS"]
+                }
+            })
         
         from .models.admin import (
             MyAdmin, 
@@ -71,10 +76,10 @@ def create_app(config_name=None):
         logger.info('Flask app initialized.')
         
     except Exception as e:
-        logger.error(f'Exception Error initializing Flask app: {e}')
+        logger.error(f'Error in create_app: {e}')
         with app.app_context():
             from .utils.app_utils import send_admin_email
-            send_admin_email('App Initialization Error Exception', str(e))
+            send_admin_email('Error in create_app', str(e))
         raise
     
     return app
@@ -84,7 +89,7 @@ app = create_app()
 limiter = Limiter(
         get_remote_address,
         app=app,
-        default_limits=["1000 per day", "200 per hour"],
+        default_limits=["500 per day", "100 per hour"],
         storage_uri="memory://",
     )
 
@@ -96,7 +101,10 @@ def run_job_with_context(func, *args, **kwargs):
             logger.info(f'Job {func.__name__} executed successfully. Result: {result}')
             return result
         except Exception as e:
-            logger.error(f'Error Exception executing job {func.__name__}: {e}')
+            logger.error(f'Error in run_job_with_context: job {func.__name__}: {e}')
+            with app.app_context():
+                from .utils.app_utils import send_admin_email
+                send_admin_email('Error in run_job_with_context', str(e))
             raise
         
 def start_scheduler():
@@ -137,12 +145,12 @@ def start_scheduler():
             hours=24
         )
         scheduler.start()
-        logger.info('Scheduler started successfully (one instance). Stefan Bot initialized.')
+        logger.info('Scheduler started successfully. Stefan Bot initialized.')
     except Exception as e:
-        logger.error(f'Exception Error starting scheduler: {e}')
+        logger.error(f'Error in start_scheduler: {e}')
         with app.app_context():
             from .utils.app_utils import send_admin_email
-            send_admin_email('Scheduler Exception Error', str(e))
+            send_admin_email('Error in start_scheduler', str(e))
 
 from .routes import main
 app.register_blueprint(main)

@@ -31,6 +31,7 @@ def run_selected_strategy_trading_bots(strategy):
                     error_message = f"No current trade found for settings id: {bot_settings.id}"
                     send_admin_email(f'Error starting bot {bot_settings.id}', error_message)
                     logger.trade(error_message)
+                    
         except Exception as e:
             logger.error(f'Exception in run_selected_strategy_trading_bots: {str(e)}')
             send_admin_email('Exception in run_selected_strategy_trading_bots', str(e))
@@ -48,7 +49,12 @@ def run_single_trading_logic(bot_settings):
             lookback_period = bot_settings.lookback_period
             
             logger.trade(f'Bot {bot_settings.id} {bot_settings.strategy} Fetching data for {symbol} with interval {interval} and lookback {lookback_period}')
-            df = fetch_data_and_validate(symbol, interval, lookback_period, bot_settings.id)
+            df = fetch_data_and_validate(
+                symbol, 
+                interval, 
+                lookback_period, 
+                bot_settings.id
+                )
             if df is None:
                 return
             

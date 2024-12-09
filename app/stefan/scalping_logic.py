@@ -111,7 +111,18 @@ def calculate_scalp_indicators(df, bot_settings):
 
         df['vwap'] = (df['close'] * df['volume']).cumsum() / df['volume'].cumsum()
 
-        columns_to_check = ['macd', 'macd_signal', 'cci', 'upper_band', 'lower_band', 'mfi', 'atr', 'stoch_k', 'stoch_d', 'psar']
+        columns_to_check = [
+            'macd', 
+            'macd_signal', 
+            'cci', 
+            'upper_band', 
+            'lower_band', 
+            'mfi', 
+            'atr', 
+            'stoch_k', 
+            'stoch_d', 
+            'psar'
+            ]
 
         df.dropna(subset=columns_to_check, inplace=True)
         

@@ -138,6 +138,7 @@ def fetch_current_price(symbol):
     try:
         ticker = general_client.get_symbol_ticker(symbol=symbol)
         return float(ticker['price'])
+    
     except BinanceAPIException as e:
         logger.error(f'BinanceAPIException in fetch_current_price: {str(e)}')
         send_admin_email(f'BinanceAPIException in fetch_current_price', str(e))
@@ -168,6 +169,7 @@ def get_minimum_order_quantity(bot_id, symbol):
                 step_size = float(f['stepSize'])
                 return min_qty, step_size
         return 0, 0
+    
     except BinanceAPIException as e:
         logger.error(f'BinanceAPIException in get_minimum_order_quantity: {str(e)}')
         send_admin_email(f'BinanceAPIException in get_minimum_order_quantity', str(e))
@@ -197,6 +199,7 @@ def get_minimum_order_value(bot_id, symbol):
             if f['filterType'] == 'NOTIONAL':
                 return float(f['minNotional'])
         return None
+    
     except BinanceAPIException as e:
         logger.error(f'BinanceAPIException in get_minimum_order_value: {str(e)}')
         send_admin_email(f'BinanceAPIException in get_minimum_order_value', str(e))
@@ -229,11 +232,12 @@ def place_buy_order(bot_id):
         balance = get_account_balance(bot_id, [stablecoin_symbol, cryptocoin_symbol])
         stablecoin_balance = float(balance.get(stablecoin_symbol, '0.0'))
         price = float(fetch_current_price(symbol))
+        capital_utilization_pct = float(bot_settings.capital_utilization_pct)
         
         logger.trade(f'place_buy_order() Bot {bot_id} Fetched stablecoin balance: {stablecoin_balance}')
         logger.trade(f'place_buy_order() Bot {bot_id} Fetched price for {symbol}: {price}')
 
-        affordable_amount = (stablecoin_balance * 0.95) / price
+        affordable_amount = (stablecoin_balance * capital_utilization_pct) / price
         min_qty, step_size = get_minimum_order_quantity(bot_id, symbol)
         amount_to_buy = float(round_down_to_step_size(affordable_amount, step_size))
         
@@ -358,6 +362,7 @@ def fetch_system_status():
     try:
         status = general_client.get_system_status()
         return status
+    
     except BinanceAPIException as e:
         logger.error(f'BinanceAPIException in fetch_system_status: {str(e)}')
         send_admin_email(f'BinanceAPIException in fetch_system_status', str(e))
@@ -386,6 +391,7 @@ def fetch_account_status(bot_id=None):
             bot_client = create_binance_client(bot_id)
             status = bot_client.get_account()
             return status
+        
     except BinanceAPIException as e:
         logger.error(f'BinanceAPIException in fetch_account_status: {str(e)}')
         send_admin_email(f'BinanceAPIException in fetch_account_status', str(e))
@@ -409,6 +415,7 @@ def fetch_server_time():
     try:
         server_time = general_client.get_server_time()
         return server_time
+    
     except BinanceAPIException as e:
         logger.error(f'BinanceAPIException in fetch_server_time: {str(e)}')
         send_admin_email(f'BinanceAPIException in fetch_server_time', str(e))

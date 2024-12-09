@@ -77,6 +77,7 @@ def get_current_price(df, bot_id):
         current_price = float(df['close'].iloc[-1])
         logger.trade(f'Current price for bot {bot_id} is: {current_price}')
         return current_price
+    
     except IndexError as e:
         logger.error(f'IndexError in get_current_price bot {bot_id}: {str(e)}')
         send_admin_email(f'IndexError in get_current_price bot {bot_id}', str(e))
@@ -158,7 +159,6 @@ def calculate_averages(df, bot_settings):
     
 def check_trend(df, bot_settings):
     try:
-        
         latest_data = df.iloc[-1]
         
         avg_adx_period = bot_settings.avg_adx_period
@@ -535,7 +535,6 @@ def update_trade_history(
     price_rises_counter,
     buy_timestamp
     ):
-    
     from .api_utils import get_account_balance
         
     try:
@@ -567,6 +566,7 @@ def update_trade_history(
             f'Transaction {trade.id}: bot: {bot_id}, strategy: {strategy}'
             f'amount: {amount}, symbol: {current_trade.bot_settings.symbol} saved in database.'
         )
+        
     except Exception as e:
         db.session.rollback()
         logger.error(f"Exception in update_trade_history bot {bot_id}: {str(e)}")

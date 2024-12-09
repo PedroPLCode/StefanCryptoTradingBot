@@ -116,6 +116,7 @@ class BotSettingsAdmin(AdminModelView):
         'psar_maximum',
         'interval', 
         'lookback_period', 
+        'capital_utilization_pct',
         'days_period_to_clean_history',
     )
     

@@ -9,9 +9,9 @@ The bot provides an easy-to-use interface for starting and stopping the bot, rea
 - Many independent bots with different currencies and strategies.
 - Automated Trading: Executes trades on Binance based on predefined strategies.
 - Binance API Integration: Fetches real-time data and executes trades.
-- Real-Time Monitoring: Displays current trade results, account balances, and historical data from the last 24 hours.
+- Real-Time Monitoring: Displays current trade results, account balances, and historical data.
 - Control & Admin Panel: Includes user access to a control panel for starting/stopping the bot, and an admin panel for changing settings, configurations and strategies.
-- Email Reporting: Sends daily performance reports summarizing the bot's activities over the past 24 hours / 7 days.
+- Email Reporting: Sends daily logs and performance reports summarizing the bot's activities over the past 24 hours / 7 days.
 - Backtesting features to allow users to test their strategies against historical data.
 
 ## Installation
@@ -80,8 +80,8 @@ gunicorn -c gunicorn_config.py wsgi:app
 ### Once the bot is running, you can access the web interface to:
 - Start and Stop the Bot: Control the bot’s operation via the control panel.
 - Monitor Trading: View live data, including account balances and trade performance.
-- Adjust settings and strategy via admin panel.
-- Receive Reports: Check daily performance reports sent to your email.
+- Adjust parameters, settings and strategy via admin panel.
+- Receive Reports: Check daily logs and performance reports sent to your email.
 - Backtest your strategy and algorithms on historical data.
 
 ### Example Commands:
@@ -100,14 +100,14 @@ pytest
 - Flask-JWT-Extended: JWT-based authentication for securing user access.
 - Flask-Mail: For sending email reports.
 - Binance API: For fetching market data and executing trades.
-- TensorFlow, NumPy, Pandas: Libraries used for implementing trading algorithms, machine learning, and data processing.
+- NumPy, Pandas and TALib: Libraries used for implementing trading algorithms and data processing.
 
 ## Future Plans
 - Strategy Optimization: Enhancing strategies and trading logic.
-- Machine Learning: Incorporating machine learning to improve trade predictions and make the bot more adaptive.
+- Machine Learning: Incorporating machine learning to improve trade predictions and make the bot more adaptive. That's how [MariolaCryptoTradingBot](https://github.com/PedroPLCode/MariolaCryptoTradingBot) was just born. All my effort is now directed toward her development.
 
 ## Important! Familiarize yourself thoroughly with the source code. Understand its operation. Only then will you be able to customize and adjust the bot to your own needs, preferences and requirements. 
 
 Any comments welcome.
 
-StefanCryptoTradingBot Project is under GPL Licence (GNU General Public License)
+StefanCryptoTradingBot Project is under GNU General Public License Version 3, 29 June 2007

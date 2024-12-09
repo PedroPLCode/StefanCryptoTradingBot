@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from datetime import datetime, timedelta
 import pandas as pd
-from app.utils.stefan_utils import (
+from app.stefan.logic_utils import (
     calculate_indicators,
     check_buy_signal,
     check_sell_signal,

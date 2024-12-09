@@ -13,9 +13,9 @@ class DevelopmentConfig:
     }
     SECRET_KEY = os.environ['APP_SECRET_KEY']
     WTF_CSRF_SECRET_KEY = os.environ['CSRF_SECRET_KEY']
-    SESSION_COOKIE_SECURE = False # ssl https dodac
-    WTF_CSRF_SSL_STRICT = False # ssl https dodac
-    WTF_CSRF_ENABLED = False # ssl https dodac
+    SESSION_COOKIE_SECURE = True
+    WTF_CSRF_SSL_STRICT = True
+    WTF_CSRF_ENABLED = True
     PERMANENT_SESSION_LIFETIME = 300
     SESSION_PERMANENT = False
     

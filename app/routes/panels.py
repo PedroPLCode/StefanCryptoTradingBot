@@ -29,6 +29,7 @@ def user_panel_view():
                 binance_status=binance_status, 
                 server_time=server_time
             )
+            
         except Exception as e:
             logger.error(f'Exception in user_panel_view: {str(e)}')
             send_admin_email('Exception in user_panel_view', str(e))

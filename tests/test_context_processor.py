@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import platform
 from app import app, create_app, db
-from app.models import Settings
+from app.models import BotSettings
 from app.routes.context_processors import (
     inject_date_and_time,                 
     inject_system_info, 

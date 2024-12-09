@@ -20,5 +20,7 @@ class TradesHistory(db.Model):
         return (
             f'id: {self.id}, amount: {self.amount}\n'
             f'buy_price: {self.buy_price}, sell_price: {self.sell_price}\n'
-            f'buy_timestamp: {self.buy_timestamp}, sell_timestamp: {self.sell_timestamp}, bot_id: {self.bot_id}>'
+            f'buy_timestamp: {self.buy_timestamp}, '
+            f'sell_timestamp: {self.sell_timestamp}, '
+            f'bot_id: {self.bot_id}>'
         )

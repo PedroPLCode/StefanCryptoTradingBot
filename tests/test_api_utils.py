@@ -16,7 +16,20 @@ def mock_client():
 def test_fetch_data(mock_client):
     symbol = 'BTCUSDT'
     mock_client.get_historical_klines.return_value = [
-        [1620000000000, '50000', '50500', '49000', '50000', '100', '1620003600000', '5000000', '100', '50', '2500000', '0']
+        [
+            1620000000000, 
+            '50000', 
+            '50500', 
+            '49000', 
+            '50000', 
+            '100', 
+            '1620003600000', 
+            '5000000', 
+            '100', 
+            '50', 
+            '2500000', 
+            '0'
+            ]
     ]
     df = fetch_data(symbol)
     assert not df.empty

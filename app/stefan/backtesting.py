@@ -21,7 +21,12 @@ def fetch_and_save_data(backtest_settings, bot_settings):
     start_str = str(backtest_settings.start_date)
     end_str = str(backtest_settings.end_date)
 
-    df = fetch_data(symbol=symbol, interval=interval, start_str=start_str, end_str=end_str)
+    df = fetch_data(
+        symbol=symbol, 
+        interval=interval, 
+        start_str=start_str, 
+        end_str=end_str
+        )
     
     if df is not None and not df.empty:
         csv_file_path = backtest_settings.csv_file_path
@@ -62,6 +67,7 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                         )
                 else:
                     continue
+                
             elif bot_settings.strategy == 'swing':
                 if (i - 48) >= start_index and (i - 200) >= 0:
                     loop_df = calculate_backtest_swing_indicators(
@@ -77,9 +83,9 @@ def backtest_strategy(df, bot_settings, backtest_settings):
             current_price = float(latest_data['close'])
             buy_signal_func, sell_signal_func = select_signals_checkers(bot_settings)
             trend = check_trend(loop_df)
-            avg_volume, avg_rsi, avg_stoch_rsi_k = calculate_averages(loop_df, bot_settings)
+            averages = calculate_averages(loop_df, bot_settings)
             buy_signal = buy_signal_func(loop_df, bot_settings, trend)
-            sell_signal = sell_signal_func(loop_df, bot_settings, trend, avg_volume, avg_rsi, avg_stoch_rsi_k, latest_data, previous_data)
+            sell_signal = sell_signal_func(loop_df, bot_settings, trend, averages, latest_data, previous_data)
             stop_loss_activated = current_price <= trailing_stop_loss
             
             full_sell_signal = stop_loss_activated or sell_signal

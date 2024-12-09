@@ -106,6 +106,7 @@ def login():
             else:
                 logger.warning(f'Bad login attempt from address {user_ip}. User not found')
                 flash('Error: Login or Password Incorrect.', 'danger')
+                
         except Exception as e:
             logger.error(f'Error during login process from {user_ip} {str(e)}')
             try:

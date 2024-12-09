@@ -1,6 +1,6 @@
 import pytest
 from app import create_app, db
-from app.models import CurrentTrade
+from app.models import BotCurrentTrade
 
 @pytest.fixture
 def test_app():
@@ -19,14 +19,14 @@ def test_client(test_app):
 @pytest.fixture
 def test_settings(test_app):
     with test_app.app_context():
-        trade = CurrentTrade(type='buy', amount=0.5, price=30000.0, trailing_stop_loss=29500.0)
+        trade = BotCurrentTrade(type='buy', amount=0.5, price=30000.0, trailing_stop_loss=29500.0)
         db.session.add(trade)
         db.session.commit()
         return trade
 
 def test_current_trade_creation(test_app):
     with test_app.app_context():
-        trade = CurrentTrade(type='sell', amount=1.0, price=31000.0, trailing_stop_loss=30500.0)
+        trade = BotCurrentTrade(type='sell', amount=1.0, price=31000.0, trailing_stop_loss=30500.0)
         db.session.add(trade)
         db.session.commit()
         
@@ -38,7 +38,7 @@ def test_current_trade_creation(test_app):
 
 def test_current_trade_default_values(test_app):
     with test_app.app_context():
-        trade = CurrentTrade()
+        trade = BotCurrentTrade()
         db.session.add(trade)
         db.session.commit()
         
