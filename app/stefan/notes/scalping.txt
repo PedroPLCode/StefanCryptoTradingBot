@@ -1,9 +1,10 @@
 SCALPING:
+Intervals to choose: 1m, 3m, 5m, 15m
 
 'scalp' BTC ETH BNB SOL LTC ADA
-run interval 1min
+run interval 1m, 3m, 5m, 15m
 trailing_stop_pct=0.03 or 0.01
-interval="1m"
+interval="1m, 3m, 5m, 15m"
 lookback_period="45m"
 avg_adx_period=7
 avg_di_period=7
@@ -16,7 +17,7 @@ avg_ema_period=3
 adx_strong_trend=25
 adx_weak_trend=20
 adx_no_trend=5
-timeperiod=14
+general_timeperiod=14
 di_timeperiod=14
 adx_timeperiod=14
 rsi_timeperiod=14/9/5
@@ -50,34 +51,34 @@ MACD(6,13,5/8,16,6)
 Stochastic(5/9,3)
 Boilinger(20/2)
 
-algorithm 1: *ready RUN
+algorithm 1: *ready **
 (primary for uptrend) 
-intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
+intervals 5min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
 if_not_downtrend: RSI(7, 30/70) MACD(6,12,5) Volume
 
-algorithm 2: *ready RUN
+algorithm 2: *ready **
 (secondary for horizontal trend)
 intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
 if_not_downtrend: Stochastic(7,3) Boilinger(20,2) Volume
 
-algorithm 3: *ready RUN
+algorithm 3: *ready **
 (testing)
 intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
 if_not_downtrend: StochasticRSI(7,7,3) Boilinger(20,2) Volume
 
-algorithm 4: *ready
-(testing)
-intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
+algorithm 4: *ready ***
+(promising)
+intervals 5min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
 if_not_downtrend: RSI(7, 30/70) EMA(9,21) Volume
 
-algorithm 5: *ready RUN
+algorithm 5: *ready **
 (intelligent simple)
 intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
 if_trend_uptrend: RSI(7, 30/70) MACD(6,12,5) Volume 
 if_trend_horizontal: BoilingerBands(20,2) Stochastic(7,3, 20/80) Volume 
 if_trend_downtrend: DONT_TRADE 
 
-algorithm 6: *ready RUN
+algorithm 6: *ready
 (intelligent extended)
 intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
 if_trend_uptrend: RSI(7, 30/70) EMA(9,21) MACD(6,12,5) Volume 
@@ -88,5 +89,15 @@ algorithm 7: *ready
 (uptrend downtrend only)
 intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
 if_trend_uptrend: DI(14) Volume
+
+algorithm 8: *ready ***
+(promising)
+intervals 5min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
+if_not_downtrend: MFI CCI Volume
+
+algorithm 9: *ready **
+(testing)
+intervals 5min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
+if_not_downtrend: Boilinger ATR
 
 all backtested. needs real life tests.

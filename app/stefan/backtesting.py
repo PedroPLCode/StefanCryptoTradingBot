@@ -84,8 +84,22 @@ def backtest_strategy(df, bot_settings, backtest_settings):
             buy_signal_func, sell_signal_func = select_signals_checkers(bot_settings)
             trend = check_trend(loop_df)
             averages = calculate_averages(loop_df, bot_settings)
-            buy_signal = buy_signal_func(loop_df, bot_settings, trend)
-            sell_signal = sell_signal_func(loop_df, bot_settings, trend, averages, latest_data, previous_data)
+            buy_signal = buy_signal_func(
+                loop_df, 
+                bot_settings, 
+                trend, 
+                averages, 
+                latest_data, 
+                previous_data
+                )
+            sell_signal = sell_signal_func(
+                loop_df, 
+                bot_settings, 
+                trend, 
+                averages, 
+                latest_data, 
+                previous_data
+                )
             stop_loss_activated = current_price <= trailing_stop_loss
             
             full_sell_signal = stop_loss_activated or sell_signal

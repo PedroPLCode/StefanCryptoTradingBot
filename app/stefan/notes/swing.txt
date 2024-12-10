@@ -1,10 +1,11 @@
 SWING TRADING:
+Intervals to choose: 30m, 1h, 4h, 1d
 
 'swing' BTC ETH BNB SOL LTC ADA
-run interval 30min
+run interval 30m, 1h, 4h, 1d
 trailing_stop_pct=0.05 or 0.03
-interval="30m"
-lookback_period="1d"
+interval="30m/1h/4h/1d"
+lookback_period="1d/?"
 avg_adx_period=7
 avg_di_period=7
 avg_rsi_period=7
@@ -16,7 +17,7 @@ avg_ema_period=7
 adx_strong_trend=25
 adx_weak_trend=20
 adx_no_trend=5
-timeperiod=14
+general_timeperiod=14
 di_timeperiod=14
 adx_timeperiod=14
 rsi_timeperiod=14/9
@@ -68,9 +69,9 @@ algorithm 4: *ready
 intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
 if_not_downtrend: RSI(14, 30/70) Boilinger(20,2) MA50 Volume
 
-algorithm 5: *ready RUN
+algorithm 5: *ready ***
 (intelligent simple)
-intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
+intervals 1h, ADX(14), ATR(14, x5), AvgVolPeriod(5)
 if_trend_uptrend: RSI(14, 30/70) MACD(12,24,9) Volume
 if_trend_horizontal: BoilingerBands(20,2) Stochastic(14,3, 20/80) Volume
 if_trend_downtrend: DONT_TRADE
@@ -86,5 +87,15 @@ algorithm 7: *ready
 (uptrend downtrend only)
 intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
 if_trend_uptrend: DI(14) Volume
+
+algorithm 8: *ready
+(testing)
+intervals 1h, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
+if_not_downtrend: MFI CCI Volume
+
+algorithm 9: *ready
+(testing)
+intervals 1h, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
+if_not_downtrend: Boilinger ATR
 
 all backtested. needs real life tests.

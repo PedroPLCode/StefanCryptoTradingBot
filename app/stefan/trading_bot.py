@@ -1,4 +1,5 @@
 from flask import current_app
+from sqlalchemy import and_
 from ..models import BotSettings
 from binance.exceptions import BinanceAPIException
 from ..utils.logging import logger
@@ -12,16 +13,36 @@ from .logic_utils import (
     
 )
 
-def run_all_scalp_trading_bots():
-    run_selected_strategy_trading_bots('scalp')
+def run_all_scalp_1m_trading_bots():
+    run_selected_strategy_trading_bots('scalp', '1m')
+    
+def run_all_scalp_3m_trading_bots():
+    run_selected_strategy_trading_bots('scalp', '3m')
+    
+def run_all_scalp_5m_trading_bots():
+    run_selected_strategy_trading_bots('scalp', '5m')
+    
+def run_all_scalp_15m_trading_bots():
+    run_selected_strategy_trading_bots('scalp', '15m')
 
-            
-def run_all_swing_trading_bots():
-    run_selected_strategy_trading_bots('swing')
+def run_all_swing_30m_trading_bots():
+    run_selected_strategy_trading_bots('swing', '30m')
+    
+def run_all_swing_1h_trading_bots():
+    run_selected_strategy_trading_bots('swing', '1h')
+    
+def run_all_swing_4h_trading_bots():
+    run_selected_strategy_trading_bots('swing', '4h')
+    
+def run_all_swing_1d_trading_bots():
+    run_selected_strategy_trading_bots('swing', '1d')
+    
 
-
-def run_selected_strategy_trading_bots(strategy):
-    all_selected_bots = BotSettings.query.filter(BotSettings.strategy == strategy).all()
+def run_selected_strategy_trading_bots(strategy, interval):
+    all_selected_bots = BotSettings.query.filter(
+        and_(BotSettings.strategy == strategy, BotSettings.interval == interval)
+    ).all()
+    
     for bot_settings in all_selected_bots:
         try:
             if bot_settings.bot_running:

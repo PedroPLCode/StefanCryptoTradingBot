@@ -23,6 +23,7 @@ class BotSettings(db.Model):
     stoch_sell = db.Column(db.Integer, default=80, nullable=False)
     
     avg_adx_period = db.Column(db.Integer, default=7, nullable=False)
+    avg_atr_period = db.Column(db.Integer, default=28, nullable=False)
     avg_di_period = db.Column(db.Integer, default=7, nullable=False)
     avg_rsi_period = db.Column(db.Integer, default=3, nullable=False)
     avg_volume_period = db.Column(db.Integer, default=3, nullable=False)
@@ -58,8 +59,8 @@ class BotSettings(db.Model):
     psar_acceleration = db.Column(db.Float, default=0.02, nullable=False)
     psar_maximum = db.Column(db.Float, default=0.2, nullable=False)
     
-    interval = db.Column(db.String(16), default="1m", nullable=False)
-    lookback_period = db.Column(db.String(16), default="45m", nullable=False)
+    interval = db.Column(db.String(16), default="5m", nullable=False)
+    lookback_period = db.Column(db.String(16), default="4h", nullable=False)
     
     capital_utilization_pct = db.Column(db.Float, default=0.95, nullable=False)
     days_period_to_clean_history = db.Column(db.Integer, default=30, nullable=False)

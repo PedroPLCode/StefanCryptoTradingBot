@@ -82,6 +82,7 @@ class BotSettingsAdmin(AdminModelView):
         'stoch_buy',
         'stoch_sell',
         'avg_adx_period',
+        'avg_atr_period',
         'avg_di_period',
         'avg_rsi_period',
         'avg_volume_period',

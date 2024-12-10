@@ -111,8 +111,14 @@ def start_scheduler():
     logger.info('Starting scheduler.')
     try:
         from .stefan.trading_bot import (
-            run_all_scalp_trading_bots, 
-            run_all_swing_trading_bots
+            run_all_scalp_1m_trading_bots,
+            run_all_scalp_3m_trading_bots,
+            run_all_scalp_5m_trading_bots,
+            run_all_scalp_15m_trading_bots,
+            run_all_swing_30m_trading_bots,
+            run_all_swing_1h_trading_bots,
+            run_all_swing_4h_trading_bots,
+            run_all_swing_1d_trading_bots
         )
         from .utils.app_utils import (
             send_trade_report_via_email, 
@@ -120,14 +126,44 @@ def start_scheduler():
             clear_old_trade_history
         )
         scheduler.add_job(
-            func=partial(run_job_with_context, run_all_scalp_trading_bots),
+            func=partial(run_job_with_context, run_all_scalp_1m_trading_bots),
             trigger='interval',
             minutes=1
         )
         scheduler.add_job(
-            func=partial(run_job_with_context, run_all_swing_trading_bots),
+            func=partial(run_job_with_context, run_all_scalp_3m_trading_bots),
+            trigger='interval',
+            minutes=3
+        )
+        scheduler.add_job(
+            func=partial(run_job_with_context, run_all_scalp_5m_trading_bots),
+            trigger='interval',
+            minutes=5
+        )
+        scheduler.add_job(
+            func=partial(run_job_with_context, run_all_scalp_15m_trading_bots),
+            trigger='interval',
+            minutes=15
+        )
+        scheduler.add_job(
+            func=partial(run_job_with_context, run_all_swing_30m_trading_bots),
             trigger='interval',
             minutes=30
+        )
+        scheduler.add_job(
+            func=partial(run_job_with_context, run_all_swing_1h_trading_bots),
+            trigger='interval',
+            hours=1
+        )
+        scheduler.add_job(
+            func=partial(run_job_with_context, run_all_swing_4h_trading_bots),
+            trigger='interval',
+            hours=4
+        )
+        scheduler.add_job(
+            func=partial(run_job_with_context, run_all_swing_1d_trading_bots),
+            trigger='interval',
+            hours=24
         )
         scheduler.add_job(
             func=partial(run_job_with_context, send_logs_via_email_and_clear_logs),

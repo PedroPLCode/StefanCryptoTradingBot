@@ -18,7 +18,11 @@ from .scalping_logic import (
     check_scalping_buy_signal_v6,
     check_scalping_sell_signal_v6,
     check_scalping_buy_signal_v7,
-    check_scalping_sell_signal_v7
+    check_scalping_sell_signal_v7,
+    check_scalping_buy_signal_v8,
+    check_scalping_sell_signal_v8,
+    check_scalping_buy_signal_v9,
+    check_scalping_sell_signal_v9
 )
 from .swing_logic import (
     check_swing_buy_signal_v1,
@@ -34,7 +38,11 @@ from .swing_logic import (
     check_swing_buy_signal_v6,
     check_swing_sell_signal_v6,
     check_swing_buy_signal_v7,
-    check_swing_sell_signal_v7
+    check_swing_sell_signal_v7,
+    check_swing_buy_signal_v8,
+    check_swing_sell_signal_v8,
+    check_swing_buy_signal_v9,
+    check_swing_sell_signal_v9
 )
 
 def calculate_backtest_scalp_indicators(df, bot_settings):
@@ -304,6 +312,8 @@ def select_signals_checkers(bot_settings):
             5: (check_swing_buy_signal_v5, check_swing_sell_signal_v5),
             6: (check_swing_buy_signal_v6, check_swing_sell_signal_v6),
             7: (check_swing_buy_signal_v7, check_swing_sell_signal_v7),
+            8: (check_swing_buy_signal_v8, check_swing_sell_signal_v8),
+            9: (check_swing_buy_signal_v9, check_swing_sell_signal_v9),
         },
         'scalp': {
             1: (check_scalping_buy_signal_v1, check_scalping_sell_signal_v1),
@@ -313,13 +323,24 @@ def select_signals_checkers(bot_settings):
             5: (check_scalping_buy_signal_v5, check_scalping_sell_signal_v5),
             6: (check_scalping_buy_signal_v6, check_scalping_sell_signal_v6),
             7: (check_scalping_buy_signal_v7, check_scalping_sell_signal_v7),
+            8: (check_scalping_buy_signal_v8, check_scalping_sell_signal_v8),
+            9: (check_scalping_buy_signal_v9, check_scalping_sell_signal_v9),
         }
     }
     buy_signal_func, sell_signal_func = strategy_map[bot_settings.strategy][bot_settings.algorithm]
     return buy_signal_func, sell_signal_func
 
 
-def update_trade_log(action, trade_log, current_price, latest_data, crypto_balance, usdc_balance, trailing_stop_loss):
+def update_trade_log(
+    action, 
+    trade_log, 
+    current_price, 
+    latest_data, 
+    crypto_balance, 
+    usdc_balance, 
+    trailing_stop_loss
+    ):
+    
     trade_log.append({
         'action': action,
         'price': float(current_price),
@@ -330,7 +351,14 @@ def update_trade_log(action, trade_log, current_price, latest_data, crypto_balan
     })
     
     
-def save_backtest_results(bot_settings, backtest_settings, initial_balance, final_balance, trade_log):
+def save_backtest_results(
+    bot_settings, 
+    backtest_settings, 
+    initial_balance, 
+    final_balance, 
+    trade_log
+    ):
+    
     new_backtest = BacktestResult(
         bot_id = bot_settings.id,
         symbol = bot_settings.symbol,

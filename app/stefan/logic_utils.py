@@ -28,6 +28,10 @@ from .scalping_logic import (
     check_scalping_sell_signal_v6,
     check_scalping_buy_signal_v7,
     check_scalping_sell_signal_v7,
+    check_scalping_buy_signal_v8,
+    check_scalping_sell_signal_v8,
+    check_scalping_buy_signal_v9,
+    check_scalping_sell_signal_v9
 )
 from .swing_logic import (
     calculate_swing_indicators,
@@ -45,6 +49,10 @@ from .swing_logic import (
     check_swing_sell_signal_v6,
     check_swing_buy_signal_v7,
     check_swing_sell_signal_v7,
+    check_swing_buy_signal_v8,
+    check_swing_sell_signal_v8,
+    check_swing_buy_signal_v9,
+    check_swing_sell_signal_v9
 )
 
 def is_df_valid(df, bot_id):
@@ -55,7 +63,11 @@ def is_df_valid(df, bot_id):
 
 
 def fetch_data_and_validate(symbol, interval, lookback_period, bot_id):
-    df = fetch_data(symbol=symbol, interval=interval, lookback=lookback_period)
+    df = fetch_data(
+        symbol=symbol, 
+        interval=interval, 
+        lookback=lookback_period
+        )
     if not is_df_valid(df, bot_id):
         return None
     return df
@@ -66,7 +78,11 @@ def handle_scalp_strategy(bot_settings, df):
     
 
 def handle_swing_strategy(bot_settings, df):
-    df_for_ma = fetch_data(bot_settings.symbol, interval="1d", lookback="200d")
+    df_for_ma = fetch_data(
+        bot_settings.symbol, 
+        interval="1d", 
+        lookback="200d"
+        )
     if not is_df_valid(df_for_ma, bot_settings.id):
         return
     calculate_swing_indicators(df, df_for_ma, bot_settings)
@@ -97,7 +113,14 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         averages = calculate_averages(df, bot_settings)
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
-        buy_signal, sell_signal = check_signals(bot_settings, df, trend, averages, latest_data, previous_data)
+        buy_signal, sell_signal = check_signals(
+            bot_settings, 
+            df, 
+            trend, 
+            averages, 
+            latest_data, 
+            previous_data
+            )
 
         stop_loss_activated = False
         if current_price <= trailing_stop_price:
@@ -135,6 +158,7 @@ def calculate_averages(df, bot_settings):
             'avg_rsi': ('rsi', bot_settings.avg_rsi_period),
             'avg_cci': ('cci', bot_settings.avg_cci_period),
             'avg_mfi': ('mfi', bot_settings.avg_mfi_period),
+            'avg_atr': ('atr', bot_settings.avg_atr_period),
             'avg_stoch_rsi_k': ('stoch_rsi_k', bot_settings.avg_stoch_rsi_period),
             'avg_macd': ('macd', bot_settings.avg_macd_period),
             'avg_macd_signal': ('macd_signal', bot_settings.avg_macd_period),
@@ -224,8 +248,8 @@ def get_signal_functions(strategy, algorithm):
         return buy_func, sell_func
 
     except Exception as e:
-        logger.error(f"Exception in check_signals: {str(e)}")
-        send_admin_email(f'Exception in check_signals', str(e))
+        logger.error(f"Exception in get_signal_functions: {str(e)}")
+        send_admin_email(f'Exception in get_signal_functions', str(e))
         return None, None
 
 
@@ -262,7 +286,7 @@ def check_signals(bot_settings, df, trend, averages, latest_data, previous_data)
             send_admin_email(f'Error starting bot {bot_settings.id}', f'Missing indicators in database for bot {bot_settings.id} {bot_settings.strategy}')
             return None, None
         
-        if bot_settings.algorithm < 1 or bot_settings.algorithm > 7:
+        if bot_settings.algorithm < 1 or bot_settings.algorithm > 9:
             logger.trade(f'Wrong algorithm {bot_settings.algorithm} declared for bot {bot_settings.id} {bot_settings.strategy}')
             send_admin_email(f'Wrong algorithm bot {bot_settings.id}', f'Wrong algorithm {bot_settings.algorithm} declared for bot {bot_settings.id} {bot_settings.strategy}')
             return None, None

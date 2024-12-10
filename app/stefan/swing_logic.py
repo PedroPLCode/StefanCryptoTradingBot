@@ -171,12 +171,12 @@ def check_swing_buy_signal_v1(df, bot_settings, trend, averages, latest_data, pr
         return False
     
     except IndexError as e:
-        logger.error(f'IndexError in check_swing_buy_signal bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'IndexError in check_swing_buy_signal bot {bot_settings.id}', str(e))
+        logger.error(f'IndexError in check_swing_buy_signal_v1 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_buy_signal_v1 bot {bot_settings.id}', str(e))
         return False
     except Exception as e:
-        logger.error(f'Exception in check_swing_buy_signal bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Exception in check_swing_buy_signal bot {bot_settings.id}', str(e))
+        logger.error(f'Exception in check_swing_buy_signal_v1 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_buy_signal_v1 bot {bot_settings.id}', str(e))
         return False
     
     
@@ -196,12 +196,12 @@ def check_swing_sell_signal_v1(df, bot_settings, trend, averages, latest_data, p
         return False
     
     except IndexError as e:
-        logger.error(f'IndexError in check_swing_sell_signal bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'IndexError in check_swing_sell_signal bot {bot_settings.id}', str(e))
+        logger.error(f'IndexError in check_swing_sell_signal_v1 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_sell_signal_v1 bot {bot_settings.id}', str(e))
         return False
     except Exception as e:
-        logger.error(f'Exception in check_swing_sell_signal bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Exception in check_swing_sell_signal bot {bot_settings.id}', str(e))
+        logger.error(f'Exception in check_swing_sell_signal_v1 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_sell_signal_v1 bot {bot_settings.id}', str(e))
         return False
 
 
@@ -224,12 +224,12 @@ def check_swing_buy_signal_v2(df, bot_settings, trend, averages, latest_data, pr
         return False
     
     except IndexError as e:
-        logger.error(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'IndexError in check_swing_buy_signal_v2 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_buy_signal_v2 bot {bot_settings.id}', str(e))
         return False
     except Exception as e:
-        logger.error(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'Exception in check_swing_buy_signal_v2 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_buy_signal_v2 bot {bot_settings.id}', str(e))
         return False
 
 
@@ -250,12 +250,12 @@ def check_swing_sell_signal_v2(df, bot_settings, trend, averages, latest_data, p
         return False
     
     except IndexError as e:
-        logger.error(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'IndexError in check_swing_sell_signal_v2 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_sell_signal_v2 bot {bot_settings.id}', str(e))
         return False
     except Exception as e:
-        logger.error(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'Exception in check_swing_sell_signal_v2 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_sell_signal_v2 bot {bot_settings.id}', str(e))
         return False
     
     
@@ -277,12 +277,12 @@ def check_swing_buy_signal_v3(df, bot_settings, trend, averages, latest_data, pr
         return False
     
     except IndexError as e:
-        logger.error(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'IndexError in check_swing_buy_signal_v3 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_buy_signal_v3 bot {bot_settings.id}', str(e))
         return False
     except Exception as e:
-        logger.error(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'Exception in check_swing_buy_signal_v3 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_buy_signal_v3 bot {bot_settings.id}', str(e))
         return False
 
 
@@ -301,12 +301,12 @@ def check_swing_sell_signal_v3(df, bot_settings, trend, averages, latest_data, p
         return False
     
     except IndexError as e:
-        logger.error(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'IndexError in check_swing_sell_signal_v3 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_sell_signal_v3 bot {bot_settings.id}', str(e))
         return False
     except Exception as e:
-        logger.error(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'Exception in check_swing_sell_signal_v3 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_sell_signal_v3 bot {bot_settings.id}', str(e))
         return False
     
     
@@ -328,12 +328,12 @@ def check_swing_buy_signal_v4(df, bot_settings, trend, averages, latest_data, pr
         return False
     
     except IndexError as e:
-        logger.error(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'IndexError in check_swing_buy_signal_v4 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_buy_signal_v4 bot {bot_settings.id}', str(e))
         return False
     except Exception as e:
-        logger.error(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'Exception in check_swing_buy_signal_v4 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_buy_signal_v4 bot {bot_settings.id}', str(e))
         return False
 
 
@@ -352,12 +352,12 @@ def check_swing_sell_signal_v4(df, bot_settings, trend, averages, latest_data, p
         return False
     
     except IndexError as e:
-        logger.error(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'IndexError in check_swing_sell_signal_v4 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_sell_signal_v4 bot {bot_settings.id}', str(e))
         return False
     except Exception as e:
-        logger.error(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'Exception in check_swing_sell_signal_v4 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_sell_signal_v4 bot {bot_settings.id}', str(e))
         return False
     
     
@@ -390,12 +390,12 @@ def check_swing_buy_signal_v5(df, bot_settings, trend, averages, latest_data, pr
         return False
     
     except IndexError as e:
-        logger.error(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'IndexError in check_swing_buy_signal_v5 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_buy_signal_v5 bot {bot_settings.id}', str(e))
         return False
     except Exception as e:
-        logger.error(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'Exception in check_swing_buy_signal_v5 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_buy_signal_v5 bot {bot_settings.id}', str(e))
         return False
 
 
@@ -431,12 +431,12 @@ def check_swing_sell_signal_v5(df, bot_settings, trend, averages, latest_data, p
         return False
     
     except IndexError as e:
-        logger.error(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'IndexError in check_swing_sell_signal_v5 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_sell_signal_v5 bot {bot_settings.id}', str(e))
         return False
     except Exception as e:
-        logger.error(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'Exception in check_swing_sell_signal_v5 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_sell_signal_v5 bot {bot_settings.id}', str(e))
         return False
     
 def check_swing_buy_signal_v6(df, bot_settings, trend, averages, latest_data, previous_data):
@@ -472,12 +472,12 @@ def check_swing_buy_signal_v6(df, bot_settings, trend, averages, latest_data, pr
         return False
     
     except IndexError as e:
-        logger.error(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'IndexError in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'IndexError in check_swing_buy_signal_v6 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_buy_signal_v6 bot {bot_settings.id}', str(e))
         return False
     except Exception as e:
-        logger.error(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Exception in check_swing_buy_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'Exception in check_swing_buy_signal_v6 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_buy_signal_v6 bot {bot_settings.id}', str(e))
         return False
 
 
@@ -516,12 +516,12 @@ def check_swing_sell_signal_v6(df, bot_settings, trend, averages, latest_data, p
         return False
     
     except IndexError as e:
-        logger.error(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'IndexError in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'IndexError in check_swing_sell_signal_v6 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_sell_signal_v6 bot {bot_settings.id}', str(e))
         return False
     except Exception as e:
-        logger.error(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Exception in check_swing_sell_signal_with_MA200 bot {bot_settings.id}', str(e))
+        logger.error(f'Exception in check_swing_sell_signal_v6 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_sell_signal_v6 bot {bot_settings.id}', str(e))
         return False
     
     
@@ -573,4 +573,101 @@ def check_swing_sell_signal_v7(df, bot_settings, trend, averages, latest_data, p
     except Exception as e:
         logger.error(f'Exception in check_swing_sell_signal_v7 bot {bot_settings.id}: {str(e)}')
         send_admin_email(f'Exception in check_swing_sell_signal_v7 bot {bot_settings.id}', str(e))
+        return False
+    
+    
+def check_swing_buy_signal_v8(df, bot_settings, trend, averages, latest_data, previous_data):
+    from .logic_utils import is_df_valid
+    try:
+        if not is_df_valid(df, bot_settings.id):
+            return False
+
+        if (trend != 'downtrend' and 
+            float(latest_data['cci']) < float(bot_settings.cci_buy) and
+            float(latest_data['cci']) >= float(averages['avg_cci']) and
+            float(latest_data['mfi']) < float(bot_settings.mfi_buy) and
+            float(latest_data['mfi']) >= float(averages['avg_mfi']) and
+            float(latest_data['volume']) >= float(averages['avg_volume'])):
+            
+            return True
+            
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_swing_buy_signal_v8 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_buy_signal_v8 bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_swing_buy_signal_v8 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_buy_signal_v8 bot {bot_settings.id}', str(e))
+        return False
+    
+    
+def check_swing_sell_signal_v8(df, bot_settings, trend, averages, latest_data, previous_data):
+    from .logic_utils import is_df_valid
+    try:        
+        if not is_df_valid(df, bot_settings.id):
+            return False
+        
+        if (float(latest_data['cci']) >= float(bot_settings.cci_sell) and
+            float(latest_data['mfi']) >= float(bot_settings.mfi_sell)):
+            
+            return True
+        
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_swing_sell_signal_v8 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_sell_signal_v8 bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_swing_sell_signal_v8 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_sell_signal_v8 bot {bot_settings.id}', str(e))
+        return False
+    
+
+def check_swing_buy_signal_v9(df, bot_settings, trend, averages, latest_data, previous_data):
+    from .logic_utils import is_df_valid
+    try:
+        if not is_df_valid(df, bot_settings.id):
+            return False
+
+        if (trend != 'downtrend' and 
+            float(latest_data['close']) <= float(latest_data['lower_band']) and
+            float(latest_data['atr']) >= float(averages['avg_atr']) and
+            float(latest_data['volume']) >= float(averages['avg_volume'])):
+            
+            return True
+            
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_swing_buy_signal_v9 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_buy_signal_v9 bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_swing_buy_signal_v9 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_buy_signal_v9 bot {bot_settings.id}', str(e))
+        return False
+    
+    
+def check_swing_sell_signal_v9(df, bot_settings, trend, averages, latest_data, previous_data):
+    from .logic_utils import is_df_valid
+    try:        
+        if not is_df_valid(df, bot_settings.id):
+            return False
+        
+        if float(latest_data['close']) >= float(latest_data['upper_band']):
+            
+            return True
+        
+        return False
+    
+    except IndexError as e:
+        logger.error(f'IndexError in check_swing_sell_signal_v9 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'IndexError in check_swing_sell_signal_v9 bot {bot_settings.id}', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Exception in check_swing_sell_signal_v9 bot {bot_settings.id}: {str(e)}')
+        send_admin_email(f'Exception in check_swing_sell_signal_v9 bot {bot_settings.id}', str(e))
         return False

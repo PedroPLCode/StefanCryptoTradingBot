@@ -125,6 +125,9 @@ DI
 float(previous_data['plus_di']) <= float(previous_data['minus_di'])) and 
 float(latest_data['plus_di']) > float(latest_data['minus_di'])
 
+ATR
+float(latest_data['atr']) > avg_atr
+
 --
 
 EXAMPLES OF SELL SIGNALS:
@@ -185,3 +188,6 @@ DI
 (float(avg_plus_di) >= float(avg_minus_di) or
 float(previous_data['plus_di']) >= float(previous_data['minus_di'])) and 
 float(latest_data['plus_di']) < float(latest_data['minus_di'])
+
+ATR
+float(latest_data['atr']) < avg_atr
