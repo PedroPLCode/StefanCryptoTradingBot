@@ -58,7 +58,7 @@ if_not_downtrend: RSI(7, 30/70) MACD(6,12,5) Volume
 
 algorithm 2: *ready **
 (secondary for horizontal trend)
-intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
+intervals 1min, ADX(14), ATR(14, x3), AvgVolPeriod(2)
 if_not_downtrend: Stochastic(7,3) Boilinger(20,2) Volume
 
 algorithm 3: *ready **
@@ -68,7 +68,7 @@ if_not_downtrend: StochasticRSI(7,7,3) Boilinger(20,2) Volume
 
 algorithm 4: *ready ***
 (promising)
-intervals 5min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
+intervals 5min, ADX(14), ATR(14, x2), AvgVolPeriod(3)
 if_not_downtrend: RSI(7, 30/70) EMA(9,21) Volume
 
 algorithm 5: *ready **
@@ -92,12 +92,12 @@ if_trend_uptrend: DI(14) Volume
 
 algorithm 8: *ready ***
 (promising)
-intervals 5min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
-if_not_downtrend: MFI CCI Volume
+intervals 5min, ADX(14), ATR(14, x2), AvgVolPeriod(3)
+if_not_downtrend: MFI(7) CCI(7) Volume
 
 algorithm 9: *ready **
 (testing)
 intervals 5min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
-if_not_downtrend: Boilinger ATR
+if_not_downtrend: Boilinger(20,2) ATR
 
 all backtested. needs real life tests.

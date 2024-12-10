@@ -572,9 +572,11 @@ def check_scalping_buy_signal_v8(df, bot_settings, trend, averages, latest_data,
 
         if (trend != 'downtrend' and 
             float(latest_data['cci']) < float(bot_settings.cci_buy) and
-            float(latest_data['cci']) >= float(averages['avg_cci']) and
+            (float(latest_data['cci']) >= float(averages['avg_cci']) or
+            float(latest_data['cci']) >= float(previous_data['cci'])) and
             float(latest_data['mfi']) < float(bot_settings.mfi_buy) and
-            float(latest_data['mfi']) >= float(averages['avg_mfi']) and
+            (float(latest_data['mfi']) >= float(averages['avg_mfi']) or 
+            float(latest_data['mfi']) >= float(previous_data['mfi'])) and
             float(latest_data['volume']) >= float(averages['avg_volume'])):
             
             return True

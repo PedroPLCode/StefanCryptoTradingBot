@@ -65,7 +65,7 @@ def inject_gunicorn_version():
             text=True
             ).strip()
     except FileNotFoundError:
-        nginx_version = "Nginx is not installed or not found in the system PATH."
+        gunicorn_version = "Gunicorn is not installed or not found in the system PATH."
     except Exception as e:
         gunicorn_version = f"Error retrieving gunicorn version: {e}"
     return dict(gunicorn_info=gunicorn_version)
