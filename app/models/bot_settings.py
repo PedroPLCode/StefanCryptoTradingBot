@@ -10,10 +10,15 @@ class BotSettings(db.Model):
     
     use_stop_loss = db.Column(db.Boolean, default=True, nullable=False)
     use_trailing_stop_loss = db.Column(db.Boolean, default=True, nullable=False)
-    sell_signal_only_trailing_stop = db.Column(db.Boolean, default=False, nullable=False)
+    sell_signal_only_stop_loss_or_take_profit = db.Column(db.Boolean, default=False, nullable=False)
     stop_loss_pct = db.Column(db.Float, default=0.03, nullable=False)
     trailing_stop_with_atr = db.Column(db.Boolean, default=True, nullable=False)
     trailing_stop_atr_calc = db.Column(db.Float, default=2, nullable=False)
+    
+    use_take_profit = db.Column(db.Boolean, default=True, nullable=False)
+    take_profit_pct = db.Column(db.Float, default=0.03, nullable=False)
+    take_profit_with_atr = db.Column(db.Boolean, default=True, nullable=False)
+    take_profit_atr_calc = db.Column(db.Float, default=2, nullable=False)
     
     cci_buy = db.Column(db.Integer, default=-100, nullable=False)
     cci_sell = db.Column(db.Integer, default=100, nullable=False)

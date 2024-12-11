@@ -4,6 +4,7 @@ Intervals to choose: 1m, 3m, 5m, 15m
 'scalp' BTC ETH BNB SOL LTC ADA
 run interval 1m, 3m, 5m, 15m
 stop_loss_pct=0.03 or 0.01
+take_profit_pct=0.03 or 0.01
 interval="1m, 3m, 5m, 15m"
 lookback_period="45m"
 avg_adx_period=7

@@ -5,7 +5,9 @@ from .logic_utils import (
     check_trend,
     calculate_averages,
     update_stop_loss,
-    update_atr_trailing_stop_loss
+    update_atr_trailing_stop_loss,
+    calculate_take_profit,
+    calculate_atr_take_profit
 )
 from .backtesting_utils import (
     calculate_backtest_scalp_indicators,
@@ -42,12 +44,16 @@ def backtest_strategy(df, bot_settings, backtest_settings):
     symbol = bot_settings.symbol
     cryptocoin_symbol = symbol[:3]
     stablecoin_symbol = symbol[-4:]
+    
     initial_balance = backtest_settings.initial_balance
     crypto_balance = backtest_settings.crypto_balance
     usdc_balance = initial_balance
+    
     current_price = None
     stop_loss_price = 0
+    take_profit_price = 0
     previous_price = None
+    
     trade_log = []
     
     logger.trade(f"Starting backtest with initial balance: {stablecoin_symbol} {usdc_balance}, {cryptocoin_symbol} {crypto_balance}")
@@ -81,9 +87,13 @@ def backtest_strategy(df, bot_settings, backtest_settings):
             latest_data = loop_df.iloc[-1]
             previous_data = loop_df.iloc[-2]
             current_price = float(latest_data['close'])
+            
             buy_signal_func, sell_signal_func = select_signals_checkers(bot_settings)
+            
             trend = check_trend(loop_df)
+            
             averages = calculate_averages(loop_df, bot_settings)
+            
             buy_signal = buy_signal_func(
                 loop_df, 
                 bot_settings, 
@@ -92,6 +102,7 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                 latest_data, 
                 previous_data
                 )
+            
             sell_signal = sell_signal_func(
                 loop_df, 
                 bot_settings, 
@@ -100,23 +111,51 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                 latest_data, 
                 previous_data
                 )
-            stop_loss_activated = current_price <= stop_loss_price
             
-            full_sell_signal = stop_loss_activated or sell_signal
-            if bot_settings.sell_signal_only_trailing_stop:
-                full_sell_signal = stop_loss_activated
+            stop_loss_activated = False
+            if bot_settings.use_stop_loss and current_price <= stop_loss_price:
+                stop_loss_activated = True
+            
+            take_profit_activated = False
+            if bot_settings.use_take_profit and current_price >= take_profit_price:
+                take_profit_activated = True
+            
+            full_sell_signal = stop_loss_activated or take_profit_activated or sell_signal
+            if bot_settings.sell_signal_only_stop_loss_or_take_profit:
+                full_sell_signal = stop_loss_activated or take_profit_activated
 
             atr = loop_df['atr'].iloc[-1] if 'atr' in loop_df.columns else 0
+            
             price_rises = current_price >= previous_price if previous_price is not None else False
             
             if buy_signal and usdc_balance > 0:
                 crypto_balance = usdc_balance / current_price
                 usdc_balance = 0
-                stop_loss_price = update_stop_loss(
-                    current_price, 
-                    stop_loss_price, 
-                    bot_settings
-                )
+        
+                stop_loss_price = 0
+                take_profit_price = 0
+                
+                if bot_settings.use_stop_loss:
+                    stop_loss_price = update_stop_loss(
+                        current_price, 
+                        stop_loss_price, 
+                        bot_settings
+                    )
+                    
+                    if bot_settings.trailing_stop_with_atr:
+                        stop_loss_price = update_atr_trailing_stop_loss(
+                            current_price, 
+                            stop_loss_price, 
+                            atr,
+                            bot_settings
+                        )
+                    
+                if bot_settings.use_take_profit:
+                    take_profit_price = calculate_take_profit(current_price, bot_settings)
+                    
+                    if bot_settings.take_profit_with_atr:
+                        take_profit_price = calculate_atr_take_profit(current_price, atr, bot_settings)
+                
                 update_trade_log(
                     'buy', 
                     trade_log, 
@@ -124,13 +163,16 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                     latest_data, 
                     crypto_balance, 
                     usdc_balance, 
-                    stop_loss_price
+                    stop_loss_price,
+                    take_profit_price
                 )
         
             elif full_sell_signal and crypto_balance > 0:
                 usdc_balance = crypto_balance * current_price
                 crypto_balance = 0
                 stop_loss_price = 0
+                take_profit_price = 0
+                
                 update_trade_log(
                     'sell', 
                     trade_log, 
@@ -138,15 +180,18 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                     latest_data, 
                     crypto_balance, 
                     usdc_balance, 
-                    stop_loss_price
+                    stop_loss_price,
+                    take_profit_price
                 )
             
             elif crypto_balance > 0 and price_rises:
+                
                 stop_loss_price = update_stop_loss(
                     current_price, 
                     stop_loss_price, 
                     bot_settings
                     )
+                
                 if bot_settings.trailing_stop_with_atr:
                     stop_loss_price = update_atr_trailing_stop_loss(
                         current_price, 

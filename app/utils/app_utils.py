@@ -239,6 +239,7 @@ def generate_trade_report(period):
                                     f"buy_price: {trade.buy_price:.2f} {trade.bot_settings.symbol[-4:]}\n"
                                     f"sell_price: {trade.sell_price:.2f} {trade.bot_settings.symbol[-4:]}\n"
                                     f"stop_loss_price: {trade.stop_loss_price}\n"
+                                    f"take_profit_price: {trade.take_profit_price}\n"
                                     f"price_rises_counter: {trade.price_rises_counter}\n"
                                     f"profit_percentage: {profit_percentage:.2f}%\n\n")
         return report_data
