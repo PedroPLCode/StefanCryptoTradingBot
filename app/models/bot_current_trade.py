@@ -8,7 +8,7 @@ class BotCurrentTrade(db.Model):
     buy_price = db.Column(db.Float, default=0, nullable=True)
     current_price = db.Column(db.Float, default=0, nullable=True)
     previous_price = db.Column(db.Float, default=0, nullable=True)
-    trailing_stop_loss = db.Column(db.Float, default=0, nullable=True)
+    stop_loss_price = db.Column(db.Float, default=0, nullable=True)
     price_rises_counter = db.Column(db.Integer, default=0, nullable=True)
     buy_timestamp = db.Column(db.DateTime, default=db.func.current_timestamp(), nullable=True)
     

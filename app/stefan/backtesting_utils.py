@@ -338,7 +338,7 @@ def update_trade_log(
     latest_data, 
     crypto_balance, 
     usdc_balance, 
-    trailing_stop_loss
+    stop_loss_price
     ):
     
     trade_log.append({
@@ -347,7 +347,7 @@ def update_trade_log(
         'time': int(latest_data['open_time']),
         'crypto_balance': float(crypto_balance),
         'usdc_balance': float(usdc_balance),
-        'trailing_stop_loss': float(trailing_stop_loss)
+        'stop_loss_price': float(stop_loss_price)
     })
     
     

@@ -3,7 +3,7 @@ Intervals to choose: 30m, 1h, 4h, 1d
 
 'swing' BTC ETH BNB SOL LTC ADA
 run interval 30m, 1h, 4h, 1d
-trailing_stop_pct=0.05 or 0.03
+stop_loss_pct=0.05 or 0.03
 interval="30m/1h/4h/1d"
 lookback_period="1d/?"
 avg_adx_period=7

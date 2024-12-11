@@ -8,8 +8,10 @@ class BotSettings(db.Model):
     algorithm = db.Column(db.Integer, default=1, nullable=False)
     comment = db.Column(db.String(1024), nullable=True, unique=False)
     
-    trailing_stop_pct = db.Column(db.Float, default=0.03, nullable=False)
+    use_stop_loss = db.Column(db.Boolean, default=True, nullable=False)
+    use_trailing_stop_loss = db.Column(db.Boolean, default=True, nullable=False)
     sell_signal_only_trailing_stop = db.Column(db.Boolean, default=False, nullable=False)
+    stop_loss_pct = db.Column(db.Float, default=0.03, nullable=False)
     trailing_stop_with_atr = db.Column(db.Boolean, default=True, nullable=False)
     trailing_stop_atr_calc = db.Column(db.Float, default=2, nullable=False)
     

@@ -82,9 +82,9 @@
                                         Crypto Balance: {{ trade.crypto_balance }} 
                                         <br>
                                         USDC Balance: {{ trade.usdc_balance }} 
-                                        {% if trade.trailing_stop_loss %}
+                                        {% if trade.stop_loss_price %}
                                             <br>
-                                            Trailing Stop Loss: {{ trade.trailing_stop_loss }}
+                                            Stop Loss Price: {{ trade.stop_loss_price }}
                                         {% endif %}
                                     </li>
                                     {% endfor %}

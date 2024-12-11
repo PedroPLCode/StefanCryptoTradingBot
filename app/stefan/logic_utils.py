@@ -106,7 +106,9 @@ def get_current_price(df, bot_id):
 
 def manage_trading_logic(bot_settings, current_trade, current_price, df):
     try:
-        trailing_stop_price = float(current_trade.trailing_stop_loss)
+        use_stop_loss = bot_settings.use_stop_loss
+        trailing_stop_price = float(current_trade.stop_loss_price)
+        use_trailing_stop_loss = bot_settings.use_trailing_stop_loss
         previous_price = float(current_trade.previous_price if current_trade.is_active else 0)
         price_rises = current_price > previous_price if current_trade.is_active else False
         trend = check_trend(df, bot_settings)
@@ -123,7 +125,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
             )
 
         stop_loss_activated = False
-        if current_price <= trailing_stop_price:
+        if use_stop_loss and current_price <= trailing_stop_price:
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} stop loss activated.")
             stop_loss_activated = True
             
@@ -137,8 +139,10 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
             execute_buy_order(bot_settings, current_price, atr)
         elif current_trade.is_active and full_sell_signal:
             execute_sell_order(bot_settings, current_trade, current_price)
-        elif current_trade.is_active and price_rises:
+        elif current_trade.is_active and use_trailing_stop_loss and price_rises:
             update_trailing_stop(bot_settings, current_trade, current_price, atr)
+        elif current_trade.is_active and not use_trailing_stop_loss:
+            update_current_trade(bot_id=bot_settings.id, current_price=current_price, previous_price=current_price)
         else:
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} no trade signal.")
         
@@ -308,19 +312,23 @@ def execute_buy_order(bot_settings, current_price, atr_value):
 
         if buy_success:
             
-            trailing_stop_price = update_trailing_stop_loss(
-                current_price, 
-                0, 
-                bot_settings
-            )
+            stop_loss_price = 0
             
-            if bot_settings.trailing_stop_with_atr:
-                trailing_stop_price = update_atr_trailing_stop_loss(
+            if bot_settings.use_stop_loss:
+                
+                stop_loss_price = update_stop_loss(
                     current_price, 
                     0, 
-                    atr_value,
                     bot_settings
                 )
+                
+                if bot_settings.trailing_stop_with_atr:
+                    stop_loss_price = update_atr_trailing_stop_loss(
+                        current_price, 
+                        0, 
+                        atr_value,
+                        bot_settings
+                    )
                 
             update_current_trade(
                 bot_id=bot_settings.id,
@@ -329,7 +337,7 @@ def execute_buy_order(bot_settings, current_price, atr_value):
                 current_price=current_price,
                 previous_price=current_price,
                 buy_price=current_price,
-                trailing_stop_loss=trailing_stop_price,
+                stop_loss_price=stop_loss_price,
                 buy_timestamp=dt.now()
             )
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} buy process completed.")
@@ -341,7 +349,7 @@ def execute_buy_order(bot_settings, current_price, atr_value):
                     f"buy process.\n"
                     f"amount: {amount}\n"
                     f"buy_price: {current_price}\n"
-                    f"trailing_stop_price: {trailing_stop_price}\n"
+                    f"stop_loss_price: {stop_loss_price}\n"
                     f"buy_timestamp: {dt.now()}\n"
                     f"buy_success: {buy_success}"
                 ),
@@ -364,7 +372,7 @@ def execute_sell_order(bot_settings, current_trade, current_price):
                 amount=amount,
                 buy_price=current_trade.buy_price,
                 sell_price=current_price,
-                trailing_stop_loss=current_trade.trailing_stop_loss,
+                stop_loss_price=current_trade.stop_loss_price,
                 price_rises_counter=current_trade.price_rises_counter,
                 buy_timestamp=current_trade.buy_timestamp
             )
@@ -376,7 +384,7 @@ def execute_sell_order(bot_settings, current_trade, current_price):
                 current_price=0,
                 previous_price=0,
                 buy_price=0,
-                trailing_stop_loss=0,
+                stop_loss_price=0,
                 reset_price_rises_counter=True,
             )
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell process completed.")
@@ -389,7 +397,7 @@ def execute_sell_order(bot_settings, current_trade, current_price):
                             f"amount: {amount}\n"
                             f"buy_price: {current_trade.buy_price}\n"
                             f"sell_price: {current_price}\n"
-                            f"trailing_stop_price: {current_trade.trailing_stop_loss}\n"
+                            f"stop_loss_price: {current_trade.stop_loss_price}\n"
                             f"price_rises_counter: {current_trade.price_rises_counter}\n"
                             f"buy_timestamp: {current_trade.buy_timestamp}\n"
                             f"sell_timestamp: {dt.now()}\n"
@@ -406,16 +414,16 @@ def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
     try:
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price rises.")
         
-        trailing_stop_price = update_trailing_stop_loss(
+        trailing_stop_price = update_stop_loss(
             current_price, 
-            float(current_trade.trailing_stop_loss), 
+            float(current_trade.stop_loss_price), 
             bot_settings
         )
         
         if bot_settings.trailing_stop_with_atr:
             trailing_stop_price = update_atr_trailing_stop_loss(
                 current_price, 
-                float(current_trade.trailing_stop_loss), 
+                float(current_trade.stop_loss_price), 
                 atr_value, bot_settings
             )
         
@@ -423,7 +431,7 @@ def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
             bot_id=bot_settings.id,
             current_price=current_price,
             previous_price=current_price,
-            trailing_stop_loss=trailing_stop_price,
+            stop_loss_price=trailing_stop_price,
             price_rises=True
         )
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} previous price and trailing stop loss updated.")
@@ -447,21 +455,21 @@ def round_down_to_step_size(amount, step_size):
             send_admin_email(f'Exception in round_down_to_step_size', str(e))
         
 
-def update_trailing_stop_loss(current_price, trailing_stop_price, bot_settings):
+def update_stop_loss(current_price, trailing_stop_price, bot_settings):
     try:
         trailing_stop_price = float(trailing_stop_price)
         current_price = float(current_price)
-        new_stop_price = current_price * (1 - bot_settings.trailing_stop_pct)
+        new_stop_price = current_price * (1 - bot_settings.stop_loss_pct)
 
         return max(trailing_stop_price, new_stop_price)
 
     except ValueError as e:
-        logger.error(f"ValueError in update_trailing_stop_loss: {str(e)}")
-        send_admin_email(f'ValueError in update_trailing_stop_loss', str(e))
+        logger.error(f"ValueError in update_stop_loss: {str(e)}")
+        send_admin_email(f'ValueError in update_stop_loss', str(e))
         return trailing_stop_price
     except Exception as e:
-        logger.error(f"Exception in update_trailing_stop_loss: {str(e)}")
-        send_admin_email(f'Exception in update_trailing_stop_loss', str(e))
+        logger.error(f"Exception in update_stop_loss: {str(e)}")
+        send_admin_email(f'Exception in update_stop_loss', str(e))
         return trailing_stop_price
     
     
@@ -472,7 +480,7 @@ def update_atr_trailing_stop_loss(current_price, trailing_stop_price, atr, bot_s
         atr = float(atr)
         
         dynamic_trailing_stop = current_price * (1 - (bot_settings.trailing_stop_atr_calc * atr / current_price))
-        minimal_trailing_stop = current_price * (1 - bot_settings.trailing_stop_pct)
+        minimal_trailing_stop = current_price * (1 - bot_settings.stop_loss_pct)
         new_trailing_stop = max(dynamic_trailing_stop, minimal_trailing_stop)
 
         return max(trailing_stop_price, new_trailing_stop)
@@ -494,7 +502,7 @@ def update_current_trade(
     buy_price=None, 
     current_price=None, 
     previous_price=None, 
-    trailing_stop_loss=None,
+    stop_loss_price=None,
     buy_timestamp=None,
     price_rises=None,
     reset_price_rises_counter=None
@@ -515,8 +523,8 @@ def update_current_trade(
                 current_trade.current_price = current_price
             if previous_price != None:
                 current_trade.previous_price = previous_price
-            if trailing_stop_loss != None:
-                current_trade.trailing_stop_loss = trailing_stop_loss
+            if stop_loss_price != None:
+                current_trade.stop_loss_price = stop_loss_price
             if buy_timestamp != None:
                 current_trade.buy_timestamp = buy_timestamp
             if price_rises != None:
@@ -555,7 +563,7 @@ def update_trade_history(
     amount, 
     buy_price, 
     sell_price,
-    trailing_stop_loss,
+    stop_loss_price,
     price_rises_counter,
     buy_timestamp
     ):
@@ -579,7 +587,7 @@ def update_trade_history(
             buy_price=buy_price,
             sell_price=sell_price,
             stablecoin_balance=stablecoin_balance,
-            trailing_stop_loss=trailing_stop_loss,
+            stop_loss_price=stop_loss_price,
             price_rises_counter=price_rises_counter,
             buy_timestamp=buy_timestamp,
             sell_timestamp=dt.now()

@@ -4,7 +4,7 @@ from .api_utils import fetch_data
 from .logic_utils import (
     check_trend,
     calculate_averages,
-    update_trailing_stop_loss,
+    update_stop_loss,
     update_atr_trailing_stop_loss
 )
 from .backtesting_utils import (
@@ -46,7 +46,7 @@ def backtest_strategy(df, bot_settings, backtest_settings):
     crypto_balance = backtest_settings.crypto_balance
     usdc_balance = initial_balance
     current_price = None
-    trailing_stop_loss = 0
+    stop_loss_price = 0
     previous_price = None
     trade_log = []
     
@@ -100,7 +100,7 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                 latest_data, 
                 previous_data
                 )
-            stop_loss_activated = current_price <= trailing_stop_loss
+            stop_loss_activated = current_price <= stop_loss_price
             
             full_sell_signal = stop_loss_activated or sell_signal
             if bot_settings.sell_signal_only_trailing_stop:
@@ -112,9 +112,9 @@ def backtest_strategy(df, bot_settings, backtest_settings):
             if buy_signal and usdc_balance > 0:
                 crypto_balance = usdc_balance / current_price
                 usdc_balance = 0
-                trailing_stop_loss = update_trailing_stop_loss(
+                stop_loss_price = update_stop_loss(
                     current_price, 
-                    trailing_stop_loss, 
+                    stop_loss_price, 
                     bot_settings
                 )
                 update_trade_log(
@@ -124,13 +124,13 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                     latest_data, 
                     crypto_balance, 
                     usdc_balance, 
-                    trailing_stop_loss
+                    stop_loss_price
                 )
         
             elif full_sell_signal and crypto_balance > 0:
                 usdc_balance = crypto_balance * current_price
                 crypto_balance = 0
-                trailing_stop_loss = 0
+                stop_loss_price = 0
                 update_trade_log(
                     'sell', 
                     trade_log, 
@@ -138,19 +138,19 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                     latest_data, 
                     crypto_balance, 
                     usdc_balance, 
-                    trailing_stop_loss
+                    stop_loss_price
                 )
             
             elif crypto_balance > 0 and price_rises:
-                trailing_stop_loss = update_trailing_stop_loss(
+                stop_loss_price = update_stop_loss(
                     current_price, 
-                    trailing_stop_loss, 
+                    stop_loss_price, 
                     bot_settings
                     )
                 if bot_settings.trailing_stop_with_atr:
-                    trailing_stop_loss = update_atr_trailing_stop_loss(
+                    stop_loss_price = update_atr_trailing_stop_loss(
                         current_price, 
-                        trailing_stop_loss, 
+                        stop_loss_price, 
                         atr, 
                         bot_settings
                         )
