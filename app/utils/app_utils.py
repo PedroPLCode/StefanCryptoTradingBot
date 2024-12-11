@@ -140,6 +140,7 @@ def send_logs_via_email_and_clear_logs():
     for log in logs:
         log_file_path = os.path.join(os.getcwd(), log)
         now = datetime.now()
+        formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
         today = now.strftime('%Y-%m-%d')
         subject = f"{today} Daily Logs"
         
@@ -150,7 +151,7 @@ def send_logs_via_email_and_clear_logs():
                     
                 send_admin_email(
                     f"{subject}: {log}", 
-                    f"StafanCryptoTradingBot daily logs.\n{now}\n\n{log}\n\n{log_content}"
+                    f"StafanCryptoTradingBot daily logs.\n{formatted_now}\n\n{log}\n\n{log_content}"
                     )
                 logger.info(f"Successfully sent email with log: {log}")
             else:
@@ -188,6 +189,7 @@ def clear_logs():
 
 def generate_trade_report(period):
     now = datetime.now()
+    formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
     
     try:
         if period == '24h':
@@ -201,7 +203,7 @@ def generate_trade_report(period):
         
         report_data = (
             f"StafanCryptoTradingBot daily trades report.\n"
-            f"{now}\n\n"
+            f"{formatted_now}\n\n"
             f"All trades in last {period}.\n\n"
         )
 
@@ -312,6 +314,7 @@ def send_trade_email(subject, body):
 
 def clear_old_trade_history():
     now = datetime.now()
+    formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
     today = now.strftime('%Y-%m-%d')
     
     try:
@@ -330,7 +333,7 @@ def clear_old_trade_history():
                 errors.append(error_message)
                 continue
             
-            period_to_clean = datetime.now() - timedelta(days=days_to_clean_history)
+            period_to_clean = now - timedelta(days=days_to_clean_history)
             
             deleted_count = db.session.query(TradesHistory).filter(
                 TradesHistory.bot_id == bot_settings.id,
@@ -356,12 +359,12 @@ def clear_old_trade_history():
 
         summary_message = (
             f"StafanCryptoTradingBot daily cleaning report.\n"
-            f"{now}\n\nDays to clean history: {days_to_clean_history}\n\n"
+            f"{formatted_now}\n\nDays to clean history: {days_to_clean_history}\n\n"
         )
         error_message = (
             f"StafanCryptoTradingBot daily cleaning.\n"
             f"Errors during trade history cleaning.\n"
-            f"Date {now.strftime('%Y-%m-%d')}\n\n"
+            f"{formatted_now}\n\n"
         )
         
         if summary_logs:
