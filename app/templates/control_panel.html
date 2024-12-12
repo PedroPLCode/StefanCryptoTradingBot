@@ -49,13 +49,14 @@
                                 <p class="text-muted m-0 p-0">Strategy: {{ bot_info.strategy | upper }}</p>
                                 <p class="text-muted m-0 p-0">Algorithm: {{ bot_info.algorithm }}</p>
                                 <p class="text-muted m-0 p-0">Comment: {{ bot_info.comment }}</p>
-                                <p class="text-muted m-0 p-0 border-bottom">Interval: {{ bot_info.interval }}</p>
+                                <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>
                                 <p class="text-muted m-0 p-0">Lookback Period: {{ bot_info.lookback_period }}</p>
-                                <p class="text-muted m-0 p-0">Capital utilization: {{ bot_info.capital_utilization_pct }}%</p>
+                                
+                                <p class="text-muted m-0 p-0 border-bottom">Capital utilization: {{ bot_info.capital_utilization_pct }}%</p>
 
                                 {% for balance in bot_info.balance %}
                                     {% if balance.asset != 'USDC' %}
-                                        <p class="text-muted m-0 p-0">Current {{ balance.asset }} Price: {{ balance.price }} USDC</p>
+                                        <p class="text-muted m-0 p-0 border-bottom">Current {{ balance.asset }} Price: {{ balance.price }} USDC</p>
                                     {% endif %}
                                 {% endfor %}
                                 {% for balance in bot_info.balance %}
@@ -69,7 +70,7 @@
                                     {% else %}
                                         {% set previous_balance = None %}
                                     {% endif %}
-                                    <p class="text-muted m-0 p-0">
+                                    <p class="text-muted m-0 p-0 border-bottom">
                                         Balance {{ balance.asset }}: {{ balance.amount }} 
                                         ( 
                                             {% if balance.amount != 0 %}
@@ -87,7 +88,7 @@
                                     </p>
                                 {% endfor %}
                                 
-                                <p class="text-muted m-0 p-0 border-top">Stop Loss Enabled: <span class="{{ 'text-success' if bot_info.use_stop_loss else 'text-danger' }}">{{ bot_info.use_stop_loss }}</span></p>
+                                <p class="text-muted m-0 p-0">Stop Loss Enabled: <span class="{{ 'text-success' if bot_info.use_stop_loss else 'text-danger' }}">{{ bot_info.use_stop_loss }}</span></p>
                                 <p class="text-muted m-0 p-0">Trailing Stop Loss Enabled: {{ bot_info.use_trailing_stop_loss }}</p>
                                 <p class="text-muted m-0 p-0">Stop Loss pct: {{ bot_info.stop_loss_pct }}%</p>
                                 <p class="text-muted m-0 p-0">ATR Trailing Stop Loss: {{ bot_info.trailing_stop_with_atr }}</p>
