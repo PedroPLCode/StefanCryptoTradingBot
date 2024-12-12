@@ -31,7 +31,7 @@ def create_binance_client(bot_id=None, testnet=False):
     except Exception as e:
         from ..utils.app_utils import send_admin_email
         logger.error(f"Bot {bot_id if bot_id else 'undefined'} Exception in create_binance_client: {str(e)}")
-        send_admin_email(f'Bot {bot_id if bot_id else 'undefined'} Exception in create_binance_client', str(e))
+        send_admin_email(f"Bot {bot_id if bot_id else 'undefined'} Exception in create_binance_client", str(e))
 
 general_client = create_binance_client(None)
 
