@@ -393,20 +393,20 @@ def fetch_account_status(bot_id=None):
             return status
         
     except BinanceAPIException as e:
-        logger.error(f'Bot {bot_id if bot_id else 'undefined'} BinanceAPIException in fetch_account_status: {str(e)}')
-        send_admin_email(f'Bot {bot_id if bot_id else 'undefined'} BinanceAPIException in fetch_account_status', str(e))
+        logger.error(f"Bot {bot_id if bot_id else 'undefined'} BinanceAPIException in fetch_account_status: {str(e)}")
+        send_admin_email(f"Bot {bot_id if bot_id else 'undefined'} BinanceAPIException in fetch_account_status", str(e))
         return None
     except ConnectionError as e:
         logger.error(f"Bot {bot_id if bot_id else 'undefined'} ConnectionError in fetch_account_status: {str(e)}")
-        send_admin_email(f'Bot {bot_id if bot_id else 'undefined'} ConnectionError in fetch_account_status', str(e))
+        send_admin_email(f"Bot {bot_id if bot_id else 'undefined'} ConnectionError in fetch_account_status", str(e))
         return None
     except TimeoutError as e:
         logger.error(f"Bot {bot_id if bot_id else 'undefined'} TimeoutError in fetch_account_status: {str(e)}")
-        send_admin_email(f'Bot {bot_id if bot_id else 'undefined'} TimeoutError in fetch_account_status', str(e))
+        send_admin_email(f"Bot {bot_id if bot_id else 'undefined'} TimeoutError in fetch_account_status", str(e))
         return None
     except Exception as e:
         logger.error(f"Bot {bot_id if bot_id else 'undefined'} Exception in fetch_account_status: {str(e)}")
-        send_admin_email(f'Bot {bot_id if bot_id else 'undefined'} Exception in fetch_account_status', str(e))
+        send_admin_email(f"Bot {bot_id if bot_id else 'undefined'} Exception in fetch_account_status", str(e))
         return None
 
 
