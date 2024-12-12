@@ -36,9 +36,9 @@ def start_bot(bot_id):
         return redirect(url_for('main.control_panel_view'))
 
     except Exception as e:
-        logger.error(f'Exception in start_bot bot {bot_id}: {str(e)}')
+        logger.error(f'Bot {bot_id} Exception in start_bot: {str(e)}')
         flash(f'Error while starting bot {bot_id}.', 'danger')
-        send_admin_email(f'Exception in start_bot bot {bot_id}', str(e))
+        send_admin_email(f'Bot {bot_id} Exception in start_bot', str(e))
         return redirect(url_for('main.control_panel_view'))
 
 
@@ -65,9 +65,9 @@ def stop_bot(bot_id):
         return redirect(url_for('main.control_panel_view'))
 
     except Exception as e:
-        logger.error(f'Exception in stop_bot bot {bot_id}: {str(e)}')
+        logger.error(f'Bot {bot_id} Exception in stop_bot: {str(e)}')
         flash(f'An error occurred while stopping bot {bot_id}.', 'danger')
-        send_admin_email(f'Exception in stop_bot bot {bot_id}', str(e))
+        send_admin_email(f'Bot {bot_id} Exception in stop_bot', str(e))
         return redirect(url_for('main.control_panel_view'))
     
 
@@ -147,9 +147,9 @@ def report():
             send_email(email, subject, report_body)
             flash(f'Email to {email} sent successfully.', 'success')
     except Exception as e:
-        logger.error(f'Exception in report email {email}: {str(e)}')
+        logger.error(f'Exception in report email: {email}: {str(e)}')
         flash('An error occurred while sending the email. The admin has been notified.', 'danger')
-        send_admin_email(f'Exception in report email {email}', str(e))
+        send_admin_email(f'Exception in report email: {email}', str(e))
     
     return redirect(url_for('main.control_panel_view'))
 
@@ -174,8 +174,8 @@ def fetch_and_save_data_for_backtest():
         return redirect(url_for('main.backtest_panel_view'))
 
     except Exception as e:
-        logger.error(f'Exception in load_data_for_backtest: {str(e)}')
-        send_admin_email('Exception in load_data_for_backtest', str(e))
+        logger.error(f'Exception in fetch_and_save_data_for_backtest: {str(e)}')
+        send_admin_email('Exception in fetch_and_save_data_for_backtest', str(e))
         flash('An error occurred while Loading data for backtest. The admin has been notified.', 'danger')
         return redirect(url_for('main.backtest_panel_view'))
     
@@ -206,7 +206,7 @@ def run_backtest():
         return redirect(url_for('main.backtest_panel_view'))
 
     except Exception as e:
-        logger.error(f'Exception in run_backtest: {str(e)}')
-        send_admin_email('Exception in run_backtest', str(e))
+        logger.error(f'Bot {bot_settings.id} Exception in run_backtest: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in run_backtest', str(e))
         flash('An error occurred while running backtest. The admin has been notified.', 'danger')
         return redirect(url_for('main.backtest_panel_view'))

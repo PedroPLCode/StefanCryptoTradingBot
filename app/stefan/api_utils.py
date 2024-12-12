@@ -30,8 +30,8 @@ def create_binance_client(bot_id=None, testnet=False):
         return Client(api_key, api_secret, testnet=testnet)
     except Exception as e:
         from ..utils.app_utils import send_admin_email
-        logger.error(f"Exception in create_binance_client: {str(e)}")
-        send_admin_email(f'Exception in create_binance_client', str(e))
+        logger.error(f"Bot {bot_id if bot_id else 'undefined'} Exception in create_binance_client: {str(e)}")
+        send_admin_email(f'Bot {bot_id if bot_id else 'undefined'} Exception in create_binance_client', str(e))
 
 general_client = create_binance_client(None)
 
@@ -171,20 +171,20 @@ def get_minimum_order_quantity(bot_id, symbol):
         return 0, 0
     
     except BinanceAPIException as e:
-        logger.error(f'BinanceAPIException in get_minimum_order_quantity: {str(e)}')
-        send_admin_email(f'BinanceAPIException in get_minimum_order_quantity', str(e))
+        logger.error(f'Bot {bot_id} BinanceAPIException in get_minimum_order_quantity: {str(e)}')
+        send_admin_email(f'Bot {bot_id} BinanceAPIException in get_minimum_order_quantity', str(e))
         return None, 0
     except ConnectionError as e:
-        logger.error(f"ConnectionError in get_minimum_order_quantity: {str(e)}")
-        send_admin_email(f'ConnectionError in get_minimum_order_quantity', str(e))
+        logger.error(f"Bot {bot_id} ConnectionError in get_minimum_order_quantity: {str(e)}")
+        send_admin_email(f'Bot {bot_id} ConnectionError in get_minimum_order_quantity', str(e))
         return None, 0
     except TimeoutError as e:
-        logger.error(f"TimeoutError in get_minimum_order_quantity: {str(e)}")
-        send_admin_email(f'TimeoutError in get_minimum_order_quantity', str(e))
+        logger.error(f"Bot {bot_id} TimeoutError in get_minimum_order_quantity: {str(e)}")
+        send_admin_email(f'Bot {bot_id} TimeoutError in get_minimum_order_quantity', str(e))
         return None, 0
     except Exception as e:
-        logger.error(f"Exception in get_minimum_order_quantity: {str(e)}")
-        send_admin_email(f'Exception in get_minimum_order_quantity', str(e))
+        logger.error(f"Bot {bot_id} Exception in get_minimum_order_quantity: {str(e)}")
+        send_admin_email(f'Bot {bot_id} Exception in get_minimum_order_quantity', str(e))
         return None, 0
     
     
@@ -201,20 +201,20 @@ def get_minimum_order_value(bot_id, symbol):
         return None
     
     except BinanceAPIException as e:
-        logger.error(f'BinanceAPIException in get_minimum_order_value: {str(e)}')
-        send_admin_email(f'BinanceAPIException in get_minimum_order_value', str(e))
+        logger.error(f'Bot {bot_id} BinanceAPIException in get_minimum_order_value: {str(e)}')
+        send_admin_email(f'Bot {bot_id} BinanceAPIException in get_minimum_order_value', str(e))
         return None
     except ConnectionError as e:
-        logger.error(f"ConnectionError in get_minimum_order_value: {str(e)}")
-        send_admin_email(f'ConnectionError in get_minimum_order_value', str(e))
+        logger.error(f"Bot {bot_id} ConnectionError in get_minimum_order_value: {str(e)}")
+        send_admin_email(f'Bot {bot_id} ConnectionError in get_minimum_order_value', str(e))
         return None
     except TimeoutError as e:
-        logger.error(f"TimeoutError in get_minimum_order_value: {str(e)}")
-        send_admin_email(f'TimeoutError in get_minimum_order_value', str(e))
+        logger.error(f"Bot {bot_id} TimeoutError in get_minimum_order_value: {str(e)}")
+        send_admin_email(f'Bot {bot_id} TimeoutError in get_minimum_order_value', str(e))
         return None
     except Exception as e:
-        logger.error(f"Exception in get_minimum_order_value: {str(e)}")
-        send_admin_email(f'Exception in get_minimum_order_value', str(e))
+        logger.error(f"Bot {bot_id} Exception in get_minimum_order_value: {str(e)}")
+        send_admin_email(f'Bot {bot_id} Exception in get_minimum_order_value', str(e))
         return None
 
 
@@ -393,20 +393,20 @@ def fetch_account_status(bot_id=None):
             return status
         
     except BinanceAPIException as e:
-        logger.error(f'BinanceAPIException in fetch_account_status: {str(e)}')
-        send_admin_email(f'BinanceAPIException in fetch_account_status', str(e))
+        logger.error(f'Bot {bot_id if bot_id else 'undefined'} BinanceAPIException in fetch_account_status: {str(e)}')
+        send_admin_email(f'Bot {bot_id if bot_id else 'undefined'} BinanceAPIException in fetch_account_status', str(e))
         return None
     except ConnectionError as e:
-        logger.error(f"ConnectionError in fetch_account_status: {str(e)}")
-        send_admin_email(f'ConnectionError in fetch_account_status', str(e))
+        logger.error(f"Bot {bot_id if bot_id else 'undefined'} ConnectionError in fetch_account_status: {str(e)}")
+        send_admin_email(f'Bot {bot_id if bot_id else 'undefined'} ConnectionError in fetch_account_status', str(e))
         return None
     except TimeoutError as e:
-        logger.error(f"TimeoutError in fetch_account_status: {str(e)}")
-        send_admin_email(f'TimeoutError in fetch_account_status', str(e))
+        logger.error(f"Bot {bot_id if bot_id else 'undefined'} TimeoutError in fetch_account_status: {str(e)}")
+        send_admin_email(f'Bot {bot_id if bot_id else 'undefined'} TimeoutError in fetch_account_status', str(e))
         return None
     except Exception as e:
-        logger.error(f"Exception in fetch_account_status: {str(e)}")
-        send_admin_email(f'Exception in fetch_account_status', str(e))
+        logger.error(f"Bot {bot_id if bot_id else 'undefined'} Exception in fetch_account_status: {str(e)}")
+        send_admin_email(f'Bot {bot_id if bot_id else 'undefined'} Exception in fetch_account_status', str(e))
         return None
 
 

@@ -168,10 +168,10 @@ def calculate_backtest_scalp_indicators(df, bot_settings):
         return df
     
     except IndexError as e:
-        logger.error(f'IndexError in calculate_scalp_indicators bot {bot_settings.id}: {str(e)}')
+        logger.error(f'Bot {bot_settings.id} IndexError in calculate_scalp_indicators: {str(e)}')
         return False
     except Exception as e:
-        logger.error(f'Exception in calculate_scalp_indicators bot {bot_settings.id}: {str(e)}')
+        logger.error(f'Bot {bot_settings.id} Exception in calculate_scalp_indicators: {str(e)}')
         return False
 
 
@@ -295,10 +295,10 @@ def calculate_backtest_swing_indicators(df, df_for_ma, bot_settings):
         return df
 
     except IndexError as e:
-        logger.error(f'IndexError in calculate_swing_indicators bot {bot_settings.id}: {str(e)}')
+        logger.error(f'Bot {bot_settings.id} IndexError in calculate_swing_indicators: {str(e)}')
         return False
     except Exception as e:
-        logger.error(f'Exception in calculate_swing_indicators bot {bot_settings.id}: {str(e)}')
+        logger.error(f'Bot {bot_settings.id} Exception in calculate_swing_indicators: {str(e)}')
         return False
 
 

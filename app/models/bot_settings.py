@@ -50,8 +50,8 @@ class BotSettings(db.Model):
     adx_timeperiod = db.Column(db.Integer, default=14, nullable=False)
     rsi_timeperiod = db.Column(db.Integer, default=7, nullable=False)
     atr_timeperiod = db.Column(db.Integer, default=14, nullable=False)
-    cci_timeperiod = db.Column(db.Integer, default=14, nullable=False)
-    mfi_timeperiod = db.Column(db.Integer, default=14, nullable=False)
+    cci_timeperiod = db.Column(db.Integer, default=7, nullable=False)
+    mfi_timeperiod = db.Column(db.Integer, default=7, nullable=False)
     macd_timeperiod = db.Column(db.Integer, default=6, nullable=False)
     macd_signalperiod = db.Column(db.Integer, default=5, nullable=False)
     boilinger_timeperiod = db.Column(db.Integer, default=20, nullable=False)
@@ -66,7 +66,7 @@ class BotSettings(db.Model):
     psar_acceleration = db.Column(db.Float, default=0.02, nullable=False)
     psar_maximum = db.Column(db.Float, default=0.2, nullable=False)
     
-    interval = db.Column(db.String(16), default="5m", nullable=False)
+    interval = db.Column(db.String(16), default="3m", nullable=False)
     lookback_period = db.Column(db.String(16), default="4h", nullable=False)
     
     capital_utilization_pct = db.Column(db.Float, default=0.95, nullable=False)

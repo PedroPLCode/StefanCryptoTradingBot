@@ -54,12 +54,12 @@ Boilinger(20/2)
 
 algorithm 1: *ready **
 (primary for uptrend) 
-intervals 5min, ADX(14), ATR(14, x1.5), AvgVolPeriod(7)
+intervals 5min, ADX(14), ATR(14, x1.5), AvgVolPeriod(3)
 if_not_downtrend: RSI(7, 30/70) MACD(6,12,5) Volume
 
 algorithm 2: *ready **
 (secondary for horizontal trend)
-intervals 1min, ADX(14), ATR(14, x3), AvgVolPeriod(2)
+intervals 1min, ADX(14), ATR(14, x3), AvgVolPeriod(3)
 if_not_downtrend: Stochastic(7,3) Boilinger(20,2) Volume
 
 algorithm 3: *ready **

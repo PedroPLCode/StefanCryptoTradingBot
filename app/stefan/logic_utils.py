@@ -95,12 +95,12 @@ def get_current_price(df, bot_id):
         return current_price
     
     except IndexError as e:
-        logger.error(f'IndexError in get_current_price bot {bot_id}: {str(e)}')
-        send_admin_email(f'IndexError in get_current_price bot {bot_id}', str(e))
+        logger.error(f'Bot {bot_id} IndexError in get_current_price: {str(e)}')
+        send_admin_email(f'Bot {bot_id} IndexError in get_current_price', str(e))
         return None
     except ValueError as e:
-        logger.error(f'ValueError in get_current_price bot {bot_id}: {str(e)}')
-        send_admin_email(f'ValueError in get_current_price bot {bot_id}', str(e))
+        logger.error(f'Bot {bot_id} ValueError in get_current_price: {str(e)}')
+        send_admin_email(f'Bot {bot_id} ValueError in get_current_price', str(e))
         return None
 
 
@@ -164,13 +164,14 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
                     update_current_trade(bot_id=bot_settings.id, current_price=current_price, previous_price=current_price)
                     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price_rises. previous price updated.")
             elif price_drops:
+                update_current_trade(bot_id=bot_settings.id, current_price=current_price)
                 logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price_drops. previous price not updated.")
                 
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} loop completed.")
         
     except Exception as e:
-        logger.error(f"Exception in manage_trading_logic: {str(e)}")
-        send_admin_email(f'Exception in manage_trading_logic', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in manage_trading_logic: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in manage_trading_logic', str(e))
 
 
 def calculate_averages(df, bot_settings):
@@ -200,8 +201,8 @@ def calculate_averages(df, bot_settings):
         return averages
 
     except Exception as e:
-        logger.error(f"Exception in calculate_averages: {str(e)}")
-        send_admin_email('Exception in calculate_averages', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in calculate_averages: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_averages', str(e))
         return None
 
     
@@ -252,8 +253,8 @@ def check_trend(df, bot_settings):
             return 'none'
         
     except Exception as e:
-        logger.error(f"Exception in check_trend: {str(e)}")
-        send_admin_email(f'Exception in check_trend', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in check_trend: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in check_trend', str(e))
         return 'none'
     
     
@@ -272,8 +273,8 @@ def get_signal_functions(strategy, algorithm):
         return buy_func, sell_func
 
     except Exception as e:
-        logger.error(f"Exception in get_signal_functions: {str(e)}")
-        send_admin_email(f'Exception in get_signal_functions', str(e))
+        logger.error(f"Bot strategy: {strategy} algprithm: {algorithm} Exception in get_signal_functions: {str(e)}")
+        send_admin_email(f'Bot strategy: {strategy} algprithm: {algorithm} Exception in get_signal_functions', str(e))
         return None, None
 
 
@@ -287,8 +288,8 @@ def get_signals(df, bot_settings, trend, averages, latest_data, previous_data):
         return buy_signal, sell_signal
 
     except Exception as e:
-        logger.error(f"Exception in check_signals: {str(e)}")
-        send_admin_email(f'Exception in check_signals', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in check_signals: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in check_signals', str(e))
         return None, None
 
 
@@ -320,8 +321,8 @@ def check_signals(bot_settings, df, trend, averages, latest_data, previous_data)
         return buy_signal, sell_signal
     
     except Exception as e:
-        logger.error(f"Exception in check_signals: {str(e)}")
-        send_admin_email(f'Exception in check_signals', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in check_signals: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in check_signals', str(e))
         return None, None
 
 
@@ -391,8 +392,8 @@ def execute_buy_order(bot_settings, current_price, atr_value):
             )
 
     except Exception as e:
-        logger.error(f"Exception in execute_buy_order: {str(e)}")
-        send_admin_email(f'Exception in execute_buy_order', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in execute_buy_order: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in execute_buy_order', str(e))
 
 
 def execute_sell_order(bot_settings, current_trade, current_price):
@@ -408,7 +409,7 @@ def execute_sell_order(bot_settings, current_trade, current_price):
                 buy_price=current_trade.buy_price,
                 sell_price=current_price,
                 stop_loss_price=current_trade.stop_loss_price,
-                take_profit_price=current_price.take_profit_price,
+                take_profit_price=current_trade.take_profit_price,
                 price_rises_counter=current_trade.price_rises_counter,
                 buy_timestamp=current_trade.buy_timestamp
             )
@@ -444,8 +445,8 @@ def execute_sell_order(bot_settings, current_trade, current_price):
             )
 
     except Exception as e:
-        logger.error(f"Exception in execute_sell_order: {str(e)}")
-        send_admin_email(f'Exception in execute_sell_order', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in execute_sell_order: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in execute_sell_order', str(e))
 
 
 def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
@@ -475,8 +476,8 @@ def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} previous price and trailing stop loss updated.")
         
     except Exception as e:
-        logger.error(f"Exception in update_trailing_stop: {str(e)}")
-        send_admin_email(f'Exception in update_trailing_stop', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in update_trailing_stop: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in update_trailing_stop', str(e))
 
 
 def round_down_to_step_size(amount, step_size):
@@ -502,12 +503,12 @@ def update_stop_loss(current_price, trailing_stop_price, bot_settings):
         return max(trailing_stop_price, new_stop_price)
 
     except ValueError as e:
-        logger.error(f"ValueError in update_stop_loss: {str(e)}")
-        send_admin_email(f'ValueError in update_stop_loss', str(e))
+        logger.error(f"Bot {bot_settings.id} ValueError in update_stop_loss: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} ValueError in update_stop_loss', str(e))
         return trailing_stop_price
     except Exception as e:
-        logger.error(f"Exception in update_stop_loss: {str(e)}")
-        send_admin_email(f'Exception in update_stop_loss', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in update_stop_loss: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in update_stop_loss', str(e))
         return trailing_stop_price
     
     
@@ -524,12 +525,12 @@ def update_atr_trailing_stop_loss(current_price, trailing_stop_price, atr, bot_s
         return max(trailing_stop_price, new_trailing_stop)
 
     except ValueError as e:
-        logger.error(f"ValueError in update_atr_trailing_stop_loss: {str(e)}")
-        send_admin_email(f'ValueError in update_atr_trailing_stop_loss', str(e))
+        logger.error(f"Bot {bot_settings.id} ValueError in update_atr_trailing_stop_loss: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} ValueError in update_atr_trailing_stop_loss', str(e))
         return trailing_stop_price
     except Exception as e:
-        logger.error(f"Exception in update_atr_trailing_stop_loss: {str(e)}")
-        send_admin_email(f'Exception in update_atr_trailing_stop_loss', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in update_atr_trailing_stop_loss: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in update_atr_trailing_stop_loss', str(e))
         return trailing_stop_price
 
 
@@ -548,12 +549,12 @@ def calculate_take_profit(current_price, bot_settings):
         return take_profit_price
 
     except ValueError as e:
-        logger.error(f"ValueError in calculate_take_profit: {str(e)}")
-        send_admin_email('ValueError in calculate_take_profit', str(e))
+        logger.error(f"Bot {bot_settings.id} ValueError in calculate_take_profit: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} ValueError in calculate_take_profit', str(e))
         return None
     except Exception as e:
-        logger.error(f"Exception in calculate_take_profit: {str(e)}")
-        send_admin_email('Exception in calculate_take_profit', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in calculate_take_profit: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_take_profit', str(e))
         return None
     
     
@@ -574,12 +575,12 @@ def calculate_atr_take_profit(current_price, atr, bot_settings):
         return take_profit_price
 
     except ValueError as e:
-        logger.error(f"ValueError in calculate_take_profit: {str(e)}")
-        send_admin_email('ValueError in calculate_take_profit', str(e))
+        logger.error(f"Bot {bot_settings.id} ValueError in calculate_atr_take_profit: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} ValueError in calculate_atr_take_profit', str(e))
         return None
     except Exception as e:
-        logger.error(f"Exception in calculate_take_profit: {str(e)}")
-        send_admin_email('Exception in calculate_take_profit', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in calculate_atr_take_profit: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_atr_take_profit', str(e))
         return None
     
 
@@ -629,8 +630,8 @@ def update_current_trade(
             
         except Exception as e:
             db.session.rollback()
-            logger.error(f"Exception in update_current_trade bot {bot_id}: {str(e)}")
-            send_admin_email(f'Exception in update_current_trade bot {bot_id}', str(e))
+            logger.error(f"Bot {bot_id} Exception in update_current_trade: {str(e)}")
+            send_admin_email(f'Bot {bot_id} Exception in update_current_trade', str(e))
     
 
 def next_trade_id(bot_id):
@@ -643,8 +644,8 @@ def next_trade_id(bot_id):
         return (max_existing_trade_id or 0) + 1
 
     except Exception as e:
-        logger.error(f"Exception in next_trade_id: {str(e)}")
-        send_admin_email(f'Exception in next_trade_id', str(e))
+        logger.error(f"Bot {bot_id} Exception in next_trade_id: {str(e)}")
+        send_admin_email(f'Bot {bot_id} Exception in next_trade_id', str(e))
         return None
 
                         
@@ -694,5 +695,5 @@ def update_trade_history(
         
     except Exception as e:
         db.session.rollback()
-        logger.error(f"Exception in update_trade_history bot {bot_id}: {str(e)}")
-        send_admin_email(f'Exception in update_trade_history bot {bot_id}', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in update_trade_history bot {bot_id}: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in update_trade_history bot {bot_id}', str(e))

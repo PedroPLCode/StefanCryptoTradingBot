@@ -208,6 +208,6 @@ def backtest_strategy(df, bot_settings, backtest_settings):
         save_backtest_results(bot_settings, backtest_settings, initial_balance, final_balance, trade_log)
         
     except IndexError as e:
-        logger.error(f'IndexError in backtest_strategy: {str(e)}')
+        logger.error(f'Bot {bot_settings.id} IndexError in backtest_strategy: {str(e)}')
     except Exception as e:
-        logger.error(f'Exception in backtest_strategy: {str(e)}')
+        logger.error(f'Bot {bot_settings.id} Exception in backtest_strategy: {str(e)}')

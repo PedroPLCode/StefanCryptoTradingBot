@@ -95,14 +95,14 @@ def run_single_trading_logic(bot_settings):
             manage_trading_logic(bot_settings, current_trade, current_price, df)
 
     except Exception as e:
-        logger.error(f'Exception in run_single_trading_logic bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Exception in run_single_trading_logic bot {bot_settings.id}', str(e))
+        logger.error(f'Bot {bot_settings.id} Exception in run_single_trading_logic: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in run_single_trading_logic', str(e))
     except BinanceAPIException as e:
-        logger.error(f'BinanceAPIException in run_single_trading_logic bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'BinanceAPIException in run_single_trading_logic bot {bot_settings.id}', str(e))
+        logger.error(f'Bot {bot_settings.id} BinanceAPIException in run_single_trading_logic bot: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} BinanceAPIException in run_single_trading_logic', str(e))
     except ConnectionError as e:
-        logger.error(f'ConnectionError in run_single_trading_logic bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'ConnectionError in run_single_trading_logic bot {bot_settings.id}', str(e))
+        logger.error(f'Bot {bot_settings.id} ConnectionError in run_single_trading_logic: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} ConnectionError in run_single_trading_logic', str(e))
     except TimeoutError as e:
-        logger.error(f'TimeoutError in run_single_trading_logic bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'TimeoutError in run_single_trading_logic bot {bot_settings.id}', str(e))
+        logger.error(f'Bot {bot_settings.id} TimeoutError in run_single_trading_logic: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} TimeoutError in run_single_trading_logic', str(e))

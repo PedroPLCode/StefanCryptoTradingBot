@@ -158,8 +158,8 @@ def send_logs_via_email_and_clear_logs():
                 logger.warning(f"Log file does not exist: {log_file_path}")
                 
         except Exception as e:
-            logger.error(f"Exception in send_logs_via_email log {log}: {str(e)}")
-            send_admin_email(f"Exception in send_logs_via_email log {log}", str(e))
+            logger.error(f"Exception in send_logs_via_email_and_clear_logs log {log}: {str(e)}")
+            send_admin_email(f"Exception in send_logs_via_email_and_clear_logs log {log}", str(e))
             
     clear_logs()
 
@@ -247,11 +247,11 @@ def generate_trade_report(period):
         return report_data
     
     except Exception as e:
-        logger.error(f"Exception in generate_trade_report log period {period}: {str(e)}")
-        send_admin_email(f"Exception in generate_trade_report log period {period}", str(e))
+        logger.error(f"Exception in generate_trade_report period {period}: {str(e)}")
+        send_admin_email(f"Exception in generate_trade_report period {period}", str(e))
     except ValueError as e:
-        logger.error(f"ValueError in generate_trade_report log period {period}: {str(e)}")
-        send_admin_email(f"ValueError in generate_trade_report log period {period}", str(e))
+        logger.error(f"ValueError in generate_trade_report period {period}: {str(e)}")
+        send_admin_email(f"ValueError in generate_trade_report period {period}", str(e))
 
 
 def send_email(email, subject, body):
@@ -264,8 +264,8 @@ def send_email(email, subject, body):
             logger.info(f'Email "{subject}" to {email} sent succesfully.')
             return True
     except Exception as e:
-        logger.error(f"Exception in send_email subject {subject} email {email}: {str(e)}")
-        send_admin_email(f"Exception in send_email subject {subject} email {email}", str(e))
+        logger.error(f"Exception in send_email subject: {subject} email: {email}: {str(e)}")
+        send_admin_email(f"Exception in send_email subject: {subject} email: {email}", str(e))
         return False
 
 
@@ -282,8 +282,8 @@ def send_trade_report_via_email():
                     logger.error(f"Failed to send 24h report to {user.email}.")
                     
     except Exception as e:
-        logger.error(f"Exception in send_trade_report_via_email email {user.email}: {str(e)}")
-        send_admin_email(f"Exception in send_trade_report_via_email email {user.email}", str(e))
+        logger.error(f"Exception in send_trade_report_via_email email: {user.email}: {str(e)}")
+        send_admin_email(f"Exception in send_trade_report_via_email email: {user.email}", str(e))
 
 
 def send_admin_email(subject, body):
@@ -397,8 +397,8 @@ def start_single_bot(bot_id, current_user):
     
     except Exception as e:
         db.session.rollback()
-        logger.error(f'Exception in start_single_bot bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Exception in start_single_bot bot {bot_settings.id}', str(e))
+        logger.error(f'Bot {bot_id} Exception in start_single_bot: {str(e)}')
+        send_admin_email(f'Bot {bot_id} Exception in start_single_bot', str(e))
         
 
 def stop_single_bot(bot_id, current_user):
@@ -415,8 +415,8 @@ def stop_single_bot(bot_id, current_user):
     
     except Exception as e:
         db.session.rollback()
-        logger.error(f'Exception in stop_single_bot bot {bot_settings.id}: {str(e)}')
-        send_admin_email(f'Exception in stop_single_bot bot {bot_settings.id}', str(e))
+        logger.error(f'Bot {bot_id} Exception in stop_single_bot: {str(e)}')
+        send_admin_email(f'Bot {bot_id} Exception in stop_single_bot', str(e))
 
 
 def stop_all_bots(current_user):
