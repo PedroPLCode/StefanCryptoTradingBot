@@ -1,6 +1,7 @@
 from .. import db
 from datetime import datetime as dt
 from decimal import Decimal
+from datetime import datetime
 from ..models import TradesHistory, BotCurrentTrade
 from ..utils.logging import logger
 from ..utils.app_utils import (
@@ -161,12 +162,10 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
                 if use_trailing_stop_loss:
                     update_trailing_stop(bot_settings, current_trade, current_price, atr)  
                 else:
-                    update_current_trade(bot_id=bot_settings.id, current_price=current_price, previous_price=current_price)
-                    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price_rises. previous price updated.")
+                    handle_price_rises(bot_settings, current_price)
             elif price_drops:
-                update_current_trade(bot_id=bot_settings.id, current_price=current_price)
-                logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price_drops. previous price not updated.")
-                
+                handle_price_drops(bot_settings, current_price)
+                                
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} loop completed.")
         
     except Exception as e:
@@ -327,6 +326,9 @@ def check_signals(bot_settings, df, trend, averages, latest_data, previous_data)
 
 
 def execute_buy_order(bot_settings, current_price, atr_value):
+    now = datetime.now()
+    formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
+    
     try:
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} BUY signal.")
         buy_success, amount = place_buy_order(bot_settings.id)
@@ -378,7 +380,11 @@ def execute_buy_order(bot_settings, current_price, atr_value):
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} buy process completed.")
             
             send_trade_email(
-                f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} BUY.",
+                f"StafanCryptoTradingBot buy process report.\n"
+                f"{formatted_now}\n\n"
+                f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}\n\n"
+                f"algorithm {bot_settings.algorithm}\n"
+                f"{bot_settings.comment}\n\n",
                 (
                     f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} "
                     f"buy process.\n"
@@ -397,6 +403,9 @@ def execute_buy_order(bot_settings, current_price, atr_value):
 
 
 def execute_sell_order(bot_settings, current_trade, current_price):
+    now = datetime.now()
+    formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
+    
     try:
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} SELL signal.")
         sell_success, amount = place_sell_order(bot_settings.id)
@@ -411,7 +420,8 @@ def execute_sell_order(bot_settings, current_trade, current_price):
                 stop_loss_price=current_trade.stop_loss_price,
                 take_profit_price=current_trade.take_profit_price,
                 price_rises_counter=current_trade.price_rises_counter,
-                buy_timestamp=current_trade.buy_timestamp
+                buy_timestamp=current_trade.buy_timestamp,
+                current_price=current_price,
             )
                         
             update_current_trade(
@@ -428,20 +438,24 @@ def execute_sell_order(bot_settings, current_trade, current_price):
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell process completed.")
             
             send_trade_email(
-                        f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} SELL.",
-                        (
-                            f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} "
-                            f"sell process.\n"
-                            f"amount: {amount}\n"
-                            f"buy_price: {current_trade.buy_price}\n"
-                            f"sell_price: {current_price}\n"
-                            f"stop_loss_price: {current_trade.stop_loss_price}\n"
-                            f"take_profit_price: {current_trade.take_profit_price}\n"
-                            f"price_rises_counter: {current_trade.price_rises_counter}\n"
-                            f"buy_timestamp: {current_trade.buy_timestamp}\n"
-                            f"sell_timestamp: {dt.now()}\n"
-                            f"sell_success: {sell_success}"
-                        ),
+                f"StafanCryptoTradingBot buy process report.\n"
+                f"{formatted_now}\n\n"
+                f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}\n\n"
+                f"algorithm {bot_settings.algorithm}\n"
+                f"{bot_settings.comment}\n\n",
+                (
+                    f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} "
+                    f"sell process.\n"
+                    f"amount: {amount}\n"
+                    f"buy_price: {current_trade.buy_price}\n"
+                    f"sell_price: {current_price}\n"
+                    f"stop_loss_price: {current_trade.stop_loss_price}\n"
+                    f"take_profit_price: {current_trade.take_profit_price}\n"
+                    f"price_rises_counter: {current_trade.price_rises_counter}\n"
+                    f"buy_timestamp: {current_trade.buy_timestamp}\n"
+                    f"sell_timestamp: {dt.now()}\n"
+                    f"sell_success: {sell_success}"
+                ),
             )
 
     except Exception as e:
@@ -478,6 +492,16 @@ def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
     except Exception as e:
         logger.error(f"Bot {bot_settings.id} Exception in update_trailing_stop: {str(e)}")
         send_admin_email(f'Bot {bot_settings.id} Exception in update_trailing_stop', str(e))
+        
+        
+def handle_price_rises(bot_settings, current_price):
+    update_current_trade(bot_id=bot_settings.id, current_price=current_price, previous_price=current_price)
+    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price_rises. previous price updated.")
+    
+    
+def handle_price_drops(bot_settings, current_price):
+    update_current_trade(bot_id=bot_settings.id, current_price=current_price)
+    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price_drops. previous price not updated.")
 
 
 def round_down_to_step_size(amount, step_size):
@@ -658,7 +682,8 @@ def update_trade_history(
     stop_loss_price,
     take_profit_price,
     price_rises_counter,
-    buy_timestamp
+    buy_timestamp,
+    current_price
     ):
     from .api_utils import get_account_balance
         
@@ -670,6 +695,8 @@ def update_trade_history(
 
         balance = get_account_balance(bot_id, [stablecoin_symbol, cryptocoin_symbol])
         stablecoin_balance = float(balance.get(stablecoin_symbol, 0))
+        cryptocoin_balance = float(balance.get(cryptocoin_symbol, 0))
+        total_stablecoin_balance = float(stablecoin_balance + (cryptocoin_balance * current_price))
     
         current_trade = BotCurrentTrade.query.filter_by(id=bot_id).first()
         trade = TradesHistory(
@@ -679,7 +706,7 @@ def update_trade_history(
             amount=amount, 
             buy_price=buy_price,
             sell_price=sell_price,
-            stablecoin_balance=stablecoin_balance,
+            stablecoin_balance=total_stablecoin_balance,
             stop_loss_price=stop_loss_price,
             take_profit_price=take_profit_price,
             price_rises_counter=price_rises_counter,

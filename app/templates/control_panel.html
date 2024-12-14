@@ -166,16 +166,15 @@
                     </div>
                     {% endfor %}
                 </div>
-                {% else %}
-                <div class="card-body text-center">
-                    <div class="d-flex flex-column justify-content-center align-items-center gap-2">
-                        <p class="mb-1">Nothing here.<br>No bots.<br>Nothing to control.<br>Boring...<br>Lets create some bots!</p>
-                    </div>
-                </div>
             </div>
-            {% endif %}
+            {% else %}
+            <div class="card-body text-center">
+                <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                    <p class="mb-1">Nothing here.<br>No bots.<br>Nothing to control.<br>Boring...<br>Lets create some bots!</p>
+                </div>
+            </div>    
+        {% endif %}
         </div>
-    </div>
 
         <div class="col-12 col-md-6 card mb-3">
             <div class="card-header text-center bg-light">
