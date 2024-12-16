@@ -139,7 +139,10 @@ def check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_d
 
         signals_to_check = [bool(signal) for signal in sell_signals]
 
-        return all(signals_to_check)
+        if all(signals_to_check):
+            return True
+        
+        return False
 
     except IndexError as e:
         logger.error(f'Bot {bot_settings.id} IndexError in check_sell_signal: {str(e)}')
