@@ -95,17 +95,17 @@ def check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_da
     if not is_df_valid(df, bot_settings.id):
         return False
 
-    if not latest_data:
-        logger.warning(f"Missing or invalid 'latest_data' for bot {bot_settings.id}")
-        return False
+    #if not latest_data:
+    #    logger.warning(f"Missing or invalid 'latest_data' for bot {bot_settings.id}")
+    #    return False
     
-    if not previous_data:
-        logger.warning(f"Missing or invalid 'previous_data' for bot {bot_settings.id}")
-        return False
+    #if not previous_data:
+    #    logger.warning(f"Missing or invalid 'previous_data' for bot {bot_settings.id}")
+    #    return False
     
-    if not trend:
-        logger.warning(f"Missing or invalid 'trend' for bot {bot_settings.id}")
-        return False
+    #if not trend:
+    #    logger.warning(f"Missing or invalid 'trend' for bot {bot_settings.id}")
+    #    return False
     
     #if not isinstance(averages, dict):
     #    logger.warning(f"'averages' is not a valid dictionary for bot {bot_settings.id}")
