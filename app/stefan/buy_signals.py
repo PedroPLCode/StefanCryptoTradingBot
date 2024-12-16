@@ -92,6 +92,8 @@ def ma200_buy_signal(latest_data, bot_settings):
 def check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     
+    logger.trade(f'ch 1')
+    
     if not is_df_valid(df, bot_settings.id):
         return False
 
@@ -99,6 +101,8 @@ def check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_da
         logger.warning(f"Invalid data for bot {bot_settings.id}")
         return False
 
+    logger.trade(f'ch 2')
+    
     try:
         
         if trend == 'downtrend':
@@ -127,13 +131,14 @@ def check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_da
             ma200_buy_signal(latest_data, bot_settings)
         ]
         
-        buy_signals = [bool(signal) for signal in buy_signals]
-        
+        logger.trade(f'ch 3') 
+        signals_to_check = [bool(signal) for signal in buy_signals]
+        logger.trade(f'ch 4')
         logger.trade(f'all(buy_signals): {all(buy_signals)}')
 
-        if all(buy_signals):
+        if all(signals_to_check):
             return True
-        
+        logger.trade(f'ch 5')
         return False
 
     except IndexError as e:

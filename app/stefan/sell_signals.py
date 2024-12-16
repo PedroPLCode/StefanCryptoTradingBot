@@ -125,9 +125,9 @@ def check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_d
             ma200_sell_signal(latest_data, bot_settings),
         ]
 
-        sell_signals = [bool(signal) for signal in sell_signals]
+        signals_to_check = [bool(signal) for signal in sell_signals]
 
-        if all(sell_signals):
+        if all(signals_to_check):
             return True
         
         return False
