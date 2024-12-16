@@ -47,8 +47,12 @@
                             <div class="accordion-body">
                                 <p class="text-muted m-0 p-0">Symbol: {{ bot_info.symbol }}</p>
                                 <p class="text-muted m-0 p-0">Strategy: {{ bot_info.strategy | upper }}</p>
-                                <p class="text-muted m-0 p-0">
-                                    Trade Signals: 
+                                <p class="text-muted m-0 p-0">Comment: {{ bot_info.comment }}</p>
+                                <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>
+                                <p class="text-muted m-0 p-0">Lookback Period: {{ bot_info.lookback_period }}</p>
+
+                                <p class="text-muted m-0 p-0 border-bottom border-top">
+                                    Trade Signals:<br>
                                     {% if bot_info.trend_signals %}TREND({{ bot_info.adx_timeperiod }})<br>{% endif %}
                                     {% if bot_info.rsi_signals %}RSI({{ bot_info.rsi_timeperiod }}, {{ bot_info.rsi_buy }}/{{ bot_info.rsi_sell }})<br>{% endif %}
                                     {% if bot_info.cci_signals %}CCI({{ bot_info.cci_timeperiod }}, {{ bot_info.cci_buy }}/{{ bot_info.cci_sell }})<br>{% endif %}
@@ -64,14 +68,11 @@
                                     {% if bot_info.ma50_signals %}MA(50)<br>{% endif %}
                                     {% if bot_info.ma200_signals %}MA(200)<br>{% endif %}
                                     {% if bot_info.psar_signals %}PARABOLIC_SAR({{ bot_info.psar_acceleration }}, {{ bot_info.psar_maximum }})<br>{% endif %}
-                                    {% if bot_info.vmap_signals %}VMAP<br>{% endif %}
+                                    {% if bot_info.vwap_signals %}VWAP<br>{% endif %}
                                     {% if bot_info.atr_signals %}ATR({{ bot_info.atr_timeperiod }})<br>{% endif %}
                                     {% if bot_info.di_signals %}DI({{ bot_info.di_timeperiod }})<br>{% endif %}
-                                    {% if bot_info.vol_signals %}VOLUME({{ bot_info.vol_timeperiod }})<br>{% endif %}
+                                    {% if bot_info.vol_signals %}VOLUME({{ bot_info.avg_volume_period }})<br>{% endif %}
                                 </p>                                
-                                <p class="text-muted m-0 p-0">Comment: {{ bot_info.comment }}</p>
-                                <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>
-                                <p class="text-muted m-0 p-0">Lookback Period: {{ bot_info.lookback_period }}</p>
                                 
                                 <p class="text-muted m-0 p-0 border-bottom">Capital utilization: {{ bot_info.capital_utilization_pct }}%</p>
 
@@ -134,7 +135,7 @@
                                 <p class="text-muted m-0 p-0">Avg ADX Period: {{ bot_info.avg_adx_period }}</p>
                                 <p class="text-muted m-0 p-0">Avg ATR Period: {{ bot_info.avg_atr_period }}</p>
                                 <p class="text-muted m-0 p-0">Avg PSAR Period: {{ bot_info.avg_psar_period }}</p>
-                                <p class="text-muted m-0 p-0">Avg VMAP Period: {{ bot_info.avg_vmap_period }}</p>
+                                <p class="text-muted m-0 p-0">Avg VWAP Period: {{ bot_info.avg_vwap_period }}</p>
                                 <p class="text-muted m-0 p-0 border-bottom">Avg DI Period: {{ bot_info.avg_di_period }}</p>
 
                                 <p class="text-muted m-0 p-0">ADX Strong Trend: {{ bot_info.adx_strong_trend }}</p>

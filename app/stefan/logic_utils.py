@@ -1,4 +1,5 @@
 from .. import db
+import pandas as pd
 from datetime import datetime as dt
 from decimal import Decimal
 from datetime import datetime
@@ -92,14 +93,22 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         averages = calculate_averages(df, bot_settings)
         
         if not current_trade.is_active:
+            
             buy_signal = check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_data)
+            if isinstance(buy_signal, pd.Series):
+                buy_signal = buy_signal.any()
+                
             if buy_signal:
                 execute_buy_order(bot_settings, current_price, atr)
             else:
                 logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} no buy signal.")
             
         elif current_trade.is_active:
+            
             sell_signal = check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_data)
+            if isinstance(sell_signal, pd.Series):
+                sell_signal = sell_signal.any()
+    
             stop_loss_activated = False
             take_profit_activated = False
             full_sell_signal = False

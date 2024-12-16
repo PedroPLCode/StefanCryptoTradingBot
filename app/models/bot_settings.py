@@ -22,7 +22,7 @@ class BotSettings(db.Model):
     cci_signals = db.Column(db.Boolean, default=True, nullable=False)
     mfi_signals = db.Column(db.Boolean, default=True, nullable=False)
     atr_signals = db.Column(db.Boolean, default=False, nullable=False)
-    vmap_signals = db.Column(db.Boolean, default=False, nullable=False)
+    vwap_signals = db.Column(db.Boolean, default=False, nullable=False)
     psar_signals = db.Column(db.Boolean, default=False, nullable=False)
     ma50_signals = db.Column(db.Boolean, default=False, nullable=False)
     ma200_signals = db.Column(db.Boolean, default=False, nullable=False)
@@ -36,7 +36,7 @@ class BotSettings(db.Model):
     use_take_profit = db.Column(db.Boolean, default=True, nullable=False)
     take_profit_pct = db.Column(db.Float, default=0.03, nullable=False)
     take_profit_with_atr = db.Column(db.Boolean, default=True, nullable=False)
-    take_profit_atr_calc = db.Column(db.Float, default=2, nullable=False)
+    take_profit_atr_calc = db.Column(db.Float, default=3, nullable=False)
     
     sell_signal_only_stop_loss_or_take_profit = db.Column(db.Boolean, default=False, nullable=False)
     
@@ -62,7 +62,7 @@ class BotSettings(db.Model):
     avg_cci_period = db.Column(db.Integer, default=3, nullable=False)
     avg_mfi_period = db.Column(db.Integer, default=3, nullable=False)
     avg_psar_period = db.Column(db.Integer, default=3, nullable=False)
-    avg_vmap_period = db.Column(db.Integer, default=3, nullable=False)
+    avg_vwap_period = db.Column(db.Integer, default=3, nullable=False)
     
     adx_strong_trend = db.Column(db.Integer, default=25, nullable=False)
     adx_weak_trend = db.Column(db.Integer, default=20, nullable=False)
@@ -91,8 +91,8 @@ class BotSettings(db.Model):
     psar_acceleration = db.Column(db.Float, default=0.02, nullable=False)
     psar_maximum = db.Column(db.Float, default=0.2, nullable=False)
     
-    interval = db.Column(db.String(16), default="3m", nullable=False)
-    lookback_period = db.Column(db.String(16), default="4h", nullable=False)
+    interval = db.Column(db.String(16), default="1m", nullable=False)
+    lookback_period = db.Column(db.String(16), default="45m", nullable=False)
     
     capital_utilization_pct = db.Column(db.Float, default=0.95, nullable=False)
     days_period_to_clean_history = db.Column(db.Integer, default=30, nullable=False)

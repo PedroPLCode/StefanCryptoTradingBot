@@ -172,7 +172,7 @@ def calculate_averages(df, bot_settings):
             'avg_plus_di': ('plus_di', bot_settings.avg_di_period),
             'avg_minus_di': ('minus_di', bot_settings.avg_di_period),
             'avg_psar': ('psar', bot_settings.avg_psar_period),
-            'avg_vmap': ('vmap', bot_settings.avg_vmap_period),
+            'avg_vwap': ('vwap', bot_settings.avg_vwap_period),
             'avg_close': ('close', bot_settings.avg_close_period),
         }
 

@@ -95,13 +95,14 @@ def ma200_sell_signal(latest_data, bot_settings):
 def check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     
+    if not is_df_valid(df, bot_settings.id):
+        return False
+
     if not all([latest_data, previous_data, averages]):
         logger.warning(f"Invalid data for bot {bot_settings.id}")
         return False
     
     try:
-        if not is_df_valid(df, bot_settings.id):
-            return False
 
         sell_signals = [
             trend_sell_signal(trend, bot_settings),
@@ -124,9 +125,11 @@ def check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_d
             ma200_sell_signal(latest_data, bot_settings),
         ]
 
+        sell_signals = [bool(signal) for signal in sell_signals]
+
         if all(sell_signals):
             return True
-
+        
         return False
 
     except IndexError as e:

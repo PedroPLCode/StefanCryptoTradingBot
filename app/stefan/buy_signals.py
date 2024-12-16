@@ -72,8 +72,8 @@ def atr_buy_signal(latest_data, averages, bot_settings):
             float(latest_data['atr']) > bot_settings.atr_treshold * float(latest_data['close'])) if bot_settings.atr_signals else True
 
 
-def vmap_buy_signal(latest_data, bot_settings):
-    return float(latest_data['close']) > float(latest_data['vwap']) if bot_settings.vmap_signals else True
+def vwap_buy_signal(latest_data, bot_settings):
+    return float(latest_data['close']) > float(latest_data['vwap']) if bot_settings.vwap_signals else True
 
 
 def psar_buy_signal(latest_data, previous_data, bot_settings):
@@ -91,16 +91,21 @@ def ma200_buy_signal(latest_data, bot_settings):
     
 def check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
+    
+    if not is_df_valid(df, bot_settings.id):
+        return False
 
     if not all([latest_data, previous_data, averages]):
         logger.warning(f"Invalid data for bot {bot_settings.id}")
         return False
 
     try:
-        if not is_df_valid(df, bot_settings.id):
+        
+        if trend == 'downtrend':
+            logger.info(f"Bot {bot_settings.id}: downtrend detected, no buy signal.")
             return False
 
-        signals = [
+        buy_signals = [
             trend_buy_signal(trend, bot_settings),
             rsi_buy_signal(latest_data, averages, bot_settings),
             vol_rising(latest_data, averages, bot_settings),
@@ -116,13 +121,18 @@ def check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_da
             cci_buy_signal(latest_data, averages, bot_settings),
             mfi_buy_signal(latest_data, averages, bot_settings),
             atr_buy_signal(latest_data, averages, bot_settings),
-            vmap_buy_signal(latest_data, bot_settings),
+            vwap_buy_signal(latest_data, bot_settings),
             psar_buy_signal(latest_data, previous_data, bot_settings),
             ma50_buy_signal(latest_data, bot_settings),
             ma200_buy_signal(latest_data, bot_settings)
         ]
+        
+        buy_signals = [bool(signal) for signal in buy_signals]
 
-        return trend != 'downtrend' and all(signals)
+        if all(buy_signals):
+            return True
+        
+        return False
 
     except IndexError as e:
         logger.error(f'Bot {bot_settings.id} IndexError in check_buy_signal: {str(e)}')
