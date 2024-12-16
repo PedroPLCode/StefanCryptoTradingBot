@@ -89,10 +89,11 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         price_drops = current_price < previous_price if current_trade.is_active else False
         
         trend = check_trend(df, bot_settings)
-        
+        logger.trade(f'check 1')
         averages = calculate_averages(df, bot_settings)
-        
+        logger.trade(f'check 2')
         if not current_trade.is_active:
+            logger.trade(f'check 3')
             
             buy_signal = check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_data)
             logger.trade(f'buy_signal 2: {buy_signal}')
