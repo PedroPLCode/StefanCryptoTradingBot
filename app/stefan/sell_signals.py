@@ -98,8 +98,20 @@ def check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_d
     if not is_df_valid(df, bot_settings.id):
         return False
 
-    if not latest_data or not previous_data or not averages or not trend:
-        logger.warning(f"Invalid or missing data for bot {bot_settings.id}")
+    if not latest_data:
+        logger.warning(f"Missing or invalid 'latest_data' for bot {bot_settings.id}")
+        return False
+    
+    elif not previous_data:
+        logger.warning(f"Missing or invalid 'previous_data' for bot {bot_settings.id}")
+        return False
+    
+    elif not trend:
+        logger.warning(f"Missing or invalid 'trend' for bot {bot_settings.id}")
+        return False
+    
+    elif not isinstance(averages, dict):
+        logger.warning(f"'averages' is not a valid dictionary for bot {bot_settings.id}")
         return False
     
     try:
@@ -127,10 +139,7 @@ def check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_d
 
         signals_to_check = [bool(signal) for signal in sell_signals]
 
-        if all(signals_to_check):
-            return True
-        
-        return False
+        return all(signals_to_check)
 
     except IndexError as e:
         logger.error(f'Bot {bot_settings.id} IndexError in check_sell_signal: {str(e)}')
