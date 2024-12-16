@@ -95,8 +95,12 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         if not current_trade.is_active:
             
             buy_signal = check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_data)
+            logger.trade(f'buy_signal 2: {buy_signal}')
             if isinstance(buy_signal, pd.Series):
-                buy_signal = buy_signal.any()
+                buy_signal = buy_signal.all()
+                logger.trade(f'buy_signal 3: {buy_signal}')
+                
+            logger.trade(f'buy_signal 4: {buy_signal}')
                 
             if buy_signal:
                 execute_buy_order(bot_settings, current_price, atr)
@@ -107,7 +111,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
             
             sell_signal = check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_data)
             if isinstance(sell_signal, pd.Series):
-                sell_signal = sell_signal.any()
+                sell_signal = sell_signal.all()
     
             stop_loss_activated = False
             take_profit_activated = False

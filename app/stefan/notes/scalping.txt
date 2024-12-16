@@ -46,7 +46,7 @@ stoch_sell=80
 atr_calc=1-2
 
 algorithm 1:
-intervals 5min, ADX(14), ATR(14, x1.5), AvgVolPeriod(3)
+intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(3)
 if_not_downtrend: RSI(7, 30/70) MACD(6,12,5) Volume
 
 algorithm 2:
@@ -54,9 +54,9 @@ intervals 1min, ADX(14), ATR(14, x3), AvgVolPeriod(3)
 if_not_downtrend: Stochastic(7,3) Boilinger(20,2) Volume
 
 algorithm 3:
-intervals 5min, ADX(14), ATR(14, x2), AvgVolPeriod(3)
+intervals 1min, ADX(14), ATR(14, x2), AvgVolPeriod(3)
 if_not_downtrend: RSI(7, 30/70) EMA(9,21) Volume
 
-algorithm 5:
-intervals 5min, ADX(14), ATR(14, x2), AvgVolPeriod(3)
+algorithm 4:
+intervals 1min, ADX(14), ATR(14, x2), AvgVolPeriod(3)
 if_not_downtrend: MFI(7) CCI(7) Volume

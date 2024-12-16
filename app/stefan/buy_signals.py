@@ -128,6 +128,8 @@ def check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_da
         ]
         
         buy_signals = [bool(signal) for signal in buy_signals]
+        
+        logger.trade(f'all(buy_signals): {all(buy_signals)}')
 
         if all(buy_signals):
             return True
