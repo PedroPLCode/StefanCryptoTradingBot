@@ -97,9 +97,9 @@ def check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_da
     if not is_df_valid(df, bot_settings.id):
         return False
 
-    if not latest_data or not previous_data or not averages:
-        logger.warning(f"Invalid data for bot {bot_settings.id}")
-        return False
+    #if not latest_data or not previous_data or not averages or not trend:
+    #    logger.warning(f"Invalid or missing data for bot {bot_settings.id}")
+    #    return False
 
     logger.trade(f'ch 2')
     
