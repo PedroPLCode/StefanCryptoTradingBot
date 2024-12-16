@@ -1,4 +1,5 @@
-SCALPING:
+SCALPING
+
 Intervals to choose: 1m, 3m, 5m, 15m
 
 'scalp' BTC ETH BNB SOL LTC ADA
@@ -46,17 +47,21 @@ stoch_sell=80
 atr_calc=1-2
 
 algorithm 1:
+(for uptrend)
 intervals 1min, ADX(14), ATR(14, x1.5), AvgVolPeriod(3)
 if_not_downtrend: RSI(7, 30/70) MACD(6,12,5) Volume
 
 algorithm 2:
+(for horizontal trend)
 intervals 1min, ADX(14), ATR(14, x3), AvgVolPeriod(3)
 if_not_downtrend: Stochastic(7,3) Boilinger(20,2) Volume
 
 algorithm 3:
+(primary)
 intervals 1min, ADX(14), ATR(14, x2), AvgVolPeriod(3)
 if_not_downtrend: RSI(7, 30/70) EMA(9,21) Volume
 
 algorithm 4:
+(secondary)
 intervals 1min, ADX(14), ATR(14, x2), AvgVolPeriod(3)
 if_not_downtrend: MFI(7) CCI(7) Volume

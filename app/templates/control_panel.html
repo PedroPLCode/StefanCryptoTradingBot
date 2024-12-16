@@ -111,36 +111,17 @@
                                 {% endfor %}
                                 
                                 <p class="text-muted m-0 p-0">Stop Loss Enabled: <span class="{{ 'text-success' if bot_info.use_stop_loss else 'text-danger' }}">{{ bot_info.use_stop_loss }}</span></p>
-                                <p class="text-muted m-0 p-0">Trailing Stop Loss Enabled: {{ bot_info.use_trailing_stop_loss }}</p>
+                                <p class="text-muted m-0 p-0">Trailing Stop Loss Enabled: <span class="{{ 'text-success' if bot_info.use_trailing_stop_loss else 'text-muted' }}">{{ bot_info.use_trailing_stop_loss }}</span></p>
                                 <p class="text-muted m-0 p-0">Stop Loss pct: {{ bot_info.stop_loss_pct }}%</p>
-                                <p class="text-muted m-0 p-0">ATR Trailing Stop Loss: {{ bot_info.trailing_stop_with_atr }}</p>
+                                <p class="text-muted m-0 p-0">ATR Trailing Stop Loss: <span class="{{ 'text-success' if bot_info.trailing_stop_with_atr else 'text-muted' }}">{{ bot_info.trailing_stop_with_atr }}</span></p>
                                 <p class="text-muted m-0 p-0 border-bottom">ATR Trailing Stop Multiplicator: {{ bot_info.trailing_stop_atr_calc }}</p>
 
-                                <p class="text-muted m-0 p-0">Take Profit Enabled: {{ bot_info.use_take_profit }}</p>
+                                <p class="text-muted m-0 p-0">Take Profit Enabled: <span class="{{ 'text-success' if bot_info.use_take_profit else 'text-muted' }}">{{ bot_info.use_take_profit }}</span></p>
                                 <p class="text-muted m-0 p-0">Take Profit pct: {{ bot_info.take_profit_pct }}%</p>
-                                <p class="text-muted m-0 p-0">ATR Take Profit: {{ bot_info.take_profit_with_atr }}</p>
+                                <p class="text-muted m-0 p-0">ATR Take Profit: <span class="{{ 'text-success' if bot_info.take_profit_with_atr else 'text-muted' }}">{{ bot_info.take_profit_with_atr }}</span></p>
                                 <p class="text-muted m-0 p-0 border-bottom">ATR Take Profit Multiplicator: {{ bot_info.take_profit_atr_calc }}</p>
 
                                 <p class="text-muted m-0 p-0 border-bottom">Sell signal only Stop Loss / Take Profit: {{ bot_info.sell_signal_only_stop_loss_or_take_profit }}</p>
-
-                                <p class="text-muted m-0 p-0">Avg Volume Period: {{ bot_info.avg_volume_period }}</p>
-                                <p class="text-muted m-0 p-0">Avg Close Period: {{ bot_info.avg_close_period }}</p>
-                                <p class="text-muted m-0 p-0">Avg RSI Period: {{ bot_info.avg_rsi_period }}</p>
-                                <p class="text-muted m-0 p-0">Avg CCI Period: {{ bot_info.avg_cci_period }}</p>
-                                <p class="text-muted m-0 p-0">Avg MFI Period: {{ bot_info.avg_mfi_period }}</p>
-                                <p class="text-muted m-0 p-0">Avg Stoch Period: {{ bot_info.avg_stoch_period }}</p>
-                                <p class="text-muted m-0 p-0">Avg StochRSI Period: {{ bot_info.avg_stoch_rsi_period }}</p>
-                                <p class="text-muted m-0 p-0">Avg MACD Period: {{ bot_info.avg_macd_period }}</p>
-                                <p class="text-muted m-0 p-0">Avg EMA Period: {{ bot_info.avg_ema_period }}</p>
-                                <p class="text-muted m-0 p-0">Avg ADX Period: {{ bot_info.avg_adx_period }}</p>
-                                <p class="text-muted m-0 p-0">Avg ATR Period: {{ bot_info.avg_atr_period }}</p>
-                                <p class="text-muted m-0 p-0">Avg PSAR Period: {{ bot_info.avg_psar_period }}</p>
-                                <p class="text-muted m-0 p-0">Avg VWAP Period: {{ bot_info.avg_vwap_period }}</p>
-                                <p class="text-muted m-0 p-0 border-bottom">Avg DI Period: {{ bot_info.avg_di_period }}</p>
-
-                                <p class="text-muted m-0 p-0">ADX Strong Trend: {{ bot_info.adx_strong_trend }}</p>
-                                <p class="text-muted m-0 p-0">ADX Weak Trend: {{ bot_info.adx_weak_trend }}</p>
-                                <p class="text-muted m-0 p-0 border-bottom">ADX No Trend: {{ bot_info.adx_no_trend }}</p>
 
                                 <p class="text-muted m-0 p-0">General Time Period: {{ bot_info.general_timeperiod }}</p>
                                 <p class="text-muted m-0 p-0">DI Time Period: {{ bot_info.di_timeperiod }}</p>
@@ -167,8 +148,27 @@
                                 <p class="text-muted m-0 p-0">RSI Settings: buy {{ bot_info.rsi_buy }} / sell {{ bot_info.rsi_sell }}</p>
                                 <p class="text-muted m-0 p-0">MFI Settings: buy {{ bot_info.mfi_buy }} / sell {{ bot_info.mfi_sell }}</p>
                                 <p class="text-muted m-0 p-0">Stochastic Settings: buy {{ bot_info.stoch_buy }} / sell {{ bot_info.stoch_sell }}</p>
-                                <p class="text-muted m-0 p-0 border-bottom">ATR buy treshold: {{ bot_info.atr_treshold }}</p>
+                                <p class="text-muted m-0 p-0 border-bottom">ATR buy treshold: {{ bot_info.atr_buy_treshold }}</p>
                                 
+                                <p class="text-muted m-0 p-0">Avg Volume Period: {{ bot_info.avg_volume_period }}</p>
+                                <p class="text-muted m-0 p-0">Avg Close Period: {{ bot_info.avg_close_period }}</p>
+                                <p class="text-muted m-0 p-0">Avg RSI Period: {{ bot_info.avg_rsi_period }}</p>
+                                <p class="text-muted m-0 p-0">Avg CCI Period: {{ bot_info.avg_cci_period }}</p>
+                                <p class="text-muted m-0 p-0">Avg MFI Period: {{ bot_info.avg_mfi_period }}</p>
+                                <p class="text-muted m-0 p-0">Avg Stoch Period: {{ bot_info.avg_stoch_period }}</p>
+                                <p class="text-muted m-0 p-0">Avg StochRSI Period: {{ bot_info.avg_stoch_rsi_period }}</p>
+                                <p class="text-muted m-0 p-0">Avg MACD Period: {{ bot_info.avg_macd_period }}</p>
+                                <p class="text-muted m-0 p-0">Avg EMA Period: {{ bot_info.avg_ema_period }}</p>
+                                <p class="text-muted m-0 p-0">Avg ADX Period: {{ bot_info.avg_adx_period }}</p>
+                                <p class="text-muted m-0 p-0">Avg ATR Period: {{ bot_info.avg_atr_period }}</p>
+                                <p class="text-muted m-0 p-0">Avg PSAR Period: {{ bot_info.avg_psar_period }}</p>
+                                <p class="text-muted m-0 p-0">Avg VWAP Period: {{ bot_info.avg_vwap_period }}</p>
+                                <p class="text-muted m-0 p-0 border-bottom">Avg DI Period: {{ bot_info.avg_di_period }}</p>
+
+                                <p class="text-muted m-0 p-0">ADX Strong Trend: {{ bot_info.adx_strong_trend }}</p>
+                                <p class="text-muted m-0 p-0">ADX Weak Trend: {{ bot_info.adx_weak_trend }}</p>
+                                <p class="text-muted m-0 p-0 border-bottom">ADX No Trend: {{ bot_info.adx_no_trend }}</p>
+
                                 <p class="text-muted m-0 p-0">Current Trade Active: <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{{ bot_info.bot_current_trade.is_active }}</span></p>
                                 {% if bot_info.bot_current_trade.is_active %}
                                     <p class="text-muted m-0 p-0 border-bottom">buy_timestamp: {{ bot_info.bot_current_trade.buy_timestamp }}<br>amount: {{ bot_info.bot_current_trade.amount }}<br>buy_price: {{ bot_info.bot_current_trade.buy_price }}<br>current_price: {{ bot_info.bot_current_trade.current_price }}<br>stop_loss_price: {{ bot_info.bot_current_trade.stop_loss_price }}<br>take_profit_price: {{ bot_info.bot_current_trade.take_profit_price }}<br>price_rises_counter: {{ bot_info.bot_current_trade.price_rises_counter }}</p>

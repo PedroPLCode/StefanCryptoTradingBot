@@ -18,12 +18,27 @@ def calculate_indicators(df, df_for_ma, bot_settings):
         df['open_time'] = pd.to_datetime(df['open_time'], unit='ms')
         df['close_time'] = pd.to_datetime(df['close_time'], unit='ms')
 
-        df['atr'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=bot_settings.atr_timeperiod)
+        df['atr'] = talib.ATR(
+            df['high'], 
+            df['low'], 
+            df['close'], 
+            timeperiod=bot_settings.atr_timeperiod
+            )
         
-        df['ema_fast'] = talib.EMA(df['close'], timeperiod=bot_settings.ema_fast_timeperiod)
-        df['ema_slow'] = talib.EMA(df['close'], timeperiod=bot_settings.ema_slow_timeperiod)
+        df['ema_fast'] = talib.EMA(
+            df['close'], 
+            timeperiod=bot_settings.ema_fast_timeperiod
+            )
+        
+        df['ema_slow'] = talib.EMA(
+            df['close'], 
+            timeperiod=bot_settings.ema_slow_timeperiod
+            )
 
-        df['rsi'] = talib.RSI(df['close'], timeperiod=bot_settings.rsi_timeperiod)
+        df['rsi'] = talib.RSI(
+            df['close'], 
+            timeperiod=bot_settings.rsi_timeperiod
+            )
 
         df.dropna(subset=['close'], inplace=True)
 
@@ -83,7 +98,10 @@ def calculate_indicators(df, df_for_ma, bot_settings):
             slowd_matype=0
         )
         
-        df['stoch_rsi'] = talib.RSI(df['rsi'], timeperiod=bot_settings.stoch_rsi_timeperiod)
+        df['stoch_rsi'] = talib.RSI(
+            df['rsi'], 
+            timeperiod=bot_settings.stoch_rsi_timeperiod
+            )
         df['stoch_rsi_k'], df['stoch_rsi_d'] = talib.STOCH(
             df['stoch_rsi'],
             df['stoch_rsi'],
@@ -193,33 +211,55 @@ def check_trend(df, bot_settings):
         
         avg_adx_period = bot_settings.avg_adx_period
         avg_adx = df['adx'].iloc[-avg_adx_period:].mean()
-        adx_trend = (float(latest_data['adx']) > float(bot_settings.adx_strong_trend) or float(latest_data['adx']) > float(avg_adx))
+        
+        adx_trend = (
+            float(latest_data['adx']) > float(bot_settings.adx_strong_trend) or 
+            float(latest_data['adx']) > float(avg_adx)
+            )
         
         avg_di_period = bot_settings.avg_di_period
         avg_plus_di = df['plus_di'].iloc[-avg_di_period:].mean()
         avg_minus_di = df['minus_di'].iloc[-avg_di_period:].mean()
-        di_difference_increasing = (abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) > 
-                                    abs(float(avg_plus_di) - float(avg_minus_di)))
         
-        significant_move = (float(latest_data['high']) - float(latest_data['low']) > float(latest_data['atr']))
-
-        uptrend = (float(latest_data['plus_di']) > float(avg_minus_di) and 
-                adx_trend and 
-                di_difference_increasing and 
-                float(latest_data['rsi']) < float(bot_settings.rsi_sell) and 
-                float(latest_data['plus_di']) > float(bot_settings.adx_weak_trend) and
-                significant_move)
-
-        downtrend = (float(latest_data['plus_di']) < float(avg_minus_di) and 
-                    adx_trend and 
-                    di_difference_increasing and 
-                    float(latest_data['minus_di']) > float(bot_settings.adx_weak_trend) and 
-                    float(latest_data['rsi']) > float(bot_settings.rsi_buy) and
-                    significant_move)
-
-        horizontal = (latest_data['adx'] < avg_adx or avg_adx < float(bot_settings.adx_weak_trend) or 
-                    abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) < float(bot_settings.adx_no_trend))
+        di_difference_increasing = (
+            abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) > 
+            abs(float(avg_plus_di) - float(avg_minus_di)))
         
+        significant_move = (
+            (float(latest_data['high']) - float(latest_data['low'])) > 
+            float(latest_data['atr']))
+        
+        is_rsi_bullish = float(latest_data['rsi']) < float(bot_settings.rsi_sell)
+        is_rsi_bearish = float(latest_data['rsi']) > float(bot_settings.rsi_buy)
+        
+        is_strong_plus_di = float(latest_data['plus_di']) > float(bot_settings.adx_weak_trend)
+        is_strong_minus_di = float(latest_data['minus_di']) > float(bot_settings.adx_weak_trend)
+
+        uptrend = (
+            is_rsi_bullish and 
+            adx_trend and 
+            di_difference_increasing and 
+            is_strong_plus_di and 
+            significant_move and 
+            float(latest_data['plus_di']) > float(avg_minus_di)
+            )
+
+        downtrend = (
+            is_rsi_bearish and 
+            adx_trend and 
+            di_difference_increasing and 
+            is_strong_minus_di and 
+            significant_move and 
+            float(latest_data['plus_di']) < float(avg_minus_di)
+            )      
+
+        horizontal = (
+            float(latest_data['adx']) < avg_adx or 
+            avg_adx < float(bot_settings.adx_weak_trend) or 
+            abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) < 
+            float(bot_settings.adx_no_trend)
+        )
+
         if uptrend:
             logger.trade(f"Bot {bot_settings.id} {bot_settings.strategy} have BULLISH UPTREND")
             return 'uptrend'

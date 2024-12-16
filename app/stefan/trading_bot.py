@@ -6,8 +6,7 @@ from ..utils.logging import logger
 from ..utils.app_utils import send_admin_email
 from .logic_utils import (
     get_current_price,
-    handle_scalp_strategy,
-    handle_swing_strategy,
+    handle_valid_strategy,
     fetch_data_and_validate,
     manage_trading_logic
     
@@ -59,6 +58,8 @@ def run_selected_strategy_trading_bots(strategy, interval):
 
 
 def run_single_trading_logic(bot_settings):
+    valid_strategies = {'scalp', 'swing'}
+    
     try:
         with current_app.app_context():
             if not bot_settings:
@@ -79,10 +80,8 @@ def run_single_trading_logic(bot_settings):
             if df is None:
                 return
             
-            if bot_settings.strategy == 'scalp':
-                handle_scalp_strategy(bot_settings, df)
-            elif bot_settings.strategy == 'swing':
-                handle_swing_strategy(bot_settings, df)
+            if bot_settings.strategy in valid_strategies:
+                handle_valid_strategy(bot_settings, df)
             else:
                 logger.trade(f'No strategy {bot_settings.strategy} found for bot {bot_settings.id}')
                 send_admin_email(f'Error starting bot {bot_settings.id}', f'No strategy {bot_settings.strategy} found for bot {bot_settings.id}')

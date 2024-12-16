@@ -1,4 +1,5 @@
-SWING TRADING:
+SWING TRADING
+
 Intervals to choose: 30m, 1h, 4h, 1d
 
 'swing' BTC ETH BNB SOL LTC ADA

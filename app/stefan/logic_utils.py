@@ -30,29 +30,45 @@ def is_df_valid(df, bot_id):
 
 
 def fetch_data_and_validate(symbol, interval, lookback_period, bot_id):
-    df = fetch_data(
-        symbol=symbol, 
-        interval=interval, 
-        lookback=lookback_period
-        )
-    if not is_df_valid(df, bot_id):
-        return None
-    return df
-
-
-def handle_scalp_strategy(bot_settings, df):
-    calculate_indicators(df, None, bot_settings)
+    try:
+        df = fetch_data(
+            symbol=symbol, 
+            interval=interval, 
+            lookback=lookback_period
+            )
+        if not is_df_valid(df, bot_id):
+            return None
+        return df
     
+    except Exception as e:
+        logger.error(f"Bot {bot_id} Exception in fetch_data_and_validate: {str(e)}")
+        send_admin_email(f'Bot {bot_id} Exception in fetch_data_and_validate', str(e))
+        return None
 
-def handle_swing_strategy(bot_settings, df):
-    df_for_ma = fetch_data(
-        bot_settings.symbol, 
-        interval="1d", 
-        lookback="200d"
-        )
-    if not is_df_valid(df_for_ma, bot_settings.id):
-        return
-    calculate_indicators(df, df_for_ma, bot_settings)
+
+def handle_valid_strategy(bot_settings, df):
+    try:
+        bot_using_ma50_or_ma200 = bot_settings.ma50_signals or bot_settings.ma200_signals
+        
+        if bot_using_ma50_or_ma200:
+            
+            df_for_ma = fetch_data(
+            bot_settings.symbol, 
+            interval="1d", 
+            lookback="200d"
+            )
+            if not is_df_valid(df_for_ma, bot_settings.id):
+                return
+        
+        else:
+            df_for_ma = None
+            
+        calculate_indicators(df, df_for_ma, bot_settings)
+    
+    except Exception as e:
+        logger.error(f"Bot {bot_settings.id} Exception in fetch_data_and_validate: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in fetch_data_and_validate', str(e))
+        return None
 
 
 def get_current_price(df, bot_id):
@@ -68,6 +84,10 @@ def get_current_price(df, bot_id):
     except ValueError as e:
         logger.error(f'Bot {bot_id} ValueError in get_current_price: {str(e)}')
         send_admin_email(f'Bot {bot_id} ValueError in get_current_price', str(e))
+        return None
+    except Exception as e:
+        logger.error(f"Bot {bot_id} Exception in fetch_data_and_validate: {str(e)}")
+        send_admin_email(f'Bot {bot_id} Exception in fetch_data_and_validate', str(e))
         return None
 
 
@@ -107,6 +127,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         elif current_trade.is_active:
             
             sell_signal = check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_data)
+            
             if isinstance(sell_signal, pd.Series):
                 sell_signal = sell_signal.all()
     

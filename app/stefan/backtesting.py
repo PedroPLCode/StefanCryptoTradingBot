@@ -97,8 +97,22 @@ def backtest_strategy(df, bot_settings, backtest_settings):
             
             averages = calculate_averages(loop_df, bot_settings)
             
-            buy_signal = check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_data)
-            sell_signal = check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_data)
+            buy_signal = check_buy_signal(
+                df, 
+                bot_settings, 
+                trend, 
+                averages, 
+                latest_data, 
+                previous_data
+                )
+            sell_signal = check_sell_signal(
+                df, 
+                bot_settings, 
+                trend, 
+                averages, 
+                latest_data, 
+                previous_data
+                )
             
             stop_loss_activated = False
             if bot_settings.use_stop_loss and current_price <= stop_loss_price:
@@ -114,7 +128,7 @@ def backtest_strategy(df, bot_settings, backtest_settings):
 
             atr = loop_df['atr'].iloc[-1] if 'atr' in loop_df.columns else 0
             
-            price_rises = current_price >= previous_price if previous_price is not None else False
+            price_rises = current_price > previous_price if previous_price is not None else False
             
             if buy_signal and usdc_balance > 0:
                 crypto_balance = usdc_balance / current_price
@@ -139,10 +153,17 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                         )
                     
                 if bot_settings.use_take_profit:
-                    take_profit_price = calculate_take_profit(current_price, bot_settings)
+                    take_profit_price = calculate_take_profit(
+                        current_price, 
+                        bot_settings
+                        )
                     
                     if bot_settings.take_profit_with_atr:
-                        take_profit_price = calculate_atr_take_profit(current_price, atr, bot_settings)
+                        take_profit_price = calculate_atr_take_profit(
+                            current_price, 
+                            atr, 
+                            bot_settings
+                            )
                 
                 update_trade_log(
                     'buy', 
