@@ -219,7 +219,7 @@ def generate_trade_report(period):
             total_trades = len(trades_in_period)
 
             report_data += (
-                f"--\n\nBot {single_bot.id} algorithm {single_bot.algorithm} "
+                f"--\n\nBot {single_bot.id} "
                 f"{single_bot.strategy} {single_bot.symbol}.\n"
                 f"comment: {single_bot.comment}\n"
             )
@@ -393,7 +393,7 @@ def start_single_bot(bot_id, current_user):
             db.session.commit()
             logger.trade(f'Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} has been started.')
             flash(f'Bot {bot_settings.id} has been started.', 'success')
-            send_admin_email(f'Bot {bot_settings.id} started.', f'Bot {bot_settings.id} has been started by {current_user.name}.\n\nSymbol: {bot_settings.symbol}\nStrategy: {bot_settings.strategy}\nAlgorithm: {bot_settings.algorithm}\nLookback period: {bot_settings.lookback_period}\nInterval: {bot_settings.interval}\n\nComment: {bot_settings.comment}')
+            send_admin_email(f'Bot {bot_settings.id} started.', f'Bot {bot_settings.id} has been started by {current_user.name}.\n\nSymbol: {bot_settings.symbol}\nStrategy: {bot_settings.strategy}\nLookback period: {bot_settings.lookback_period}\nInterval: {bot_settings.interval}\n\nComment: {bot_settings.comment}')
     
     except Exception as e:
         db.session.rollback()

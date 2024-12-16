@@ -10,12 +10,16 @@ from .logic_utils import (
     calculate_atr_take_profit
 )
 from .backtesting_utils import (
-    calculate_backtest_scalp_indicators,
-    calculate_backtest_swing_indicators,
-    select_signals_checkers,
     update_trade_log,
     save_backtest_results
 )
+from .calc_utils import (
+    calculate_indicators,
+    calculate_averages,
+    check_trend
+)
+from .buy_signals import check_buy_signal
+from .sell_signals import check_sell_signal
 
 def fetch_and_save_data(backtest_settings, bot_settings):
     symbol = str(bot_settings.symbol)
@@ -67,8 +71,9 @@ def backtest_strategy(df, bot_settings, backtest_settings):
             
             if bot_settings.strategy == 'scalp':
                 if (i - 45) >= start_index:
-                    loop_df = calculate_backtest_scalp_indicators(
+                    loop_df = calculate_indicators(
                         df.iloc[start_index+i-45:start_index+i+1], 
+                        None,
                         bot_settings
                         )
                 else:
@@ -76,7 +81,7 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                 
             elif bot_settings.strategy == 'swing':
                 if (i - 48) >= start_index and (i - 200) >= 0:
-                    loop_df = calculate_backtest_swing_indicators(
+                    loop_df = calculate_indicators(
                         df.iloc[start_index+i-48:start_index+i+1], 
                         df.iloc[start_index+i-200:start_index+i+1], 
                         bot_settings
@@ -88,29 +93,12 @@ def backtest_strategy(df, bot_settings, backtest_settings):
             previous_data = loop_df.iloc[-2]
             current_price = float(latest_data['close'])
             
-            buy_signal_func, sell_signal_func = select_signals_checkers(bot_settings)
-            
             trend = check_trend(loop_df)
             
             averages = calculate_averages(loop_df, bot_settings)
             
-            buy_signal = buy_signal_func(
-                loop_df, 
-                bot_settings, 
-                trend, 
-                averages, 
-                latest_data, 
-                previous_data
-                )
-            
-            sell_signal = sell_signal_func(
-                loop_df, 
-                bot_settings, 
-                trend, 
-                averages, 
-                latest_data, 
-                previous_data
-                )
+            buy_signal = check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_data)
+            sell_signal = check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_data)
             
             stop_loss_activated = False
             if bot_settings.use_stop_loss and current_price <= stop_loss_price:

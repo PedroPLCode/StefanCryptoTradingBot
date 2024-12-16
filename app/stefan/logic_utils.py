@@ -13,48 +13,13 @@ from .api_utils import (
     place_buy_order, 
     place_sell_order
 )
-from .scalping_logic import (
-    calculate_scalp_indicators,
-    check_scalping_buy_signal_v1,
-    check_scalping_sell_signal_v1,
-    check_scalping_buy_signal_v2,
-    check_scalping_sell_signal_v2,
-    check_scalping_buy_signal_v3,
-    check_scalping_sell_signal_v3,
-    check_scalping_buy_signal_v4,
-    check_scalping_sell_signal_v4,
-    check_scalping_buy_signal_v5,
-    check_scalping_sell_signal_v5,
-    check_scalping_buy_signal_v6,
-    check_scalping_sell_signal_v6,
-    check_scalping_buy_signal_v7,
-    check_scalping_sell_signal_v7,
-    check_scalping_buy_signal_v8,
-    check_scalping_sell_signal_v8,
-    check_scalping_buy_signal_v9,
-    check_scalping_sell_signal_v9
+from .calc_utils import (
+    calculate_indicators,
+    calculate_averages,
+    check_trend
 )
-from .swing_logic import (
-    calculate_swing_indicators,
-    check_swing_buy_signal_v1,
-    check_swing_sell_signal_v1,
-    check_swing_buy_signal_v2,
-    check_swing_sell_signal_v2,
-    check_swing_buy_signal_v3,
-    check_swing_sell_signal_v3,
-    check_swing_buy_signal_v4,
-    check_swing_sell_signal_v4,
-    check_swing_buy_signal_v5,
-    check_swing_sell_signal_v5,
-    check_swing_buy_signal_v6,
-    check_swing_sell_signal_v6,
-    check_swing_buy_signal_v7,
-    check_swing_sell_signal_v7,
-    check_swing_buy_signal_v8,
-    check_swing_sell_signal_v8,
-    check_swing_buy_signal_v9,
-    check_swing_sell_signal_v9
-)
+from .buy_signals import check_buy_signal
+from .sell_signals import check_sell_signal
 
 def is_df_valid(df, bot_id):
     if df is None or df.empty or len(df) < 2:
@@ -75,7 +40,7 @@ def fetch_data_and_validate(symbol, interval, lookback_period, bot_id):
 
 
 def handle_scalp_strategy(bot_settings, df):
-    calculate_scalp_indicators(df, bot_settings)
+    calculate_indicators(df, None, bot_settings)
     
 
 def handle_swing_strategy(bot_settings, df):
@@ -86,7 +51,7 @@ def handle_swing_strategy(bot_settings, df):
         )
     if not is_df_valid(df_for_ma, bot_settings.id):
         return
-    calculate_swing_indicators(df, df_for_ma, bot_settings)
+    calculate_indicators(df, df_for_ma, bot_settings)
 
 
 def get_current_price(df, bot_id):
@@ -117,30 +82,24 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         previous_price = float(current_trade.previous_price if current_trade.is_active else 0)
         latest_data = df.iloc[-1]
         previous_data = df.iloc[-2]
-        atr = df['atr'].iloc[-1]
+        atr = latest_data['atr']
         
         price_rises = current_price > previous_price if current_trade.is_active else False
         price_drops = current_price < previous_price if current_trade.is_active else False
         
         trend = check_trend(df, bot_settings)
+        
         averages = calculate_averages(df, bot_settings)
         
-        buy_signal, sell_signal = check_signals(
-            bot_settings, 
-            df, 
-            trend, 
-            averages, 
-            latest_data, 
-            previous_data
-            )
-        
         if not current_trade.is_active:
+            buy_signal = check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_data)
             if buy_signal:
                 execute_buy_order(bot_settings, current_price, atr)
             else:
                 logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} no buy signal.")
             
         elif current_trade.is_active:
+            sell_signal = check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_data)
             stop_loss_activated = False
             take_profit_activated = False
             full_sell_signal = False
@@ -171,158 +130,6 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
     except Exception as e:
         logger.error(f"Bot {bot_settings.id} Exception in manage_trading_logic: {str(e)}")
         send_admin_email(f'Bot {bot_settings.id} Exception in manage_trading_logic', str(e))
-
-
-def calculate_averages(df, bot_settings):
-    try:
-        averages = {}
-        
-        average_mappings = {
-            'avg_volume': ('volume', bot_settings.avg_volume_period),
-            'avg_rsi': ('rsi', bot_settings.avg_rsi_period),
-            'avg_cci': ('cci', bot_settings.avg_cci_period),
-            'avg_mfi': ('mfi', bot_settings.avg_mfi_period),
-            'avg_atr': ('atr', bot_settings.avg_atr_period),
-            'avg_stoch_rsi_k': ('stoch_rsi_k', bot_settings.avg_stoch_rsi_period),
-            'avg_macd': ('macd', bot_settings.avg_macd_period),
-            'avg_macd_signal': ('macd_signal', bot_settings.avg_macd_period),
-            'avg_stoch_k': ('stoch_k', bot_settings.avg_stoch_period),
-            'avg_stoch_d': ('stoch_d', bot_settings.avg_stoch_period),
-            'avg_ema_fast': ('ema_fast', bot_settings.avg_ema_period),
-            'avg_ema_slow': ('ema_slow', bot_settings.avg_ema_period),
-            'avg_plus_di': ('plus_di', bot_settings.avg_di_period),
-            'avg_minus_di': ('minus_di', bot_settings.avg_di_period),
-        }
-
-        for avg_name, (column, period) in average_mappings.items():
-            averages[avg_name] = df[column].iloc[-period:].mean()
-
-        return averages
-
-    except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in calculate_averages: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_averages', str(e))
-        return None
-
-    
-def check_trend(df, bot_settings):
-    try:
-        latest_data = df.iloc[-1]
-        
-        avg_adx_period = bot_settings.avg_adx_period
-        avg_adx = df['adx'].iloc[-avg_adx_period:].mean()
-        adx_trend = (float(latest_data['adx']) > float(bot_settings.adx_strong_trend) or float(latest_data['adx']) > float(avg_adx))
-        
-        avg_di_period = bot_settings.avg_di_period
-        avg_plus_di = df['plus_di'].iloc[-avg_di_period:].mean()
-        avg_minus_di = df['minus_di'].iloc[-avg_di_period:].mean()
-        di_difference_increasing = (abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) > 
-                                    abs(float(avg_plus_di) - float(avg_minus_di)))
-        
-        significant_move = (float(latest_data['high']) - float(latest_data['low']) > float(latest_data['atr']))
-
-        uptrend = (float(latest_data['plus_di']) > float(avg_minus_di) and 
-                adx_trend and 
-                di_difference_increasing and 
-                float(latest_data['rsi']) < float(bot_settings.rsi_sell) and 
-                float(latest_data['plus_di']) > float(bot_settings.adx_weak_trend) and
-                significant_move)
-
-        downtrend = (float(latest_data['plus_di']) < float(avg_minus_di) and 
-                    adx_trend and 
-                    di_difference_increasing and 
-                    float(latest_data['minus_di']) > float(bot_settings.adx_weak_trend) and 
-                    float(latest_data['rsi']) > float(bot_settings.rsi_buy) and
-                    significant_move)
-
-        horizontal = (latest_data['adx'] < avg_adx or avg_adx < float(bot_settings.adx_weak_trend) or 
-                    abs(float(latest_data['plus_di']) - float(latest_data['minus_di'])) < float(bot_settings.adx_no_trend))
-        
-        if uptrend:
-            logger.trade(f"Bot {bot_settings.id} {bot_settings.strategy} have BULLISH UPTREND")
-            return 'uptrend'
-        elif downtrend:
-            logger.trade(f"Bot {bot_settings.id} {bot_settings.strategy} have BEARISH DOWNTREND")
-            return 'downtrend'
-        elif horizontal:
-            logger.trade(f"Bot {bot_settings.id} {bot_settings.strategy} have HORIZONTAL TREND")
-            return 'horizontal'
-        else:
-            logger.trade(f"Bot {bot_settings.id} {bot_settings.strategy} trend unidentified")
-            return 'none'
-        
-    except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in check_trend: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in check_trend', str(e))
-        return 'none'
-    
-    
-def get_signal_functions(strategy, algorithm):
-    try:
-        strategy_prefix = 'swing' if strategy == 'swing' else 'scalping'
-        buy_func_name = f"check_{strategy_prefix}_buy_signal_v{algorithm}"
-        sell_func_name = f"check_{strategy_prefix}_sell_signal_v{algorithm}"
-        
-        buy_func = globals().get(buy_func_name)
-        sell_func = globals().get(sell_func_name)
-        
-        if not buy_func or not sell_func:
-            raise ValueError(f"Functions for strategy {strategy}, algorytm {algorithm} not found.")
-        
-        return buy_func, sell_func
-
-    except Exception as e:
-        logger.error(f"Bot strategy: {strategy} algprithm: {algorithm} Exception in get_signal_functions: {str(e)}")
-        send_admin_email(f'Bot strategy: {strategy} algprithm: {algorithm} Exception in get_signal_functions', str(e))
-        return None, None
-
-
-def get_signals(df, bot_settings, trend, averages, latest_data, previous_data):
-    try:
-        buy_func, sell_func = get_signal_functions(bot_settings.strategy, bot_settings.algorithm)
-        
-        buy_signal = buy_func(df, bot_settings, trend, averages, latest_data, previous_data)
-        sell_signal = sell_func(df, bot_settings, trend, averages, latest_data, previous_data)
-        
-        return buy_signal, sell_signal
-
-    except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in check_signals: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in check_signals', str(e))
-        return None, None
-
-
-def check_signals(bot_settings, df, trend, averages, latest_data, previous_data):
-    try:
-        indicators_ok = all([
-            bot_settings.rsi_buy,
-            bot_settings.rsi_sell,
-            bot_settings.cci_buy,
-            bot_settings.cci_sell,
-            bot_settings.mfi_buy,
-            bot_settings.mfi_sell,
-            bot_settings.stoch_buy,
-            bot_settings.stoch_sell
-        ])
-
-        if not indicators_ok:
-            logger.trade(f'bot {bot_settings.id} {bot_settings.strategy} missing indicators in database')
-            send_admin_email(f'Error starting bot {bot_settings.id}', f'Missing indicators in database for bot {bot_settings.id} {bot_settings.strategy}')
-            return None, None
-        
-        if bot_settings.algorithm < 1 or bot_settings.algorithm > 9:
-            logger.trade(f'Wrong algorithm {bot_settings.algorithm} declared for bot {bot_settings.id} {bot_settings.strategy}')
-            send_admin_email(f'Wrong algorithm bot {bot_settings.id}', f'Wrong algorithm {bot_settings.algorithm} declared for bot {bot_settings.id} {bot_settings.strategy}')
-            return None, None
-        
-        buy_signal, sell_signal = get_signals(df, bot_settings, trend, averages, latest_data, previous_data)
-        
-        return buy_signal, sell_signal
-    
-    except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in check_signals: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in check_signals', str(e))
-        return None, None
 
 
 def execute_buy_order(bot_settings, current_price, atr_value):
@@ -383,7 +190,6 @@ def execute_buy_order(bot_settings, current_price, atr_value):
                 f"StafanCryptoTradingBot buy process report.\n"
                 f"{formatted_now}\n\n"
                 f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}\n\n"
-                f"algorithm {bot_settings.algorithm}\n"
                 f"{bot_settings.comment}\n\n",
                 (
                     f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} "
@@ -441,7 +247,6 @@ def execute_sell_order(bot_settings, current_trade, current_price):
                 f"StafanCryptoTradingBot buy process report.\n"
                 f"{formatted_now}\n\n"
                 f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}\n\n"
-                f"algorithm {bot_settings.algorithm}\n"
                 f"{bot_settings.comment}\n\n",
                 (
                     f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} "

@@ -6,7 +6,6 @@ class BacktestResult(db.Model):
     bot_id = db.Column(db.Integer, nullable=True)
     symbol = db.Column(db.String(16), nullable=True)
     strategy = db.Column(db.String(16), nullable=True)
-    algorithm = db.Column(db.Integer, nullable=True)
     start_date = db.Column(db.String(16), nullable=True)
     end_date = db.Column(db.String(16), nullable=True)
     initial_balance = db.Column(db.Float, nullable=True)
