@@ -14,6 +14,13 @@ def rsi_buy_signal(latest_data, averages, bot_settings):
     return True
 
 
+def rsi_divergence_buy_signal(latest_data, averages, bot_settings):
+    if bot_settings.rsi_divergence_signals:
+        return (float(latest_data['close']) <= float(averages['avg_close']) and
+                float(latest_data['rsi']) >= float(averages['avg_rsi'])) 
+    return True
+
+
 def vol_rising(latest_data, averages, bot_settings):
     if bot_settings.vol_signals:
         return float(latest_data['volume']) >= float(averages['avg_volume']) 
@@ -45,6 +52,13 @@ def stoch_buy_signal(latest_data, averages, bot_settings):
         return (float(averages['avg_stoch_k']) <= float(averages['avg_stoch_d']) and
                 float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
                 float(latest_data['stoch_k']) <= float(bot_settings.stoch_buy)) 
+    return True
+
+
+def stoch_divergence_buy_signal(latest_data, averages, bot_settings):
+    if bot_settings.stoch_divergence_signals:
+        return (float(latest_data['stoch_k']) >= float(averages['avg_stoch_k']) and
+                float(latest_data['close']) <= float(averages['avg_close'])) 
     return True
 
 
@@ -88,9 +102,23 @@ def cci_buy_signal(latest_data, averages, bot_settings):
     return True
 
 
+def cci_divergence_buy_signal(latest_data, averages, bot_settings):
+    if bot_settings.cci_divergence_signals:
+        return (float(latest_data['close']) <= float(averages['avg_close']) and
+                float(latest_data['cci']) >= float(averages['avg_cci'])) 
+    return True
+
+
 def mfi_buy_signal(latest_data, averages, bot_settings):
     if bot_settings.mfi_signals:
         return (float(latest_data['mfi']) <= float(bot_settings.mfi_buy) and
+                float(latest_data['mfi']) >= float(averages['avg_mfi'])) 
+    return True
+
+
+def mfi_divergence_buy_signal(latest_data, averages, bot_settings):
+    if bot_settings.mfi_divergence_signals:
+        return (float(latest_data['close']) <= float(averages['avg_close']) and
                 float(latest_data['mfi']) >= float(averages['avg_mfi'])) 
     return True
 
@@ -142,18 +170,22 @@ def check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_da
         buy_signals = [
             trend_buy_signal(trend, bot_settings),
             rsi_buy_signal(latest_data, averages, bot_settings),
+            rsi_divergence_buy_signal(latest_data, averages, bot_settings),
             vol_rising(latest_data, averages, bot_settings),
             macd_cross_buy_signal(latest_data, averages, bot_settings),
             macd_histogram_buy_signal(latest_data, previous_data, bot_settings),
             boilinger_buy_signal(latest_data, bot_settings),
             stoch_buy_signal(latest_data, averages, bot_settings),
+            stoch_divergence_buy_signal(latest_data, averages, bot_settings),
             stoch_rsi_buy_signal(latest_data, averages, bot_settings),
             ema_cross_buy_signal(latest_data, averages, bot_settings),
             ema_fast_buy_signal(latest_data, averages, bot_settings),
             ema_slow_buy_signal(latest_data, averages, bot_settings),
             di_cross_buy_signal(latest_data, averages, bot_settings),
             cci_buy_signal(latest_data, averages, bot_settings),
+            cci_divergence_buy_signal(latest_data, averages, bot_settings),
             mfi_buy_signal(latest_data, averages, bot_settings),
+            mfi_divergence_buy_signal(latest_data, averages, bot_settings),
             atr_buy_signal(latest_data, averages, bot_settings),
             vwap_buy_signal(latest_data, bot_settings),
             psar_buy_signal(latest_data, averages, bot_settings),
@@ -163,7 +195,10 @@ def check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_da
         
         signals_to_check = [bool(signal) for signal in buy_signals]
 
-        return all(signals_to_check)
+        if all(signals_to_check):
+            return True
+        
+        return False
 
     except IndexError as e:
         logger.error(f'Bot {bot_settings.id} IndexError in check_buy_signal: {str(e)}')

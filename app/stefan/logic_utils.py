@@ -218,10 +218,12 @@ def execute_buy_order(bot_settings, current_price, atr_value):
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} buy process completed.")
             
             send_trade_email(
-                f"StafanCryptoTradingBot buy process report.\n"
-                f"{formatted_now}\n\n"
-                f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}\n\n"
-                f"{bot_settings.comment}\n\n",
+                (
+                    f"StafanCryptoTradingBot buy process report.\n"
+                    f"{formatted_now}\n\n"
+                    f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}\n\n"
+                    f"{bot_settings.comment}\n\n",
+                ),
                 (
                     f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} "
                     f"buy process.\n"
@@ -231,7 +233,7 @@ def execute_buy_order(bot_settings, current_price, atr_value):
                     f"take_profit_price: {take_profit_price}\n"
                     f"buy_timestamp: {dt.now()}\n"
                     f"buy_success: {buy_success}"
-                ),
+                )
             )
 
     except Exception as e:
@@ -275,10 +277,12 @@ def execute_sell_order(bot_settings, current_trade, current_price):
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell process completed.")
             
             send_trade_email(
-                f"StafanCryptoTradingBot buy process report.\n"
-                f"{formatted_now}\n\n"
-                f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}\n\n"
-                f"{bot_settings.comment}\n\n",
+                (
+                    f"StafanCryptoTradingBot buy process report.\n"
+                    f"{formatted_now}\n\n"
+                    f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}\n\n"
+                    f"{bot_settings.comment}\n\n"
+                ),
                 (
                     f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} "
                     f"sell process.\n"
@@ -291,7 +295,7 @@ def execute_sell_order(bot_settings, current_trade, current_price):
                     f"buy_timestamp: {current_trade.buy_timestamp}\n"
                     f"sell_timestamp: {dt.now()}\n"
                     f"sell_success: {sell_success}"
-                ),
+                )
             )
 
     except Exception as e:

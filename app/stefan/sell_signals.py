@@ -13,6 +13,13 @@ def rsi_sell_signal(latest_data, bot_settings):
     return True
 
 
+def rsi_divergence_sell_signal(latest_data, averages, bot_settings):
+    if bot_settings.rsi_divergence_signals:
+        return (float(latest_data['close']) >= float(averages['avg_close']) and
+                float(latest_data['rsi']) <= float(averages['avg_rsi'])) 
+    return True
+
+
 def macd_cross_sell_signal(averages, latest_data, bot_settings):
     if bot_settings.macd_cross_signals:
         return (float(averages['avg_macd']) >= float(averages['avg_macd_signal']) and 
@@ -38,6 +45,13 @@ def stoch_sell_signal(averages, latest_data, bot_settings):
         return (float(averages['avg_stoch_k']) >= float(averages['avg_stoch_d']) and
                 float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
                 float(latest_data['stoch_k']) >= float(bot_settings.stoch_sell)) 
+    return True
+
+
+def stoch_divergence_sell_signal(latest_data, averages, bot_settings):
+    if bot_settings.stoch_divergence_signals:
+        return (float(latest_data['stoch_k']) <= float(averages['avg_stoch_k']) and
+                float(latest_data['close']) >= float(averages['avg_close'])) 
     return True
 
 
@@ -80,9 +94,23 @@ def cci_sell_signal(latest_data, bot_settings):
     return True
 
 
+def cci_divergence_buy_signal(latest_data, averages, bot_settings):
+    if bot_settings.cci_divergence_signals:
+        return (float(latest_data['close']) >= float(averages['avg_close']) and
+                float(latest_data['cci']) <= float(averages['avg_cci'])) 
+    return True
+
+
 def mfi_sell_signal(latest_data, bot_settings):
     if bot_settings.mfi_signals:
         return float(latest_data['mfi']) >= float(bot_settings.mfi_sell) 
+    return True
+
+
+def mfi_divergence_sell_signal(latest_data, averages, bot_settings):
+    if bot_settings.mfi_divergence_signals:
+        return (float(latest_data['close']) >= float(averages['avg_close']) and
+                float(latest_data['mfi']) <= float(averages['avg_mfi'])) 
     return True
 
 
@@ -127,17 +155,21 @@ def check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_d
         sell_signals = [
             trend_sell_signal(trend, bot_settings),
             rsi_sell_signal(latest_data, bot_settings),
+            rsi_divergence_sell_signal(latest_data, averages, bot_settings),
             macd_cross_sell_signal(averages, latest_data, bot_settings),
             macd_histogram_sell_signal(latest_data, previous_data, bot_settings),
             boilinger_sell_signal(latest_data, bot_settings),
             stoch_sell_signal(averages, latest_data, bot_settings),
+            stoch_divergence_sell_signal(latest_data, averages, bot_settings),
             stoch_rsi_sell_signal(latest_data, bot_settings),
             ema_cross_sell_signal(averages, latest_data, bot_settings),
             ema_fast_sell_signal(latest_data, bot_settings),
             ema_slow_sell_signal(latest_data, bot_settings),
             di_cross_sell_signal(averages, latest_data, bot_settings),
             cci_sell_signal(latest_data, bot_settings),
+            cci_divergence_buy_signal(latest_data, averages, bot_settings),
             mfi_sell_signal(latest_data, bot_settings),
+            mfi_divergence_sell_signal(latest_data, averages, bot_settings),
             atr_sell_signal(latest_data, averages, bot_settings),
             vwap_sell_signal(latest_data, bot_settings),
             psar_sell_signal(latest_data, bot_settings),
@@ -147,7 +179,10 @@ def check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_d
 
         signals_to_check = [bool(signal) for signal in sell_signals]
 
-        return all(signals_to_check)
+        if all(signals_to_check):
+            return True
+        
+        return False
 
     except IndexError as e:
         logger.error(f'Bot {bot_settings.id} IndexError in check_sell_signal: {str(e)}')

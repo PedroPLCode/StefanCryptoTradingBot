@@ -55,8 +55,11 @@
                                     Trade Signals:<br>
                                     {% if bot_info.trend_signals %}TREND({{ bot_info.adx_timeperiod }}, avg: {{ bot_info.avg_adx_period }})<br>{% endif %}
                                     {% if bot_info.rsi_signals %}RSI({{ bot_info.rsi_timeperiod }}, {{ bot_info.rsi_buy }}/{{ bot_info.rsi_sell }}, avg: {{ bot_info.avg_rsi_period }})<br>{% endif %}
+                                    {% if bot_info.rsi_divergence_signals %}RSI_DIVERGENCE<br>{% endif %}
                                     {% if bot_info.cci_signals %}CCI({{ bot_info.cci_timeperiod }}, {{ bot_info.cci_buy }}/{{ bot_info.cci_sell }}, avg: {{ bot_info.avg_cci_period }})<br>{% endif %}
+                                    {% if bot_info.cci_divergence_signals %}CCI_DIVERGENCE<br>{% endif %}
                                     {% if bot_info.mfi_signals %}MFI({{ bot_info.mfi_timeperiod }}, {{ bot_info.mfi_buy }}/{{ bot_info.mfi_sell }}, avg: {{ bot_info.avg_mfi_period }})<br>{% endif %}
+                                    {% if bot_info.mfi_divergence_signals %}MFI_DIVERGENCE<br>{% endif %}
                                     {% if bot_info.macd_cross_signals %}MACD({{ bot_info.macd_timeperiod }}, {{ bot_info.macd_timeperiod * 2 }}, {{ bot_info.macd_signalperiod }}, avg: {{ bot_info.avg_macd_period }})<br>{% endif %}
                                     {% if bot_info.macd_histogram_signals %}MACD_HISTOGRAM({{ bot_info.macd_timeperiod }}, {{ bot_info.macd_timeperiod * 2 }}, {{ bot_info.macd_signalperiod }}, avg: {{ bot_info.avg_macd_period }})<br>{% endif %}
                                     {% if bot_info.ema_cross_signals %}EMA({{ bot_info.ema_fast_timeperiod }}, {{ bot_info.ema_slow_timeperiod }}, avg: {{ bot_info.avg_ema_period }})<br>{% endif %}
@@ -64,6 +67,7 @@
                                     {% if bot_info.ema_fast_signals %}EMA_FAST({{ bot_info.ema_fast_timeperiod }}, avg: {{ bot_info.avg_ema_period }})<br>{% endif %}
                                     {% if bot_info.boilinger_signals %}BOILINGER({{ bot_info.boilinger_timeperiod }}, {{ bot_info.boilinger_nbdev }})<br>{% endif %}
                                     {% if bot_info.stoch_signals %}STOCHASTIC({{ bot_info.stoch_k_timeperiod }}, {{ bot_info.stoch_d_timeperiod }}, {{ bot_info.stoch_buy }}/{{ bot_info.stoch_sell }}, avg: {{ bot_info.avg_stoch_period }})<br>{% endif %}
+                                    {% if bot_info.stoch_divergence_signals %}STOCHASTIC_DIVERGENCE<br>{% endif %}
                                     {% if bot_info.stoch_rsi_signals %}STOCHASTIC_RSI({{ bot_info.stoch_rsi_timeperiod }}, {{ bot_info.stoch_rsi_k_timeperiod }}, {{ bot_info.stoch_rsi_d_timeperiod }}, avg: {{ bot_info.avg_stoch_rsi_period }})<br>{% endif %}
                                     {% if bot_info.ma50_signals %}MA(50)<br>{% endif %}
                                     {% if bot_info.ma200_signals %}MA(200)<br>{% endif %}
