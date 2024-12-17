@@ -53,25 +53,25 @@
 
                                 <p class="text-muted m-0 p-0 border-bottom border-top">
                                     Trade Signals:<br>
-                                    {% if bot_info.trend_signals %}TREND({{ bot_info.adx_timeperiod }})<br>{% endif %}
-                                    {% if bot_info.rsi_signals %}RSI({{ bot_info.rsi_timeperiod }}, {{ bot_info.rsi_buy }}/{{ bot_info.rsi_sell }})<br>{% endif %}
-                                    {% if bot_info.cci_signals %}CCI({{ bot_info.cci_timeperiod }}, {{ bot_info.cci_buy }}/{{ bot_info.cci_sell }})<br>{% endif %}
-                                    {% if bot_info.mfi_signals %}MFI({{ bot_info.mfi_timeperiod }}, {{ bot_info.mfi_buy }}/{{ bot_info.mfi_sell }})<br>{% endif %}
-                                    {% if bot_info.macd_cross_signals %}MACD({{ bot_info.macd_timeperiod }}, {{ bot_info.macd_timeperiod * 2 }}, {{ bot_info.macd_signalperiod }})<br>{% endif %}
-                                    {% if bot_info.macd_histogram_signals %}MACD_HISTOGRAM({{ bot_info.macd_timeperiod }}, {{ bot_info.macd_timeperiod * 2 }}, {{ bot_info.macd_signalperiod }})<br>{% endif %}
-                                    {% if bot_info.ema_cross_signals %}EMA({{ bot_info.ema_fast_timeperiod }}, {{ bot_info.ema_slow_timeperiod }})<br>{% endif %}
-                                    {% if bot_info.ema_slow_signals %}EMA_SLOW({{ bot_info.ema_slow_timeperiod }})<br>{% endif %}
-                                    {% if bot_info.ema_fast_signals %}EMA_FAST({{ bot_info.ema_fast_timeperiod }})<br>{% endif %}
+                                    {% if bot_info.trend_signals %}TREND({{ bot_info.adx_timeperiod }}, avg: {{ bot_info.avg_adx_period }})<br>{% endif %}
+                                    {% if bot_info.rsi_signals %}RSI({{ bot_info.rsi_timeperiod }}, {{ bot_info.rsi_buy }}/{{ bot_info.rsi_sell }}, avg: {{ bot_info.avg_rsi_period }})<br>{% endif %}
+                                    {% if bot_info.cci_signals %}CCI({{ bot_info.cci_timeperiod }}, {{ bot_info.cci_buy }}/{{ bot_info.cci_sell }}, avg: {{ bot_info.avg_cci_period }})<br>{% endif %}
+                                    {% if bot_info.mfi_signals %}MFI({{ bot_info.mfi_timeperiod }}, {{ bot_info.mfi_buy }}/{{ bot_info.mfi_sell }}, avg: {{ bot_info.avg_mfi_period }})<br>{% endif %}
+                                    {% if bot_info.macd_cross_signals %}MACD({{ bot_info.macd_timeperiod }}, {{ bot_info.macd_timeperiod * 2 }}, {{ bot_info.macd_signalperiod }}, avg: {{ bot_info.avg_macd_period }})<br>{% endif %}
+                                    {% if bot_info.macd_histogram_signals %}MACD_HISTOGRAM({{ bot_info.macd_timeperiod }}, {{ bot_info.macd_timeperiod * 2 }}, {{ bot_info.macd_signalperiod }}, avg: {{ bot_info.avg_macd_period }})<br>{% endif %}
+                                    {% if bot_info.ema_cross_signals %}EMA({{ bot_info.ema_fast_timeperiod }}, {{ bot_info.ema_slow_timeperiod }}, avg: {{ bot_info.avg_ema_period }})<br>{% endif %}
+                                    {% if bot_info.ema_slow_signals %}EMA_SLOW({{ bot_info.ema_slow_timeperiod }}, avg: {{ bot_info.avg_ema_period }})<br>{% endif %}
+                                    {% if bot_info.ema_fast_signals %}EMA_FAST({{ bot_info.ema_fast_timeperiod }}, avg: {{ bot_info.avg_ema_period }})<br>{% endif %}
                                     {% if bot_info.boilinger_signals %}BOILINGER({{ bot_info.boilinger_timeperiod }}, {{ bot_info.boilinger_nbdev }})<br>{% endif %}
-                                    {% if bot_info.stoch_signals %}STOCHASTIC({{ bot_info.stoch_k_timeperiod }}, {{ bot_info.stoch_d_timeperiod }}, {{ bot_info.stoch_buy }}/{{ bot_info.stoch_sell }})<br>{% endif %}
-                                    {% if bot_info.stoch_rsi_signals %}STOCHASTIC_RSI({{ bot_info.stoch_rsi_timeperiod }}, {{ bot_info.stoch_rsi_k_timeperiod }}, {{ bot_info.stoch_rsi_d_timeperiod }})<br>{% endif %}
+                                    {% if bot_info.stoch_signals %}STOCHASTIC({{ bot_info.stoch_k_timeperiod }}, {{ bot_info.stoch_d_timeperiod }}, {{ bot_info.stoch_buy }}/{{ bot_info.stoch_sell }}, avg: {{ bot_info.avg_stoch_period }})<br>{% endif %}
+                                    {% if bot_info.stoch_rsi_signals %}STOCHASTIC_RSI({{ bot_info.stoch_rsi_timeperiod }}, {{ bot_info.stoch_rsi_k_timeperiod }}, {{ bot_info.stoch_rsi_d_timeperiod }}, avg: {{ bot_info.avg_stoch_rsi_period }})<br>{% endif %}
                                     {% if bot_info.ma50_signals %}MA(50)<br>{% endif %}
                                     {% if bot_info.ma200_signals %}MA(200)<br>{% endif %}
-                                    {% if bot_info.psar_signals %}PARABOLIC_SAR({{ bot_info.psar_acceleration }}, {{ bot_info.psar_maximum }})<br>{% endif %}
-                                    {% if bot_info.vwap_signals %}VWAP<br>{% endif %}
-                                    {% if bot_info.atr_signals %}ATR({{ bot_info.atr_timeperiod }})<br>{% endif %}
-                                    {% if bot_info.di_signals %}DI({{ bot_info.di_timeperiod }})<br>{% endif %}
-                                    {% if bot_info.vol_signals %}VOLUME({{ bot_info.avg_volume_period }})<br>{% endif %}
+                                    {% if bot_info.psar_signals %}PARABOLIC_SAR({{ bot_info.psar_acceleration }}, {{ bot_info.psar_maximum }}, avg: {{ bot_info.avg_psar_period }})<br>{% endif %}
+                                    {% if bot_info.vwap_signals %}VWAP (avg: {{ bot_info.avg_vwap_period }})<br>{% endif %}
+                                    {% if bot_info.atr_signals %}ATR({{ bot_info.atr_timeperiod }}), avg: {{ bot_info.avg_atr_period }}<br>{% endif %}
+                                    {% if bot_info.di_signals %}DI({{ bot_info.di_timeperiod }}, avg: {{ bot_info.avg_di_period }})<br>{% endif %}
+                                    {% if bot_info.vol_signals %}VOLUME({{ bot_info.avg_volume_period }}, avg: {{ bot_info.avg_volume_period }})<br>{% endif %}
                                 </p>                                
                                 
                                 <p class="text-muted m-0 p-0 border-bottom">Capital utilization: {{ bot_info.capital_utilization_pct }}%</p>
