@@ -222,6 +222,8 @@ def place_buy_order(bot_id):
     from .logic_utils import round_down_to_step_size
     from ..utils.app_utils import send_admin_email
     
+    binance_min_order_amount = 0.0001
+    
     try:    
         bot_settings = BotSettings.query.get(bot_id)
         symbol = bot_settings.symbol
@@ -251,8 +253,13 @@ def place_buy_order(bot_id):
         logger.trade(f"place_buy_order() Bot {bot_id} Amount_to_buy: {amount_to_buy}")
 
         required_stablecoin = amount_to_buy * price
-        if required_stablecoin > stablecoin_balance:
+        not_enough_stablecoins = bool(required_stablecoin > stablecoin_balance)
+        
+        amount_to_buy_too_small = bool(amount_to_buy < binance_min_order_amount)
+        
+        if not_enough_stablecoins or amount_to_buy_too_small:
             logger.trade(f'place_buy_order() Bot {bot_id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}. Required: {required_stablecoin}, Available: {stablecoin_balance}.')
+            send_admin_email(f'Bot {bot_id} Not enough {stablecoin_symbol} in place_buy_order', f'place_buy_order() Bot {bot_id} Not enough {stablecoin_symbol} to buy {cryptocoin_symbol}. Required: {required_stablecoin}, Available: {stablecoin_balance}.')
             return False, False
 
         if amount_to_buy > 0 and amount_to_buy >= min_qty:

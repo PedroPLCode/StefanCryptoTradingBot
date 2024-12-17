@@ -15,7 +15,7 @@ def rsi_sell_signal(latest_data, bot_settings):
 
 def macd_cross_sell_signal(averages, latest_data, bot_settings):
     if bot_settings.macd_cross_signals:
-        return (float(averages['avg_macd']) > float(averages['avg_macd_signal']) and 
+        return (float(averages['avg_macd']) >= float(averages['avg_macd_signal']) and 
                 float(latest_data['macd']) < float(latest_data['macd_signal'])) 
     return True
 
@@ -35,7 +35,7 @@ def boilinger_sell_signal(latest_data, bot_settings):
 
 def stoch_sell_signal(averages, latest_data, bot_settings):
     if bot_settings.stoch_signals:
-        return (float(averages['avg_stoch_k']) > float(averages['avg_stoch_d']) and
+        return (float(averages['avg_stoch_k']) >= float(averages['avg_stoch_d']) and
                 float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
                 float(latest_data['stoch_k']) >= float(bot_settings.stoch_sell)) 
     return True
@@ -50,7 +50,7 @@ def stoch_rsi_sell_signal(latest_data, bot_settings):
 
 def ema_cross_sell_signal(averages, latest_data, bot_settings):
     if bot_settings.ema_cross_signals:
-        return (float(averages['avg_ema_fast']) > float(averages['avg_ema_slow']) and
+        return (float(averages['avg_ema_fast']) >= float(averages['avg_ema_slow']) and
                 float(latest_data['ema_fast']) < float(latest_data['ema_slow'])) 
     return True
 
@@ -69,7 +69,7 @@ def ema_slow_sell_signal(latest_data, bot_settings):
 
 def di_cross_sell_signal(averages, latest_data, bot_settings):
     if bot_settings.di_signals:
-        return (float(averages['avg_plus_di']) > float(averages['avg_minus_di']) and 
+        return (float(averages['avg_plus_di']) >= float(averages['avg_minus_di']) and 
                 float(latest_data['plus_di']) < float(latest_data['minus_di'])) 
     return True
 
@@ -88,7 +88,7 @@ def mfi_sell_signal(latest_data, bot_settings):
 
 def atr_sell_signal(latest_data, averages, bot_settings):
     if bot_settings.atr_signals:
-        return float(latest_data['atr']) < float(averages['avg_atr']) 
+        return float(latest_data['atr']) <= float(averages['avg_atr']) 
     return True
 
 

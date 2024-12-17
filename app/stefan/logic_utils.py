@@ -352,6 +352,7 @@ def round_down_to_step_size(amount, step_size):
     except Exception as e:
             logger.error(f"Exception in round_down_to_step_size: {str(e)}")
             send_admin_email(f'Exception in round_down_to_step_size', str(e))
+            return float(amount)
         
 
 def update_stop_loss(current_price, trailing_stop_price, bot_settings):
