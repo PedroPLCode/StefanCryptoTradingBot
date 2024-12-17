@@ -71,7 +71,7 @@
                                     {% if bot_info.vwap_signals %}VWAP (avg: {{ bot_info.avg_vwap_period }})<br>{% endif %}
                                     {% if bot_info.atr_signals %}ATR({{ bot_info.atr_timeperiod }}), avg: {{ bot_info.avg_atr_period }}<br>{% endif %}
                                     {% if bot_info.di_signals %}DI({{ bot_info.di_timeperiod }}, avg: {{ bot_info.avg_di_period }})<br>{% endif %}
-                                    {% if bot_info.vol_signals %}VOLUME({{ bot_info.avg_volume_period }}, avg: {{ bot_info.avg_volume_period }})<br>{% endif %}
+                                    {% if bot_info.vol_signals %}VOLUME(avg: {{ bot_info.avg_volume_period }})<br>{% endif %}
                                 </p>                                
                                 
                                 <p class="text-muted m-0 p-0 border-bottom">Capital utilization: {{ bot_info.capital_utilization_pct }}%</p>
