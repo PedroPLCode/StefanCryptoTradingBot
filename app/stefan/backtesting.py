@@ -62,28 +62,27 @@ def backtest_strategy(df, bot_settings, backtest_settings):
     
     logger.trade(f"Starting backtest with initial balance: {stablecoin_symbol} {usdc_balance}, {cryptocoin_symbol} {crypto_balance}")
 
-    start_index = 50 if bot_settings.strategy == 'scalp' else 200
+    start_index = 200 if bot_settings.ma50_signals or bot_settings.ma200_signals else 50
     end_index = len(df) - 50
     
     try:
         for i in range(start_index, end_index):
             loop_df = pd.DataFrame()
             
-            if bot_settings.strategy == 'scalp':
-                if (i - 45) >= start_index:
-                    loop_df = calculate_indicators(
-                        df.iloc[start_index+i-45:start_index+i+1], 
-                        None,
-                        bot_settings
-                        )
-                else:
-                    continue
-                
-            elif bot_settings.strategy == 'swing':
+            if bot_settings.ma50_signals or bot_settings.ma200_signals:
                 if (i - 48) >= start_index and (i - 200) >= 0:
                     loop_df = calculate_indicators(
                         df.iloc[start_index+i-48:start_index+i+1], 
                         df.iloc[start_index+i-200:start_index+i+1], 
+                        bot_settings
+                        )
+                else:
+                    continue
+            else:
+                if (i - 45) >= start_index:
+                    loop_df = calculate_indicators(
+                        df.iloc[start_index+i-45:start_index+i+1], 
+                        None,
                         bot_settings
                         )
                 else:

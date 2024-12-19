@@ -46,31 +46,6 @@ def fetch_data_and_validate(symbol, interval, lookback_period, bot_id):
         return None
 
 
-def handle_valid_strategy(bot_settings, df):
-    try:
-        bot_using_ma50_or_ma200 = bot_settings.ma50_signals or bot_settings.ma200_signals
-        
-        if bot_using_ma50_or_ma200:
-            
-            df_for_ma = fetch_data(
-            bot_settings.symbol, 
-            interval="1d", 
-            lookback="200d"
-            )
-            if not is_df_valid(df_for_ma, bot_settings.id):
-                return
-        
-        else:
-            df_for_ma = None
-            
-        calculate_indicators(df, df_for_ma, bot_settings)
-    
-    except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in fetch_data_and_validate: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in fetch_data_and_validate', str(e))
-        return None
-
-
 def get_current_price(df, bot_id):
     try:
         current_price = float(df['close'].iloc[-1])
@@ -216,7 +191,7 @@ def execute_buy_order(bot_settings, current_price, atr_value):
                 buy_timestamp=dt.now()
             )
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} buy process completed.")
-            send_trade_email(f"StafanCryptoTradingBot Bot {bot_settings.id} buy process report.", f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} buy process.\n\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_price}\nstop_loss_price: {stop_loss_price}\ntake_profit_price: {take_profit_price}\nbuy_timestamp: {dt.now()}\nbuy_success: {buy_success}")
+            send_trade_email(f"Bot {bot_settings.id} execute_buy_order report.", f"StafanCryptoTradingBotBot execute_buy_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_price}\nstop_loss_price: {stop_loss_price}\ntake_profit_price: {take_profit_price}\nbuy_timestamp: {dt.now()}\nbuy_success: {buy_success}")
 
     except Exception as e:
         logger.error(f"Bot {bot_settings.id} Exception in execute_buy_order: {str(e)}")
@@ -257,7 +232,7 @@ def execute_sell_order(bot_settings, current_trade, current_price):
                 reset_price_rises_counter=True,
             )
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell process completed.")
-            send_trade_email(f"StafanCryptoTradingBot Bot {bot_settings.id} sell process report.", f"Bot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol} sell process.\n\n{bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_trade.buy_price}\nsell_price: {current_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}\nbuy_timestamp: {current_trade.buy_timestamp}\nsell_timestamp: {dt.now()}\nsell_success: {sell_success}")
+            send_trade_email(f"Bot {bot_settings.id} execute_sell_order report.", f"StafanCryptoTradingBot execute_sell_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_trade.buy_price}\nsell_price: {current_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}\nbuy_timestamp: {current_trade.buy_timestamp}\nsell_timestamp: {dt.now()}\nsell_success: {sell_success}")
 
     except Exception as e:
         logger.error(f"Bot {bot_settings.id} Exception in execute_sell_order: {str(e)}")

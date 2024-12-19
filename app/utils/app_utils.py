@@ -341,15 +341,16 @@ def clear_old_trade_history():
             ).delete(synchronize_session=False)
             
             log_message = ""
+            days_count_string = f'{days_to_clean_history} day' if days_to_clean_history == 1 else f'{days_to_clean_history} days'
             if deleted_count > 0:
                 log_message = (
                     f"Bot {bot_settings.id}: {deleted_count} trades "
-                    f"older than {days_to_clean_history} days cleared succesfully."
+                    f"older than {days_count_string} cleared succesfully."
                 )
             else:
                 log_message = (
                     f"Bot {bot_settings.id}: No trades older than "
-                    f"{days_to_clean_history} found. Nothing to clean."
+                    f"{days_count_string} found. Nothing to clean."
                 )
                 
             logger.trade(log_message)

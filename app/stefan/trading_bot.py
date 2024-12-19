@@ -6,41 +6,41 @@ from ..utils.logging import logger
 from ..utils.app_utils import send_admin_email
 from .logic_utils import (
     get_current_price,
-    handle_valid_strategy,
+    fetch_data,
+    is_df_valid,
+    calculate_indicators,
     fetch_data_and_validate,
     manage_trading_logic
     
 )
 
 def run_all_scalp_1m_trading_bots():
-    run_selected_strategy_trading_bots('scalp', '1m')
+    run_selected_trading_bots('1m')
     
 def run_all_scalp_3m_trading_bots():
-    run_selected_strategy_trading_bots('scalp', '3m')
+    run_selected_trading_bots('3m')
     
 def run_all_scalp_5m_trading_bots():
-    run_selected_strategy_trading_bots('scalp', '5m')
+    run_selected_trading_bots('5m')
     
 def run_all_scalp_15m_trading_bots():
-    run_selected_strategy_trading_bots('scalp', '15m')
+    run_selected_trading_bots('15m')
 
 def run_all_swing_30m_trading_bots():
-    run_selected_strategy_trading_bots('swing', '30m')
+    run_selected_trading_bots('30m')
     
 def run_all_swing_1h_trading_bots():
-    run_selected_strategy_trading_bots('swing', '1h')
+    run_selected_trading_bots('1h')
     
 def run_all_swing_4h_trading_bots():
-    run_selected_strategy_trading_bots('swing', '4h')
+    run_selected_trading_bots('4h')
     
 def run_all_swing_1d_trading_bots():
-    run_selected_strategy_trading_bots('swing', '1d')
+    run_selected_trading_bots('1d')
     
 
-def run_selected_strategy_trading_bots(strategy, interval):
-    all_selected_bots = BotSettings.query.filter(
-        and_(BotSettings.strategy == strategy, BotSettings.interval == interval)
-    ).all()
+def run_selected_trading_bots(interval):
+    all_selected_bots = BotSettings.query.filter(BotSettings.interval == interval).all()
     
     for bot_settings in all_selected_bots:
         try:
@@ -48,17 +48,16 @@ def run_selected_strategy_trading_bots(strategy, interval):
                 if bot_settings.bot_current_trade:
                     run_single_trading_logic(bot_settings)
                 else:
-                    error_message = f"No current trade found for settings id: {bot_settings.id}"
+                    error_message = f"No BotCurrentTrade found for Bot: {bot_settings.id}"
                     send_admin_email(f'Error starting bot {bot_settings.id}', error_message)
                     logger.trade(error_message)
                     
         except Exception as e:
-            logger.error(f'Exception in run_selected_strategy_trading_bots: {str(e)}')
-            send_admin_email('Exception in run_selected_strategy_trading_bots', str(e))
+            logger.error(f'Exception in run_selected_trading_bots: {str(e)}')
+            send_admin_email('Exception in run_selected_trading_bots', str(e))
 
 
 def run_single_trading_logic(bot_settings):
-    valid_strategies = {'scalp', 'swing'}
     
     try:
         with current_app.app_context():
@@ -77,15 +76,25 @@ def run_single_trading_logic(bot_settings):
                 lookback_period, 
                 bot_settings.id
                 )
+            df_extended = None
+            
             if df is None:
                 return
             
-            if bot_settings.strategy in valid_strategies:
-                handle_valid_strategy(bot_settings, df)
-            else:
-                logger.trade(f'No strategy {bot_settings.strategy} found for bot {bot_settings.id}')
-                send_admin_email(f'Error starting bot {bot_settings.id}', f'No strategy {bot_settings.strategy} found for bot {bot_settings.id}')
-                return
+            if bot_settings.ma50_signals or bot_settings.ma200_signals:
+                
+                lookback_extended = f'{int(bot_settings.interval[:-1]) * 205}{bot_settings.interval[-1:]}'
+                
+                df_extended = fetch_data(
+                bot_settings.symbol, 
+                interval=bot_settings.interval, 
+                lookback=lookback_extended
+                )
+                
+                if not is_df_valid(df_extended, bot_settings.id):
+                    return
+                
+            calculate_indicators(df, df_extended, bot_settings)
             
             current_price = get_current_price(df, bot_settings.id)
             if current_price is None:
