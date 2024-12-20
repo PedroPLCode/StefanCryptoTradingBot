@@ -48,7 +48,8 @@ def create_app(config_name=None):
             BacktestSettingsAdmin,
             BacktestResultsAdmin,
             BotCurrentTradeAdmin, 
-            TradesHistoryAdmin
+            TradesHistoryAdmin,
+            BotTechnicalAnalysisAdmin
         )
         admin = MyAdmin(
             app, 
@@ -62,12 +63,14 @@ def create_app(config_name=None):
             BacktestSettings, 
             BacktestResult, 
             BotCurrentTrade, 
-            TradesHistory
+            TradesHistory,
+            BotTechnicalAnalysis
         )
         admin.add_view(UserAdmin(User, db.session))
         admin.add_view(BotSettingsAdmin(BotSettings, db.session))
         admin.add_view(BotCurrentTradeAdmin(BotCurrentTrade, db.session))
         admin.add_view(TradesHistoryAdmin(TradesHistory, db.session))
+        admin.add_view(BotTechnicalAnalysisAdmin(BotTechnicalAnalysis, db.session))
         admin.add_view(BacktestSettingsAdmin(BacktestSettings, db.session))
         admin.add_view(BacktestResultsAdmin(BacktestResult, db.session))
         

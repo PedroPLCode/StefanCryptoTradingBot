@@ -2,14 +2,14 @@
 
 StefanCryptoTradingBot is an automated trading bot built for trading in cryptocurrency market on the Binance exchange, designed to operate using scalping, swing and day trading strategies. The bot integrates advanced technical indicators, real-time performance monitoring, and dynamic parameter adjustments to improve trading efficiency. 
 
-The bot provides an easy-to-use interface for starting and stopping the bot, real-time trade and balance monitoring, daily report emails and backtesting features. User can access a control panel to manage bot operations, and an admin panel for modifying key settings and strategies.
+The bot provides an easy-to-use interface for starting and stopping the bot, real-time trade and balance monitoring, technical analysis panel, daily report emails and backtesting features. User can access a control panel to manage bot operations, and an admin panel for modifying key settings and strategies.
 
 ## Features
 
 - Many independent bots with different currencies and strategies.
 - Automated Trading: Executes trades on Binance based on predefined strategies.
 - Binance API Integration: Fetches real-time data and executes trades.
-- Real-Time Monitoring: Displays current trade results, account balances, and historical data.
+- Real-Time Monitoring: Displays current trade results, account balances, current technical analysis and historical data.
 - Control & Admin Panel: Includes user access to a control panel for starting/stopping the bot, and an admin panel for changing settings, configurations and strategies.
 - Email Reporting: Sends daily logs and performance reports summarizing the bot's activities over the past 24 hours / 7 days.
 - Backtesting features to allow users to test their strategies against historical data.
@@ -79,7 +79,7 @@ gunicorn -c gunicorn_config.py wsgi:app
 
 ### Once the bot is running, you can access the web interface to:
 - Start and Stop the Bot: Control the bot’s operation via the control panel.
-- Monitor Trading: View live data, including account balances and trade performance.
+- Monitor Trading: View live data, including account balances, technical analysis indicators and trade performance.
 - Adjust parameters, settings and strategy via admin panel.
 - Receive Reports: Check daily logs and performance reports sent to your email.
 - Backtest your strategy and algorithms on historical data.

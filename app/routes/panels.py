@@ -77,6 +77,33 @@ def control_panel_view():
         return redirect(url_for('main.user_panel_view'))
     
     
+@main.route('/analysis')
+def analysis_panel_view():
+    if not current_user.is_authenticated:
+        flash('Please log in to access the technical analysis panel.', 'warning')
+        return redirect(url_for('main.login'))
+
+    if not current_user.control_panel_access:
+        logger.warning(f'{current_user.login} tried to access the Technical Analysis Panel without permission.')
+        flash(f'Error. User {current_user.login} is not allowed to access the Technical Analysis Panel.', 'danger')
+        return redirect(url_for('main.user_panel_view'))
+
+    try:
+        all_bots_info = BotSettings.query.all()
+
+        return render_template(
+            'technical_analysis.html', 
+            user=current_user, 
+            all_bots_info=all_bots_info, 
+        )
+
+    except Exception as e:
+        logger.error(f'Exception in analysis_panel_view: {str(e)}')
+        send_admin_email('Exception in analysis_panel_view', str(e))
+        flash('An error occurred while loading the technical analysis panel. The admin has been notified.', 'danger')
+        return redirect(url_for('main.user_panel_view'))
+    
+    
 @main.route('/backtest')
 def backtest_panel_view():
     if not current_user.is_authenticated:

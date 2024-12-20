@@ -109,6 +109,13 @@ class BotSettings(db.Model):
         overlaps="settings"
     )
     
+    bot_technical_analysis = db.relationship(
+        'BotTechnicalAnalysis',
+        uselist=False,
+        back_populates='bot_settings',
+        overlaps="settings"
+    )
+    
     bot_trades_history = db.relationship(
         'TradesHistory', 
         backref='bot_settings', 

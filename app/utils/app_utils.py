@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
 from .. import db
-from app.models import User, TradesHistory, BotSettings
+from app.models import User, TradesHistory, BotSettings, BotTechnicalAnalysis
 from .logging import logger
 from ..stefan.api_utils import (
     place_sell_order,
@@ -446,3 +446,66 @@ def start_all_bots(current_user='undefined'):
             except Exception as e:
                 logger.error(f'Exception in start_all_bots: {str(e)}')
                 send_admin_email('Exception in start_all_bots', str(e))
+                
+                
+def update_technical_analysis_data(bot_id, trend, averages, latest_data):
+    try:
+        technical_analysis = BotTechnicalAnalysis.query.filter_by(id=bot_id).first()
+    
+        technical_analysis.current_trend = trend
+        technical_analysis.current_close = latest_data['close']
+        technical_analysis.current_high = latest_data['high']
+        technical_analysis.current_low = latest_data['low']
+        technical_analysis.current_volume = latest_data['volume']
+        
+        technical_analysis.current_rsi = latest_data['rsi']
+        technical_analysis.current_cci = latest_data['cci']
+        technical_analysis.current_mfi = latest_data['mfi']
+        technical_analysis.current_ema_fast = latest_data['ema_fast']
+        technical_analysis.current_ema_slow = latest_data['ema_slow']
+        technical_analysis.current_macd = latest_data['macd']
+        technical_analysis.current_macd_signal = latest_data['macd_signal']
+        technical_analysis.current_macd_histogram = latest_data['macd_histogram']
+        technical_analysis.current_ma_50 = latest_data['ma_50']
+        technical_analysis.current_ma_200 = latest_data['ma_200']
+        technical_analysis.current_upper_band = latest_data['upper_band']
+        technical_analysis.current_lower_band = latest_data['lower_band']
+        technical_analysis.current_stoch_k = latest_data['stoch_k']
+        technical_analysis.current_stoch_d = latest_data['stoch_d']
+        technical_analysis.current_stoch_rsi = latest_data['stoch_rsi']
+        technical_analysis.current_stoch_rsi_k = latest_data['stoch_rsi_k']
+        technical_analysis.current_stoch_rsi_d = latest_data['stoch_rsi_d']
+        technical_analysis.current_atr = latest_data['atr']
+        technical_analysis.current_psar = latest_data['psar']
+        technical_analysis.current_vwap = latest_data['vwap']
+        technical_analysis.current_adx = latest_data['adx']
+        technical_analysis.current_plus_di = latest_data['plus_di']
+        technical_analysis.current_minus_di = latest_data['minus_di']
+        
+        technical_analysis.avg_close = averages['avg_close']
+        technical_analysis.avg_volume = averages['avg_volume']
+        technical_analysis.avg_rsi = averages['avg_rsi']
+        technical_analysis.avg_cci = averages['avg_cci']
+        technical_analysis.avg_mfi = averages['avg_mfi']
+        technical_analysis.avg_atr = averages['avg_atr']
+        technical_analysis.avg_stoch_rsi_k = averages['avg_stoch_rsi_k']
+        technical_analysis.avg_macd = averages['avg_macd']
+        technical_analysis.avg_macd_signal = averages['avg_macd_signal']
+        technical_analysis.avg_stoch_k = averages['avg_stoch_k']
+        technical_analysis.avg_stoch_d = averages['avg_stoch_d']
+        technical_analysis.avg_ema_fast = averages['avg_ema_fast']
+        technical_analysis.avg_ema_slow = averages['avg_ema_slow']
+        technical_analysis.avg_plus_di = averages['avg_plus_di']
+        technical_analysis.avg_minus_di = averages['avg_minus_di']
+        technical_analysis.avg_psar = averages['avg_psar']
+        technical_analysis.avg_vwap = averages['avg_vwap']
+        
+        technical_analysis.last_updated_timestamp = datetime.now()
+
+        db.session.commit()
+        logger.trade(f'BotTechnicalAnalysis {technical_analysis.id}: bot: {bot_id} updated in database.')
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Bot {bot_id} Exception in update_technical_analysis_data: {str(e)}")
+        send_admin_email(f'Bot {bot_id} Exception in update_technical_analysis_data', str(e))

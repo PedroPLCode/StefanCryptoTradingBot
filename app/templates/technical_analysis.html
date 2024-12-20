@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StefanCryptoTradingBot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+    <div class="container d-flex flex-column justify-content-center align-items-center mt-3">
+
+        {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} mt-3" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <h4 class="col-md-6 card-header text-center">StefanCryptoTradingBot</h4>
+        <p class="text-muted text-center m-0 p-0">current time: {{ date_and_time }}</p>
+
+        {% if current_user.is_authenticated %}
+            <p class="text-center text-muted m-0 p-0">{{ current_user.login }} logged in at {{ current_user.last_login }}</p>
+        {% endif %}
+
+        <div class="col-12 col-md-6 card mt-3 mb-3">
+            <div class="card-header text-center bg-light">
+                <h5>Technical Analysis Panel</h5>
+            </div>
+            {% if all_bots_info %}
+            <div class="card-body text-center">
+                <div class="accordion" id="botsAccordion">
+                    {% for bot_info in all_bots_info %}
+                    <div class="accordion-item">
+                        <div class="accordion-header d-flex justify-content-center" id="heading{{ bot_info.id }}">
+                            <button class="accordion-button collapsed text-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ bot_info.id }}" aria-expanded="false" aria-controls="collapse{{ bot_info.id }}">
+                                <p class="w-100 text-center m-0 p-0">Bot {{ bot_info.id }} {{ bot_info.strategy | upper }} {{ bot_info.symbol }}<br>Technical Analysis Data</p>
+                            </button>
+                        </div>
+
+                        <div id="collapse{{ bot_info.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ bot_info.id }}" data-bs-parent="#botsAccordion">
+                            <div class="accordion-body">
+                                <p class="text-muted m-0 p-0">Symbol: {{ bot_info.symbol }}</p>
+                                <p class="text-muted m-0 p-0">Strategy: {{ bot_info.strategy | upper }}</p>
+                                <p class="text-muted m-0 p-0">Comment: {{ bot_info.comment }}</p>
+                                <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>
+                                <p class="text-muted m-0 p-0 border-bottom">Lookback Period: {{ bot_info.lookback_period }}</p>
+
+                                <p class="text-muted m-0 p-0 border-bottom">Last updated: {{ bot_info.bot_bot_technical_analysis.last_updated_timestamp }}</p>
+
+                                <p class="text-muted m-0 p-0 border-bottom
+                                    {% if bot_info.bot_bot_technical_analysis.current_trend == 'uptrend' %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_trend == 'downtrend' %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">
+                                    Trend({{ bot_info.avg_adx_period }}): {{ bot_info.bot_bot_technical_analysis.current_trend }}
+                                </p>
+                            
+                                <p class="text-muted m-0 p-0">Close: {{ bot_info.bot_bot_technical_analysis.current_close }}</p>
+                                
+                                <p class="text-muted m-0 p-0 border-bottom
+                                    {% if bot_info.bot_bot_technical_analysis.current_close > bot_info.bot_bot_technical_analysis.avg_close %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_close < bot_info.bot_bot_technical_analysis.avg_close %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_close({{ bot_info.avg_close_period }}): {{ bot_info.bot_bot_technical_analysis.avg_close }}</p>
+                                
+                                <p class="text-muted m-0 p-0 border-bottom">High: {{ bot_info.bot_bot_technical_analysis.current_high }}</p>
+                                
+                                <p class="text-muted m-0 p-0 border-bottom">Low: {{ bot_info.bot_bot_technical_analysis.current_low }}</p>
+                                
+                                <p class="text-muted m-0 p-0">Volume: {{ bot_info.bot_bot_technical_analysis.current_volume }}</p>
+                                
+                                <p class="text-muted m-0 p-0 border-bottom
+                                    {% if bot_info.bot_bot_technical_analysis.current_volume > bot_info.bot_bot_technical_analysis.avg_volume %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_volume < bot_info.bot_bot_technical_analysis.avg_volume %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_volume({{ bot_info.avg_volume_period }}): {{ bot_info.bot_bot_technical_analysis.avg_volume }}</p>
+                                
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_rsi < bot_info.rsi_buy %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_rsi > bot_info.rsi_sell %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">RSI({{ bot_info.rsi_timeperiod }}, {{ bot_info.rsi_buy }}/{{ bot_info.rsi_sell }}): {{ bot_info.bot_bot_technical_analysis.current_rsi }}</p>
+                                
+                                <p class="text-muted m-0 p-0 border-bottom
+                                    {% if bot_info.bot_bot_technical_analysis.current_rsi > bot_info.bot_bot_technical_analysis.avg_rsi %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_rsi < bot_info.bot_bot_technical_analysis.avg_rsi %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_rsi({{ bot_info.avg_rsi_period }}): {{ bot_info.bot_bot_technical_analysis.avg_rsi }}</p>
+                                
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_cci < bot_info.cci_buy %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_cci > bot_info.cci_sell %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">CCI({{ bot_info.cci_timeperiod }}, {{ bot_info.cci_buy }}/{{ bot_info.cci_sell }}): {{ bot_info.bot_bot_technical_analysis.current_cci }}</p>
+
+                                <p class="text-muted m-0 p-0 border-bottom
+                                    {% if bot_info.bot_bot_technical_analysis.current_cci > bot_info.bot_bot_technical_analysis.avg_cci %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_cci < bot_info.bot_bot_technical_analysis.avg_cci %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_cci({{ bot_info.avg_cci_period }}): {{ bot_info.bot_bot_technical_analysis.avg_cci }}</p>
+
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_mfi < bot_info.mfi_buy %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_mfi > bot_info.mfi_sell %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">MFI({{ bot_info.mfi_timeperiod }}, {{ bot_info.mfi_buy }}/{{ bot_info.mfi_sell }}): {{ bot_info.bot_bot_technical_analysis.current_mfi }}</p>
+
+                                <p class="text-muted m-0 p-0 border-bottom
+                                    {% if bot_info.bot_bot_technical_analysis.current_mfi > bot_info.bot_bot_technical_analysis.avg_mfi %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_mfi < bot_info.bot_bot_technical_analysis.avg_mfi %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_mfi({{ bot_info.avg_mfi_period }}): {{ bot_info.bot_bot_technical_analysis.avg_mfi }}</p>
+
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_ema_fast < bot_info.bot_bot_technical_analysis.current_close %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_ema_fast > bot_info.bot_bot_technical_analysis.current_ema_close %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">EMA Fast({{ bot_info.ema_fast_timeperiod }}): {{ bot_info.bot_bot_technical_analysis.current_ema_fast }}</p>
+
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_ema_fast > bot_info.bot_bot_technical_analysis.avg_ema_fast %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_ema_fast < bot_info.bot_bot_technical_analysis.avg_ema_fast %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_ema_fast({{ bot_info.avg_ema_period }}): {{ bot_info.bot_bot_technical_analysis.avg_ema_fast }}</p>
+
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_ema_slow < bot_info.bot_bot_technical_analysis.current_close %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_ema_slow > bot_info.bot_bot_technical_analysis.current_ema_close %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">EMA Slow({{ bot_info.ema_slow_timeperiod }}): {{ bot_info.bot_bot_technical_analysis.current_ema_slow }}</p>
+                                
+                                <p class="text-muted m-0 p-0 border-bottom
+                                    {% if bot_info.bot_bot_technical_analysis.current_ema_slow > bot_info.bot_bot_technical_analysis.avg_ema_slow %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_ema_slow < bot_info.bot_bot_technical_analysis.avg_ema_slow %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_ema_slow({{ bot_info.avg_ema_period }}): {{ bot_info.bot_bot_technical_analysis.avg_ema_slow }}</p>
+
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_macd > bot_info.bot_bot_technical_analysis.current_macd_signal %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_macd < bot_info.bot_bot_technical_analysis.current_macd_signal %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">MACD({{ bot_info.macd_timeperiod }}, {{ bot_info.macd_timeperiod * 2 }}, {{ bot_info.macd_signalperiod }}): {{ bot_info.bot_bot_technical_analysis.current_macd }}</p>
+
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_macd > bot_info.bot_bot_technical_analysis.avg_macd %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_macd < bot_info.bot_bot_technical_analysis.avg_macd %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_macd({{ bot_info.avg_macd_period }}): {{ bot_info.bot_bot_technical_analysis.avg_macd }}</p>
+
+                                <p class="text-muted m-0 p-0">MACD Signal: {{ bot_info.bot_bot_technical_analysis.current_macd_signal }}</p>
+                                
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_macd_signal > bot_info.bot_bot_technical_analysis.avg_macd_signal %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_macd_signal < bot_info.bot_bot_technical_analysis.avg_macd_signal %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_macd_signal({{ bot_info.avg_macd_period }}): {{ bot_info.bot_bot_technical_analysis.avg_macd_signal }}</p>
+
+                                <p class="text-muted m-0 p-0 border-bottom
+                                    {% if bot_info.bot_bot_technical_analysis.current_macd_histogram > 0 %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_macd_histogram < 0 %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">MACD Histogram: {{ bot_info.bot_bot_technical_analysis.current_macd_histogram }}</p>
+
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_close > bot_info.bot_bot_technical_analysis.current_ma_50 %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_close < bot_info.bot_bot_technical_analysis.current_ma_50 %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">MA50: {{ bot_info.bot_bot_technical_analysis.current_ma_50 }}</p>
+                               
+                                <p class="text-muted m-0 p-0 border-bottom
+                                    {% if bot_info.bot_bot_technical_analysis.current_close > bot_info.bot_bot_technical_analysis.current_ma_200 %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_close < bot_info.bot_bot_technical_analysis.current_ma_200 %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">MA200: {{ bot_info.bot_bot_technical_analysis.current_ma_200 }}</p>
+
+                                <p class="text-muted m-0 p-0 border-bottom
+                                    {% if bot_info.bot_bot_technical_analysis.current_close < bot_info.bot_bot_technical_analysis.current_lower_band %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_close > bot_info.bot_bot_technical_analysis.current_upper_band %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">>Boilinger({{ bot_info.boilinger_timeperiod }}, {{ bot_info.boilinger_nbdev }}) upper band: {{ bot_info.bot_bot_technical_analysis.current_upper_band }}<br>Boilinger({{ bot_info.boilinger_timeperiod }}, {{ bot_info.boilinger_nbdev }}) lower band: {{ bot_info.bot_bot_technical_analysis.current_lower_band }}</p>
+
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_stoch_k > bot_info.bot_bot_technical_analysis.current_stoch_d %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_stoch_k < bot_info.bot_bot_technical_analysis.current_stoch_d %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">Stochastic({{ stoch_k_timeperiod }}, {{ stoch_d_timeperiod }}) K: {{ bot_info.bot_bot_technical_analysis.current_stoch_k }}</p>
+                                
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_stoch_k > bot_info.bot_bot_technical_analysis.avg_stoch_k %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_stoch_k < bot_info.bot_bot_technical_analysis.avg_stoch_k %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_stoch_k({{ bot_info.avg_stoch_period }}): {{ bot_info.bot_bot_technical_analysis.avg_stoch_k }}</p>
+
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_stoch_k > bot_info.bot_bot_technical_analysis.current_stoch_d %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_stoch_k < bot_info.bot_bot_technical_analysis.current_stoch_d %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">Stochastic({{ stoch_k_timeperiod }}, {{ stoch_d_timeperiod }}) D: {{ bot_info.bot_bot_technical_analysis.current_stoch_d }}</p>
+                                
+                                <p class="text-muted m-0 p-0 border-bottom
+                                    {% if bot_info.bot_bot_technical_analysis.current_stoch_d > bot_info.bot_bot_technical_analysis.avg_stoch_d %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_stoch_d < bot_info.bot_bot_technical_analysis.avg_stoch_d %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_stoch_d({{ bot_info.avg_stoch_period }}): {{ bot_info.bot_bot_technical_analysis.avg_stoch_d }}</p>
+
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_stoch_rsi < bot_info.stoch_buy %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_stoch_rsi > bot_info.stoch_sell %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">StochasticRSI({{ stoch_rsi_timeperiod }}): {{ bot_info.bot_bot_technical_analysis.current_stoch_rsi }}</p>
+                                
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_stoch_rsi < bot_info.stoch_buy %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_stoch_rsi > bot_info.stoch_sell %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">StochasticRSI({{ stoch_rsi_k_timeperiod }}, {{ stoch_rsi_d_timeperiod }}) K: {{ bot_info.bot_bot_technical_analysis.current_stoch_rsi_k }}</p>
+                                
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_stoch_rsi_k > bot_info.bot_bot_technical_analysis.avg_stoch_rsi_k %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_stoch_rsi_k < bot_info.bot_bot_technical_analysis.avg_stoch_rsi_k %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_stoch_rsi_k({{ bot_info.avg_stoch_period }}): {{ bot_info.bot_bot_technical_analysis.avg_stoch_rsi_k }}</p>
+                                <p class="text-muted m-0 p-0 border-bottom">StochasticRSI({{ stoch_rsi_k_timeperiod }}, {{ stoch_rsi_d_timeperiod }}) D: {{ bot_info.bot_bot_technical_analysis.current_stoch_rsi_d }}</p>
+
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_atr > bot_info.bot_bot_technical_analysis.atr_buy_treshold %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_atr < bot_info.bot_bot_technical_analysis.atr_buy_treshold %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">ATR({{ bot_info.atr_timeperiod }}): {{ bot_info.bot_bot_technical_analysis.current_atr }}</p>
+
+                                <p class="text-muted m-0 p-0 border-bottom
+                                    {% if bot_info.bot_bot_technical_analysis.current_atr > bot_info.bot_bot_technical_analysis.avg_atr %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_atr < bot_info.bot_bot_technical_analysis.avg_atr %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_atr({{ bot_info.avg_atr_period }}): {{ bot_info.bot_bot_technical_analysis.avg_atr }}</p>
+                               
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_close > bot_info.bot_bot_technical_analysis.current_psar %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_close < bot_info.bot_bot_technical_analysis.current_psar %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">PSAR({{ bot_info.psar_acceleration }}, {{ bot_info.psar_maximum }}): {{ bot_info.bot_bot_technical_analysis.current_psar }}</p>
+
+                                <p class="text-muted m-0 p-0 border-bottom
+                                    {% if bot_info.bot_bot_technical_analysis.current_psar > bot_info.bot_bot_technical_analysis.avg_psar %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_psar < bot_info.bot_bot_technical_analysis.avg_psar %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_psar({{ bot_info.avg_psar_period }}): {{ bot_info.bot_bot_technical_analysis.avg_psar }}</p>
+                                
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_close > bot_info.bot_bot_technical_analysis.current_vwap %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_close < bot_info.bot_bot_technical_analysis.current_vwap %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">VWAP({{ bot_info.vwap_timeperiod }}): {{ bot_info.bot_bot_technical_analysis.current_vwap }}</p>
+
+                                <p class="text-muted m-0 p-0 border-bottom
+                                    {% if bot_info.bot_bot_technical_analysis.current_vwap > bot_info.bot_bot_technical_analysis.avg_vwap %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_vwap < bot_info.bot_bot_technical_analysis.avg_vwap %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_vwap({{ bot_info.avg_vwap_period }}): {{ bot_info.bot_bot_technical_analysis.avg_vwap }}</p>
+
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_adx > bot_info.adx_strong_trend %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_adx < bot_info.adx_no_trend %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">ADX({{ bot_info.adx_timeperiod }}): {{ bot_info.bot_bot_technical_analysis.current_adx }}</p>
+
+                                <p class="text-muted m-0 p-0 border-bottom
+                                    {% if bot_info.bot_bot_technical_analysis.current_adx > bot_info.bot_bot_technical_analysis.avg_adx %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_adx < bot_info.bot_bot_technical_analysis.avg_adx %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_adx({{ bot_info.avg_adx_period }}): {{ bot_info.bot_bot_technical_analysis.avg_adx }}</p>
+
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_plus_di > bot_info.bot_bot_technical_analysis.current_minus_di %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_plus_di < bot_info.bot_bot_technical_analysis.current_minus_di %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">PlusDI({{ bot_info.di_timeperiod }}): {{ bot_info.bot_bot_technical_analysis.current_plus_di }}</p>
+
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_plus_di > bot_info.bot_bot_technical_analysis.avg_plus_di %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_plus_di < bot_info.bot_bot_technical_analysis.avg_plus_di %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_plus_di({{ bot_info.avg_plus_di_period }}): {{ bot_info.bot_bot_technical_analysis.avg_plus_di }}</p>
+
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_plus_di > bot_info.bot_bot_technical_analysis.current_minus_di %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_plus_di < bot_info.bot_bot_technical_analysis.current_minus_di %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">MinusDI({{ bot_info.di_timeperiod }}): {{ bot_info.bot_bot_technical_analysis.current_minus_di }}</p>
+                                
+                                <p class="text-muted m-0 p-0
+                                    {% if bot_info.bot_bot_technical_analysis.current_minus_di > bot_info.bot_bot_technical_analysis.avg_minus_di %}
+                                        text-success
+                                    {% elif bot_info.bot_bot_technical_analysis.current_minus_di < bot_info.bot_bot_technical_analysis.avg_minus_di %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">avg_minus_di({{ bot_info.avg_minus_di_period }}): {{ bot_info.bot_bot_technical_analysis.avg_minus_di }}</p>                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="card-body text-center">
+                <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                    <p class="mb-1">Nothing here.<br>No bots.<br>Nothing to analyse.<br>Boring...<br>Lets create some bots!</p>
+                </div>
+            </div>    
+        {% endif %}
+        </div>
+
+        <div class="col-12 col-md-6 card mb-3">
+            <div class="card-header text-center bg-light">
+                <h5>Options</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="d-flex flex-column justify-content-center align-items-center gap-2">    
+                    <a href="{{ url_for('main.analysis_panel_view') }}" class="btn btn-primary w-100">Refresh</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 card mb-3">
+            <div class="card-header text-center bg-light">
+                <h5>Navigation</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                    <a href="/control" class="btn btn-primary w-100">Control Panel</a>
+                    <a href="/trades" class="btn btn-primary w-100">Trades History</a>
+                    <a href="/backtest" class="btn btn-primary w-100">Backtest Panel</a>
+                    <a href="/" class="btn btn-primary w-100">User Panel</a>
+                    {% if user.admin_panel_access %}
+                        <a href="/admin" class="btn btn-primary w-100">Admin Panel</a>
+                    {% endif %}
+                    <a href="{{ url_for('main.logout') }}" class="btn btn-danger w-100">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <footer class="col-md-6 text-center mb-3">
+            <p class="text-muted">
+                <a href="mailto:StefanCryptoTradingBot@gmail.com">StefanCryptoTradingBot@gmail.com</a>
+            </p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

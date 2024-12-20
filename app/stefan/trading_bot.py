@@ -45,10 +45,10 @@ def run_selected_trading_bots(interval):
     for bot_settings in all_selected_bots:
         try:
             if bot_settings.bot_running:
-                if bot_settings.bot_current_trade:
+                if bot_settings.bot_current_trade and bot_settings.bot_technical_analysis:
                     run_single_trading_logic(bot_settings)
                 else:
-                    error_message = f"No BotCurrentTrade found for Bot: {bot_settings.id}"
+                    error_message = f"No BotCurrentTrade or BotTechnicalAnalysis found for Bot: {bot_settings.id}"
                     send_admin_email(f'Error starting bot {bot_settings.id}', error_message)
                     logger.trade(error_message)
                     
@@ -81,26 +81,11 @@ def run_single_trading_logic(bot_settings):
             if df is None:
                 return
             
-            if bot_settings.ma50_signals or bot_settings.ma200_signals:
-                
-                lookback_extended = f'{int(bot_settings.interval[:-1]) * 205}{bot_settings.interval[-1:]}'
-                
-                df_extended = fetch_data(
-                bot_settings.symbol, 
-                interval=bot_settings.interval, 
-                lookback=lookback_extended
-                )
-                
-                if not is_df_valid(df_extended, bot_settings.id):
-                    return
-                
-            calculate_indicators(df, df_extended, bot_settings)
-            
             current_price = get_current_price(df, bot_settings.id)
             if current_price is None:
                 return
             
-            manage_trading_logic(bot_settings, current_trade, current_price, df)
+            manage_trading_logic(bot_settings, current_trade, current_price, df, df_extended)
 
     except Exception as e:
         logger.error(f'Bot {bot_settings.id} Exception in run_single_trading_logic: {str(e)}')
