@@ -67,7 +67,7 @@ def get_current_price(df, bot_id):
         return None
 
 
-def manage_trading_logic(bot_settings, current_trade, current_price, df, df_extended):
+def manage_trading_logic(bot_settings, current_trade, current_price, df):
     try:
         use_stop_loss = bot_settings.use_stop_loss
         use_trailing_stop_loss = bot_settings.use_trailing_stop_loss
@@ -76,7 +76,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df, df_exte
         use_take_profit = bot_settings.use_stop_loss
         take_profit_price = float(current_trade.take_profit_price)
         
-        prepare_full_df_data(bot_settings, df, df_extended)
+        prepare_full_df_data(bot_settings, df)
         
         previous_price = float(current_trade.previous_price if current_trade.is_active else 0)
         latest_data = df.iloc[-1]
@@ -134,7 +134,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df, df_exte
             elif price_drops:
                 handle_price_drops(bot_settings, current_price)
                 
-        update_technical_analysis_data(bot_settings.id, trend, averages, latest_data)
+        update_technical_analysis_data(bot_settings, trend, averages, latest_data)
                                 
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} loop completed.")
         
@@ -143,8 +143,9 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df, df_exte
         send_admin_email(f'Bot {bot_settings.id} Exception in manage_trading_logic', str(e))
         
         
-def prepare_full_df_data(bot_settings, df, df_extended):
+def prepare_full_df_data(bot_settings, df):
     try:
+        
         if bot_settings.ma50_signals or bot_settings.ma200_signals:
                     
             lookback_extended = f'{int(bot_settings.interval[:-1]) * 205}{bot_settings.interval[-1:]}'
@@ -156,13 +157,16 @@ def prepare_full_df_data(bot_settings, df, df_extended):
             )
                     
             if not is_df_valid(df_extended, bot_settings.id):
-                return
+                return False
                     
-        calculate_indicators(df, df_extended, bot_settings)    
+            calculate_indicators(df, df_extended, bot_settings)    
+            
+        else:
+            calculate_indicators(df, None, bot_settings)    
         
     except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in handle_prepare_db: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in handle_prepare_db', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in prepare_full_df_data: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in prepare_full_df_data', str(e))
 
 
 def execute_buy_order(bot_settings, current_price, atr_value):

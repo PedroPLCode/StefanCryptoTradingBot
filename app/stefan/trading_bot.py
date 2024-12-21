@@ -1,5 +1,6 @@
 from flask import current_app
 from sqlalchemy import and_
+import pandas as pd
 from ..models import BotSettings
 from binance.exceptions import BinanceAPIException
 from ..utils.logging import logger
@@ -76,7 +77,6 @@ def run_single_trading_logic(bot_settings):
                 lookback_period, 
                 bot_settings.id
                 )
-            df_extended = None
             
             if df is None:
                 return
@@ -85,7 +85,7 @@ def run_single_trading_logic(bot_settings):
             if current_price is None:
                 return
             
-            manage_trading_logic(bot_settings, current_trade, current_price, df, df_extended)
+            manage_trading_logic(bot_settings, current_trade, current_price, df)
 
     except Exception as e:
         logger.error(f'Bot {bot_settings.id} Exception in run_single_trading_logic: {str(e)}')
