@@ -281,7 +281,9 @@
                                     <p class="text-danger m-0 p-0 border-bottom">macd and macd_signal negative cross</p>
                                 {% endif %}
 
+                                {% if bot_info.ma50_signals or bot_info.ma200_signals %}
                                 <p class="text-muted m-0 p-0">MA Moving Averages:</p>
+                                {% endif %}
                                 {% if bot_info.ma50_signals %}
                                 <p class="m-0 p-0
                                     {% if bot_info.bot_technical_analysis.current_close > bot_info.bot_technical_analysis.current_ma_50 %}

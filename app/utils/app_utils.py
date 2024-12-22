@@ -452,6 +452,8 @@ def update_technical_analysis_data(bot_settings, trend, averages, latest_data):
     try:
         technical_analysis = BotTechnicalAnalysis.query.filter_by(id=bot_settings.id).first()
 
+        technical_analysis.current_trend = trend
+
         latest_data_fields = [
             'close', 'high', 'low', 'volume', 'rsi', 'cci', 'mfi', 'ema_fast', 'ema_slow',
             'macd', 'macd_signal', 'macd_histogram', 'upper_band', 'lower_band', 'stoch_k',
