@@ -61,6 +61,7 @@
 
                                 <p class="text-muted m-0 p-0 border-bottom">Last updated: {{ bot_info.bot_technical_analysis.last_updated_timestamp }}</p>
 
+                                <p class="text-muted m-0 p-0">Trend:</p>
                                 <p class="m-0 p-0 border-bottom
                                     {% if bot_info.bot_technical_analysis.current_trend == 'uptrend' %}
                                         text-success
@@ -72,6 +73,7 @@
                                     current_trend({{ bot_info.avg_adx_period }}): {{ bot_info.bot_technical_analysis.current_trend }}
                                 </p>
                             
+                                <p class="text-muted m-0 p-0">Close Price:</p>
                                 {% if bot_info.bot_technical_analysis.current_close > bot_info.bot_technical_analysis.avg_close %}
                                     <p class="text-success m-0 p-0">close > avg_close</p>
                                 {% elif bot_info.bot_technical_analysis.current_close < bot_info.bot_technical_analysis.avg_close %}
@@ -81,9 +83,13 @@
                                 <p class="text-muted m-0 p-0">close: {{ bot_info.bot_technical_analysis.current_close | round(2) }}</p>
                                 <p class="text-muted m-0 p-0 border-bottom">avg_close({{ bot_info.avg_close_period }}): {{ bot_info.bot_technical_analysis.avg_close | round(2) }}</p>
                             
+                                <p class="text-muted m-0 p-0">High Price:</p>
                                 <p class="text-muted m-0 p-0 border-bottom">high: {{ bot_info.bot_technical_analysis.current_high }}</p>
+                                
+                                <p class="text-muted m-0 p-0">Low Price:</p>
                                 <p class="text-muted m-0 p-0 border-bottom">low: {{ bot_info.bot_technical_analysis.current_low }}</p>
 
+                                <p class="text-muted m-0 p-0">Volume:</p>
                                 {% if bot_info.bot_technical_analysis.current_volume > bot_info.bot_technical_analysis.avg_volume %}
                                     <p class="text-success m-0 p-0">volume > avg_volume</p>
                                 {% elif bot_info.bot_technical_analysis.current_volume < bot_info.bot_technical_analysis.avg_volume %}
@@ -93,6 +99,7 @@
                                 <p class="text-muted m-0 p-0">volume: {{ bot_info.bot_technical_analysis.current_volume | round(2) }}</p>
                                 <p class="text-muted m-0 p-0 border-bottom">avg_volume({{ bot_info.avg_volume_period }}): {{ bot_info.bot_technical_analysis.avg_volume | round(2) }}</p>
                                 
+                                <p class="text-muted m-0 p-0">RSI Relative Strength Index</p>
                                 {% if bot_info.bot_technical_analysis.current_rsi > bot_info.bot_technical_analysis.avg_rsi %}
                                     <p class="text-success m-0 p-0">rsi > avg_rsi</p>
                                 {% elif bot_info.bot_technical_analysis.current_rsi < bot_info.bot_technical_analysis.avg_rsi %}
@@ -123,6 +130,7 @@
                                         text-muted
                                     {% endif %}">avg_rsi({{ bot_info.avg_rsi_period }}): {{ bot_info.bot_technical_analysis.avg_rsi | round(2) }}</p>
 
+                                <p class="text-muted m-0 p-0">CCI Commodity Channel Index:</p>
                                 {% if bot_info.bot_technical_analysis.current_cci > bot_info.bot_technical_analysis.avg_cci %}
                                     <p class="text-success m-0 p-0">cci > avg_cci</p>
                                 {% elif bot_info.bot_technical_analysis.current_cci < bot_info.bot_technical_analysis.avg_cci %}
@@ -153,6 +161,7 @@
                                         text-muted
                                     {% endif %}">avg_cci({{ bot_info.avg_cci_period }}): {{ bot_info.bot_technical_analysis.avg_cci | round(2) }}</p>
 
+                                <p class="text-muted m-0 p-0">MFI Money Flow Index:</p>
                                 {% if bot_info.bot_technical_analysis.current_mfi > bot_info.bot_technical_analysis.avg_mfi %}
                                     <p class="text-success m-0 p-0">mfi > avg_mfi</p>
                                 {% elif bot_info.bot_technical_analysis.current_mfi < bot_info.bot_technical_analysis.avg_mfi %}
@@ -183,6 +192,7 @@
                                         text-muted
                                     {% endif %}">avg_mfi({{ bot_info.avg_mfi_period }}): {{ bot_info.bot_technical_analysis.avg_mfi | round(2) }}</p>
 
+                                <p class="text-muted m-0 p-0">EMA Exponential Moving Average:</p>
                                 {% if bot_info.bot_technical_analysis.current_ema_fast > bot_info.bot_technical_analysis.avg_ema_fast %}
                                     <p class="text-success m-0 p-0">ema_fast > avg_ema_fast</p>
                                 {% elif bot_info.bot_technical_analysis.current_ema_fast < bot_info.bot_technical_analysis.avg_ema_fast %}
@@ -237,6 +247,7 @@
                                     <p class="text-danger m-0 p-0 border-bottom">ema_slow and ema_fast negative cross</p>
                                 {% endif %}
 
+                                <p class="text-muted m-0 p-0">MACD Moving Average Convergence Divergence:</p>
                                 <p class="m-0 p-0
                                     {% if bot_info.bot_technical_analysis.current_macd > bot_info.bot_technical_analysis.current_macd_signal %}
                                         text-success
@@ -270,6 +281,7 @@
                                     <p class="text-danger m-0 p-0 border-bottom">macd and macd_signal negative cross</p>
                                 {% endif %}
 
+                                <p class="text-muted m-0 p-0">MA Moving Averages:</p>
                                 {% if bot_info.ma50_signals %}
                                 <p class="m-0 p-0
                                     {% if bot_info.bot_technical_analysis.current_close > bot_info.bot_technical_analysis.current_ma_50 %}
@@ -292,6 +304,7 @@
                                     {% endif %}">ma_200: {{ bot_info.bot_technical_analysis.current_ma_200 | round(2) }}</p>
                                 {% endif %}
 
+                                <p class="text-muted m-0 p-0">Boilinger Bands:</p>
                                 <p class="m-0 p-0 border-bottom
                                     {% if bot_info.bot_technical_analysis.current_close < bot_info.bot_technical_analysis.current_lower_band %}
                                         text-success
@@ -307,6 +320,7 @@
                                     <p class="text-danger m-0 p-0">stoch_k and close negative divergention</p>
                                 {% endif %}
 
+                                <p class="text-muted m-0 p-0">Stochastic Oscilator:</p>
                                 <p class="m-0 p-0
                                     {% if bot_info.bot_technical_analysis.current_stoch_k > bot_info.bot_technical_analysis.current_stoch_d %}
                                         text-success
@@ -349,6 +363,7 @@
                                     <p class="text-danger m-0 p-0 border-bottom">stoch_k and stoch_d negative cross</p>
                                 {% endif %}
 
+                                <p class="text-muted m-0 p-0">Stochastic RSI Oscilator:</p>
                                 <p class="m-0 p-0
                                     {% if bot_info.bot_technical_analysis.current_stoch_rsi < bot_info.stoch_buy %}
                                         text-success
@@ -367,6 +382,7 @@
                                         text-muted
                                     {% endif %}">avg_stoch_rsi_k({{ bot_info.stoch_rsi_k_timeperiod }}, {{ bot_info.stoch_rsi_d_timeperiod }}): {{ bot_info.bot_technical_analysis.current_stoch_rsi_k | round(2) }}</p>
         
+                                <p class="text-muted m-0 p-0">ATR Average True Range:</p>
                                 {% if bot_info.bot_technical_analysis.current_atr > bot_info.bot_technical_analysis.avg_atr %}
                                     <p class="text-success m-0 p-0">atr > avg_atr</p>
                                 {% elif bot_info.bot_technical_analysis.current_atr < bot_info.bot_technical_analysis.avg_atr %}
@@ -390,6 +406,7 @@
                                         text-muted
                                     {% endif %}">avg_atr({{ bot_info.avg_atr_period }}): {{ bot_info.bot_technical_analysis.avg_atr | round(2) }}</p>
 
+                                <p class="text-muted m-0 p-0">PSAR Parabolic Stop and Reverse:</p>
                                 {% if bot_info.bot_technical_analysis.current_psar > bot_info.bot_technical_analysis.avg_psar %}
                                     <p class="text-success m-0 p-0">psar > avg_psar</p>
                                 {% elif bot_info.bot_technical_analysis.current_psar < bot_info.bot_technical_analysis.avg_psar %}
@@ -414,6 +431,7 @@
                                         text-muted
                                     {% endif %}">avg_psar({{ bot_info.avg_psar_period }}): {{ bot_info.bot_technical_analysis.avg_psar | round(2) }}</p>
                                 
+                                <p class="text-muted m-0 p-0">VWAP Volume Weighted Average Price:</p>
                                 {% if bot_info.bot_technical_analysis.current_vwap > bot_info.bot_technical_analysis.avg_vwap %}
                                     <p class="text-success m-0 p-0">vwap > avg_vwap</p>
                                 {% elif bot_info.bot_technical_analysis.current_vwap < bot_info.bot_technical_analysis.avg_vwap %}
@@ -438,6 +456,7 @@
                                         text-muted
                                     {% endif %}">avg_vwap({{ bot_info.avg_vwap_period }}): {{ bot_info.bot_technical_analysis.avg_vwap | round(2) }}</p>
 
+                                <p class="text-muted m-0 p-0">ATR Average Directional Index:</p>
                                 <p class="m-0 p-0 border-bottom
                                     {% if bot_info.bot_technical_analysis.current_adx > bot_info.adx_strong_trend %}
                                         text-success
@@ -447,6 +466,7 @@
                                         text-muted
                                     {% endif %}">adx({{ bot_info.adx_timeperiod }}): {{ bot_info.bot_technical_analysis.current_adx | round(2) }}</p>
 
+                                <p class="text-muted m-0 p-0">Plus DI Positive Directional Indicator:</p>
                                 {% if bot_info.bot_technical_analysis.current_plus_di > bot_info.bot_technical_analysis.avg_plus_di %}
                                     <p class="text-success m-0 p-0">plus_di > avg_plus_di</p>
                                 {% elif bot_info.bot_technical_analysis.current_plus_di < bot_info.bot_technical_analysis.avg_plus_di %}
@@ -470,7 +490,8 @@
                                     {% else %}
                                         text-muted
                                     {% endif %}">avg_plus_di({{ bot_info.avg_di_period }}): {{ bot_info.bot_technical_analysis.avg_plus_di | round(2) }}</p>
-
+                                    
+                                <p class="text-muted m-0 p-0">Minus DI Negative Directional Indicator:</p>
                                 {% if bot_info.bot_technical_analysis.current_minus_di > bot_info.bot_technical_analysis.avg_minus_di %}
                                     <p class="text-success m-0 p-0">minus_di > avg_minus_di</p>
                                 {% elif bot_info.bot_technical_analysis.current_minus_di < bot_info.bot_technical_analysis.avg_minus_di %}
