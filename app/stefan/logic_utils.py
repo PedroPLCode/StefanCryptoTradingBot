@@ -125,7 +125,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
                 full_sell_signal = stop_loss_activated or take_profit_activated
         
             if full_sell_signal:
-                execute_sell_order(bot_settings, current_trade, current_price)
+                execute_sell_order(bot_settings, current_trade, current_price, stop_loss_activated, take_profit_activated)
             elif price_rises:
                 if use_trailing_stop_loss:
                     update_trailing_stop(bot_settings, current_trade, current_price, atr)  
@@ -229,7 +229,7 @@ def execute_buy_order(bot_settings, current_price, atr_value):
         send_admin_email(f'Bot {bot_settings.id} Exception in execute_buy_order', str(e))
 
 
-def execute_sell_order(bot_settings, current_trade, current_price):
+def execute_sell_order(bot_settings, current_trade, current_price, stop_loss_activated, take_profit_activated):
     now = datetime.now()
     formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
     
@@ -247,6 +247,8 @@ def execute_sell_order(bot_settings, current_trade, current_price):
                 stop_loss_price=current_trade.stop_loss_price,
                 take_profit_price=current_trade.take_profit_price,
                 price_rises_counter=current_trade.price_rises_counter,
+                stop_loss_activated=stop_loss_activated,
+                take_profit_activated=take_profit_activated,
                 buy_timestamp=current_trade.buy_timestamp,
                 current_price=current_price,
             )
@@ -263,7 +265,7 @@ def execute_sell_order(bot_settings, current_trade, current_price):
                 reset_price_rises_counter=True,
             )
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell process completed.")
-            send_trade_email(f"Bot {bot_settings.id} execute_sell_order report.", f"StafanCryptoTradingBot execute_sell_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_trade.buy_price}\nsell_price: {current_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}\nbuy_timestamp: {current_trade.buy_timestamp}\nsell_timestamp: {dt.now()}\nsell_success: {sell_success}")
+            send_trade_email(f"Bot {bot_settings.id} execute_sell_order report.", f"StafanCryptoTradingBot execute_sell_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_trade.buy_price}\nsell_price: {current_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}\nstop_loss_activated: {stop_loss_activated}\ntake_profit_activated: {take_profit_activated}\nbuy_timestamp: {current_trade.buy_timestamp}\nsell_timestamp: {dt.now()}\nsell_success: {sell_success}")
 
     except Exception as e:
         logger.error(f"Bot {bot_settings.id} Exception in execute_sell_order: {str(e)}")
@@ -490,6 +492,8 @@ def update_trade_history(
     stop_loss_price,
     take_profit_price,
     price_rises_counter,
+    stop_loss_activated,
+    take_profit_activated,
     buy_timestamp,
     current_price
     ):
@@ -518,6 +522,8 @@ def update_trade_history(
             stop_loss_price=stop_loss_price,
             take_profit_price=take_profit_price,
             price_rises_counter=price_rises_counter,
+            stop_loss_activated=stop_loss_activated,
+            take_profit_activated=take_profit_activated,
             buy_timestamp=buy_timestamp,
             sell_timestamp=dt.now()
         )

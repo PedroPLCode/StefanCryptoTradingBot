@@ -12,6 +12,8 @@ class TradesHistory(db.Model):
     stop_loss_price = db.Column(db.Float, default=0, nullable=True)
     take_profit_price = db.Column(db.Float, default=0, nullable=True)
     price_rises_counter = db.Column(db.Integer, default=0, nullable=True)
+    stop_loss_activated = db.Column(db.Boolean, default=False, nullable=False)
+    take_profit_activated = db.Column(db.Boolean, default=False, nullable=False)
     buy_timestamp = db.Column(db.DateTime, default=db.func.current_timestamp(), nullable=True)
     sell_timestamp = db.Column(db.DateTime, default=db.func.current_timestamp(), nullable=True)
     

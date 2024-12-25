@@ -208,6 +208,8 @@ class TradesHistoryAdmin(AdminModelView):
         'stop_loss_price',
         'take_profit_price',
         'price_rises_counter',
+        'stop_loss_activated',
+        'take_profit_activated',
         'buy_timestamp',
         'sell_timestamp',
     )
