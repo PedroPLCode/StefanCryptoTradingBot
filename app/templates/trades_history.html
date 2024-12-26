@@ -66,9 +66,10 @@
                                             amount: {{ trade.amount }} {{ trade.bot_settings.symbol[:3] }}<br>
                                             balance: {{ trade.stablecoin_balance }} USDC<br>
                                             profit: {{ profit_percentage | round(2) }}%<br>
-                                            stop_loss_activated: {% if trade.stop_loss_activated %}<strong>{{ trade.stop_loss_activated }}</strong>{% else %}{{ trade.stop_loss_activated }}{% endif %}<br>
+                                            stop_loss_activated: {{ trade.stop_loss_activated }}<br>
                                             stop_loss_price: {{ trade.stop_loss_price }}<br>
-                                            take_profit_activated: {% if trade.take_profit_activated %}<strong>{{ trade.take_profit_activated }}</strong>{% else %}{{ trade.take_profit_activated }}{% endif %}<br>
+                                            take_profit_activated: {{ trade.take_profit_activated }}<br>
+                                            trailing_take_profit_activated: {{ trade.trailing_take_profit_activated }}<br>
                                             take_profit_price: {{ trade.take_profit_price }}<br>
                                             price_rises_counter: {{ trade.price_rises_counter }}</p>
                                         {% endfor %}

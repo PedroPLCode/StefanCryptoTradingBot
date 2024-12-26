@@ -7,9 +7,6 @@ from ..utils.logging import logger
 from ..utils.app_utils import send_admin_email
 from .logic_utils import (
     get_current_price,
-    fetch_data,
-    is_df_valid,
-    calculate_indicators,
     fetch_data_and_validate,
     manage_trading_logic
     

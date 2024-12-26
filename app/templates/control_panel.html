@@ -120,7 +120,8 @@
                                 <p class="text-muted m-0 p-0">ATR Trailing Stop Loss: <span class="{{ 'text-success' if bot_info.trailing_stop_with_atr else 'text-muted' }}">{{ bot_info.trailing_stop_with_atr }}</span></p>
                                 <p class="text-muted m-0 p-0 border-bottom">ATR Trailing Stop Multiplicator: {{ bot_info.trailing_stop_atr_calc }}</p>
 
-                                <p class="text-muted m-0 p-0">Take Profit Enabled: <span class="{{ 'text-success' if bot_info.use_take_profit else 'text-muted' }}">{{ bot_info.use_take_profit }}</span></p>
+                                <p class="text-muted m-0 p-0">Take Profit Enabled: <span class="{{ 'text-success' if bot_info.use_trailing_take_profit else 'text-muted' }}">{{ bot_info.use_trailing_take_profit }}</span></p>
+                                <p class="text-muted m-0 p-0">Trailing Take Profit Enabled: <span class="{{ 'text-success' if bot_info.use_trailing_stop_loss else 'text-muted' }}">{{ bot_info.use_trailing_stop_loss }}</span></p>
                                 <p class="text-muted m-0 p-0">Take Profit pct: {{ bot_info.take_profit_pct }}%</p>
                                 <p class="text-muted m-0 p-0">ATR Take Profit: <span class="{{ 'text-success' if bot_info.take_profit_with_atr else 'text-muted' }}">{{ bot_info.take_profit_with_atr }}</span></p>
                                 <p class="text-muted m-0 p-0 border-bottom">ATR Take Profit Multiplicator: {{ bot_info.take_profit_atr_calc }}</p>
@@ -175,7 +176,7 @@
 
                                 <p class="text-muted m-0 p-0">Current Trade Active: <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{{ bot_info.bot_current_trade.is_active }}</span></p>
                                 {% if bot_info.bot_current_trade.is_active %}
-                                    <p class="text-muted m-0 p-0 border-bottom">buy_timestamp: {{ bot_info.bot_current_trade.buy_timestamp }}<br>amount: {{ bot_info.bot_current_trade.amount }}<br>buy_price: {{ bot_info.bot_current_trade.buy_price }}<br>current_price: {{ bot_info.bot_current_trade.current_price }}<br>stop_loss_price: {{ bot_info.bot_current_trade.stop_loss_price }}<br>take_profit_price: {{ bot_info.bot_current_trade.take_profit_price }}<br>price_rises_counter: {{ bot_info.bot_current_trade.price_rises_counter }}</p>
+                                    <p class="text-muted m-0 p-0 border-bottom">buy_timestamp: {{ bot_info.bot_current_trade.buy_timestamp }}<br>amount: {{ bot_info.bot_current_trade.amount }}<br>buy_price: {{ bot_info.bot_current_trade.buy_price }}<br>current_price: {{ bot_info.bot_current_trade.current_price }}<br>stop_loss_price: {{ bot_info.bot_current_trade.stop_loss_price }}<br>take_profit_price: {{ bot_info.bot_current_trade.take_profit_price }}<br>trailing_take_profit_activated: {{ bot_info.bot_current_trade.trailing_take_profit_activated }}<br>price_rises_counter: {{ bot_info.bot_current_trade.price_rises_counter }}</p>
                                 {% endif %}
 
                                 <p class="text-muted m-0 p-0">Bot Running: <span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{{ bot_info.bot_running }}</span></p>

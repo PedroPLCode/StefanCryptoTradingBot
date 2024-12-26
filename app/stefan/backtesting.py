@@ -1,4 +1,5 @@
 import pandas as pd
+from .. import db
 from ..utils.logging import logger
 from .api_utils import fetch_data
 from .logic_utils import (
@@ -56,6 +57,9 @@ def backtest_strategy(df, bot_settings, backtest_settings):
     current_price = None
     stop_loss_price = 0
     take_profit_price = 0
+    use_trailing_take_profit = True
+    current_trade_use_take_profit = True
+    current_trade_trailing_take_profit_activated = False
     previous_price = None
     
     trade_log = []
@@ -113,13 +117,24 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                 previous_data
                 )
             
+            price_hits_stop_loss = current_price <= stop_loss_price
+            price_hits_take_profit = current_price >= take_profit_price
+        
             stop_loss_activated = False
-            if bot_settings.use_stop_loss and current_price <= stop_loss_price:
+            if bot_settings.use_stop_loss and price_hits_stop_loss:
                 stop_loss_activated = True
             
             take_profit_activated = False
-            if bot_settings.use_take_profit and current_price >= take_profit_price:
-                take_profit_activated = True
+            if bot_settings.use_take_profit and current_trade_use_take_profit and price_hits_take_profit:
+                if use_trailing_take_profit and not current_trade_trailing_take_profit_activated:
+                    current_trade_use_take_profit = False
+                    current_trade_trailing_take_profit_activated = True
+                    bot_settings.use_trailing_stop_loss = True
+                    bot_settings.trailing_stop_with_atr = True
+                    bot_settings.trailing_stop_atr_calc = 1
+                    db.session.commit()
+                else:
+                    take_profit_activated = True
             
             full_sell_signal = stop_loss_activated or take_profit_activated or sell_signal
             if bot_settings.sell_signal_only_stop_loss_or_take_profit:

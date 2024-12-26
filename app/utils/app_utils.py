@@ -245,6 +245,7 @@ def generate_trade_report(period):
                                     f"price_rises_counter: {trade.price_rises_counter}\n"
                                     f"stop_loss_activated: {trade.stop_loss_activated}\n"
                                     f"take_profit_activated: {trade.take_profit_activated}\n"
+                                    f"trailing_take_profit_activated: {trade.trailing_take_profit_activated}\n"
                                     f"profit_percentage: {profit_percentage:.2f}%\n\n")
         return report_data
     

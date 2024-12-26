@@ -10,6 +10,8 @@ class BotCurrentTrade(db.Model):
     previous_price = db.Column(db.Float, default=0, nullable=True)
     stop_loss_price = db.Column(db.Float, default=0, nullable=True)
     take_profit_price = db.Column(db.Float, default=0, nullable=True)
+    use_take_profit = db.Column(db.Boolean, nullable=False, default=False)
+    trailing_take_profit_activated = db.Column(db.Boolean, nullable=False, default=False)
     price_rises_counter = db.Column(db.Integer, default=0, nullable=True)
     buy_timestamp = db.Column(db.DateTime, default=db.func.current_timestamp(), nullable=True)
     

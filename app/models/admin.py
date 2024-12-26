@@ -98,6 +98,7 @@ class BotSettingsAdmin(AdminModelView):
         'trailing_stop_with_atr',
         'trailing_stop_atr_calc',
         'use_take_profit',
+        'use_trailing_take_profit',
         'take_profit_pct',
         'take_profit_with_atr',
         'take_profit_atr_calc',
@@ -186,6 +187,7 @@ class BotCurrentTradeAdmin(AdminModelView):
         'id', 
         'bot_settings',
         'is_active', 
+        'trailing_take_profit_activated',
         'amount', 
         'current_price', 
         'buy_price',
@@ -193,6 +195,7 @@ class BotCurrentTradeAdmin(AdminModelView):
         'stop_loss_price',
         'take_profit_price',
         'price_rises_counter',
+        'use_take_profit',
         'buy_timestamp',
     )
     
@@ -210,6 +213,7 @@ class TradesHistoryAdmin(AdminModelView):
         'price_rises_counter',
         'stop_loss_activated',
         'take_profit_activated',
+        'trailing_take_profit_activated',
         'buy_timestamp',
         'sell_timestamp',
     )
