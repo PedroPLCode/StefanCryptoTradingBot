@@ -185,14 +185,15 @@ def start_scheduler():
         )
         scheduler.start()
         
-        run_all_scalp_1m_trading_bots()
-        run_all_scalp_3m_trading_bots()
-        run_all_scalp_5m_trading_bots()
-        run_all_scalp_15m_trading_bots()
-        run_all_swing_30m_trading_bots()
-        run_all_swing_1h_trading_bots()
-        run_all_swing_4h_trading_bots()
-        run_all_swing_1d_trading_bots()
+        with app.app_context():
+            run_all_scalp_1m_trading_bots()
+            run_all_scalp_3m_trading_bots()
+            run_all_scalp_5m_trading_bots()
+            run_all_scalp_15m_trading_bots()
+            run_all_swing_30m_trading_bots()
+            run_all_swing_1h_trading_bots()
+            run_all_swing_4h_trading_bots()
+            run_all_swing_1d_trading_bots()
         
         logger.info('Scheduler started successfully. Stefan Bot initialized.')
         
