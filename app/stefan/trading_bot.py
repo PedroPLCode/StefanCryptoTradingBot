@@ -12,29 +12,48 @@ from .logic_utils import (
     
 )
 
+def initial_run_all_trading_bots():
+    run_all_scalp_1m_trading_bots()
+    run_all_scalp_3m_trading_bots()
+    run_all_scalp_5m_trading_bots()
+    run_all_scalp_15m_trading_bots()
+    run_all_swing_30m_trading_bots()
+    run_all_swing_1h_trading_bots()
+    run_all_swing_4h_trading_bots()
+    run_all_swing_1d_trading_bots()
+    logger.trade('All trading bots initial run completed.')
+
 def run_all_scalp_1m_trading_bots():
     run_selected_trading_bots('1m')
+    logger.trade('1m interval bots run completed.')
     
 def run_all_scalp_3m_trading_bots():
     run_selected_trading_bots('3m')
+    logger.trade('3m interval bots run completed.')
     
 def run_all_scalp_5m_trading_bots():
     run_selected_trading_bots('5m')
+    logger.trade('5m interval bots run completed.')
     
 def run_all_scalp_15m_trading_bots():
     run_selected_trading_bots('15m')
+    logger.trade('15m interval bots run completed.')
 
 def run_all_swing_30m_trading_bots():
     run_selected_trading_bots('30m')
+    logger.trade('30m interval bots run completed.')
     
 def run_all_swing_1h_trading_bots():
     run_selected_trading_bots('1h')
+    logger.trade('1h interval bots run completed.')
     
 def run_all_swing_4h_trading_bots():
     run_selected_trading_bots('4h')
+    logger.trade('4h interval bots run completed.')
     
 def run_all_swing_1d_trading_bots():
     run_selected_trading_bots('1d')
+    logger.trade('1d interval bots run completed.')
     
 
 def run_selected_trading_bots(interval):

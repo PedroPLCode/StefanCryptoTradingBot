@@ -114,6 +114,7 @@ def start_scheduler():
     logger.info('Starting scheduler.')
     try:
         from .stefan.trading_bot import (
+            initial_run_all_trading_bots,
             run_all_scalp_1m_trading_bots,
             run_all_scalp_3m_trading_bots,
             run_all_scalp_5m_trading_bots,
@@ -186,14 +187,7 @@ def start_scheduler():
         scheduler.start()
         
         with app.app_context():
-            run_all_scalp_1m_trading_bots()
-            run_all_scalp_3m_trading_bots()
-            run_all_scalp_5m_trading_bots()
-            run_all_scalp_15m_trading_bots()
-            run_all_swing_30m_trading_bots()
-            run_all_swing_1h_trading_bots()
-            run_all_swing_4h_trading_bots()
-            run_all_swing_1d_trading_bots()
+            initial_run_all_trading_bots()
         
         logger.info('Scheduler started successfully. Stefan Bot initialized.')
         
