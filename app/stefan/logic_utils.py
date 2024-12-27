@@ -122,7 +122,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
                 
             if price_hits_take_profit and use_take_profit:
                 if use_trailing_take_profit and not current_trade.trailing_take_profit_activated:
-                        activate_trailing_take_profit(bot_settings, current_trade)
+                        activate_trailing_take_profit(bot_settings, current_trade, current_price, atr)
                 else:
                     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} take_profit activated.")
                     take_profit_activated = True
@@ -230,6 +230,13 @@ def execute_buy_order(bot_settings, current_price, atr_value):
                 use_take_profit=True,
                 buy_timestamp=dt.now()
             )
+            
+            bot_settings.use_trailing_stop_loss = False
+            bot_settings.trailing_stop_with_atr = False
+            bot_settings.trailing_stop_atr_calc = 2
+            bot_settings.stop_loss_pct = 0.02
+            db.session.commit()
+            
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} buy process completed.")
             send_trade_email(f"Bot {bot_settings.id} execute_buy_order report.", f"StafanCryptoTradingBotBot execute_buy_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_price}\nstop_loss_price: {stop_loss_price}\ntake_profit_price: {take_profit_price}\nbuy_timestamp: {dt.now()}\nbuy_success: {buy_success}")
 
@@ -276,6 +283,13 @@ def execute_sell_order(bot_settings, current_trade, current_price, stop_loss_act
                 use_take_profit=True,
                 reset_price_rises_counter=True,
             )
+            
+            bot_settings.use_trailing_stop_loss = False
+            bot_settings.trailing_stop_with_atr = False
+            bot_settings.trailing_stop_atr_calc = 2
+            bot_settings.stop_loss_pct = 0.02
+            db.session.commit()
+        
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell process completed.")
             send_trade_email(f"Bot {bot_settings.id} execute_sell_order report.", f"StafanCryptoTradingBot execute_sell_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_trade.buy_price}\nsell_price: {current_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}\nstop_loss_activated: {stop_loss_activated}\ntake_profit_activated: {take_profit_activated}\ntrailing_take_profit_activated: {current_trade.trailing_take_profit_activated}\nbuy_timestamp: {current_trade.buy_timestamp}\nsell_timestamp: {dt.now()}\nsell_success: {sell_success}")
 
@@ -284,21 +298,32 @@ def execute_sell_order(bot_settings, current_trade, current_price, stop_loss_act
         send_admin_email(f'Bot {bot_settings.id} Exception in execute_sell_order', str(e))
 
 
-def activate_trailing_take_profit(bot_settings, current_trade):
+def activate_trailing_take_profit(bot_settings, current_trade, current_price, atr_value):
     now = datetime.now()
     formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
     
     try:
-        update_current_trade(
-                bot_id=bot_settings.id,
-                trailing_take_profit_activated=True,
-                use_take_profit=False,
-            )
-        
         bot_settings.use_trailing_stop_loss = True
         bot_settings.trailing_stop_with_atr = True
         bot_settings.trailing_stop_atr_calc = 1
+        bot_settings.stop_loss_pct = 0.01
         db.session.commit()
+        
+        trailing_stop_price = update_atr_trailing_stop_loss(
+                current_price, 
+                float(current_trade.stop_loss_price), 
+                atr_value, bot_settings
+            )
+        
+        update_current_trade(
+            bot_id=bot_settings.id,
+            current_price=current_price,
+            previous_price=current_price,
+            stop_loss_price=trailing_stop_price,
+            price_rises=True,
+            trailing_take_profit_activated=True,
+            use_take_profit=False,
+        )
         
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} trailing take profit activated.")
         send_trade_email(f"Bot {bot_settings.id} activate_trailing_take_profit report.", f"StafanCryptoTradingBot activate_trailing_take_profit report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nTrailing take profit has been activated.\n\namount: {current_trade.amount}\nbuy_price: {current_trade.buy_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}\nbuy_timestamp: {current_trade.buy_timestamp}\ntrailing_take_profit_activated: {current_trade.trailing_take_profit_activated}")
