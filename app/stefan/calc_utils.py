@@ -270,9 +270,6 @@ def check_trend(df, bot_settings):
         elif horizontal:
             logger.trade(f"Bot {bot_settings.id} {bot_settings.strategy} have HORIZONTAL TREND")
             return 'horizontal'
-        else:
-            logger.trade(f"Bot {bot_settings.id} {bot_settings.strategy} trend unidentified")
-            return 'none'
         
     except Exception as e:
         logger.error(f"Bot {bot_settings.id} Exception in check_trend: {str(e)}")
