@@ -142,7 +142,8 @@ def calculate_indicators(df, df_extended, bot_settings):
             timeperiod=bot_settings.di_timeperiod
         )
         
-        df['vwap'] = (df['close'] * df['volume']).cumsum() / df['volume'].cumsum()
+        df['typical_price'] = (df['high'] + df['low'] + df['close']) / 3
+        df['vwap'] = (df['typical_price'] * df['volume']).cumsum() / df['volume'].cumsum()
         
         columns_to_check = [
             'macd', 
