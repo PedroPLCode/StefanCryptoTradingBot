@@ -3,9 +3,9 @@ from .. import db
 class BotSettings(db.Model):
     __tablename__ = 'bot_settings'
     id = db.Column(db.Integer, primary_key=True)
-    symbol = db.Column(db.String(16), default="BTCUSDC", nullable=False)
-    strategy = db.Column(db.String(16), default="swing", nullable=False)
-    comment = db.Column(db.String(1024), default="rsi+macd", nullable=True, unique=False)
+    symbol = db.Column(db.String(128), default="BTCUSDC", nullable=False)
+    strategy = db.Column(db.String(128), default="rsi + macd", nullable=False)
+    comment = db.Column(db.String(1024), default="swing", nullable=True, unique=False)
     capital_utilization_pct = db.Column(db.Float, default=0.95, nullable=False)
     
     trend_signals = db.Column(db.Boolean, default=False, nullable=False)

@@ -20,9 +20,9 @@ def rsi_divergence_sell_signal(latest_data, averages, bot_settings):
     return True
 
 
-def macd_cross_sell_signal(averages, latest_data, bot_settings):
+def macd_cross_sell_signal(latest_data, previous_data, bot_settings):
     if bot_settings.macd_cross_signals:
-        return (float(averages['avg_macd']) >= float(averages['avg_macd_signal']) and 
+        return (float(previous_data['macd']) >= float(previous_data['macd_signal']) and 
                 float(latest_data['macd']) < float(latest_data['macd_signal'])) 
     return True
 
@@ -40,9 +40,9 @@ def boilinger_sell_signal(latest_data, bot_settings):
     return True
 
 
-def stoch_sell_signal(averages, latest_data, bot_settings):
+def stoch_sell_signal(latest_data, previous_data, bot_settings):
     if bot_settings.stoch_signals:
-        return (float(averages['avg_stoch_k']) >= float(averages['avg_stoch_d']) and
+        return (float(previous_data['stoch_k']) >= float(previous_data['stoch_d']) and
                 float(latest_data['stoch_k']) < float(latest_data['stoch_d']) and
                 float(latest_data['stoch_k']) >= float(bot_settings.stoch_sell)) 
     return True
@@ -62,9 +62,9 @@ def stoch_rsi_sell_signal(latest_data, bot_settings):
     return True
 
 
-def ema_cross_sell_signal(averages, latest_data, bot_settings):
+def ema_cross_sell_signal(latest_data, previous_data, bot_settings):
     if bot_settings.ema_cross_signals:
-        return (float(averages['avg_ema_fast']) >= float(averages['avg_ema_slow']) and
+        return (float(previous_data['ema_fast']) >= float(previous_data['ema_slow']) and
                 float(latest_data['ema_fast']) < float(latest_data['ema_slow'])) 
     return True
 
@@ -81,9 +81,9 @@ def ema_slow_sell_signal(latest_data, bot_settings):
     return True
 
 
-def di_cross_sell_signal(averages, latest_data, bot_settings):
+def di_cross_sell_signal(latest_data, previous_data, bot_settings):
     if bot_settings.di_signals:
-        return (float(averages['avg_plus_di']) >= float(averages['avg_minus_di']) and 
+        return (float(previous_data['plus_di']) >= float(previous_data['minus_di']) and 
                 float(latest_data['plus_di']) < float(latest_data['minus_di'])) 
     return True
 
@@ -156,16 +156,16 @@ def check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_d
             trend_sell_signal(trend, bot_settings),
             rsi_sell_signal(latest_data, bot_settings),
             rsi_divergence_sell_signal(latest_data, averages, bot_settings),
-            macd_cross_sell_signal(averages, latest_data, bot_settings),
+            macd_cross_sell_signal(latest_data, previous_data, bot_settings),
             macd_histogram_sell_signal(latest_data, previous_data, bot_settings),
             boilinger_sell_signal(latest_data, bot_settings),
-            stoch_sell_signal(averages, latest_data, bot_settings),
+            stoch_sell_signal(latest_data, previous_data, bot_settings),
             stoch_divergence_sell_signal(latest_data, averages, bot_settings),
             stoch_rsi_sell_signal(latest_data, bot_settings),
-            ema_cross_sell_signal(averages, latest_data, bot_settings),
+            ema_cross_sell_signal(latest_data, previous_data, bot_settings),
             ema_fast_sell_signal(latest_data, bot_settings),
             ema_slow_sell_signal(latest_data, bot_settings),
-            di_cross_sell_signal(averages, latest_data, bot_settings),
+            di_cross_sell_signal(latest_data, previous_data, bot_settings),
             cci_sell_signal(latest_data, bot_settings),
             cci_divergence_buy_signal(latest_data, averages, bot_settings),
             mfi_sell_signal(latest_data, bot_settings),

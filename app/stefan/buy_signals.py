@@ -27,9 +27,9 @@ def vol_rising(latest_data, averages, bot_settings):
     return True
 
 
-def macd_cross_buy_signal(latest_data, averages, bot_settings):
+def macd_cross_buy_signal(latest_data, previous_data, bot_settings):
     if bot_settings.macd_cross_signals:
-        return (float(averages['avg_macd']) <= float(averages['avg_macd_signal']) and
+        return (float(previous_data['macd']) <= float(previous_data['macd_signal']) and
                 float(latest_data['macd']) > float(latest_data['macd_signal'])) 
     return True
 
@@ -47,9 +47,9 @@ def boilinger_buy_signal(latest_data, bot_settings):
     return True
 
 
-def stoch_buy_signal(latest_data, averages, bot_settings):
+def stoch_buy_signal(latest_data, previous_data, bot_settings):
     if bot_settings.stoch_signals:
-        return (float(averages['avg_stoch_k']) <= float(averages['avg_stoch_d']) and
+        return (float(previous_data['stoch_k']) <= float(previous_data['stoch_d']) and
                 float(latest_data['stoch_k']) > float(latest_data['stoch_d']) and
                 float(latest_data['stoch_k']) <= float(bot_settings.stoch_buy)) 
     return True
@@ -69,9 +69,9 @@ def stoch_rsi_buy_signal(latest_data, averages, bot_settings):
     return True
 
 
-def ema_cross_buy_signal(latest_data, averages, bot_settings):
+def ema_cross_buy_signal(latest_data, previous_data, bot_settings):
     if bot_settings.ema_cross_signals:
-        return (float(averages['avg_ema_fast']) <= float(averages['avg_ema_slow']) and
+        return (float(previous_data['ema_fast']) <= float(previous_data['ema_slow']) and
                 float(latest_data['ema_fast']) > float(latest_data['ema_slow'])) 
     return True
 
@@ -88,9 +88,9 @@ def ema_slow_buy_signal(latest_data, averages, bot_settings):
     return True
 
 
-def di_cross_buy_signal(latest_data, averages, bot_settings):
+def di_cross_buy_signal(latest_data, previous_data, bot_settings):
     if bot_settings.di_signals:
-        return (float(averages['avg_plus_di']) <= float(averages['avg_minus_di']) and
+        return (float(previous_data['plus_di']) <= float(previous_data['minus_di']) and
                     float(latest_data['plus_di']) > float(latest_data['minus_di'])) 
     return True
 
@@ -137,9 +137,9 @@ def vwap_buy_signal(latest_data, bot_settings):
     return True
 
 
-def psar_buy_signal(latest_data, averages, bot_settings):
+def psar_buy_signal(latest_data, previous_data, bot_settings):
     if bot_settings.psar_signals:
-        return (float(averages['avg_psar']) >= float(averages['avg_close']) and
+        return (float(previous_data['psar']) >= float(previous_data['close']) and
                 float(latest_data['psar']) < float(latest_data['close'])) 
     return True
 
@@ -172,23 +172,23 @@ def check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_da
             rsi_buy_signal(latest_data, averages, bot_settings),
             rsi_divergence_buy_signal(latest_data, averages, bot_settings),
             vol_rising(latest_data, averages, bot_settings),
-            macd_cross_buy_signal(latest_data, averages, bot_settings),
+            macd_cross_buy_signal(latest_data, previous_data, bot_settings),
             macd_histogram_buy_signal(latest_data, previous_data, bot_settings),
             boilinger_buy_signal(latest_data, bot_settings),
-            stoch_buy_signal(latest_data, averages, bot_settings),
+            stoch_buy_signal(latest_data, previous_data, bot_settings),
             stoch_divergence_buy_signal(latest_data, averages, bot_settings),
             stoch_rsi_buy_signal(latest_data, averages, bot_settings),
-            ema_cross_buy_signal(latest_data, averages, bot_settings),
+            ema_cross_buy_signal(latest_data, previous_data, bot_settings),
             ema_fast_buy_signal(latest_data, averages, bot_settings),
             ema_slow_buy_signal(latest_data, averages, bot_settings),
-            di_cross_buy_signal(latest_data, averages, bot_settings),
+            di_cross_buy_signal(latest_data, previous_data, bot_settings),
             cci_buy_signal(latest_data, averages, bot_settings),
             cci_divergence_buy_signal(latest_data, averages, bot_settings),
             mfi_buy_signal(latest_data, averages, bot_settings),
             mfi_divergence_buy_signal(latest_data, averages, bot_settings),
             atr_buy_signal(latest_data, averages, bot_settings),
             vwap_buy_signal(latest_data, bot_settings),
-            psar_buy_signal(latest_data, averages, bot_settings),
+            psar_buy_signal(latest_data, previous_data, bot_settings),
             ma50_buy_signal(latest_data, bot_settings),
             ma200_buy_signal(latest_data, bot_settings)
         ]
