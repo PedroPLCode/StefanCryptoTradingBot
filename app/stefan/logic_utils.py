@@ -1,9 +1,10 @@
 from .. import db
 import pandas as pd
 from datetime import datetime as dt
+#import time
 from decimal import Decimal
 from datetime import datetime
-from ..models import TradesHistory, BotCurrentTrade
+from ..models import BotSettings, TradesHistory, BotCurrentTrade
 from ..utils.logging import logger
 from ..utils.app_utils import (
     send_admin_email,
@@ -217,7 +218,7 @@ def execute_buy_order(bot_settings, current_price, atr_value):
                         bot_settings
                     )
                 
-            update_current_trade(
+            current_trade = update_current_trade(
                 bot_id=bot_settings.id,
                 is_active=True,
                 amount=amount,
@@ -231,11 +232,13 @@ def execute_buy_order(bot_settings, current_price, atr_value):
                 buy_timestamp=dt.now()
             )
             
-            bot_settings.use_trailing_stop_loss = False
-            bot_settings.trailing_stop_with_atr = False
-            bot_settings.trailing_stop_atr_calc = 2
-            bot_settings.stop_loss_pct = 0.02
-            db.session.commit()
+            bot_settings = change_bot_settings(
+                bot_id=bot_settings.id,
+                use_trailing_stop_loss=False,
+                trailing_stop_with_atr=False,
+                trailing_stop_atr_calc=2,
+                stop_loss_pct=0.02,
+            )
             
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} buy process completed.")
             send_trade_email(f"Bot {bot_settings.id} execute_buy_order report.", f"StafanCryptoTradingBotBot execute_buy_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_price}\nstop_loss_price: {stop_loss_price}\ntake_profit_price: {take_profit_price}\nbuy_timestamp: {formatted_now}\nbuy_success: {buy_success}")
@@ -254,7 +257,7 @@ def execute_sell_order(bot_settings, current_trade, current_price, stop_loss_act
         sell_success, amount = place_sell_order(bot_settings.id)
 
         if sell_success:
-            update_trade_history(
+            trade = update_trade_history(
                 bot_settings=bot_settings,
                 strategy=bot_settings.strategy,
                 amount=amount,
@@ -270,7 +273,7 @@ def execute_sell_order(bot_settings, current_trade, current_price, stop_loss_act
                 current_price=current_price,
             )
                         
-            update_current_trade(
+            current_trade = update_current_trade(
                 bot_id=bot_settings.id,
                 is_active=False,
                 amount=0,
@@ -284,11 +287,13 @@ def execute_sell_order(bot_settings, current_trade, current_price, stop_loss_act
                 reset_price_rises_counter=True,
             )
             
-            bot_settings.use_trailing_stop_loss = False
-            bot_settings.trailing_stop_with_atr = False
-            bot_settings.trailing_stop_atr_calc = 2
-            bot_settings.stop_loss_pct = 0.02
-            db.session.commit()
+            bot_settings = change_bot_settings(
+                bot_id=bot_settings.id,
+                use_trailing_stop_loss=False,
+                trailing_stop_with_atr=False,
+                trailing_stop_atr_calc=2,
+                stop_loss_pct=0.02,
+            )
         
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell process completed.")
             send_trade_email(f"Bot {bot_settings.id} execute_sell_order report.", f"StafanCryptoTradingBot execute_sell_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_trade.buy_price}\nsell_price: {current_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}\nstop_loss_activated: {stop_loss_activated}\ntake_profit_activated: {take_profit_activated}\ntrailing_take_profit_activated: {current_trade.trailing_take_profit_activated}\nbuy_timestamp: {current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S')}\nsell_timestamp: {formatted_now}\nsell_success: {sell_success}")
@@ -303,11 +308,15 @@ def activate_trailing_take_profit(bot_settings, current_trade, current_price, at
     formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
     
     try:
-        bot_settings.use_trailing_stop_loss = True
-        bot_settings.trailing_stop_with_atr = True
-        bot_settings.trailing_stop_atr_calc = 1
-        bot_settings.stop_loss_pct = 0.01
-        db.session.commit()
+        
+        bot_settings = change_bot_settings(
+                bot_id=bot_settings.id,
+                use_stop_loss=True,
+                use_trailing_stop_loss=True,
+                trailing_stop_with_atr=True,
+                trailing_stop_atr_calc=1,
+                stop_loss_pct=0.01,
+            )
         
         trailing_stop_price = update_atr_trailing_stop_loss(
                 current_price, 
@@ -315,7 +324,7 @@ def activate_trailing_take_profit(bot_settings, current_trade, current_price, at
                 atr_value, bot_settings
             )
         
-        update_current_trade(
+        current_trade = update_current_trade(
             bot_id=bot_settings.id,
             current_price=current_price,
             previous_price=current_price,
@@ -326,7 +335,7 @@ def activate_trailing_take_profit(bot_settings, current_trade, current_price, at
         )
         
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} trailing take profit activated.")
-        send_trade_email(f"Bot {bot_settings.id} activate_trailing_take_profit report.", f"StafanCryptoTradingBot activate_trailing_take_profit report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nTrailing take profit has been activated.\n\namount: {current_trade.amount}\nbuy_price: {current_trade.buy_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}\nbuy_timestamp: {current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S')}\ntrailing_take_profit_activated: {current_trade.trailing_take_profit_activated}")
+        send_trade_email(f"Bot {bot_settings.id} activate_trailing_take_profit report.", f"StafanCryptoTradingBot activate_trailing_take_profit report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nTrailing take profit has been activated.\n\namount: {current_trade.amount}\nbuy_price: {current_trade.buy_price}\nbuy_timestamp: {current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S')}\ncurrent_price: {current_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}")
         
     except Exception as e:
         logger.error(f"Bot {bot_settings.id} Exception in activate_trailing_take_profit: {str(e)}")
@@ -350,7 +359,7 @@ def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
                 atr_value, bot_settings
             )
         
-        update_current_trade(
+        current_trade = update_current_trade(
             bot_id=bot_settings.id,
             current_price=current_price,
             previous_price=current_price,
@@ -365,12 +374,22 @@ def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
         
         
 def handle_price_rises(bot_settings, current_price):
-    update_current_trade(bot_id=bot_settings.id, current_price=current_price, previous_price=current_price)
+    
+    current_trade = update_current_trade(
+        bot_id=bot_settings.id, 
+        current_price=current_price, 
+        previous_price=current_price, 
+        price_rises=True
+    )
     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price_rises. previous price updated.")
     
     
 def handle_price_drops(bot_settings, current_price):
-    update_current_trade(bot_id=bot_settings.id, current_price=current_price)
+    
+    current_trade = update_current_trade(
+        bot_id=bot_settings.id, 
+        current_price=current_price
+    )
     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price_drops. previous price not updated.")
 
 
@@ -528,6 +547,9 @@ def update_current_trade(
                 current_trade.use_take_profit = use_take_profit
                 
             db.session.commit()
+            #time.sleep(1)
+            
+            return current_trade
             
         except Exception as e:
             db.session.rollback()
@@ -535,6 +557,42 @@ def update_current_trade(
             send_admin_email(f'Bot {bot_id} Exception in update_current_trade', str(e))
     
 
+def change_bot_settings(
+    bot_id=None, 
+    use_stop_loss=None,
+    use_trailing_stop_loss=None, 
+    trailing_stop_with_atr=None, 
+    trailing_stop_atr_calc=None, 
+    stop_loss_pct=None, 
+    ):
+    
+    if bot_id:
+        
+        try:
+            bot_settings = BotSettings.query.filter_by(id=bot_id).first()
+            
+            if use_stop_loss != None:
+                bot_settings.use_stop_loss = use_stop_loss
+            if use_trailing_stop_loss != None:
+                bot_settings.use_trailing_stop_loss = use_trailing_stop_loss
+            if trailing_stop_with_atr != None:
+                bot_settings.trailing_stop_with_atr = trailing_stop_with_atr
+            if trailing_stop_atr_calc != None:
+                bot_settings.trailing_stop_atr_calc = trailing_stop_atr_calc
+            if stop_loss_pct != None:
+                bot_settings.stop_loss_pct = stop_loss_pct
+                
+            db.session.commit()
+            #time.sleep(1)
+            
+            return bot_settings
+            
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Bot {bot_id} Exception in change_bot_settings: {str(e)}")
+            send_admin_email(f'Bot {bot_id} Exception in change_bot_settings', str(e))
+            
+            
 def next_trade_id(bot_id):
     try:
         max_existing_trade_id = (
@@ -598,11 +656,15 @@ def update_trade_history(
         )
         db.session.add(trade)
         db.session.commit()
+        #time.sleep(1)
+        
         logger.trade(
             f'Transaction {trade.id}: bot: {bot_id}, strategy: {strategy}'
             f'amount: {amount}, symbol: {current_trade.bot_settings.symbol} saved in database.'
         )
         
+        return trade
+    
     except Exception as e:
         db.session.rollback()
         logger.error(f"Bot {bot_settings.id} Exception in update_trade_history bot {bot_id}: {str(e)}")
