@@ -5,3 +5,55 @@
 .border-top {
     border-top: 1px solid #ccc;
 }
+
+.fixed-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0px;
+}
+
+
+.form-check {
+    width: 100%;
+}
+
+.indicator-label {
+    display: block;
+    width: 100%;
+    padding: 0px 5px;
+    background-color: #f8f9fa;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+    text-align: center;
+}
+
+.indicator-label:hover {
+    background-color: #e2e6ea;
+}
+
+.form-check-input:checked + .indicator-label {
+    background-color: #007bff;
+    color: white;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0px;
+}
+
+.form-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0px;
+}
+
+.indicator-label {
+    font-size: 0.875rem;
+    text-align: center;
+    white-space: nowrap;
+}

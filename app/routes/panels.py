@@ -1,8 +1,9 @@
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, request, session
 from flask_login import current_user
 import json
 import pandas as pd
 from ..models import BotSettings, BacktestResult
+from .. import db
 from ..utils.logging import logger
 from . import main
 from ..stefan.api_utils import (
@@ -12,7 +13,8 @@ from ..stefan.api_utils import (
 )
 from ..utils.app_utils import (
     show_account_balance, 
-    send_admin_email
+    send_admin_email,
+    plot_all_indicators
 )
 
 @main.route('/')
@@ -77,7 +79,7 @@ def control_panel_view():
         return redirect(url_for('main.user_panel_view'))
     
     
-@main.route('/analysis')
+@main.route('/analysis', methods=['GET', 'POST'])
 def analysis_panel_view():
     if not current_user.is_authenticated:
         flash('Please log in to access the technical analysis panel.', 'warning')
@@ -91,10 +93,34 @@ def analysis_panel_view():
     try:
         all_bots_info = BotSettings.query.all()
 
+        for bot_info in all_bots_info:
+            technical_analysis_data = bot_info.bot_technical_analysis
+            df = technical_analysis_data.get_df()
+
+            if df.empty:
+                logger.warning(f'Bot {bot_info.symbol} returned an empty DataFrame.')
+                bot_info.plot_url = None
+                continue
+            
+            if request.method == 'POST':
+                indicators = request.form.getlist('indicators')
+                session['selected_indicators'] = indicators
+                bot_info.selected_plot_indicators = indicators
+                db.session.commit()
+            else:
+                indicators = bot_info.selected_plot_indicators or ['rsi', 'macd']
+
+            bot_info.plot_url = plot_all_indicators(
+                df, 
+                indicators,
+                bot_info.lookback_period
+                )
+
         return render_template(
             'technical_analysis.html', 
             user=current_user, 
-            all_bots_info=all_bots_info, 
+            all_bots_info=all_bots_info,
+            selected_indicators=indicators
         )
 
     except Exception as e:

@@ -153,6 +153,7 @@ class BotSettingsAdmin(AdminModelView):
         'lookback_period', 
         'capital_utilization_pct',
         'days_period_to_clean_history',
+        'selected_plot_indicators',
     )
     
     

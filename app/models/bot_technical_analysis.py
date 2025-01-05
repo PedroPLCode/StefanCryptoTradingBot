@@ -1,8 +1,11 @@
 from .. import db
+import pandas as pd
 
 class BotTechnicalAnalysis(db.Model):
     __tablename__ = 'bot_technical_analysis'
     id = db.Column(db.Integer, primary_key=True)
+    
+    df = db.Column(db.Text, nullable=True)
     
     current_trend = db.Column(db.String(16), default="undefined", nullable=True)
     
@@ -68,6 +71,12 @@ class BotTechnicalAnalysis(db.Model):
         back_populates='bot_technical_analysis',
         overlaps="bot_technical_analysis"
     )
+    
+    def set_df(self, df):
+        self.df = df.to_json(orient="records")
+
+    def get_df(self):
+        return pd.read_json(self.df)
     
     def __repr__(self):
         return (f'{self.id}')

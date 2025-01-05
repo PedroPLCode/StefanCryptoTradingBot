@@ -98,18 +98,18 @@
             </div>
         </div>
 
+        {% if user.email_raports_receiver %}
         <div class="col-12 col-md-6 card mb-3">
             <div class="card-header text-center bg-light">
                 <h5>Options</h5>
             </div>
             <div class="card-body text-center">
                 <div class="d-flex flex-column justify-content-center align-items-center gap-2">    
-                    {% if user.email_raports_receiver %}
-                        <a href="{{ url_for('main.report') }}" class="btn btn-primary w-100">Email Raport</a>
-                    {% endif %}
+                    <a href="{{ url_for('main.report') }}" class="btn btn-primary w-100">Email Raport</a>
                 </div>
             </div>
         </div>
+        {% endif %}
 
         <div class="col-12 col-md-6 card mb-3">
             <div class="card-header text-center">

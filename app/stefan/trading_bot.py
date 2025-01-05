@@ -85,12 +85,13 @@ def run_single_trading_logic(bot_settings):
             symbol = bot_settings.symbol
             interval = bot_settings.interval
             lookback_period = bot_settings.lookback_period
+            lookback_extended = f'{int(bot_settings.interval[:-1]) * 205}{bot_settings.interval[-1:]}'
             
             logger.trade(f'Bot {bot_settings.id} {bot_settings.strategy} Fetching data for {symbol} with interval {interval} and lookback {lookback_period}')
             df = fetch_data_and_validate(
                 symbol, 
                 interval, 
-                lookback_period, 
+                lookback_extended, 
                 bot_settings.id
                 )
             

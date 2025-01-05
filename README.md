@@ -94,13 +94,13 @@ gunicorn -c gunicorn_config.py wsgi:app
 pytest
 
 ## Technologies Used
-- Python :)
-- Flask: A web framework used for building the application interface.
-- Flask-SQLAlchemy: ORM used to manage the database.
-- Flask-JWT-Extended: JWT-based authentication for securing user access.
-- Flask-Mail: For sending email reports.
-- Binance API: For fetching market data and executing trades.
-- NumPy, Pandas and TALib: Libraries used for implementing trading algorithms and data processing.
+- **Python**: The primary language used for development.
+- **Flask**: A web framework used for building the application interface.
+- **Flask-SQLAlchemy**: ORM used to manage the database.
+- **Flask-JWT-Extended**: JWT-based authentication for securing user access.
+- **Flask-Mail**: For sending email reports.
+- **Binance API**: For fetching market data and executing trades.
+- **NumPy, Pandas and TALib**: Libraries used for implementing trading algorithms and data processing.
 
 ## Future Plans
 - Strategy Optimization: Enhancing strategies and trading logic.
@@ -108,6 +108,7 @@ pytest
 
 ## Important! Familiarize yourself thoroughly with the source code. Understand its operation. Only then will you be able to customize and adjust the bot to your own needs, preferences and requirements. 
 
+Code created by me, with no small contribution from Dr. Google and Mr. ChatGPT.
 Any comments welcome.
 
 StefanCryptoTradingBot Project is under GNU General Public License Version 3, 29 June 2007

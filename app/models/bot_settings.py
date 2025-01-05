@@ -99,6 +99,8 @@ class BotSettings(db.Model):
     interval = db.Column(db.String(16), default="1h", nullable=False)
     lookback_period = db.Column(db.String(16), default="2d", nullable=False)
     
+    selected_plot_indicators = db.Column(db.JSON, default=['rsi', 'macd'], nullable=False)
+    
     days_period_to_clean_history = db.Column(db.Integer, default=30, nullable=False)
     
     bot_running = db.Column(db.Boolean, default=False, nullable=False)
@@ -123,6 +125,8 @@ class BotSettings(db.Model):
         lazy=True, 
         cascade="all, delete-orphan"
     )
+    
+    plot_url = None
     
     def __repr__(self):
         return (f'{self.id} {self.symbol}')

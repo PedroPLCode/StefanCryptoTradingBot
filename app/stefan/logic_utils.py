@@ -1,7 +1,6 @@
 from .. import db
 import pandas as pd
 from datetime import datetime as dt
-#import time
 from decimal import Decimal
 from datetime import datetime
 from ..models import BotSettings, TradesHistory, BotCurrentTrade
@@ -78,7 +77,10 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         use_trailing_take_profit = bot_settings.use_trailing_take_profit
         take_profit_price = float(current_trade.take_profit_price)
         
-        prepare_full_df_data(bot_settings, df)
+        calculate_indicators(
+            df, 
+            bot_settings
+            )   
         
         previous_price = float(current_trade.previous_price if current_trade.is_active else 0)
         latest_data = df.iloc[-1]
@@ -90,25 +92,49 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         price_hits_stop_loss = current_price <= stop_loss_price
         price_hits_take_profit = current_price >= take_profit_price
         
-        trend = check_trend(df, bot_settings)
+        trend = check_trend(
+            df, 
+            bot_settings
+            )
         
-        averages = calculate_averages(df, bot_settings)
+        averages = calculate_averages(
+            df, 
+            bot_settings
+            )
 
         if not current_trade.is_active:
             
-            buy_signal = check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_data)
+            buy_signal = check_buy_signal(
+                df, 
+                bot_settings, 
+                trend, 
+                averages, 
+                latest_data, 
+                previous_data
+                )
 
             if isinstance(buy_signal, pd.Series):
                 buy_signal = buy_signal.all()
 
             if buy_signal:
-                execute_buy_order(bot_settings, current_price, atr)
+                execute_buy_order(
+                    bot_settings, 
+                    current_price, 
+                    atr
+                    )
             else:
                 logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} no buy signal.")
             
         elif current_trade.is_active:
             
-            sell_signal = check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_data)
+            sell_signal = check_sell_signal(
+                df, 
+                bot_settings, 
+                trend, 
+                averages, 
+                latest_data, 
+                previous_data
+                )
             
             if isinstance(sell_signal, pd.Series):
                 sell_signal = sell_signal.all()
@@ -123,7 +149,12 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
                 
             if price_hits_take_profit and use_take_profit:
                 if use_trailing_take_profit and not current_trade.trailing_take_profit_activated:
-                        activate_trailing_take_profit(bot_settings, current_trade, current_price, atr)
+                        activate_trailing_take_profit(
+                            bot_settings, 
+                            current_trade, 
+                            current_price, 
+                            atr
+                            )
                 else:
                     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} take_profit activated.")
                     take_profit_activated = True
@@ -133,48 +164,45 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
                 full_sell_signal = stop_loss_activated or take_profit_activated
         
             if full_sell_signal:
-                execute_sell_order(bot_settings, current_trade, current_price, stop_loss_activated, take_profit_activated)
+                execute_sell_order(
+                    bot_settings, 
+                    current_trade, 
+                    current_price, 
+                    stop_loss_activated, 
+                    take_profit_activated
+                    )
             elif price_rises:
                 if use_trailing_stop_loss:
-                    update_trailing_stop(bot_settings, current_trade, current_price, atr)  
+                    update_trailing_stop(
+                        bot_settings, 
+                        current_trade, 
+                        current_price, 
+                        atr
+                        )  
                 else:
-                    handle_price_rises(bot_settings, current_price)
+                    handle_price_rises(
+                        bot_settings, 
+                        current_price
+                        )
             elif price_drops:
-                handle_price_drops(bot_settings, current_price)
+                handle_price_drops(
+                    bot_settings, 
+                    current_price
+                    )
                 
-        update_technical_analysis_data(bot_settings, trend, averages, latest_data)
+        update_technical_analysis_data(
+            bot_settings, 
+            df,
+            trend, 
+            averages, 
+            latest_data
+            )
                                 
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} loop completed.")
         
     except Exception as e:
         logger.error(f"Bot {bot_settings.id} Exception in manage_trading_logic: {str(e)}")
         send_admin_email(f'Bot {bot_settings.id} Exception in manage_trading_logic', str(e))
-        
-        
-def prepare_full_df_data(bot_settings, df):
-    try:
-        
-        if bot_settings.ma50_signals or bot_settings.ma200_signals:
-                    
-            lookback_extended = f'{int(bot_settings.interval[:-1]) * 205}{bot_settings.interval[-1:]}'
-                    
-            df_extended = fetch_data(
-            bot_settings.symbol, 
-            interval=bot_settings.interval, 
-            lookback=lookback_extended
-            )
-                    
-            if not is_df_valid(df_extended, bot_settings.id):
-                return False
-                    
-            calculate_indicators(df, df_extended, bot_settings)    
-            
-        else:
-            calculate_indicators(df, None, bot_settings)    
-        
-    except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in prepare_full_df_data: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in prepare_full_df_data', str(e))
 
 
 def execute_buy_order(bot_settings, current_price, atr_value):
@@ -255,6 +283,13 @@ def execute_sell_order(bot_settings, current_trade, current_price, stop_loss_act
     try:
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} SELL signal.")
         sell_success, amount = place_sell_order(bot_settings.id)
+        
+        trade_buy_price = current_trade.buy_price
+        trade_stop_loss_price = current_trade.stop_loss_price
+        trade_take_profit_price = current_trade.take_profit_price
+        trade_price_rises_counter = current_trade.price_rises_counter
+        trade_trailing_take_profit_activated = current_trade.trailing_take_profit_activated
+        trade_buy_timestamp = current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S')
 
         if sell_success:
             trade = update_trade_history(
@@ -296,7 +331,7 @@ def execute_sell_order(bot_settings, current_trade, current_price, stop_loss_act
             )
         
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell process completed.")
-            send_trade_email(f"Bot {bot_settings.id} execute_sell_order report.", f"StafanCryptoTradingBot execute_sell_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_trade.buy_price}\nsell_price: {current_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}\nstop_loss_activated: {stop_loss_activated}\ntake_profit_activated: {take_profit_activated}\ntrailing_take_profit_activated: {current_trade.trailing_take_profit_activated}\nbuy_timestamp: {current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S')}\nsell_timestamp: {formatted_now}\nsell_success: {sell_success}")
+            send_trade_email(f"Bot {bot_settings.id} execute_sell_order report.", f"StafanCryptoTradingBot execute_sell_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {trade_buy_price}\nsell_price: {current_price}\nstop_loss_price: {trade_stop_loss_price}\ntake_profit_price: {trade_take_profit_price}\nprice_rises_counter: {trade_price_rises_counter}\nstop_loss_activated: {stop_loss_activated}\ntake_profit_activated: {take_profit_activated}\ntrailing_take_profit_activated: {trade_trailing_take_profit_activated}\nbuy_timestamp: {trade_buy_timestamp}\nsell_timestamp: {formatted_now}\nsell_success: {sell_success}")
 
     except Exception as e:
         logger.error(f"Bot {bot_settings.id} Exception in execute_sell_order: {str(e)}")
@@ -547,7 +582,6 @@ def update_current_trade(
                 current_trade.use_take_profit = use_take_profit
                 
             db.session.commit()
-            #time.sleep(1)
             
             return current_trade
             
@@ -583,7 +617,6 @@ def change_bot_settings(
                 bot_settings.stop_loss_pct = stop_loss_pct
                 
             db.session.commit()
-            #time.sleep(1)
             
             return bot_settings
             
@@ -656,7 +689,6 @@ def update_trade_history(
         )
         db.session.add(trade)
         db.session.commit()
-        #time.sleep(1)
         
         logger.trade(
             f'Transaction {trade.id}: bot: {bot_id}, strategy: {strategy}'

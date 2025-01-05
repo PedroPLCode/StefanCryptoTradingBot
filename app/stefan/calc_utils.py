@@ -3,7 +3,7 @@ import pandas as pd
 from ..utils.logging import logger
 from ..utils.app_utils import send_admin_email
 
-def calculate_indicators(df, df_extended, bot_settings):
+def calculate_indicators(df, bot_settings):
     try:
 
         if df.empty:
@@ -55,15 +55,8 @@ def calculate_indicators(df, df_extended, bot_settings):
         
         df['macd_histogram'] = df['macd'] - df['macd_signal']
         
-        if df_extended is not None:
-            if not df_extended.empty:
-                df_extended['ma_200'] = df_extended['close'].rolling(window=200).mean()
-                ma_200_column = df_extended['ma_200'].tail(len(df)).reset_index(drop=True)
-                df['ma_200'] = ma_200_column
-                
-                df_extended['ma_50'] = df_extended['close'].rolling(window=50).mean()
-                ma_50_column = df_extended['ma_50'].tail(len(df)).reset_index(drop=True)
-                df['ma_50'] = ma_50_column
+        df['ma_200'] = df['close'].rolling(window=200).mean()
+        df['ma_50'] = df['close'].rolling(window=50).mean()
 
         df['upper_band'], df['middle_band'], df['lower_band'] = talib.BBANDS(
             df['close'],

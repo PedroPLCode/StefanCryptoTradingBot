@@ -5,7 +5,7 @@ from ..models import BotSettings, BacktestSettings
 from datetime import datetime
 from ..utils.logging import logger
 from . import main
-from ..stefan.api_utils import place_sell_order
+from ..stefan.logic_utils import execute_sell_order
 from ..utils.app_utils import (
     send_email, 
     send_admin_email,
@@ -54,7 +54,13 @@ def stop_bot(bot_id):
         bot_settings = BotSettings.query.filter_by(id=bot_id).first()
         
         if bot_settings.bot_current_trade.is_active:
-            place_sell_order(bot_settings.id)
+            execute_sell_order(bot_settings, 
+                               bot_settings.bot_current_trade, 
+                               bot_settings.bot_current_trade.current_price, 
+                               False, 
+                               False
+                               )
+            send_admin_email(f'Bot {bot_settings.id} stopped manually.', f'Bot {bot_id} has been stopped manually with active CurrentTrade.\nCheck CurrentTrade in Flask Admin Panel.\nCurrentTrade needs to be deactivated and all params needs to be set on 0.')
         
         if bot_settings:
             stop_single_bot(bot_settings.id, current_user)
