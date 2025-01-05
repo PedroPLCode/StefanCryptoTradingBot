@@ -13,8 +13,7 @@ from ..stefan.api_utils import (
 )
 from ..utils.app_utils import (
     show_account_balance, 
-    send_admin_email,
-    plot_all_indicators
+    send_admin_email
 )
 
 @main.route('/')
@@ -81,6 +80,8 @@ def control_panel_view():
     
 @main.route('/analysis', methods=['GET', 'POST'])
 def analysis_panel_view():
+    from ..utils.plot_utils import plot_all_indicators
+    
     if not current_user.is_authenticated:
         flash('Please log in to access the technical analysis panel.', 'warning')
         return redirect(url_for('main.login'))
@@ -94,22 +95,24 @@ def analysis_panel_view():
         all_bots_info = BotSettings.query.all()
 
         for bot_info in all_bots_info:
+            
+            indicators = bot_info.selected_plot_indicators or ['rsi', 'macd']
+            
+            if request.method == 'POST':
+                bot_id = request.form.get('bot_id')
+                if str(bot_id) == str(bot_info.id):
+                    indicators = request.form.getlist('indicators')
+                    bot_info.selected_plot_indicators = indicators
+                    db.session.commit()
+
             technical_analysis_data = bot_info.bot_technical_analysis
             df = technical_analysis_data.get_df()
-
+            
             if df.empty:
                 logger.warning(f'Bot {bot_info.symbol} returned an empty DataFrame.')
                 bot_info.plot_url = None
                 continue
             
-            if request.method == 'POST':
-                indicators = request.form.getlist('indicators')
-                session['selected_indicators'] = indicators
-                bot_info.selected_plot_indicators = indicators
-                db.session.commit()
-            else:
-                indicators = bot_info.selected_plot_indicators or ['rsi', 'macd']
-
             bot_info.plot_url = plot_all_indicators(
                 df, 
                 indicators,
@@ -161,7 +164,7 @@ def backtest_panel_view():
     
 @main.route('/trades')
 def current_trades_view():
-    from ..utils.app_utils import create_balance_plot
+    from ..utils.plot_utils import create_balance_plot
 
     if not current_user.is_authenticated:
         flash('Please log in to access the trades panel.', 'warning')

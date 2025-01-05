@@ -66,15 +66,17 @@
                                 {% endif %}
                                 
                                 <form method="POST" action="{{ url_for('main.analysis_panel_view') }}" class="border-bottom p-0">
+                                    <input type="hidden" name="bot_id" value="{{ bot_info.id }}">
+                                    
                                     <p class="text-muted m-0 p-0">Select Plot Indicators:</p>
                                     
                                     <div class="grid-container">
                                         {% for indicator in ['close', 'rsi', 'cci', 'mfi', 'macd', 'ema', 'boil', 'stoch', 'st_rsi', 'ma50', 'ma200', 'adx', 'atr', 'psar', 'vwap', 'di'] %}
                                         <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" name="indicators" value="{{ indicator }}" 
-                                            {% if indicator in selected_indicators %}checked{% endif %} id="indicator_{{ indicator }}" style="display: none;">
-                                            
-                                            <label class="form-check-label indicator-label" for="indicator_{{ indicator }}">
+                                            <input type="checkbox" class="form-check-input" name="indicators" value="{{ indicator }}" style="display: none;" 
+                                            {% if indicator in bot_info.selected_plot_indicators %}checked{% endif %} 
+                                            id="indicator_{{ bot_info.id }}_{{ indicator }}">
+                                            <label class="form-check-label indicator-label" for="indicator_{{ bot_info.id }}_{{ indicator }}">
                                                 {{ indicator | capitalize }}
                                             </label>
                                         </div>

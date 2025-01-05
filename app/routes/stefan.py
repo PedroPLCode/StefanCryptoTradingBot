@@ -1,6 +1,7 @@
-from flask import redirect, url_for, flash, current_app
+from flask import redirect, url_for, flash, current_app, jsonify
 from flask_login import login_required, current_user
 import pandas as pd
+from sqlalchemy.exc import SQLAlchemyError
 from ..models import BotSettings, BacktestSettings
 from datetime import datetime
 from ..utils.logging import logger
@@ -216,3 +217,28 @@ def run_backtest():
         send_admin_email(f'Bot {bot_settings.id} Exception in run_backtest', str(e))
         flash('An error occurred while running backtest. The admin has been notified.', 'danger')
         return redirect(url_for('main.backtest_panel_view'))
+    
+    
+@main.route('/get_df/', methods=['GET'])
+@login_required
+def get_df():
+    
+    try:
+        all_bots_info = BotSettings.query.all()
+        if not all_bots_info:
+            return jsonify({"error": f"Bots not found"}), 404
+        
+        all_bots_df = [bot.bot_technical_analysis.df for bot in all_bots_info]
+
+        return jsonify({"all_bots_df": all_bots_df}), 200
+
+    except SQLAlchemyError as e:
+        logger.error(f"Database error get_bots_info: {str(e)}")
+        send_admin_email(f"Database error get_bots_info", str(e))
+        return jsonify({"error": "Internal Server Error"}), 500
+
+    except Exception as e:
+        logger.error(f'Exception in get_bots_info: {str(e)}')
+        send_admin_email(f'Exception in get_bots_info', str(e))
+        flash('An error occurred while sending df. The admin has been notified.', 'danger')
+        return jsonify({"error": "Internal Server Error"}), 500
