@@ -155,6 +155,13 @@ def ma200_buy_signal(latest_data, bot_settings):
         return float(latest_data['close']) >= float(latest_data['ma_200']) 
     return True
 
+
+def ma_cross_buy_signal(latest_data, previous_data, bot_settings):
+    if bot_settings.ma_cross_signals:
+        return (float(previous_data['ma_50']) <= float(previous_data['ma_200']) and
+                    float(latest_data['ma_50']) >= float(latest_data['ma_200'])) 
+    return True
+
     
 def check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
@@ -190,7 +197,8 @@ def check_buy_signal(df, bot_settings, trend, averages, latest_data, previous_da
             vwap_buy_signal(latest_data, bot_settings),
             psar_buy_signal(latest_data, previous_data, bot_settings),
             ma50_buy_signal(latest_data, bot_settings),
-            ma200_buy_signal(latest_data, bot_settings)
+            ma200_buy_signal(latest_data, bot_settings),
+            ma_cross_buy_signal(latest_data, previous_data, bot_settings)
         ]
         
         signals_to_check = [bool(signal) for signal in buy_signals]

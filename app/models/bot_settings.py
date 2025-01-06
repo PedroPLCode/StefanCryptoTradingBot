@@ -31,6 +31,7 @@ class BotSettings(db.Model):
     psar_signals = db.Column(db.Boolean, default=False, nullable=False)
     ma50_signals = db.Column(db.Boolean, default=False, nullable=False)
     ma200_signals = db.Column(db.Boolean, default=False, nullable=False)
+    ma_cross_signals = db.Column(db.Boolean, default=False, nullable=False)
     
     use_stop_loss = db.Column(db.Boolean, default=True, nullable=False)
     use_trailing_stop_loss = db.Column(db.Boolean, default=False, nullable=False)

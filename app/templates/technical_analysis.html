@@ -335,6 +335,17 @@
                                     {% endif %}">ma_200: {{ bot_info.bot_technical_analysis.current_ma_200 | round(2) }}</p>
                                 {% endif %}
 
+                                {% if bot_info.ma200_signals and bot_info.ma50_signals and bot_info.ma_cross_signals%}
+                                <p class="m-0 p-0 border-bottom
+                                    {% if bot_info.bot_technical_analysis.current_ma_50 > bot_info.bot_technical_analysis.current_ma_200 %}
+                                        text-success
+                                    {% elif bot_info.bot_technical_analysis.current_ma_50 < bot_info.bot_technical_analysis.current_ma_200 %}
+                                        text-danger
+                                    {% else %}
+                                        text-muted
+                                    {% endif %}">ma_50 {{ '>' if bot_info.bot_technical_analysis.current_ma_50 > bot_info.bot_technical_analysis.current_ma_200 else '<' }} ma_200</p>
+                                {% endif %}
+
                                 <p class="text-muted m-0 p-0">Boilinger Bands:</p>
                                 <p class="m-0 p-0 border-bottom
                                     {% if bot_info.bot_technical_analysis.current_close < bot_info.bot_technical_analysis.current_lower_band %}

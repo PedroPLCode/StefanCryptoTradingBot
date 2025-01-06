@@ -71,6 +71,7 @@
                                     {% if bot_info.stoch_rsi_signals %}STOCHASTIC_RSI({{ bot_info.stoch_rsi_timeperiod }}, {{ bot_info.stoch_rsi_k_timeperiod }}, {{ bot_info.stoch_rsi_d_timeperiod }}, avg: {{ bot_info.avg_stoch_rsi_period }})<br>{% endif %}
                                     {% if bot_info.ma50_signals %}MA(50)<br>{% endif %}
                                     {% if bot_info.ma200_signals %}MA(200)<br>{% endif %}
+                                    {% if bot_info.ma_cross_signals %}MA_CROSS(50/200)<br>{% endif %}
                                     {% if bot_info.psar_signals %}PARABOLIC_SAR({{ bot_info.psar_acceleration }}, {{ bot_info.psar_maximum }}, avg: {{ bot_info.avg_psar_period }})<br>{% endif %}
                                     {% if bot_info.vwap_signals %}VWAP (avg: {{ bot_info.avg_vwap_period }})<br>{% endif %}
                                     {% if bot_info.atr_signals %}ATR({{ bot_info.atr_timeperiod }}), avg: {{ bot_info.avg_atr_period }}<br>{% endif %}

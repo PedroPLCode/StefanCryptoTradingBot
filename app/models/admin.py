@@ -92,6 +92,7 @@ class BotSettingsAdmin(AdminModelView):
         'psar_signals',
         'ma50_signals',
         'ma200_signals',
+        'ma_cross_signals',
         'use_stop_loss',
         'use_trailing_stop_loss',
         'stop_loss_pct', 
