@@ -116,6 +116,7 @@ def analysis_panel_view():
             bot_info.plot_url = plot_all_indicators(
                 df, 
                 indicators,
+                bot_info,
                 bot_info.lookback_period
                 )
 

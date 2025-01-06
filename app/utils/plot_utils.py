@@ -31,6 +31,9 @@ def create_balance_plot(df):
 
         ax.grid(True)
         ax.legend()
+        
+        ax.set_xticks([])
+        ax.set_yticks([])
 
         ax.spines['top'].set_visible(False)
         ax.spines['bottom'].set_visible(False)
@@ -51,7 +54,7 @@ def create_balance_plot(df):
         return None
 
 
-def plot_all_indicators(df, indicators, lookback=None):
+def plot_all_indicators(df, indicators, bot_settings, lookback=None):
     try:
         validate_indicators(df, indicators)
         
@@ -93,21 +96,21 @@ def plot_all_indicators(df, indicators, lookback=None):
 
         if 'rsi' in indicators:
             ax2.plot(df['open_time'], df['rsi'], label='RSI', color='purple', linewidth=linw_width)
-            ax2.axhline(y=70, color='red', linestyle='--', label='Overbought', linewidth=linw_width)
-            ax2.axhline(y=30, color='green', linestyle='--', label='Oversold', linewidth=linw_width)
+            ax2.axhline(y=bot_settings.rsi_sell, color='red', linestyle='--', linewidth=linw_width)
+            ax2.axhline(y=bot_settings.rsi_buy, color='green', linestyle='--', linewidth=linw_width)
 
         if 'atr' in indicators:
             ax.plot(df['open_time'], df['atr'], label='ATR', color='blue', linewidth=linw_width)
 
         if 'cci' in indicators:
             ax2.plot(df['open_time'], df['cci'], label='CCI', color='brown', linewidth=linw_width)
-            ax2.axhline(y=100, color='red', linestyle='--', label='Overbought', linewidth=linw_width)
-            ax2.axhline(y=-100, color='green', linestyle='--', label='Oversold', linewidth=linw_width)
+            ax2.axhline(y=bot_settings.cci_sell, color='red', linestyle='--', linewidth=linw_width)
+            ax2.axhline(y=bot_settings.cci_buy, color='green', linestyle='--', linewidth=linw_width)
 
         if 'mfi' in indicators:
             ax2.plot(df['open_time'], df['mfi'], label='MFI', color='orange', linewidth=linw_width)
-            ax2.axhline(y=80, color='red', linestyle='--', label='Overbought', linewidth=linw_width)
-            ax2.axhline(y=20, color='green', linestyle='--', label='Oversold', linewidth=linw_width)
+            ax2.axhline(y=bot_settings.mfi_sell, color='red', linestyle='--', linewidth=linw_width)
+            ax2.axhline(y=bot_settings.mfi_buy, color='green', linestyle='--', linewidth=linw_width)
 
         if 'stoch' in indicators:
             ax.plot(df['open_time'], df['stoch_k'], label='Stoch %K', color='blue', linewidth=linw_width)
@@ -130,15 +133,26 @@ def plot_all_indicators(df, indicators, lookback=None):
             ax.plot(df['open_time'], df['plus_di'], label='+DI', color='green', linewidth=linw_width)
             ax.plot(df['open_time'], df['minus_di'], label='-DI', color='red', linewidth=linw_width)
 
-        ax.legend(loc='upper left')
-        ax2.legend(loc='upper right')
+        ax.legend(loc='upper left', prop={'size': 42})
+        ax2.legend(loc='lower left', prop={'size': 42})
+        
+        ax.set_xticks([])
+        ax.set_yticks([])
 
-        ax.set_title('Technical Analysis Indicators')
-        ax.set_xlabel('Time')
-        ax.set_ylabel('Price / Value')
-        ax2.set_ylabel('Indicator Value')
+        ax2.set_xticks([])
+        ax2.set_yticks([])
 
         plt.tight_layout()
+        
+        ax.spines['top'].set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+        ax.spines['left'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        
+        ax2.spines['top'].set_visible(False)
+        ax2.spines['bottom'].set_visible(False)
+        ax2.spines['left'].set_visible(False)
+        ax2.spines['right'].set_visible(False)
         
         img = BytesIO()
         fig.savefig(img, format='png', bbox_inches='tight')
