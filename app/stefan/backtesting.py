@@ -19,8 +19,9 @@ from .calc_utils import (
     calculate_averages,
     check_trend
 )
-from .buy_signals import check_buy_signal
-from .sell_signals import check_sell_signal
+from .buy_signals import check_classic_ta_buy_signal
+from .sell_signals import check_classic_ta_sell_signal
+from ..mariola.mariola_predict import check_model_ml_trade_signal
 
 def fetch_and_save_data(backtest_settings, bot_settings):
     symbol = str(bot_settings.symbol)
@@ -73,49 +74,53 @@ def backtest_strategy(df, bot_settings, backtest_settings):
         for i in range(start_index, end_index):
             loop_df = pd.DataFrame()
             
-            if bot_settings.ma50_signals or bot_settings.ma200_signals:
-                if (i - 48) >= start_index and (i - 200) >= 0:
-                    loop_df = calculate_indicators(
-                        df.iloc[start_index+i-48:start_index+i+1], 
-                        df.iloc[start_index+i-200:start_index+i+1], 
-                        bot_settings
-                        )
-                else:
-                    continue
+            if (i - 48) >= start_index and (i - 200) >= 0:
+                loop_df = calculate_indicators(
+                    df.iloc[start_index+i-200:start_index+i+1], 
+                    bot_settings
+                    )
             else:
-                if (i - 45) >= start_index:
-                    loop_df = calculate_indicators(
-                        df.iloc[start_index+i-45:start_index+i+1], 
-                        None,
-                        bot_settings
-                        )
-                else:
-                    continue
+                continue
             
             latest_data = loop_df.iloc[-1]
             previous_data = loop_df.iloc[-2]
             current_price = float(latest_data['close'])
             
             trend = check_trend(loop_df)
-            
             averages = calculate_averages(loop_df, bot_settings)
             
-            buy_signal = check_buy_signal(
-                df, 
-                bot_settings, 
-                trend, 
-                averages, 
-                latest_data, 
-                previous_data
-                )
-            sell_signal = check_sell_signal(
-                df, 
-                bot_settings, 
-                trend, 
-                averages, 
-                latest_data, 
-                previous_data
-                )
+            buy_signal = False
+            sell_signal = False
+            
+            if bot_settings.use_technical_analysis:
+                buy_signal = check_classic_ta_buy_signal(
+                    df, 
+                    bot_settings, 
+                    trend, 
+                    averages, 
+                    latest_data, 
+                    previous_data
+                    )
+                sell_signal = check_classic_ta_sell_signal(
+                    df, 
+                    bot_settings,
+                    trend, 
+                    averages, 
+                    latest_data, 
+                    previous_data
+                    )
+                
+            if bot_settings.use_machine_learning:
+                buy_signal = check_model_ml_trade_signal(
+                    df,
+                    'buy',
+                    bot_settings
+                    )
+                sell_signal = check_model_ml_trade_signal(
+                    df,
+                    'sell',
+                    bot_settings
+                    )
             
             price_hits_stop_loss = current_price <= stop_loss_price
             price_hits_take_profit = current_price >= take_profit_price

@@ -22,9 +22,7 @@ from .calc_utils import (
 )
 from .buy_signals import check_classic_ta_buy_signal
 from .sell_signals import check_classic_ta_sell_signal
-from ..mariola.mariola_predict import (
-    check_model_ml_trade_signal
-    )
+from ..mariola.mariola_predict import check_model_ml_trade_signal
 
 def is_df_valid(df, bot_id):
     if df is None or df.empty or len(df) < 2:
