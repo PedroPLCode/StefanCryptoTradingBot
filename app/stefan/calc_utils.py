@@ -60,9 +60,9 @@ def calculate_indicators(df, bot_settings):
 
         df['upper_band'], df['middle_band'], df['lower_band'] = talib.BBANDS(
             df['close'],
-            timeperiod=bot_settings.boilinger_timeperiod,
-            nbdevup=bot_settings.boilinger_nbdev,
-            nbdevdn=bot_settings.boilinger_nbdev,
+            timeperiod=bot_settings.bollinger_timeperiod,
+            nbdevup=bot_settings.bollinger_nbdev,
+            nbdevdn=bot_settings.bollinger_nbdev,
             matype=0
         )
 

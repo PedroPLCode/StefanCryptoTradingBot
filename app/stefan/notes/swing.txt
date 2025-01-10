@@ -28,8 +28,8 @@ cci_timeperiod=14/9/5,
 mfi_timeperiod=14/9/5
 macd_timeperiod=12-26,
 macd_signalperiod=9,
-boilinger_timeperiod=20,
-boilinger_nbdev=2,
+bollinger_timeperiod=20,
+bollinger_nbdev=2,
 stock_k_timeperiod=14,
 stock_d_timeperiod=3,
 ema_fast_timeperiod=24,
@@ -54,13 +54,13 @@ if_not_downtrend: RSI(14, 30/70) MACD(12,24,9) Volume
 algorithm 2:
 (secondary for horizontal trend)
 intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
-if_not_downtrend: Stochastic(14,3) Boilinger(20,2) Volume
+if_not_downtrend: Stochastic(14,3) Bollinger(20,2) Volume
 
 algorithm 3:
 intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
-if_not_downtrend: StochasticRSI(14,14,3) Boilinger(20,2) Volume
+if_not_downtrend: StochasticRSI(14,14,3) Bollinger(20,2) Volume
 
 algorithm 4:
 (buy the dip)
 intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
-if_not_downtrend: RSI(14, 30/70) Boilinger(20,2) MA50 Volume
+if_not_downtrend: RSI(14, 30/70) Bollinger(20,2) MA50 Volume

@@ -76,7 +76,7 @@
                                         {% if bot_info.ema_cross_signals %}EMA({{ bot_info.ema_fast_timeperiod }}, {{ bot_info.ema_slow_timeperiod }}, avg: {{ bot_info.avg_ema_period }})<br>{% endif %}
                                         {% if bot_info.ema_slow_signals %}EMA_SLOW({{ bot_info.ema_slow_timeperiod }}, avg: {{ bot_info.avg_ema_period }})<br>{% endif %}
                                         {% if bot_info.ema_fast_signals %}EMA_FAST({{ bot_info.ema_fast_timeperiod }}, avg: {{ bot_info.avg_ema_period }})<br>{% endif %}
-                                        {% if bot_info.boilinger_signals %}BOILINGER({{ bot_info.boilinger_timeperiod }}, {{ bot_info.boilinger_nbdev }})<br>{% endif %}
+                                        {% if bot_info.bollinger_signals %}BOLLINGER({{ bot_info.bollinger_timeperiod }}, {{ bot_info.bollinger_nbdev }})<br>{% endif %}
                                         {% if bot_info.stoch_signals %}STOCHASTIC({{ bot_info.stoch_k_timeperiod }}, {{ bot_info.stoch_d_timeperiod }}, {{ bot_info.stoch_buy }}/{{ bot_info.stoch_sell }}, avg: {{ bot_info.avg_stoch_period }})<br>{% endif %}
                                         {% if bot_info.stoch_divergence_signals %}STOCHASTIC_DIVERGENCE<br>{% endif %}
                                         {% if bot_info.stoch_rsi_signals %}STOCHASTIC_RSI({{ bot_info.stoch_rsi_timeperiod }}, {{ bot_info.stoch_rsi_k_timeperiod }}, {{ bot_info.stoch_rsi_d_timeperiod }}, avg: {{ bot_info.avg_stoch_rsi_period }})<br>{% endif %}
@@ -189,8 +189,8 @@
                                     <p class="text-muted m-0 p-0">MFI Time Period: {{ bot_info.mfi_timeperiod }}</p>
                                     <p class="text-muted m-0 p-0">MACD Time Period: {{ bot_info.macd_timeperiod }}</p>
                                     <p class="text-muted m-0 p-0">MACD Signal Time Period: {{ bot_info.macd_signalperiod }}</p>
-                                    <p class="text-muted m-0 p-0">Boilinger Time Period: {{ bot_info.boilinger_timeperiod }}</p>
-                                    <p class="text-muted m-0 p-0">Boilinger nbdev Time Period: {{ bot_info.boilinger_nbdev }}</p>
+                                    <p class="text-muted m-0 p-0">Bollinger Time Period: {{ bot_info.bollinger_timeperiod }}</p>
+                                    <p class="text-muted m-0 p-0">Bollinger nbdev Time Period: {{ bot_info.bollinger_nbdev }}</p>
                                     <p class="text-muted m-0 p-0">Stochastic K Time Period: {{ bot_info.stoch_k_timeperiod }}</p>
                                     <p class="text-muted m-0 p-0">Stochastic D Time Period: {{ bot_info.stoch_d_timeperiod }}</p>
                                     <p class="text-muted m-0 p-0">Stochastic RSI Time Period: {{ bot_info.stoch_rsi_timeperiod }}</p>

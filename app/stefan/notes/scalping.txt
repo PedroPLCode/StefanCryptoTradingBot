@@ -28,8 +28,8 @@ cci_timeperiod=14/9/5,
 mfi_timeperiod=14/9/5
 macd_timeperiod=12-26,
 macd_signalperiod=9,
-boilinger_timeperiod=20,
-boilinger_nbdev=2,
+bollinger_timeperiod=20,
+bollinger_nbdev=2,
 stock_k_timeperiod=14,
 stock_d_timeperiod=3,
 psar_acceleration=0.01/0.02,
@@ -54,7 +54,7 @@ if_not_downtrend: RSI(7, 30/70) MACD(6,12,5) Volume
 algorithm 2:
 (for horizontal trend)
 intervals 1min, ADX(14), ATR(14, x3), AvgVolPeriod(3)
-if_not_downtrend: Stochastic(7,3) Boilinger(20,2) Volume
+if_not_downtrend: Stochastic(7,3) bollinger(20,2) Volume
 
 algorithm 3:
 (primary)

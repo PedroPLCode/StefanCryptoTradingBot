@@ -89,7 +89,7 @@ def plot_all_indicators(df, indicators, bot_settings, lookback=None):
             ax.plot(df['open_time'], df['macd_signal'], label='MACD Signal', color='orange', linewidth=linw_width)
             ax.bar(df['open_time'], df['macd_histogram'], label='MACD Histogram', color='grey', alpha=0.5)
 
-        if 'boil' in indicators:
+        if 'boll' in indicators:
             ax.plot(df['open_time'], df['upper_band'], label='Upper Band', color='green', linewidth=linw_width)
             ax.plot(df['open_time'], df['lower_band'], label='Lower Band', color='red', linewidth=linw_width)
             ax.fill_between(df['open_time'], df['lower_band'], df['upper_band'], color='grey', alpha=0.2)
@@ -206,7 +206,7 @@ def validate_indicators(df, indicators):
             'ma50': ['ma_50'],
             'ma200': ['ma_200'],
             'macd': ['macd', 'macd_signal', 'macd_histogram'],
-            'boil': ['upper_band', 'lower_band'],
+            'boll': ['upper_band', 'lower_band'],
             'rsi': ['rsi'],
             'atr': ['atr'],
             'cci': ['cci'],

@@ -898,9 +898,9 @@ def calculate_df(df, bot_settings):
             
         result['upper_band'], result['middle_band'], result['lower_band'] = talib.BBANDS(
                 result['close'],
-                timeperiod=bot_settings.boilinger_timeperiod,
-                nbdevup=bot_settings.boilinger_nbdev,
-                nbdevdn=bot_settings.boilinger_nbdev,
+                timeperiod=bot_settings.bollinger_timeperiod,
+                nbdevup=bot_settings.bollinger_nbdev,
+                nbdevdn=bot_settings.bollinger_nbdev,
                 matype=0
             )
         result[f'is_upper_band_rising'] = result[f'upper_band'].diff() > 0

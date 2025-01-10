@@ -41,8 +41,8 @@ def macd_histogram_buy_signal(latest_data, previous_data, bot_settings):
     return True
 
 
-def boilinger_buy_signal(latest_data, bot_settings):
-    if bot_settings.boilinger_signals:
+def bollinger_buy_signal(latest_data, bot_settings):
+    if bot_settings.bollinger_signals:
         return float(latest_data['close']) <= float(latest_data['lower_band'])
     return True
 
@@ -181,7 +181,7 @@ def check_classic_ta_buy_signal(df, bot_settings, trend, averages, latest_data, 
             vol_rising(latest_data, averages, bot_settings),
             macd_cross_buy_signal(latest_data, previous_data, bot_settings),
             macd_histogram_buy_signal(latest_data, previous_data, bot_settings),
-            boilinger_buy_signal(latest_data, bot_settings),
+            bollinger_buy_signal(latest_data, bot_settings),
             stoch_buy_signal(latest_data, previous_data, bot_settings),
             stoch_divergence_buy_signal(latest_data, averages, bot_settings),
             stoch_rsi_buy_signal(latest_data, averages, bot_settings),

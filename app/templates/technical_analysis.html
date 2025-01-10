@@ -84,7 +84,7 @@
                                     <p class="text-muted m-0 p-0">Select Plot Indicators:</p>
                                     
                                     <div class="grid-container">
-                                        {% for indicator in ['close', 'rsi', 'cci', 'mfi', 'macd', 'ema', 'boil', 'stoch', 'st_rsi', 'ma50', 'ma200', 'adx', 'atr', 'psar', 'vwap', 'di'] %}
+                                        {% for indicator in ['close', 'rsi', 'cci', 'mfi', 'macd', 'ema', 'boll', 'stoch', 'st_rsi', 'ma50', 'ma200', 'adx', 'atr', 'psar', 'vwap', 'di'] %}
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" name="indicators" value="{{ indicator }}" style="display: none;" 
                                             {% if indicator in bot_info.selected_plot_indicators %}checked{% endif %} 
@@ -359,7 +359,7 @@
                                     {% endif %}">ma_50 {{ '>' if bot_info.bot_technical_analysis.current_ma_50 > bot_info.bot_technical_analysis.current_ma_200 else '<' }} ma_200</p>
                                 {% endif %}
 
-                                <p class="text-muted m-0 p-0">Boilinger Bands:</p>
+                                <p class="text-muted m-0 p-0">Bollinger Bands:</p>
                                 <p class="m-0 p-0 border-bottom
                                     {% if bot_info.bot_technical_analysis.current_close < bot_info.bot_technical_analysis.current_lower_band %}
                                         text-success
@@ -367,7 +367,7 @@
                                         text-danger
                                     {% else %}
                                         text-muted
-                                    {% endif %}">boilinger({{ bot_info.boilinger_timeperiod }}, {{ bot_info.boilinger_nbdev }}) upper band: {{ bot_info.bot_technical_analysis.current_upper_band | round(2) }}<br>boilinger({{ bot_info.boilinger_timeperiod }}, {{ bot_info.boilinger_nbdev }}) lower band: {{ bot_info.bot_technical_analysis.current_lower_band | round(2) }}</p>
+                                    {% endif %}">bollinger({{ bot_info.bollinger_timeperiod }}, {{ bot_info.bollinger_nbdev }}) upper band: {{ bot_info.bot_technical_analysis.current_upper_band | round(2) }}<br>bollinger({{ bot_info.bollinger_timeperiod }}, {{ bot_info.bollinger_nbdev }}) lower band: {{ bot_info.bot_technical_analysis.current_lower_band | round(2) }}</p>
 
                                 {% if bot_info.bot_technical_analysis.current_stoch_k > bot_info.bot_technical_analysis.avg_stoch_k and bot_info.bot_technical_analysis.current_close < bot_info.bot_technical_analysis.avg_close %}
                                     <p class="text-success m-0 p-0">stoch_k and close positive divergention</p>
