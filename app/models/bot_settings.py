@@ -4,9 +4,31 @@ class BotSettings(db.Model):
     __tablename__ = 'bot_settings'
     id = db.Column(db.Integer, primary_key=True)
     symbol = db.Column(db.String(128), default="BTCUSDC", nullable=False)
+    interval = db.Column(db.String(16), default="1h", nullable=False)
+    lookback_period = db.Column(db.String(16), default="2d", nullable=False)
     strategy = db.Column(db.String(128), default="rsi + macd", nullable=False)
     comment = db.Column(db.String(1024), default="swing", nullable=True, unique=False)
+    
     capital_utilization_pct = db.Column(db.Float, default=0.95, nullable=False)
+    selected_plot_indicators = db.Column(db.JSON, default=['rsi', 'macd'], nullable=False)
+    days_period_to_clean_history = db.Column(db.Integer, default=30, nullable=False)
+    
+    bot_running = db.Column(db.Boolean, default=False, nullable=False)
+    sell_signal_only_stop_loss_or_take_profit = db.Column(db.Boolean, default=False, nullable=False)
+    use_technical_analysis = db.Column(db.Boolean, default=False, nullable=False)
+    use_machine_learning = db.Column(db.Boolean, default=False, nullable=False)
+    
+    use_stop_loss = db.Column(db.Boolean, default=True, nullable=False)
+    use_trailing_stop_loss = db.Column(db.Boolean, default=False, nullable=False)
+    stop_loss_pct = db.Column(db.Float, default=0.02, nullable=False)
+    trailing_stop_with_atr = db.Column(db.Boolean, default=False, nullable=False)
+    trailing_stop_atr_calc = db.Column(db.Float, default=1, nullable=False)
+    
+    use_take_profit = db.Column(db.Boolean, default=True, nullable=False)
+    use_trailing_take_profit = db.Column(db.Boolean, default=True, nullable=False)
+    take_profit_pct = db.Column(db.Float, default=0.03, nullable=False)
+    take_profit_with_atr = db.Column(db.Boolean, default=False, nullable=False)
+    take_profit_atr_calc = db.Column(db.Float, default=3, nullable=False)
     
     trend_signals = db.Column(db.Boolean, default=False, nullable=False)
     rsi_signals = db.Column(db.Boolean, default=True, nullable=False)
@@ -32,20 +54,6 @@ class BotSettings(db.Model):
     ma50_signals = db.Column(db.Boolean, default=False, nullable=False)
     ma200_signals = db.Column(db.Boolean, default=False, nullable=False)
     ma_cross_signals = db.Column(db.Boolean, default=False, nullable=False)
-    
-    use_stop_loss = db.Column(db.Boolean, default=True, nullable=False)
-    use_trailing_stop_loss = db.Column(db.Boolean, default=False, nullable=False)
-    stop_loss_pct = db.Column(db.Float, default=0.02, nullable=False)
-    trailing_stop_with_atr = db.Column(db.Boolean, default=False, nullable=False)
-    trailing_stop_atr_calc = db.Column(db.Float, default=1, nullable=False)
-    
-    use_take_profit = db.Column(db.Boolean, default=True, nullable=False)
-    use_trailing_take_profit = db.Column(db.Boolean, default=True, nullable=False)
-    take_profit_pct = db.Column(db.Float, default=0.03, nullable=False)
-    take_profit_with_atr = db.Column(db.Boolean, default=False, nullable=False)
-    take_profit_atr_calc = db.Column(db.Float, default=3, nullable=False)
-    
-    sell_signal_only_stop_loss_or_take_profit = db.Column(db.Boolean, default=False, nullable=False)
     
     general_timeperiod = db.Column(db.Integer, default=14, nullable=False)
     di_timeperiod = db.Column(db.Integer, default=14, nullable=False)
@@ -84,27 +92,43 @@ class BotSettings(db.Model):
     avg_atr_period = db.Column(db.Integer, default=28, nullable=False)
     avg_di_period = db.Column(db.Integer, default=7, nullable=False)
     avg_rsi_period = db.Column(db.Integer, default=1, nullable=False)
-    avg_stoch_rsi_period = db.Column(db.Integer, default=3, nullable=False)
+    avg_stoch_rsi_period = db.Column(db.Integer, default=1, nullable=False)
     avg_macd_period = db.Column(db.Integer, default=1, nullable=False)
-    avg_stoch_period = db.Column(db.Integer, default=3, nullable=False)
+    avg_stoch_period = db.Column(db.Integer, default=1, nullable=False)
     avg_ema_period = db.Column(db.Integer, default=1, nullable=False)
     avg_cci_period = db.Column(db.Integer, default=1, nullable=False)
     avg_mfi_period = db.Column(db.Integer, default=1, nullable=False)
-    avg_psar_period = db.Column(db.Integer, default=3, nullable=False)
-    avg_vwap_period = db.Column(db.Integer, default=3, nullable=False)
+    avg_psar_period = db.Column(db.Integer, default=1, nullable=False)
+    avg_vwap_period = db.Column(db.Integer, default=1, nullable=False)
     
     adx_strong_trend = db.Column(db.Integer, default=25, nullable=False)
     adx_weak_trend = db.Column(db.Integer, default=20, nullable=False)
     adx_no_trend = db.Column(db.Integer, default=5, nullable=False)
     
-    interval = db.Column(db.String(16), default="1h", nullable=False)
-    lookback_period = db.Column(db.String(16), default="2d", nullable=False)
+    ml_averages_timeperiods = db.Column(db.JSON, default=['14', '28'], nullable=False)
+    ml_general_timeperiods = db.Column(db.JSON, default=['7', '14', '28'], nullable=False)
+    ml_macd_timeperiods = db.Column(db.JSON, default=['[12, 9]'], nullable=False)
+    ml_window_size = db.Column(db.Integer, default=30, nullable=False)
+    ml_window_lookback = db.Column(db.Integer, default=14, nullable=False)
+    ml_predictions_periods = db.Column(db.JSON, default=['7', '14', '28'], nullable=False)
     
-    selected_plot_indicators = db.Column(db.JSON, default=['rsi', 'macd'], nullable=False)
+    ml_use_regresion_on_next_7 = db.Column(db.Boolean, default=True, nullable=False)
+    ml_model_7_filename = db.Column(db.String(128), default="model_btc_1h_lstm_reg_period_7.keras", nullable=False)
+    ml_predictions_7_avg = db.Column(db.Integer, default=1, nullable=False)
+    ml_buy_trigger_7_pct = db.Column(db.Float, default=3, nullable=False)
+    ml_sell_trigger_7_pct = db.Column(db.Float, default=2, nullable=False)
     
-    days_period_to_clean_history = db.Column(db.Integer, default=30, nullable=False)
+    ml_use_regresion_on_next_14 = db.Column(db.Boolean, default=True, nullable=False)
+    ml_model_14_filename = db.Column(db.String(128), default="model_btc_1h_lstm_reg_period_14.keras", nullable=False)
+    ml_predictions_14_avg = db.Column(db.Integer, default=1, nullable=False)
+    ml_buy_trigger_14_pct = db.Column(db.Float, default=4, nullable=False)
+    ml_sell_trigger_14_pct = db.Column(db.Float, default=3, nullable=False)
     
-    bot_running = db.Column(db.Boolean, default=False, nullable=False)
+    ml_use_regresion_on_next_28 = db.Column(db.Boolean, default=True, nullable=False)
+    ml_model_28_filename = db.Column(db.String(128), default="model_btc_1h_lstm_reg_period_28.keras", nullable=False)
+    ml_predictions_28_avg = db.Column(db.Integer, default=1, nullable=False)
+    ml_buy_trigger_28_pct = db.Column(db.Float, default=5, nullable=False)
+    ml_sell_trigger_28_pct = db.Column(db.Float, default=4, nullable=False)
     
     bot_current_trade = db.relationship(
         'BotCurrentTrade',

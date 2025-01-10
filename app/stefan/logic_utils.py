@@ -20,8 +20,11 @@ from .calc_utils import (
     calculate_averages,
     check_trend
 )
-from .buy_signals import check_buy_signal
-from .sell_signals import check_sell_signal
+from .buy_signals import check_classic_ta_buy_signal
+from .sell_signals import check_classic_ta_sell_signal
+from ..mariola.mariola_predict import (
+    check_model_ml_trade_signal
+    )
 
 def is_df_valid(df, bot_id):
     if df is None or df.empty or len(df) < 2:
@@ -104,7 +107,8 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
 
         if not current_trade.is_active:
             
-            buy_signal = check_buy_signal(
+            buy_signal = check_signal(
+                'buy', 
                 df, 
                 bot_settings, 
                 trend, 
@@ -127,7 +131,8 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
             
         elif current_trade.is_active:
             
-            sell_signal = check_sell_signal(
+            sell_signal = check_signal(
+                'sell',
                 df, 
                 bot_settings, 
                 trend, 
@@ -205,6 +210,51 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         send_admin_email(f'Bot {bot_settings.id} Exception in manage_trading_logic', str(e))
 
 
+def check_signal(signal_type,
+                 df,
+                 bot_settings,
+                 trend,
+                 averages,
+                 latest_data,
+                 previous_data
+                 ):
+    try:
+        
+        if bot_settings.use_technical_analysis:
+            if signal_type == 'buy':
+                return check_classic_ta_buy_signal(
+                    df, 
+                    bot_settings, 
+                    trend, 
+                    averages, 
+                    latest_data, 
+                    previous_data
+                    )
+            elif signal_type == 'sell':
+                return check_classic_ta_sell_signal(
+                    df, 
+                    bot_settings,
+                    trend, 
+                    averages, 
+                    latest_data, 
+                    previous_data
+                    )
+                
+            raise ValueError(f"Unsupported signal_type: {signal_type}")
+        
+        if bot_settings.use_machine_learning:
+            return check_model_ml_trade_signal(
+                df,
+                signal_type,
+                bot_settings
+                )
+
+    except Exception as e:
+        logger.error(f"Bot {bot_settings.id} Exception in check_signal ({signal_type}): {str(e)}")
+        send_admin_email(f"Bot {bot_settings.id} Exception in check_signal ({signal_type})", str(e))
+        return None
+    
+    
 def execute_buy_order(bot_settings, current_price, atr_value):
     now = datetime.now()
     formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')

@@ -47,6 +47,10 @@
                         <div id="collapse{{ bot_info.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ bot_info.id }}" data-bs-parent="#botsAccordion">
                             <div class="accordion-body">
 
+                                {% if bot_info.use_machine_learning %}
+                                    <p class="text-danger m-0 p-0 border-bottom">Keep in mind<br>This Bot is using<br>machine learning LSTM model<br>to predict price changes<br>and find buy / sell signals<br>instead of classic<br>technical analysis methods.</p>
+                                {% endif %}
+
                                 {% if bot_info.bot_running %}
                                     <p class="text-success m-0 p-0 border-bottom">Bot Running. Actual data.</p>
                                 {% else %}
@@ -54,6 +58,15 @@
                                 {% endif %}
 
                                 <p class="text-muted m-0 p-0">Symbol: {{ bot_info.symbol }}</p>
+                                <p class="text-muted m-0 p-0">Signals: 
+                                    {% if bot_info.use_machine_learning %}
+                                        Machine Learning
+                                    {% elif bot_info.use_technical_analysis %}
+                                        Technical Analysis
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </p>
                                 <p class="text-muted m-0 p-0">Strategy: {{ bot_info.strategy | upper }}</p>
                                 <p class="text-muted m-0 p-0">Comment: {{ bot_info.comment }}</p>
                                 <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>

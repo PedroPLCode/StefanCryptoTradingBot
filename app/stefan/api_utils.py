@@ -80,6 +80,7 @@ def fetch_data(symbol, interval='1m', lookback='4h', start_str=None, end_str=Non
         df['close'] = df['close'].astype(float)
         df['high'] = df['high'].astype(float)
         df['low'] = df['low'].astype(float)
+        
         return df
     
     except BinanceAPIException as e:

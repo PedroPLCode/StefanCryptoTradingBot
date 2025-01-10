@@ -6,6 +6,7 @@ import platform
 import sys
 import numpy as np
 import pandas as pd
+import tensorflow.keras
 import pytz
 from datetime import datetime
 from .. import app, db, login_manager
@@ -86,6 +87,14 @@ def inject_pandas_version():
     except Exception as e:
         pandas_version = f"Error retrieving pandas version: {e}"
     return dict(pandas_version=pandas_version)
+
+@app.context_processor
+def inject_keras_version():
+    try:
+        keras_version = tensorflow.keras.__version__
+    except Exception as e:
+        keras_version = f"Error retrieving keras version: {e}"
+    return dict(keras_version=keras_version)
 
 @app.context_processor
 def inject_db_info():

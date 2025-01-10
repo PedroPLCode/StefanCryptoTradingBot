@@ -151,7 +151,7 @@ def ma_cross_sell_signal(latest_data, previous_data, bot_settings):
     return True
 
 
-def check_sell_signal(df, bot_settings, trend, averages, latest_data, previous_data):
+def check_classic_ta_sell_signal(df, bot_settings, trend, averages, latest_data, previous_data):
     from .logic_utils import is_df_valid
     
     if not is_df_valid(df, bot_settings.id):
