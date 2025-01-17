@@ -94,10 +94,25 @@
                                     
                                 {% if bot_info.use_machine_learning %}
                                 
-                                    <p class="text-muted m-0 p-0">Model: LSTM Regresion</p>
-                                    <p class="text-muted m-0 p-0">General Timeperiods: {{ bot_info.ml_general_timeperiods }}</p>
-                                    <p class="text-muted m-0 p-0">Averages Timeperiods: {{ bot_info.ml_averages_timeperiods }}</p>
-                                    <p class="text-muted m-0 p-0">MACD Timeperiods: {{ bot_info.ml_macd_timeperiods }}</p>
+                                    <p class="text-muted m-0 p-0 border-bottom">Model: LSTM Regresion</p>
+
+                                    <p class="text-muted m-0 p-0 border-bottom">General Timeperiod: {{ bot_info.ml_general_timeperiod }}</p>
+                                    <p class="text-muted m-0 p-0">MACD Timeperiod: {{ bot_info.ml_macd_timeperiod }}</p>
+                                    <p class="text-muted m-0 p-0 border-bottom">MACD signal Timeperiod: {{ bot_info.ml_macd_signal_timeperiod }}</p>
+                                    <p class="text-muted m-0 p-0">Bollinger Timeperiod: {{ bot_info.ml_bollinger_timeperiod }}</p>
+                                    <p class="text-muted m-0 p-0 border-bottom">Bollinger nbdev: {{ bot_info.ml_bollinger_nbdev }}</p>
+                                    <p class="text-muted m-0 p-0">Stochastic K Timeperiod: {{ bot_info.ml_stoch_k_timeperiod }}</p>
+                                    <p class="text-muted m-0 p-0 border-bottom">Stochastic D Timeperiod: {{ bot_info.ml_stoch_d_timeperiod }}</p>
+                                    <p class="text-muted m-0 p-0">Stochastic RSI K Timeperiod: {{ bot_info.ml_stoch_rsi_k_timeperiod }}</p>
+                                    <p class="text-muted m-0 p-0 border-bottom">Stochastic RSI D Timeperiod: {{ bot_info.ml_stoch_rsi_d_timeperiod }}</p>
+                                    <p class="text-muted m-0 p-0">EMA Fast Timeperiod: {{ bot_info.ml_ema_fast_timeperiod }}</p>
+                                    <p class="text-muted m-0 p-0 border-bottom">EMA Slow Timeperiod: {{ bot_info.ml_ema_slow_timeperiod }}</p>
+                                    <p class="text-muted m-0 p-0">PSAR Acceleration: {{ bot_info.ml_psar_acceleration }}</p>
+                                    <p class="text-muted m-0 p-0 border-bottom">PSAR Maximum: {{ bot_info.ml_psar_maximum }}</p>
+
+                                    <p class="text-muted m-0 p-0">Lag Minimum: {{ bot_info.ml_lag_min }}</p>
+                                    <p class="text-muted m-0 p-0 border-bottom">Lag Maximum: {{ bot_info.ml_lag_max }}</p>
+                                    
                                     <p class="text-muted m-0 p-0">Window Size: {{ bot_info.ml_window_size }}</p>
                                     <p class="text-muted m-0 p-0">Window Loopback: {{ bot_info.ml_window_lookback }}</p>
                                     <p class="text-muted m-0 p-0 border-bottom">Predictions Periods: {{ bot_info.ml_predictions_periods }}</p>
