@@ -74,6 +74,10 @@ class BotSettingsAdmin(AdminModelView):
         'capital_utilization_pct',
         'days_period_to_clean_history',
         'selected_plot_indicators',
+        'use_suspension_after_negative_trade',
+        'is_suspended_after_negative_trade',
+        'cycles_of_suspension_after_negative_trade',
+        'suspension_cycles_remaining',
         
         'use_technical_analysis',
         'use_machine_learning',

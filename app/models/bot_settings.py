@@ -18,6 +18,11 @@ class BotSettings(db.Model):
     use_technical_analysis = db.Column(db.Boolean, default=False, nullable=False)
     use_machine_learning = db.Column(db.Boolean, default=False, nullable=False)
     
+    use_suspension_after_negative_trade = db.Column(db.Boolean, default=False, nullable=False)
+    is_suspended_after_negative_trade = db.Column(db.Boolean, default=False, nullable=False)
+    cycles_of_suspension_after_negative_trade = db.Column(db.Integer, default=8, nullable=False)
+    suspension_cycles_remaining = db.Column(db.Integer, default=0, nullable=False)
+    
     use_stop_loss = db.Column(db.Boolean, default=True, nullable=False)
     use_trailing_stop_loss = db.Column(db.Boolean, default=False, nullable=False)
     stop_loss_pct = db.Column(db.Float, default=0.02, nullable=False)

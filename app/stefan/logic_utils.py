@@ -338,6 +338,7 @@ def execute_sell_order(bot_settings, current_trade, current_price, stop_loss_act
         trade_price_rises_counter = current_trade.price_rises_counter
         trade_trailing_take_profit_activated = current_trade.trailing_take_profit_activated
         trade_buy_timestamp = current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        is_trade_profit_negative = trade_buy_price > current_price
 
         if sell_success:
             trade = update_trade_history(
@@ -377,6 +378,9 @@ def execute_sell_order(bot_settings, current_trade, current_price, stop_loss_act
                 trailing_stop_atr_calc=2,
                 stop_loss_pct=0.02,
             )
+            
+            if is_trade_profit_negative and bot_settings.use_suspension_after_negative_trade:
+                suspend_after_negative_trade(bot_settings)
         
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell process completed.")
             send_trade_email(f"Bot {bot_settings.id} execute_sell_order report.", f"StafanCryptoTradingBot execute_sell_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {trade_buy_price}\nsell_price: {current_price}\nstop_loss_price: {trade_stop_loss_price}\ntake_profit_price: {trade_take_profit_price}\nprice_rises_counter: {trade_price_rises_counter}\nstop_loss_activated: {stop_loss_activated}\ntake_profit_activated: {take_profit_activated}\ntrailing_take_profit_activated: {trade_trailing_take_profit_activated}\nbuy_timestamp: {trade_buy_timestamp}\nsell_timestamp: {formatted_now}\nsell_success: {sell_success}")
@@ -747,5 +751,51 @@ def update_trade_history(
     
     except Exception as e:
         db.session.rollback()
-        logger.error(f"Bot {bot_settings.id} Exception in update_trade_history bot {bot_id}: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in update_trade_history bot {bot_id}', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in update_trade_history: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in update_trade_history', str(e))
+        
+        
+def is_bot_suspended(bot_settings):
+    try:
+        
+        if bot_settings.is_suspended_after_negative_trade:
+            if bot_settings.suspension_cycles_remaining > 0:
+                bot_settings.suspension_cycles_remaining -= 1
+                db.session.commit()
+                return True
+            
+            bot_settings.is_suspended_after_negative_trade = False
+            bot_settings.suspension_cycles_remaining = 0
+            db.session.commit()
+            
+            now = datetime.now()
+            formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
+            logger.info(f"Bot {bot_settings.id} suspension after negative trade finished.")
+            send_trade_email(f"Bot {bot_settings.id} suspend_after_negative_trade report.", f"StafanCryptoTradingBotBot suspend_after_negative_trade report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nSuspension after negative trade finished.\nBot {bot_settings.id} is back in operation")
+        
+        return False
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Bot {bot_settings.id} Exception in is_bot_suspended: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in is_bot_suspended', str(e))
+        return False
+
+
+def suspend_after_negative_trade(bot_settings):
+    try:
+        
+        now = datetime.now()
+        formatted_now = now.strftime('%Y-%m-%d %H:%M:%S') 
+        
+        bot_settings.is_suspended_after_negative_trade = True
+        bot_settings.suspension_cycles_remaining = bot_settings.cycles_of_suspension_after_negative_trade
+        db.session.commit()
+            
+        logger.info(f"Bot {bot_settings.id} suspended after negative trade. Cycles remaininig: {bot_settings.cycles_of_suspension_after_negative_trade}.")
+        send_trade_email(f"Bot {bot_settings.id} suspend_after_negative_trade report.", f"StafanCryptoTradingBotBot suspend_after_negative_trade report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nBot {bot_settings.id} is suspended after negative trade.\nCycles of suspension: {bot_settings.cycles_of_suspension_after_negative_trade}\nCycles remaininig: {bot_settings.cycles_of_suspension_after_negative_trade}")
+            
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Bot {bot_settings.id} Exception in suspend_after_negative_trade: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in suspend_after_negative_trade', str(e))

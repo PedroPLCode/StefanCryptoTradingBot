@@ -8,8 +8,8 @@ from ..utils.app_utils import send_admin_email
 from .logic_utils import (
     get_current_price,
     fetch_data_and_validate,
-    manage_trading_logic
-    
+    manage_trading_logic,
+    is_bot_suspended
 )
 
 def initial_run_all_trading_bots():
@@ -83,6 +83,11 @@ def run_single_trading_logic(bot_settings):
     try:
         with current_app.app_context():
             if not bot_settings:
+                logger.info(f"Bot {bot_settings.id} BotSettings not found. Cycle skipped.")
+                return
+            
+            if is_bot_suspended(bot_settings):
+                logger.info(f"Bot {bot_settings.id} is suspended after negative trade. Cycles remaining: {bot_settings.suspension_cycles_remaining}")
                 return
             
             current_trade = bot_settings.bot_current_trade

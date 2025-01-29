@@ -242,6 +242,15 @@
                                     <p class="text-muted m-0 p-0 border-bottom">buy_timestamp: {{ bot_info.bot_current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S') }}<br>amount: {{ bot_info.bot_current_trade.amount }}<br>buy_price: {{ bot_info.bot_current_trade.buy_price }}<br>current_price: {{ bot_info.bot_current_trade.current_price }}<br>stop_loss_price: {{ bot_info.bot_current_trade.stop_loss_price }}<br>take_profit_price: {{ bot_info.bot_current_trade.take_profit_price }}<br>trailing_take_profit_activated: {{ bot_info.bot_current_trade.trailing_take_profit_activated }}<br>price_rises_counter: {{ bot_info.bot_current_trade.price_rises_counter }}</p>
                                 {% endif %}
 
+                                <p class="text-muted m-0 p-0">Use suspension after negative trade: <span class="{{ 'text-danger' if bot_info.use_suspension_after_negative_trade else 'text-muted border-bottom' }}">{{ bot_info.use_suspension_after_negative_trade }}</span></p>
+                                {% if bot_info.use_suspension_after_negative_trade %}
+                                    <p class="text-muted m-0 p-0">is_suspended_after_negative_trade: <span class="{{ 'text-danger' if bot_info.is_suspended_after_negative_trade else 'text-success' }}">{{ bot_info.is_suspended_after_negative_trade }}</span></p>
+                                    <p class="text-muted m-0 p-0">cycles_of_suspension_after_negative_trade: {{ bot_info.cycles_of_suspension_after_negative_trade }}</p>
+                                    {% if bot_info.is_suspended_after_negative_trade %}
+                                        <p class="text-muted m-0 p-0 border-bottom">suspension_cycles_remaining: {{ bot_info.suspension_cycles_remaining }}</p>
+                                    {% endif %}
+                                {% endif %}
+
                                 <p class="text-muted m-0 p-0">Bot Running: <span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{{ bot_info.bot_running }}</span></p>
                                 <p class="text-muted m-0 p-0">Trades Count: {{ bot_info.bot_trades_history|length }}</p>
                                 <p class="text-muted m-0 p-0">Days to clean history: {{ bot_info.days_period_to_clean_history }}</p>
