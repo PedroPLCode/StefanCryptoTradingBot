@@ -9,6 +9,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# machine learning models
+models/
+*.model
+*.joblib
+*.keras
+
 # C extensions
 *.so
 

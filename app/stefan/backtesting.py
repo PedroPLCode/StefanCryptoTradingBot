@@ -21,7 +21,7 @@ from .calc_utils import (
 )
 from .buy_signals import check_classic_ta_buy_signal
 from .sell_signals import check_classic_ta_sell_signal
-from ..mariola.mariola_predict import check_model_ml_trade_signal
+from ..mariola.mariola_predict import check_ml_trade_signal
 
 def fetch_and_save_data(backtest_settings, bot_settings):
     symbol = str(bot_settings.symbol)
@@ -111,12 +111,12 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                     )
                 
             if bot_settings.use_machine_learning:
-                buy_signal = check_model_ml_trade_signal(
+                buy_signal = check_ml_trade_signal(
                     df,
                     'buy',
                     bot_settings
                     )
-                sell_signal = check_model_ml_trade_signal(
+                sell_signal = check_ml_trade_signal(
                     df,
                     'sell',
                     bot_settings

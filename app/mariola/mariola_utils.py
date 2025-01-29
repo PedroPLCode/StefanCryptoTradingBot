@@ -5,26 +5,26 @@ from sklearn.decomposition import PCA
 from ..utils.logging import logger
 from ..utils.app_utils import send_admin_email
 
-def normalize_df(result_df, bot_settings):
+def normalize_df(df, bot_settings):
     """
     Normalize the numeric columns in a DataFrame using MinMaxScaler, while replacing infinite values 
     and clipping extreme values. Non-numeric columns are excluded from normalization, and the 
     `result_marker` column (if specified) is retained without modification.
 
     Args:
-        result_df (pd.DataFrame): The input DataFrame containing both numeric and non-numeric columns.
+        df (pd.DataFrame): The input DataFrame containing both numeric and non-numeric columns.
         training_mode (bool): If True, it indicates that the function is being used for training. 
                                In this mode, the `result_marker` column is excluded from the normalization 
                                and included in the final output.
         result_marker (str): The name of the column to exclude from normalization but include in the final DataFrame. 
-                             It must be a valid column name in `result_df`. If `None`, no column is excluded.
+                             It must be a valid column name in `df`. If `None`, no column is excluded.
 
     Returns:
         pd.DataFrame: A DataFrame with normalized numeric columns and the `result_marker` column added 
                       at the end, if specified.
 
     Raises:
-        ValueError: If `result_df` is `None`, empty, or if `result_marker` is specified but not found 
+        ValueError: If `df` is `None`, empty, or if `result_marker` is specified but not found 
                     in the DataFrame columns.
 
     Notes:
@@ -38,44 +38,44 @@ def normalize_df(result_df, bot_settings):
     """
     try:
         
-        if result_df is None or result_df.empty:
-            raise ValueError("result_df must be provided and cannot be None.")
+        if df is None or df.empty:
+            raise ValueError("df must be provided and cannot be None.")
         
-        non_numeric_features = result_df.select_dtypes(
+        non_numeric_features = df.select_dtypes(
             include=['bool', 'datetime', 'string']
         ).columns.tolist()
         
-        numeric_features = result_df.select_dtypes(
+        numeric_features = df.select_dtypes(
             include=['float64', 'int64']
         ).columns.tolist()
         
-        result_df = result_df.replace([np.inf, -np.inf], 0)
+        df = df.replace([np.inf, -np.inf], 0)
         
-        result_df[numeric_features] = result_df[numeric_features].clip(
+        df[numeric_features] = df[numeric_features].clip(
             lower=-1.8e308, upper=1.8e308
         )
         
         scaler = MinMaxScaler(feature_range=(0, 1))
         
         df_normalized = pd.DataFrame(
-            scaler.fit_transform(result_df[numeric_features]),
+            scaler.fit_transform(df[numeric_features]),
             columns=numeric_features
         )
         
         return df_normalized
     
     except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in prepare_mariola_df: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in prepare_mariola_df', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in normalize_df: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in normalize_df', str(e))
         return None
 
 
-def handle_pca(df_normalized, bot_settings):
+def handle_pca(df, bot_settings):
     """
     Perform Principal Component Analysis (PCA) on the normalized DataFrame and add the target marker to the resulting DataFrame.
     
     Args:
-        df_normalized (pd.DataFrame): The normalized DataFrame containing only numeric features.
+        df (pd.DataFrame): The normalized DataFrame containing only numeric features.
         result_df (pd.DataFrame): The original DataFrame containing the target marker.
         result_marker (str): The name of the column in `result_df` representing the target marker.
     
@@ -87,22 +87,22 @@ def handle_pca(df_normalized, bot_settings):
     """
     try:
         
-        if df_normalized is None or df_normalized.empty:
+        if df is None or df.empty:
             raise ValueError("df_normalized must be provided and cannot be None.")
         
         pca = PCA(n_components=50)
-        df_reduced = pca.fit_transform(df_normalized)
+        df_reduced = pca.fit_transform(df)
         df_reduced = pd.DataFrame(df_reduced)
             
         return df_reduced
     
     except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in prepare_mariola_df: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in prepare_mariola_df', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in handle_pca: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in handle_pca', str(e))
         return None
 
 
-def create_sequences(df_reduced, lookback, window_size, bot_settings):
+def create_sequences(df, lookback, window_size, bot_settings):
     """
     Create sequences of features and corresponding target labels from the reduced DataFrame for time series prediction.
     
@@ -112,10 +112,10 @@ def create_sequences(df_reduced, lookback, window_size, bot_settings):
     by the `window_size` parameter, which defines how many previous periods are included in each feature sequence.
 
     Args:
-        df_reduced (pd.DataFrame): The DataFrame containing PCA-transformed features and the target marker column.
+        df (pd.DataFrame): The DataFrame containing PCA-transformed features and the target marker column.
         lookback (int): The number of periods ahead to predict. This defines the target label based on the index of `result_marker`.
         window_size (int): The number of previous periods used as features in each sequence.
-        result_marker (str): The column name in `df_reduced` to be predicted. This column serves as the target label.
+        result_marker (str): The column name in `df` to be predicted. This column serves as the target label.
         training_mode (bool): If True, generates both feature sequences (X) and corresponding target labels (y). 
                                If False, only generates feature sequences (X) without labels.
 
@@ -126,19 +126,19 @@ def create_sequences(df_reduced, lookback, window_size, bot_settings):
               Only returned if `training_mode=True`.
     
     Notes:
-        - The function extracts sequences of length `window_size` from `df_reduced` for the features. 
+        - The function extracts sequences of length `window_size` from `df` for the features. 
           For each sequence, it uses the `lookback` value to determine the target label.
         - If `training_mode` is set to `False`, the function returns only the feature sequences (X) and does not generate target labels (y).
         - If any of the arguments are missing or `None`, the function raises a `ValueError`.
     
     Example:
-        X, y = create_sequences(df_reduced, lookback=14, window_size=30, result_marker='marker_column', training_mode=True)
-        X = create_sequences(df_reduced, lookback=14, window_size=30, result_marker='marker_column', training_mode=False)
+        X, y = create_sequences(df, lookback=14, window_size=30, result_marker='marker_column', training_mode=True)
+        X = create_sequences(df, lookback=14, window_size=30, result_marker='marker_column', training_mode=False)
 
     """
     try:
         if (
-            df_reduced is None or
+            df is None or
             lookback is None or
             window_size is None
         ):
@@ -146,14 +146,14 @@ def create_sequences(df_reduced, lookback, window_size, bot_settings):
         
         X = []
         
-        df_features = df_reduced
+        df_features = df
 
-        for i in range(window_size, len(df_reduced) - lookback):
+        for i in range(window_size, len(df) - lookback):
             X.append(df_features.iloc[i-window_size:i].values)
         
         return np.array(X)
     
     except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in prepare_mariola_df: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in prepare_mariola_df', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in create_sequences: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in create_sequences', str(e))
         return None
