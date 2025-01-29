@@ -46,6 +46,7 @@ def create_balance_plot(df):
         plt.close(fig)
         
         plot_url = base64.b64encode(img.getvalue()).decode('utf8')
+        
         return plot_url
 
     except Exception as e:
@@ -160,6 +161,7 @@ def plot_all_indicators(df, indicators, bot_settings, lookback=None):
         plt.close(fig)
 
         plot_url = base64.b64encode(img.getvalue()).decode('utf8')
+        
         return plot_url
 
     except Exception as e:

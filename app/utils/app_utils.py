@@ -113,7 +113,8 @@ def send_logs_via_email_and_clear_logs():
             logger.error(f"Exception in send_logs_via_email_and_clear_logs log {log}: {str(e)}")
             send_admin_email(f"Exception in send_logs_via_email_and_clear_logs log {log}", str(e))
             
-    clear_logs()
+        finally:
+            clear_logs()
 
 
 def clear_logs():
@@ -405,6 +406,7 @@ def start_all_bots(current_user='undefined'):
                 
 def update_technical_analysis_data(bot_settings, df, trend, averages, latest_data):
     try:
+        
         technical_analysis = BotTechnicalAnalysis.query.filter_by(id=bot_settings.id).first()
         
         technical_analysis.set_df(df)

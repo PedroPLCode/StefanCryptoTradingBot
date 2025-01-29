@@ -208,14 +208,15 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         send_admin_email(f'Bot {bot_settings.id} Exception in manage_trading_logic', str(e))
 
 
-def check_signal(signal_type,
-                 df,
-                 bot_settings,
-                 trend,
-                 averages,
-                 latest_data,
-                 previous_data
-                 ):
+def check_signal(
+    signal_type,
+    df,
+    bot_settings,
+    trend,
+    averages,
+    latest_data,
+    previous_data
+    ):
     try:
         
         if bot_settings.use_technical_analysis:
@@ -240,12 +241,16 @@ def check_signal(signal_type,
                 
             raise ValueError(f"Unsupported signal_type: {signal_type}")
         
-        if bot_settings.use_machine_learning:
+        elif bot_settings.use_machine_learning:
             return check_ml_trade_signal(
                 df,
                 signal_type,
                 bot_settings
                 )
+            
+        else:
+            logger.error(f"Bot {bot_settings.id} not use_technical_analysis and not use_machine_learning")
+            return False
 
     except Exception as e:
         logger.error(f"Bot {bot_settings.id} Exception in check_signal ({signal_type}): {str(e)}")
@@ -253,7 +258,11 @@ def check_signal(signal_type,
         return None
     
     
-def execute_buy_order(bot_settings, current_price, atr_value):
+def execute_buy_order(
+    bot_settings, 
+    current_price, 
+    atr_value
+    ):
     now = datetime.now()
     formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
     
@@ -324,7 +333,13 @@ def execute_buy_order(bot_settings, current_price, atr_value):
         send_admin_email(f'Bot {bot_settings.id} Exception in execute_buy_order', str(e))
 
 
-def execute_sell_order(bot_settings, current_trade, current_price, stop_loss_activated, take_profit_activated):
+def execute_sell_order(
+    bot_settings, 
+    current_trade, 
+    current_price, 
+    stop_loss_activated, 
+    take_profit_activated
+    ):
     now = datetime.now()
     formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
     
@@ -390,7 +405,12 @@ def execute_sell_order(bot_settings, current_trade, current_price, stop_loss_act
         send_admin_email(f'Bot {bot_settings.id} Exception in execute_sell_order', str(e))
 
 
-def activate_trailing_take_profit(bot_settings, current_trade, current_price, atr_value):
+def activate_trailing_take_profit(
+    bot_settings, 
+    current_trade, 
+    current_price, 
+    atr_value
+    ):
     now = datetime.now()
     formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
     
@@ -429,7 +449,12 @@ def activate_trailing_take_profit(bot_settings, current_trade, current_price, at
         send_admin_email(f'Bot {bot_settings.id} Exception in activate_trailing_take_profit', str(e))
                    
                         
-def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
+def update_trailing_stop(
+    bot_settings, 
+    current_trade, 
+    current_price, 
+    atr_value
+    ):
     try:
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price rises.")
         
@@ -460,7 +485,10 @@ def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
         send_admin_email(f'Bot {bot_settings.id} Exception in update_trailing_stop', str(e))
         
         
-def handle_price_rises(bot_settings, current_price):
+def handle_price_rises(
+    bot_settings, 
+    current_price
+    ):
     
     current_trade = update_current_trade(
         bot_id=bot_settings.id, 
@@ -471,7 +499,10 @@ def handle_price_rises(bot_settings, current_price):
     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price_rises. previous price updated.")
     
     
-def handle_price_drops(bot_settings, current_price):
+def handle_price_drops(
+    bot_settings, 
+    current_price
+    ):
     
     current_trade = update_current_trade(
         bot_id=bot_settings.id, 
@@ -481,6 +512,7 @@ def handle_price_drops(bot_settings, current_price):
 
 
 def round_down_to_step_size(amount, step_size):
+    
     try:
         if step_size > 0:
             amount_decimal = Decimal(str(amount))
@@ -495,7 +527,12 @@ def round_down_to_step_size(amount, step_size):
             return float(amount)
         
 
-def update_stop_loss(current_price, trailing_stop_price, bot_settings):
+def update_stop_loss(
+    current_price, 
+    trailing_stop_price, 
+    bot_settings
+    ):
+    
     try:
         trailing_stop_price = float(trailing_stop_price)
         current_price = float(current_price)
@@ -513,7 +550,13 @@ def update_stop_loss(current_price, trailing_stop_price, bot_settings):
         return trailing_stop_price
     
     
-def update_atr_trailing_stop_loss(current_price, trailing_stop_price, atr, bot_settings):
+def update_atr_trailing_stop_loss(
+    current_price, 
+    trailing_stop_price, 
+    atr, 
+    bot_settings
+    ):
+    
     try:
         current_price = float(current_price)
         trailing_stop_price = float(trailing_stop_price)
@@ -536,6 +579,7 @@ def update_atr_trailing_stop_loss(current_price, trailing_stop_price, atr, bot_s
 
 
 def calculate_take_profit(current_price, bot_settings):
+    
     try:
         current_price = float(current_price)
 
@@ -560,6 +604,7 @@ def calculate_take_profit(current_price, bot_settings):
     
     
 def calculate_atr_take_profit(current_price, atr, bot_settings):
+    
     try:
         current_price = float(current_price)
         atr = float(atr)
@@ -679,6 +724,7 @@ def change_bot_settings(
             
             
 def next_trade_id(bot_id):
+    
     try:
         max_existing_trade_id = (
             db.session.query(db.func.max(TradesHistory.trade_id))
@@ -756,6 +802,7 @@ def update_trade_history(
         
         
 def is_bot_suspended(bot_settings):
+    
     try:
         
         if bot_settings.is_suspended_after_negative_trade:
@@ -783,6 +830,7 @@ def is_bot_suspended(bot_settings):
 
 
 def suspend_after_negative_trade(bot_settings):
+    
     try:
         
         now = datetime.now()

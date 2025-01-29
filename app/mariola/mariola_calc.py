@@ -47,8 +47,8 @@ def find_ml_hammer_patterns(df, bot_settings):
         return df
     
     except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in find_hammer_patterns: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in find_hammer_patterns', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in find_ml_hammer_patterns: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in find_ml_hammer_patterns', str(e))
         return None
 
 
@@ -95,8 +95,8 @@ def find_ml_morning_star_patterns(df, bot_settings):
         return df
     
     except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in find_morning_star_patterns: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in find_morning_star_patterns', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in find_ml_morning_star_patterns: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in find_ml_morning_star_patterns', str(e))
         return None
 
 
@@ -144,8 +144,8 @@ def find_ml_bullish_engulfing_patterns(df, bot_settings):
         return df
     
     except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in find_bullish_engulfing_patterns: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in find_bullish_engulfing_patterns', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in find_ml_bullish_engulfing_patterns: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in find_ml_bullish_engulfing_patterns', str(e))
         return None
     
     
@@ -184,8 +184,8 @@ def calculate_ml_pct_change_and_lags(df, column_names_list, bot_settings):
         return df
             
     except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in calculate_pct_change_and_lags: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_pct_change_and_lags', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in calculate_ml_pct_change_and_lags: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_ml_pct_change_and_lags', str(e))
         return None
 
 
@@ -220,8 +220,8 @@ def calculate_ml_momentum_signals(df, bot_settings):
         return df
         
     except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in calculate_momentum_signals: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_momentum_signals', str(e))
+        logger.error(f"Bot {bot_settings.id} Exception in calculate_ml_momentum_signals: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_ml_momentum_signals', str(e))
         return None
     
     
@@ -454,8 +454,10 @@ def calculate_ml_rsi_macd_ratio_and_diff(df, bot_settings):
         macd_signalperiod = bot_settings.ml_macd_signalperiod
         
         epsilon = 1e-10
-        df['rsi_macd_ratio'] = df[f'rsi_{general_timeperiod}'] / (df[f'macd_histogram_{macd_timeperiod}'] + epsilon)
-        df['macd_signal_diff'] = df[f'macd_signal_{macd_signalperiod}'] - df[f'macd_histogram_{macd_timeperiod}']
+        df['rsi_macd_ratio'] = df[f'rsi_{general_timeperiod}'] / \
+            (df[f'macd_histogram_{macd_timeperiod}'] + epsilon)
+        df['macd_signal_diff'] = df[f'macd_signal_{macd_signalperiod}'] - \
+            df[f'macd_histogram_{macd_timeperiod}']
         
         return df
         
@@ -535,7 +537,7 @@ def handle_final_ml_df_cleaninig(df, columns_to_drop, bot_settings):
         return None
         
         
-def prepare_df(df=None, 
+def prepare_ml_df(df=None, 
                bot_settings=None, 
                ):
     """

@@ -1,6 +1,6 @@
 from ..utils.logging import logger
 from ..utils.app_utils import send_admin_email
-from ..mariola.mariola_calc import prepare_df
+from ..mariola.mariola_calc import prepare_ml_df
 
 def check_ml_trade_signal(df, signal_type, bot_settings):
     try:
@@ -58,10 +58,9 @@ def lstm_price_change_pct_predict(
         handle_pca, 
         create_sequences
     )
-
     try:
             
-        calculated_df = prepare_df(
+        calculated_df = prepare_ml_df(
             df, 
             bot_settings
             )
@@ -113,7 +112,7 @@ def xgboost_price_change_pct_predict(
     
     try:
             
-        calculated_df = prepare_df(
+        calculated_df = prepare_ml_df(
             df, 
             bot_settings
             )
@@ -160,7 +159,7 @@ def random_forest_price_change_pct_predict(
 
     try:
             
-        calculated_df = prepare_df(
+        calculated_df = prepare_ml_df(
             df, 
             bot_settings
             )

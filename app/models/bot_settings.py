@@ -125,13 +125,13 @@ class BotSettings(db.Model):
     ml_random_forest_model_filename = db.Column(db.String(128), default="model_btc_1h_random_forest.joblib", nullable=False)
     ml_random_forest_predictions_avg = db.Column(db.Integer, default=1, nullable=False)
     ml_random_forest_buy_trigger_pct = db.Column(db.Float, default=3, nullable=False)
-    ml_random_forest_sell_trigger_pct = db.Column(db.Float, default=2, nullable=False)
+    ml_random_forest_sell_trigger_pct = db.Column(db.Float, default=-2, nullable=False)
     
     ml_use_xgboost_model = db.Column(db.Boolean, default=True, nullable=False)
     ml_xgboost_model_filename = db.Column(db.String(128), default="model_btc_1h_xgboost.model", nullable=False)
     ml_xgboost_predictions_avg = db.Column(db.Integer, default=1, nullable=False)
     ml_xgboost_buy_trigger_pct = db.Column(db.Float, default=3, nullable=False)
-    ml_xgboost_sell_trigger_pct = db.Column(db.Float, default=2, nullable=False)
+    ml_xgboost_sell_trigger_pct = db.Column(db.Float, default=-2, nullable=False)
     
     ml_use_lstm_model = db.Column(db.Boolean, default=True, nullable=False)
     ml_lstm_window_size = db.Column(db.Integer, default=30, nullable=False)
@@ -139,7 +139,7 @@ class BotSettings(db.Model):
     ml_lstm_model_filename = db.Column(db.String(128), default="model_btc_1h_lstm.keras", nullable=False)
     ml_lstm_predictions_avg = db.Column(db.Integer, default=1, nullable=False)
     ml_lstm_buy_trigger_pct = db.Column(db.Float, default=3, nullable=False)
-    ml_lstm_sell_trigger_pct = db.Column(db.Float, default=2, nullable=False)
+    ml_lstm_sell_trigger_pct = db.Column(db.Float, default=-2, nullable=False)
     
     bot_current_trade = db.relationship(
         'BotCurrentTrade',
