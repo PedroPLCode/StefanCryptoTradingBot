@@ -16,9 +16,9 @@ from .api_utils import (
     place_sell_order
 )
 from .calc_utils import (
-    calculate_indicators,
-    calculate_averages,
-    check_trend
+    calculate_ta_indicators,
+    calculate_ta_averages,
+    check_ta_trend
 )
 from .buy_signals import check_classic_ta_buy_signal
 from .sell_signals import check_classic_ta_sell_signal
@@ -78,7 +78,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         use_trailing_take_profit = bot_settings.use_trailing_take_profit
         take_profit_price = float(current_trade.take_profit_price)
         
-        calculate_indicators(
+        calculate_ta_indicators(
             df, 
             bot_settings
             )   
@@ -93,12 +93,12 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         price_hits_stop_loss = current_price <= stop_loss_price
         price_hits_take_profit = current_price >= take_profit_price
         
-        trend = check_trend(
+        trend = check_ta_trend(
             df, 
             bot_settings
             )
         
-        averages = calculate_averages(
+        averages = calculate_ta_averages(
             df, 
             bot_settings
             )

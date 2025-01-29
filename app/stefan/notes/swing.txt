@@ -48,19 +48,19 @@ atr_calc=3-7
 
 algorithm 1:
 (primary for uptrend) 
-intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
+intervals 1h, ADX(14), ATR(14, x5), AvgVolPeriod(1)
 if_not_downtrend: RSI(14, 30/70) MACD(12,24,9) Volume
 
 algorithm 2:
 (secondary for horizontal trend)
-intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
+intervals 1h, ADX(14), ATR(14, x5), AvgVolPeriod(1)
 if_not_downtrend: Stochastic(14,3) Bollinger(20,2) Volume
 
 algorithm 3:
-intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
+intervals 1h, ADX(14), ATR(14, x5), AvgVolPeriod(1)
 if_not_downtrend: StochasticRSI(14,14,3) Bollinger(20,2) Volume
 
 algorithm 4:
 (buy the dip)
-intervals 30min, ADX(14), ATR(14, x5), AvgVolPeriod(5)
+intervals 1h, ADX(14), ATR(14, x5), AvgVolPeriod(1)
 if_not_downtrend: RSI(14, 30/70) Bollinger(20,2) MA50 Volume

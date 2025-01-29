@@ -3,8 +3,6 @@ from .. import db
 from ..utils.logging import logger
 from .api_utils import fetch_data
 from .logic_utils import (
-    check_trend,
-    calculate_averages,
     update_stop_loss,
     update_atr_trailing_stop_loss,
     calculate_take_profit,
@@ -15,9 +13,9 @@ from .backtesting_utils import (
     save_backtest_results
 )
 from .calc_utils import (
-    calculate_indicators,
-    calculate_averages,
-    check_trend
+    calculate_ta_indicators,
+    calculate_ta_averages,
+    check_ta_trend
 )
 from .buy_signals import check_classic_ta_buy_signal
 from .sell_signals import check_classic_ta_sell_signal
@@ -75,7 +73,7 @@ def backtest_strategy(df, bot_settings, backtest_settings):
             loop_df = pd.DataFrame()
             
             if (i - 48) >= start_index and (i - 200) >= 0:
-                loop_df = calculate_indicators(
+                loop_df = calculate_ta_indicators(
                     df.iloc[start_index+i-200:start_index+i+1], 
                     bot_settings
                     )
@@ -86,8 +84,8 @@ def backtest_strategy(df, bot_settings, backtest_settings):
             previous_data = loop_df.iloc[-2]
             current_price = float(latest_data['close'])
             
-            trend = check_trend(loop_df)
-            averages = calculate_averages(loop_df, bot_settings)
+            trend = check_ta_trend(loop_df)
+            averages = calculate_ta_averages(loop_df, bot_settings)
             
             buy_signal = False
             sell_signal = False

@@ -3,76 +3,76 @@ import pandas as pd
 from ..utils.logging import logger
 from ..utils.app_utils import send_admin_email
 
-def calculate_indicators(df, bot_settings):
+def handle_ta_df_initial_praparation(df, bot_settings):
     try:
-
-        if df.empty:
-            logger.error('DataFrame is empty, cannot calculate indicators.')
-            return df
-
+        
         df['close'] = pd.to_numeric(df['close'], errors='coerce')
         df['high'] = pd.to_numeric(df['high'], errors='coerce')
         df['low'] = pd.to_numeric(df['low'], errors='coerce')
         df['volume'] = pd.to_numeric(df['volume'], errors='coerce')
-
+        
         df['open_time'] = pd.to_datetime(df['open_time'], unit='ms')
         df['close_time'] = pd.to_datetime(df['close_time'], unit='ms')
-
-        df['atr'] = talib.ATR(
-            df['high'], 
-            df['low'], 
-            df['close'], 
-            timeperiod=bot_settings.atr_timeperiod
-            )
         
-        df['ema_fast'] = talib.EMA(
-            df['close'], 
-            timeperiod=bot_settings.ema_fast_timeperiod
-            )
+        df.dropna(subset=['close'], inplace=True)
         
-        df['ema_slow'] = talib.EMA(
-            df['close'], 
-            timeperiod=bot_settings.ema_slow_timeperiod
-            )
-
+        return df
+        
+    except IndexError as e:
+        logger.error(f'Bot {bot_settings.id} IndexError in initial_ta_df_praparation: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} IndexError in initial_ta_df_praparation', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Bot {bot_settings.id} Exception in initial_ta_df_praparation: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in initial_ta_df_praparation', str(e))
+        return False
+    
+    
+def calculate_ta_rsi(df, bot_settings):
+    try:
+        
         df['rsi'] = talib.RSI(
             df['close'], 
             timeperiod=bot_settings.rsi_timeperiod
             )
-
-        df.dropna(subset=['close'], inplace=True)
-
-        if len(df) < 26 + 14:
-            logger.trade('Not enough data points for MACD calculation.')
-            return df
-
-        df['macd'], df['macd_signal'], _ = talib.MACD(
-            df['close'],
-            fastperiod=bot_settings.macd_timeperiod,
-            slowperiod=bot_settings.macd_timeperiod * 2,
-            signalperiod=bot_settings.macd_signalperiod
-        )
         
-        df['macd_histogram'] = df['macd'] - df['macd_signal']
+        return df
         
-        df['ma_200'] = df['close'].rolling(window=200).mean()
-        df['ma_50'] = df['close'].rolling(window=50).mean()
-
-        df['upper_band'], df['middle_band'], df['lower_band'] = talib.BBANDS(
-            df['close'],
-            timeperiod=bot_settings.bollinger_timeperiod,
-            nbdevup=bot_settings.bollinger_nbdev,
-            nbdevdn=bot_settings.bollinger_nbdev,
-            matype=0
-        )
-
+    except IndexError as e:
+        logger.error(f'Bot {bot_settings.id} IndexError in calculate_ta_rsi: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} IndexError in calculate_ta_rsi', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Bot {bot_settings.id} Exception in calculate_ta_rsi: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_ta_rsi', str(e))
+        return False
+    
+    
+def calculate_ta_cci(df, bot_settings):
+    try:
+        
         df['cci'] = talib.CCI(
             df['high'],
             df['low'],
             df['close'],
             timeperiod=bot_settings.cci_timeperiod
         )
-
+        
+        return df
+        
+    except IndexError as e:
+        logger.error(f'Bot {bot_settings.id} IndexError in calculate_ta_cci: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} IndexError in calculate_ta_cci', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Bot {bot_settings.id} Exception in calculate_ta_cci: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_ta_cci', str(e))
+        return False
+    
+    
+def calculate_ta_mfi(df, bot_settings):
+    try:
+        
         df['mfi'] = talib.MFI(
             df['high'],
             df['low'],
@@ -80,7 +80,95 @@ def calculate_indicators(df, bot_settings):
             df['volume'],
             timeperiod=bot_settings.mfi_timeperiod
         )
+        
+        return df
+        
+    except IndexError as e:
+        logger.error(f'Bot {bot_settings.id} IndexError in calculate_ta_mfi: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} IndexError in calculate_ta_mfi', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Bot {bot_settings.id} Exception in calculate_ta_mfi: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_ta_mfi', str(e))
+        return False
+    
+    
+def calculate_ta_adx(df, bot_settings):
+    try:
+        
+        df['adx'] = talib.ADX(
+            df['high'],
+            df['low'],
+            df['close'],
+            timeperiod=bot_settings.adx_timeperiod
+        )
+        
+        return df
+        
+    except IndexError as e:
+        logger.error(f'Bot {bot_settings.id} IndexError in calculate_ta_adx: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} IndexError in calculate_ta_adx', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Bot {bot_settings.id} Exception in calculate_ta_adx: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_ta_adx', str(e))
+        return False
+    
+    
+def calculate_ta_atr(df, bot_settings):
+    try:
+        
+        df['atr'] = talib.ATR(
+            df['high'], 
+            df['low'], 
+            df['close'], 
+            timeperiod=bot_settings.atr_timeperiod
+            )
+        
+        return df
+    
+    except IndexError as e:
+        logger.error(f'Bot {bot_settings.id} IndexError in calculate_ta_atr: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} IndexError in calculate_ta_atr', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Bot {bot_settings.id} Exception in calculate_ta_atr: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_ta_atr', str(e))
+        return False
+    
+    
+def calculate_ta_di(df, bot_settings):
+    try:
+        
+        df['plus_di'] = talib.PLUS_DI(
+            df['high'],
+            df['low'],
+            df['close'],
+            timeperiod=bot_settings.di_timeperiod
+        )
 
+        df['minus_di'] = talib.MINUS_DI(
+            df['high'],
+            df['low'],
+            df['close'],
+            timeperiod=bot_settings.di_timeperiod
+        )
+        
+        return df
+        
+    except IndexError as e:
+        logger.error(f'Bot {bot_settings.id} IndexError in calculate_ta_di: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} IndexError in calculate_ta_di', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Bot {bot_settings.id} Exception in calculate_ta_di: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_ta_di', str(e))
+        return False
+    
+    
+def calculate_ta_stochastic(df, bot_settings):
+    try:
+        
         df['stoch_k'], df['stoch_d'] = talib.STOCH(
             df['high'],
             df['low'],
@@ -91,6 +179,155 @@ def calculate_indicators(df, bot_settings):
             slowd_period=bot_settings.stoch_d_timeperiod,
             slowd_matype=0
         )
+        
+        return df
+        
+    except IndexError as e:
+        logger.error(f'Bot {bot_settings.id} IndexError in calculate_ta_stochastic: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} IndexError in calculate_ta_stochastic', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Bot {bot_settings.id} Exception in calculate_ta_stochastic: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_ta_stochastic', str(e))
+        return False
+    
+    
+def calculate_ta_bollinger_bands(df, bot_settings):
+    try:
+        
+        df['upper_band'], df['middle_band'], df['lower_band'] = talib.BBANDS(
+            df['close'],
+            timeperiod=bot_settings.bollinger_timeperiod,
+            nbdevup=bot_settings.bollinger_nbdev,
+            nbdevdn=bot_settings.bollinger_nbdev,
+            matype=0
+        )
+        
+        return df
+        
+    except IndexError as e:
+        logger.error(f'Bot {bot_settings.id} IndexError in calculate_ta_bollinger_bands: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} IndexError in calculate_ta_bollinger_bands', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Bot {bot_settings.id} Exception in calculate_ta_bollinger_bands: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_ta_bollinger_bands', str(e))
+        return False
+    
+    
+def calculate_ta_vwap(df, bot_settings):
+    try:
+        
+        df['typical_price'] = (df['high'] + df['low'] + df['close']) / 3
+        df['vwap'] = (df['typical_price'] * df['volume']).cumsum() / df['volume'].cumsum()
+        
+        return df
+        
+    except IndexError as e:
+        logger.error(f'Bot {bot_settings.id} IndexError in calculate_ta_vwap: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} IndexError in calculate_ta_vwap', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Bot {bot_settings.id} Exception in calculate_ta_vwap: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_ta_vwap', str(e))
+        return False
+    
+    
+def calculate_ta_psar(df, bot_settings):
+    try:
+        
+        df['psar'] = talib.SAR(
+            df['high'],
+            df['low'],
+            acceleration=bot_settings.psar_acceleration,
+            maximum=bot_settings.psar_maximum
+        )
+        
+        return df
+        
+    except IndexError as e:
+        logger.error(f'Bot {bot_settings.id} IndexError in calculate_ta_psar: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} IndexError in calculate_ta_psar', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Bot {bot_settings.id} Exception in calculate_ta_psar: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_ta_psar', str(e))
+        return False
+    
+    
+def calculate_ta_macd(df, bot_settings):
+    try:
+        
+        if len(df) < bot_settings.macd_timeperiod * 2:
+            logger.trade('Not enough data points for MACD calculation.')
+            return df
+        
+        df['macd'], df['macd_signal'], _ = talib.MACD(
+            df['close'],
+            fastperiod=bot_settings.macd_timeperiod,
+            slowperiod=bot_settings.macd_timeperiod * 2,
+            signalperiod=bot_settings.macd_signalperiod
+        )
+        
+        df['macd_histogram'] = df['macd'] - df['macd_signal']
+        
+        return df
+        
+    except IndexError as e:
+        logger.error(f'Bot {bot_settings.id} IndexError in calculate_ta_macd: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} IndexError in calculate_ta_macd', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Bot {bot_settings.id} Exception in calculate_ta_macd: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_ta_macd', str(e))
+        return False
+    
+    
+def calculate_ta_ma(df, bot_settings):
+    try:
+        
+        df['ma_200'] = df['close'].rolling(window=200).mean()
+        df['ma_50'] = df['close'].rolling(window=50).mean()
+        
+        return df
+        
+    except IndexError as e:
+        logger.error(f'Bot {bot_settings.id} IndexError in calculate_ta_ma: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} IndexError in calculate_ta_ma', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Bot {bot_settings.id} Exception in calculate_ta_ma: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_ta_ma', str(e))
+        return False
+    
+    
+def calculate_ta_ema(df, bot_settings):
+    try:
+        
+        df['ema_fast'] = talib.EMA(
+            df['close'], 
+            timeperiod=bot_settings.ema_fast_timeperiod
+            )
+        
+        df['ema_slow'] = talib.EMA(
+            df['close'], 
+            timeperiod=bot_settings.ema_slow_timeperiod
+            )
+        
+        return df
+        
+    except IndexError as e:
+        logger.error(f'Bot {bot_settings.id} IndexError in calculate_ta_ema: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} IndexError in calculate_ta_ema', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Bot {bot_settings.id} Exception in calculate_ta_ema: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_ta_ema', str(e))
+        return False
+    
+    
+def calculate_ta_stochastic_rsi(df, bot_settings):
+    try:
         
         df['stoch_rsi'] = talib.RSI(
             df['rsi'], 
@@ -107,36 +344,58 @@ def calculate_indicators(df, bot_settings):
             slowd_matype=0
         )
         
-        df['psar'] = talib.SAR(
-            df['high'],
-            df['low'],
-            acceleration=bot_settings.psar_acceleration,
-            maximum=bot_settings.psar_maximum
-        )
+        return df
         
-        df['adx'] = talib.ADX(
-            df['high'],
-            df['low'],
-            df['close'],
-            timeperiod=bot_settings.adx_timeperiod
-        )
+    except IndexError as e:
+        logger.error(f'Bot {bot_settings.id} IndexError in calculate_ta_stochastic_rsi: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} IndexError in calculate_ta_stochastic_rsi', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Bot {bot_settings.id} Exception in calculate_ta_stochastic_rsi: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_ta_stochastic_rsi', str(e))
+        return False
+    
+    
+def handle_ta_df_final_cleaning(df, columns_to_check, bot_settings):
+    try:
         
-        df['plus_di'] = talib.PLUS_DI(
-            df['high'],
-            df['low'],
-            df['close'],
-            timeperiod=bot_settings.di_timeperiod
-        )
+        df.dropna(subset=columns_to_check, inplace=True)
+        
+        return df
+        
+    except IndexError as e:
+        logger.error(f'Bot {bot_settings.id} IndexError in initial_ta_df_praparation: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} IndexError in initial_ta_df_praparation', str(e))
+        return False
+    except Exception as e:
+        logger.error(f'Bot {bot_settings.id} Exception in initial_ta_df_praparation: {str(e)}')
+        send_admin_email(f'Bot {bot_settings.id} Exception in initial_ta_df_praparation', str(e))
+        return False
+    
+    
+def calculate_ta_indicators(df, bot_settings):
+    try:
 
-        df['minus_di'] = talib.MINUS_DI(
-            df['high'],
-            df['low'],
-            df['close'],
-            timeperiod=bot_settings.di_timeperiod
-        )
-        
-        df['typical_price'] = (df['high'] + df['low'] + df['close']) / 3
-        df['vwap'] = (df['typical_price'] * df['volume']).cumsum() / df['volume'].cumsum()
+        if df.empty:
+            logger.error('DataFrame is empty, cannot calculate indicators.')
+            return df
+
+        handle_ta_df_initial_praparation(df, bot_settings)
+
+        calculate_ta_rsi(df, bot_settings)
+        calculate_ta_cci(df, bot_settings)
+        calculate_ta_mfi(df, bot_settings)
+        calculate_ta_stochastic(df, bot_settings)
+        calculate_ta_stochastic_rsi(df, bot_settings)
+        calculate_ta_bollinger_bands(df, bot_settings)
+        calculate_ta_ema(df, bot_settings)
+        calculate_ta_macd(df, bot_settings)
+        calculate_ta_ma(df, bot_settings)
+        calculate_ta_atr(df, bot_settings)
+        calculate_ta_psar(df, bot_settings)
+        calculate_ta_vwap(df, bot_settings)
+        calculate_ta_adx(df, bot_settings)
+        calculate_ta_di(df, bot_settings)
         
         columns_to_check = [
             'macd', 
@@ -150,8 +409,7 @@ def calculate_indicators(df, bot_settings):
             'stoch_d', 
             'psar'
             ]
-
-        df.dropna(subset=columns_to_check, inplace=True)
+        handle_ta_df_final_cleaning(df, columns_to_check, bot_settings)
 
         return df
     
@@ -165,7 +423,7 @@ def calculate_indicators(df, bot_settings):
         return False
     
     
-def calculate_averages(df, bot_settings):
+def calculate_ta_averages(df, bot_settings):
     try:
         averages = {}
         
@@ -200,7 +458,7 @@ def calculate_averages(df, bot_settings):
         return None
 
     
-def check_trend(df, bot_settings):
+def check_ta_trend(df, bot_settings):
     try:
         latest_data = df.iloc[-1]
         
