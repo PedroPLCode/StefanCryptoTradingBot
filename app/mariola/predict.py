@@ -1,10 +1,21 @@
 from ..utils.logging import logger
-from ..utils.app_utils import send_admin_email
-from ..mariola.mariola_calc import prepare_ml_df
+from ..utils.email_utils import send_admin_email
+from .df_utils import prepare_ml_df
 
 def check_ml_trade_signal(df, signal_type, bot_settings):
-    try:
+    """
+    Checks if the given ML model's trade signal (buy or sell) meets the trigger percentage.
 
+    Args:
+        df (DataFrame): The input data frame containing market data.
+        signal_type (str): The type of signal ('buy' or 'sell').
+        bot_settings (object): The bot settings object containing model and trigger values.
+
+    Returns:
+        bool: Whether the signal meets the model's buy/sell trigger.
+        None: If an error occurs.
+    """
+    try:
         if signal_type not in ['buy', 'sell']:
             raise ValueError(f"Unsupported signal_type: {signal_type}")
 
@@ -52,14 +63,25 @@ def lstm_price_change_pct_predict(
     df, 
     bot_settings
     ):
+    """
+    Predicts the price change percentage using an LSTM model.
+
+    Args:
+        df (DataFrame): The input data frame containing market data.
+        bot_settings (object): The bot settings object containing LSTM model configuration.
+
+    Returns:
+        float: The predicted price change percentage from the LSTM model.
+        None: If an error occurs.
+    """
     from tensorflow.keras.models import load_model
-    from ..mariola.mariola_utils import (
+    from .ml_utils import (
         normalize_df, 
         handle_pca, 
         create_sequences
     )
+    
     try:
-            
         calculated_df = prepare_ml_df(
             df, 
             bot_settings
@@ -106,12 +128,22 @@ def xgboost_price_change_pct_predict(
     df, 
     bot_settings
     ):
+    """
+    Predicts the price change percentage using an XGBoost model.
+
+    Args:
+        df (DataFrame): The input data frame containing market data.
+        bot_settings (object): The bot settings object containing XGBoost model configuration.
+
+    Returns:
+        float: The predicted price change percentage from the XGBoost model.
+        None: If an error occurs.
+    """
     import numpy as np
     import xgboost as xgb
     from sklearn.preprocessing import StandardScaler
     
     try:
-            
         calculated_df = prepare_ml_df(
             df, 
             bot_settings
@@ -153,12 +185,22 @@ def random_forest_price_change_pct_predict(
     df, 
     bot_settings
     ):
+    """
+    Predicts the price change percentage using a Random Forest model.
+
+    Args:
+        df (DataFrame): The input data frame containing market data.
+        bot_settings (object): The bot settings object containing Random Forest model configuration.
+
+    Returns:
+        float: The predicted price change percentage from the Random Forest model.
+        None: If an error occurs.
+    """
     import joblib
     import numpy as np
     from sklearn.preprocessing import StandardScaler
 
     try:
-            
         calculated_df = prepare_ml_df(
             df, 
             bot_settings

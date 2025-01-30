@@ -19,9 +19,20 @@ from .calc_utils import (
 )
 from .buy_signals import check_classic_ta_buy_signal
 from .sell_signals import check_classic_ta_sell_signal
-from ..mariola.mariola_predict import check_ml_trade_signal
+from ..mariola.predict import check_ml_trade_signal
 
 def fetch_and_save_data(backtest_settings, bot_settings):
+    """
+    Fetches historical market data for the given symbol and interval from an API, 
+    and saves it as a CSV file for backtesting.
+
+    Parameters:
+    - backtest_settings: Settings related to the backtest, including start and end dates, and CSV file path.
+    - bot_settings: Settings related to the bot, including symbol and interval for data fetching.
+
+    Returns:
+    - A DataFrame containing the fetched market data, or None if data could not be fetched.
+    """
     symbol = str(bot_settings.symbol)
     interval = str(bot_settings.interval)
     start_str = str(backtest_settings.start_date)
@@ -32,7 +43,7 @@ def fetch_and_save_data(backtest_settings, bot_settings):
         interval=interval, 
         start_str=start_str, 
         end_str=end_str
-        )
+    )
     
     if df is not None and not df.empty:
         csv_file_path = backtest_settings.csv_file_path
@@ -45,6 +56,17 @@ def fetch_and_save_data(backtest_settings, bot_settings):
 
 
 def backtest_strategy(df, bot_settings, backtest_settings):
+    """
+    Performs backtesting of the trading strategy using historical market data.
+    
+    Parameters:
+    - df: DataFrame containing historical market data.
+    - bot_settings: Settings related to the bot, including technical analysis and machine learning preferences.
+    - backtest_settings: Settings for the backtest, such as initial balance and other trade parameters.
+
+    Returns:
+    - None. It logs the final balance and saves backtest results.
+    """
     symbol = bot_settings.symbol
     cryptocoin_symbol = symbol[:3]
     stablecoin_symbol = symbol[-4:]
@@ -76,7 +98,7 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                 loop_df = calculate_ta_indicators(
                     df.iloc[start_index+i-200:start_index+i+1], 
                     bot_settings
-                    )
+                )
             else:
                 continue
             
@@ -98,7 +120,7 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                     averages, 
                     latest_data, 
                     previous_data
-                    )
+                )
                 sell_signal = check_classic_ta_sell_signal(
                     df, 
                     bot_settings,
@@ -106,19 +128,19 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                     averages, 
                     latest_data, 
                     previous_data
-                    )
+                )
                 
             if bot_settings.use_machine_learning:
                 buy_signal = check_ml_trade_signal(
                     df,
                     'buy',
                     bot_settings
-                    )
+                )
                 sell_signal = check_ml_trade_signal(
                     df,
                     'sell',
                     bot_settings
-                    )
+                )
             
             price_hits_stop_loss = current_price <= stop_loss_price
             price_hits_take_profit = current_price >= take_profit_price
@@ -173,14 +195,14 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                     take_profit_price = calculate_take_profit(
                         current_price, 
                         bot_settings
-                        )
+                    )
                     
                     if bot_settings.take_profit_with_atr:
                         take_profit_price = calculate_atr_take_profit(
                             current_price, 
                             atr, 
                             bot_settings
-                            )
+                        )
                 
                 update_trade_log(
                     'buy', 
@@ -211,12 +233,11 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                 )
             
             elif crypto_balance > 0 and price_rises:
-                
                 stop_loss_price = update_stop_loss(
                     current_price, 
                     stop_loss_price, 
                     bot_settings
-                    )
+                )
                 
                 if bot_settings.trailing_stop_with_atr:
                     stop_loss_price = update_atr_trailing_stop_loss(
@@ -224,7 +245,7 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                         stop_loss_price, 
                         atr, 
                         bot_settings
-                        )
+                    )
 
             previous_price = current_price
 

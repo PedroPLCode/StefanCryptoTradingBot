@@ -2,8 +2,8 @@ import pytest
 import numpy as np
 import pandas as pd
 from unittest.mock import patch, MagicMock
-from app.mariola.mariola_utils import normalize_df, handle_pca, create_sequences
-from app.mariola.mariola_predict import check_ml_signal, price_change_pct_predict
+from app.mariola.ml_utils import normalize_df, handle_pca, create_sequences
+from app.mariola.predict import check_ml_trade_signal, price_change_pct_predict
 
 @pytest.fixture
 def example_df():

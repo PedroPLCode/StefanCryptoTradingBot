@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from app.mariola.mariola_utils import normalize_df, handle_pca, create_sequences
+from app.mariola.ml_utils import normalize_df, handle_pca, create_sequences
 
 @pytest.fixture
 def mock_bot_settings():

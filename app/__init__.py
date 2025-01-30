@@ -1,3 +1,37 @@
+"""
+This module initializes and configures the Flask application, including its extensions,
+logging, API rate limiting, and background job scheduling.
+
+It provides:
+- `create_app()`: A factory function for creating a Flask application.
+- `run_job_with_context()`: A helper function to run scheduled jobs within the Flask app context.
+- `start_scheduler()`: A function that starts the background job scheduler.
+- `limiter`: A Flask-Limiter instance for request rate limiting.
+
+### Included Extensions:
+- SQLAlchemy for database management.
+- Flask-Login for user authentication.
+- Flask-Mail for email handling.
+- Flask-Migrate for database migrations.
+- Flask-JWT-Extended for authentication via JSON Web Tokens.
+- Flask-CORS for Cross-Origin Resource Sharing.
+- Flask-Limiter for rate limiting.
+- APScheduler for background job scheduling.
+
+### Scheduler Jobs:
+- Executes multiple trading bot strategies at different intervals.
+- Sends trading reports and logs via email.
+- Clears old trade history periodically.
+
+### Logging:
+- Logs important events and errors.
+- Sends critical errors via email to the admin.
+
+### Usage:
+To start the Flask application:
+```bash
+python app.py
+"""
 from flask import Flask, Blueprint
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -81,7 +115,7 @@ def create_app(config_name=None):
     except Exception as e:
         logger.error(f'Error in create_app: {e}')
         with app.app_context():
-            from .utils.app_utils import send_admin_email
+            from .utils.email_utils import send_admin_email
             send_admin_email('Error in create_app', str(e))
         raise
     
@@ -106,7 +140,7 @@ def run_job_with_context(func, *args, **kwargs):
         except Exception as e:
             logger.error(f'Error in run_job_with_context: job {func.__name__}: {e}')
             with app.app_context():
-                from .utils.app_utils import send_admin_email
+                from .utils.email_utils import send_admin_email
                 send_admin_email('Error in run_job_with_context', str(e))
             raise
         
@@ -124,11 +158,10 @@ def start_scheduler():
             run_all_swing_4h_trading_bots,
             run_all_swing_1d_trading_bots
         )
-        from .utils.app_utils import (
-            send_trade_report_via_email, 
-            send_logs_via_email_and_clear_logs, 
-            clear_old_trade_history
-        )
+        from .utils.email_utils import send_trade_report_via_email
+        from .utils.logs_utils import send_logs_via_email_and_clear_logs
+        from .utils.history_utils import clear_old_trade_history
+
         scheduler.add_job(
             func=partial(run_job_with_context, run_all_scalp_1m_trading_bots),
             trigger='interval',
@@ -194,7 +227,7 @@ def start_scheduler():
     except Exception as e:
         logger.error(f'Error in start_scheduler: {e}')
         with app.app_context():
-            from .utils.app_utils import send_admin_email
+            from .utils.email_utils import send_admin_email
             send_admin_email('Error in start_scheduler', str(e))
 
 from .routes import main

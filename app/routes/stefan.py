@@ -7,10 +7,13 @@ from datetime import datetime
 from ..utils.logging import logger
 from . import main
 from ..stefan.logic_utils import execute_sell_order
-from ..utils.app_utils import (
+from ..utils.reports_utils import generate_trade_report
+from ..utils.user_utils import check_if_user_have_control_access
+from ..utils.email_utils import (
     send_email, 
     send_admin_email,
-    generate_trade_report,
+)
+from ..utils.bots_utils import (
     stop_all_bots, 
     start_all_bots, 
     start_single_bot, 
@@ -20,10 +23,11 @@ from ..utils.app_utils import (
 @main.route('/start/<int:bot_id>')
 @login_required
 def start_bot(bot_id):
-    if not current_user.control_panel_access:
-        logger.warning(f'{current_user.login} tried to control Bot without permission.')
-        flash(f'Error. User {current_user.login} is not allowed to control the Bot.', 'danger')
-        return redirect(url_for('main.user_panel_view'))
+    """
+    Starts a specific bot based on the provided bot ID.
+    Only accessible to users with control panel access.
+    """
+    check_if_user_have_control_access(current_user, 'Control')
 
     try:
         bot_settings = BotSettings.query.filter_by(id=bot_id).first()
@@ -46,10 +50,11 @@ def start_bot(bot_id):
 @main.route('/stop/<int:bot_id>')
 @login_required
 def stop_bot(bot_id):
-    if not current_user.control_panel_access:
-        logger.warning(f'{current_user.login} tried to control Bot without permission.')
-        flash(f'Error. User {current_user.login} is not allowed to control the Bot.', 'danger')
-        return redirect(url_for('main.user_panel_view'))
+    """
+    Stops a specific bot based on the provided bot ID.
+    If an active trade exists, executes a sell order before stopping.
+    """
+    check_if_user_have_control_access(current_user, 'Control')
     
     try:
         bot_settings = BotSettings.query.filter_by(id=bot_id).first()
@@ -81,10 +86,10 @@ def stop_bot(bot_id):
 @main.route('/startall')
 @login_required
 def start_all():
-    if not current_user.control_panel_access:
-        logger.warning(f'{current_user.login} tried to control Bot without permission.')
-        flash(f'Error. User {current_user.login} is not allowed to control the Bot.', 'danger')
-        return redirect(url_for('main.user_panel_view'))
+    """
+    Starts all available bots.
+    """
+    check_if_user_have_control_access(current_user, 'Control')
     
     try:
         start_all_bots(current_user)
@@ -100,10 +105,10 @@ def start_all():
 @main.route('/stopall')
 @login_required
 def stop_all():
-    if not current_user.control_panel_access:
-        logger.warning(f'{current_user.login} tried to control Bot without permission.')
-        flash(f'Error. User {current_user.login} is not allowed to control the Bot.', 'danger')
-        return redirect(url_for('main.user_panel_view'))
+    """
+    Stops all active bots.
+    """
+    check_if_user_have_control_access(current_user, 'Control')
     
     try:
         stop_all_bots(current_user)
@@ -119,10 +124,10 @@ def stop_all():
 @main.route('/refresh')
 @login_required
 def refresh():
-    if not current_user.control_panel_access:
-        logger.warning(f'{current_user.login} tried to Refresh control panel without permission.')
-        flash(f'Error. User {current_user.login} is not allowed to control Bot.', 'danger')
-        return redirect(url_for('main.user_panel_view'))
+    """
+    Refreshes the Binance API connection.
+    """
+    check_if_user_have_control_access(current_user, 'Control')
     
     try:
         flash('Binance API refreshed.', 'success')
@@ -138,9 +143,13 @@ def refresh():
 @main.route('/report')
 @login_required
 def report():
+    """
+    Sends a trade report email to the currently logged-in user if they have permission.
+    Redirects to the user panel if the user is not allowed to receive reports.
+    """
     if not current_user.email_raports_receiver:
-        logger.warning(f'{current_user.login} tried to get email rapirt without permission.')
-        flash(f'Error. User {current_user.login} is not allowed receiving email raports.', 'danger')
+        logger.warning(f'{current_user.login} tried to get email report without permission.')
+        flash(f'Error. User {current_user.login} is not allowed receiving email reports.', 'danger')
         return redirect(url_for('main.user_panel_view'))
     
     now = datetime.now()
@@ -164,11 +173,13 @@ def report():
 @main.route('/load_data_for_backtest')
 @login_required
 def fetch_and_save_data_for_backtest():
+    """
+    Fetches historical trading data and saves it for backtesting.
+    Redirects to the backtest panel view after execution.
+    """
     from ..stefan.backtesting import fetch_and_save_data
-    if not current_user.control_panel_access:
-        logger.warning(f'{current_user.login} tried to Load data for backtest control panel without permission.')
-        flash(f'Error. User {current_user.login} is not allowed to control Bot.', 'danger')
-        return redirect(url_for('main.user_panel_view'))
+    
+    check_if_user_have_control_access(current_user, 'Control')
     
     try:
         backtest_settings = BacktestSettings.query.first()
@@ -179,23 +190,25 @@ def fetch_and_save_data_for_backtest():
         else:
             flash(f'Bot {backtest_settings.bot_id} not found. Data not loaded', 'danger')
         return redirect(url_for('main.backtest_panel_view'))
-
+    
     except Exception as e:
         logger.error(f'Exception in fetch_and_save_data_for_backtest: {str(e)}')
         send_admin_email('Exception in fetch_and_save_data_for_backtest', str(e))
-        flash('An error occurred while Loading data for backtest. The admin has been notified.', 'danger')
+        flash('An error occurred while loading data for backtest. The admin has been notified.', 'danger')
         return redirect(url_for('main.backtest_panel_view'))
-    
+
 
 @main.route('/run_backtest')
 @login_required
 def run_backtest():
+    """
+    Runs a backtest using stored trading data and settings.
+    Redirects to the backtest panel view after execution.
+    """
     from ..stefan.backtesting import backtest_strategy
     from ..stefan.logic_utils import is_df_valid
-    if not current_user.control_panel_access:
-        logger.warning(f'{current_user.login} tried to run backtest control panel without permission.')
-        flash(f'Error. User {current_user.login} is not allowed to control Bot.', 'danger')
-        return redirect(url_for('main.user_panel_view'))
+    
+    check_if_user_have_control_access(current_user, 'Control')
     
     try:
         backtest_settings = BacktestSettings.query.first()
@@ -209,36 +222,37 @@ def run_backtest():
             else:
                 flash('Backtest error. Dataframe empty or too short', 'danger')
         else:
-            flash(f'Bot {backtest_settings.bot_id} not found. Cant run backtest', 'danger')
+            flash(f'Bot {backtest_settings.bot_id} not found. Cannot run backtest', 'danger')
         return redirect(url_for('main.backtest_panel_view'))
-
+    
     except Exception as e:
         logger.error(f'Bot {bot_settings.id} Exception in run_backtest: {str(e)}')
         send_admin_email(f'Bot {bot_settings.id} Exception in run_backtest', str(e))
         flash('An error occurred while running backtest. The admin has been notified.', 'danger')
         return redirect(url_for('main.backtest_panel_view'))
-    
-    
+
+
 @main.route('/get_df/', methods=['GET'])
 @login_required
 def get_df():
-    
+    """
+    Retrieves and returns technical analysis data for all bots as a JSON response.
+    """
     try:
         all_bots_info = BotSettings.query.all()
         if not all_bots_info:
-            return jsonify({"error": f"Bots not found"}), 404
+            return jsonify({"error": "Bots not found"}), 404
         
         all_bots_df = [bot.bot_technical_analysis.df for bot in all_bots_info]
-
         return jsonify({"all_bots_df": all_bots_df}), 200
-
+    
     except SQLAlchemyError as e:
         logger.error(f"Database error get_bots_info: {str(e)}")
-        send_admin_email(f"Database error get_bots_info", str(e))
+        send_admin_email("Database error get_bots_info", str(e))
         return jsonify({"error": "Internal Server Error"}), 500
-
+    
     except Exception as e:
         logger.error(f'Exception in get_bots_info: {str(e)}')
-        send_admin_email(f'Exception in get_bots_info', str(e))
+        send_admin_email('Exception in get_bots_info', str(e))
         flash('An error occurred while sending df. The admin has been notified.', 'danger')
         return jsonify({"error": "Internal Server Error"}), 500

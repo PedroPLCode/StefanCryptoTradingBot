@@ -8,41 +8,55 @@ from ..utils.logging import logger
 from datetime import datetime as dt
 from . import main
 from .. import limiter
-from ..utils.app_utils import (
-    send_admin_email,
-    create_new_user, 
-    get_ip_address
-)
+from ..utils.user_utils import create_new_user
+from ..utils.email_utils import send_admin_email
+from ..utils.app_utils import get_ip_address
 
 @main.route('/register', methods=['GET', 'POST'])
 @limiter.limit("4/min")
 def register():
+    """
+    Handles the user registration process. If the user is authenticated, they are redirected 
+    to their user panel. If the user submits the registration form, the function checks if 
+    the login or email already exists in the database, and if not, creates a new user account.
+    It also sends an email to the admin notifying them of the registration or any errors during the process.
+
+    If the registration is successful, a success message is flashed. In case of an error, 
+    an appropriate error message is flashed, and the admin is notified about the error.
+
+    Returns:
+        render_template: Renders the registration page with the form, or redirects 
+        if the user is already logged in.
+    """
     if current_user.is_authenticated:
         return redirect(url_for('main.user_panel_view'))
 
     form = RegistrationForm()
+
     if form.validate_on_submit():
-        
         user_ip = get_ip_address(request)
-        
+
         user_exists = User.query.filter(or_(
             User.login == form.login.data, 
             User.email == form.email.data
         )).first()
-        
-        if not user_exists:            
-            is_first_user = User.query.count() == 0
+
+        if user_exists:
+            logger.warning(f'{user_exists.login} {user_exists.email} trying to create new user from {user_ip}. User already exists.')
+            flash('This login or email is already in use.', 'danger')
+        else:
+            is_first_user_in_db = User.query.count() == 0
             new_user = create_new_user(form)
-            new_user.admin_panel_access = True if is_first_user else False
-                
+            new_user.admin_panel_access = True if is_first_user_in_db else False
+
             try:
                 db.session.add(new_user)
                 db.session.commit()
-                logger.info(f'New account registered: {new_user.login} from {user_ip} ')
+                logger.info(f'New account registered: {new_user.login} from {user_ip}')
                 flash('Account created successfully. Admin will contact you.', 'success')
-                
+
                 try:
-                    send_admin_email('New User registered', f'New user has been registered in database.\n\nlogin: {new_user.login}\nname: {new_user.name}\nemail: {new_user.email}\ncreation_date: {new_user.creation_date}')
+                    send_admin_email('New User registered', f'New user has been registered in the database.\n\nlogin: {new_user.login}\nname: {new_user.name}\nemail: {new_user.email}\ncreation_date: {new_user.creation_date}')
                 except Exception as e:
                     logger.error(f'Error sending registration email: {str(e)}')
                     flash('Registration was successful, but there was an error notifying the admin.', 'warning')
@@ -57,9 +71,6 @@ def register():
                 except Exception as email_error:
                     logger.error(f'Error sending registration error email {str(email_error)}')
 
-        else:
-            logger.warning(f'{user_exists.login} {user_exists.email} trying to create new user from {user_ip}. User already exists.')
-            flash('This login or email is already in use.', 'danger')
     else:
         for field, errors in form.errors.items():
             for error in errors:
@@ -71,6 +82,15 @@ def register():
 @main.route('/login', methods=['GET', 'POST'])
 @limiter.limit("4/min")
 def login():
+    """
+    Handles the user login process. If the user is already authenticated, redirects them 
+    to their user panel. Otherwise, it processes the login form, checks the user's credentials, 
+    and logs them in if valid. It also handles login errors and account suspension due to 
+    multiple failed login attempts.
+    
+    Returns:
+        render_template: Renders the login page with the form or redirects after a successful login.
+    """
     if current_user.is_authenticated:
         return redirect(url_for('main.user_panel_view'))
 
@@ -79,55 +99,117 @@ def login():
         try:
             user_ip = get_ip_address(request)
             user = User.query.filter_by(login=form.login.data).first()
-            
-            if user:
-                if not user.account_suspended:
-                    if user.check_password(form.password.data):
-                        login_user(user)
-                        user.last_login = dt.now()
-                        db.session.commit()
-                        next_page = request.args.get('next')
-                        flash(f'Logged in successfully. Welcome back, {user.name}!', 'success')
-                        return redirect(next_page or url_for('main.user_panel_view'))
-                    else:
-                        user.login_errors += 1
-                        db.session.commit()
-                        logger.warning(f'User {user.name} login error number {user.login_errors} from {user_ip}.')
-                        flash(f'User {user.name} login error number {user.login_errors}.', 'danger')
 
-                        if user.login_errors >= 4:
-                            user.account_suspended = True
-                            db.session.commit()
-                            logger.warning(f'User {user.name} suspended from address {user_ip}')
-                            flash(f'User {user.name} suspended. Admin will contact you.', 'danger')
-                else:
-                    logger.warning(f'User {user.name} suspended trying to log in from address {user_ip}')
-                    flash(f'User {user.name} suspended. Admin will contact you.', 'danger')
-            else:
-                logger.warning(f'Bad login attempt from address {user_ip}. User not found')
+            if not user:
+                logger.error(f'Bad login attempt. User not found from {user_ip}')
                 flash('Error: Login or Password Incorrect.', 'danger')
-                
+                return render_template('login.html', form=form)
+
+            if user.account_suspended:
+                logger.error(f'User {user.name} suspended trying to log in from {user_ip}')
+                flash(f'User {user.name} suspended. Admin will contact you.', 'danger')
+                return render_template('login.html', form=form)
+
+            if not user.check_password(form.password.data):
+                handle_failed_login(user, user_ip)
+                return render_template('login.html', form=form)
+
+            handle_successful_login(user)
+            next_page = request.args.get('next')
+            return redirect(next_page or url_for('main.user_panel_view'))
+
         except Exception as e:
-            logger.error(f'Error during login process from {user_ip} {str(e)}')
-            try:
-                send_admin_email('Login error', str(e))
-            except Exception as email_error:
-                logger.error(f'Error sending login error email {str(email_error)}')
+            logger.error(f'Error during login process. Error details: {str(e)} from {user_ip}')
             flash('An unexpected error occurred during login. Please try again later.', 'danger')
+            return render_template('login.html', form=form)
 
     return render_template('login.html', form=form)
+
+
+def handle_successful_login(user):
+    """
+    Handles the actions required for a successful user login.
+
+    This function logs in the user, updates their last login timestamp, 
+    commits the changes to the database, and displays a success message.
+
+    Args:
+        user (User): The user object representing the authenticated user.
+
+    Returns:
+        None
+    """
+    try:
+        login_user(user)
+        user.last_login = dt.now()
+        db.session.commit()
+        flash(f'Logged in successfully. Welcome back, {user.name}!', 'success')
+        return True
+    
+    except Exception as e:
+        flash(f'Unexpected error when logging user {user.name}', 'danger')
+        logger.error(f'Exception in handle_successful_login: {str(e)}')
+        send_admin_email('Exception in handle_successful_login', str(e))
+        return False
+    
+
+def handle_failed_login(user, user_ip):
+    """
+    Handles a failed login attempt for a user.
+
+    This function increments the user's login error count, logs a warning, 
+    and displays an error message. If the user exceeds the allowed number 
+    of failed attempts, their account is suspended.
+
+    Args:
+        user (User): The user object attempting to log in.
+        user_ip (str): The IP address from which the login attempt was made.
+
+    Returns:
+        None
+    """
+    try:
+        user.login_errors += 1
+        db.session.commit()
+        logger.warning(f'User {user.name} login error number {user.login_errors} from {user_ip}.')
+        flash(f'User {user.name} login error number {user.login_errors}.', 'danger')
+
+        if user.login_errors >= 4:
+            user.account_suspended = True
+            db.session.commit()
+            logger.warning(f'User {user.name} suspended from address {user_ip}')
+            flash(f'User {user.name} suspended. Admin will contact you.', 'danger')
+            
+        return True
+    
+    except Exception as e:
+        logger.error(f'Exception in handle_failed_login: {str(e)}')
+        send_admin_email('Exception in handle_failed_login', str(e))
+        return False
 
 
 @main.route('/logout')
 @login_required
 def logout():
+    """
+    Logs out the currently authenticated user, flashes a success message, and redirects to the login page.
+
+    This function performs the following steps:
+    - Attempts to log out the user using Flask-Login's `logout_user` function.
+    - Flashes a success message with the user's login name.
+    - If an error occurs, logs the exception and sends an email to the admin, then flashes an error message.
+
+    Returns:
+        Redirect: Redirects the user to the login page.
+    """
     try:
         login = current_user.login
         logout_user()
         flash(f'User {login} logged out successfully.', 'success')
+        
     except Exception as e:
-        logger.error(f'Error during logout: {str(e)}')
-        send_admin_email('Logout error', str(e))
-        flash('An error occurred during logout. Please try again.', 'danger')
+        logger.error(f'Error during logout user {login}: {str(e)}')
+        send_admin_email(f'Logout error user {login}', str(e))
+        flash(f'An error occurred during logout user {login}. Please try again.', 'danger')
 
     return redirect(url_for('main.login'))

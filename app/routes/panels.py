@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request, session
+from flask import render_template, redirect, url_for, flash, request
 from flask_login import current_user
 import json
 import pandas as pd
@@ -11,46 +11,63 @@ from ..stefan.api_utils import (
     fetch_account_status, 
     fetch_server_time
 )
-from ..utils.app_utils import (
-    show_account_balance, 
-    send_admin_email
+from ..utils.email_utils import send_admin_email
+from ..utils.trades_utils import show_account_balance
+from ..utils.user_utils import (
+    check_if_user_have_control_access,
+    check_if_user_is_admin,
+    check_if_user_is_authenticated
 )
-
+    
 @main.route('/')
 def user_panel_view():
-    if current_user.is_authenticated:
-        try:
-            binance_status = fetch_system_status()
-            account_status = fetch_account_status()
-            server_time = fetch_server_time()
-            return render_template(
-                'user_panel.html',
-                user=current_user, 
-                account_status=account_status, 
-                binance_status=binance_status, 
-                server_time=server_time
-            )
+    """
+    View for the user panel. This view is accessible only to authenticated users.
+
+    If the user is authenticated, the system status, account status, and server time 
+    are fetched and displayed in the user panel. If an error occurs during fetching the data, 
+    an error message is flashed, and the user is redirected to the login page.
+
+    Returns:
+        Rendered user_panel.html template with user data, account status, and system status.
+        If an error occurs, redirects to the login page.
+    """
+    check_if_user_is_authenticated(current_user, 'user')
+        
+    try:
+        binance_status = fetch_system_status()
+        account_status = fetch_account_status()
+        server_time = fetch_server_time()
+        return render_template(
+            'user_panel.html',
+            user=current_user, 
+            account_status=account_status, 
+            binance_status=binance_status, 
+            server_time=server_time
+        )
             
-        except Exception as e:
-            logger.error(f'Exception in user_panel_view: {str(e)}')
-            send_admin_email('Exception in user_panel_view', str(e))
-            flash('An error occurred while fetching account data. Please try again later.', 'danger')
-            return redirect(url_for('main.login'))
-    else:
-        flash('Please log in to access the app.', 'warning')
+    except Exception as e:
+        logger.error(f'Exception in user_panel_view: {str(e)}')
+        send_admin_email('Exception in user_panel_view', str(e))
+        flash('An error occurred while fetching account data. Please try again later.', 'danger')
         return redirect(url_for('main.login'))
 
     
 @main.route('/control')
 def control_panel_view():
-    if not current_user.is_authenticated:
-        flash('Please log in to access the control panel.', 'warning')
-        return redirect(url_for('main.login'))
+    """
+    View for the control panel. This view is accessible only to authenticated users with control panel access.
 
-    if not current_user.control_panel_access:
-        logger.warning(f'{current_user.login} tried to access the Control Panel without permission.')
-        flash(f'Error. User {current_user.login} is not allowed to access the Control Panel.', 'danger')
-        return redirect(url_for('main.user_panel_view'))
+    If the user is not authenticated or doesn't have control panel access, they are redirected 
+    to the user panel or login page. The control panel fetches bot settings and account status 
+    for all bots, updating their balance.
+
+    Returns:
+        Rendered control_panel.html template with all bot settings.
+        If an error occurs, redirects to the user panel.
+    """
+    check_if_user_is_authenticated(current_user, 'control')
+    check_if_user_have_control_access(current_user, 'Control')
 
     try:
         all_bots_settings = BotSettings.query.all()
@@ -80,16 +97,21 @@ def control_panel_view():
     
 @main.route('/analysis', methods=['GET', 'POST'])
 def analysis_panel_view():
-    from ..utils.plot_utils import plot_all_indicators
-    
-    if not current_user.is_authenticated:
-        flash('Please log in to access the technical analysis panel.', 'warning')
-        return redirect(url_for('main.login'))
+    """
+    View for the technical analysis panel. This view is accessible only to authenticated users 
+    with control panel access.
 
-    if not current_user.control_panel_access:
-        logger.warning(f'{current_user.login} tried to access the Technical Analysis Panel without permission.')
-        flash(f'Error. User {current_user.login} is not allowed to access the Technical Analysis Panel.', 'danger')
-        return redirect(url_for('main.user_panel_view'))
+    Displays selected technical analysis indicators for all bots. Users can update the indicators 
+    via a POST request. If the bot's technical analysis data is empty, no plot is generated.
+
+    Returns:
+        Rendered technical_analysis.html template with all bot info and selected indicators.
+        If an error occurs, redirects to the user panel.
+    """
+    from ..utils.plot_utils import plot_selected_ta_indicators
+    
+    check_if_user_is_authenticated(current_user, 'analysis')
+    check_if_user_have_control_access(current_user, 'Technical Analysis')
 
     try:
         all_bots_info = BotSettings.query.all()
@@ -113,7 +135,7 @@ def analysis_panel_view():
                 bot_info.plot_url = None
                 continue
             
-            bot_info.plot_url = plot_all_indicators(
+            bot_info.plot_url = plot_selected_ta_indicators(
                 df, 
                 indicators,
                 bot_info,
@@ -136,14 +158,18 @@ def analysis_panel_view():
     
 @main.route('/backtest')
 def backtest_panel_view():
-    if not current_user.is_authenticated:
-        flash('Please log in to access the backtest panel.', 'warning')
-        return redirect(url_for('main.login'))
+    """
+    View for the backtest panel. This view is accessible only to authenticated users 
+    with control panel access.
 
-    if not current_user.control_panel_access:
-        logger.warning(f'{current_user.login} tried to access the backtest Panel without permission.')
-        flash(f'Error. User {current_user.login} is not allowed to access the backtest Panel.', 'danger')
-        return redirect(url_for('main.user_panel_view'))
+    Displays all backtest results, parsing and displaying the trade logs for each result.
+
+    Returns:
+        Rendered backtest_panel.html template with all backtest results.
+        If an error occurs, redirects to the user panel.
+    """
+    check_if_user_is_authenticated(current_user, 'backtest')
+    check_if_user_have_control_access(current_user, 'Backtest')
 
     try:
         all_backtest_results = BacktestResult.query.all()
@@ -165,16 +191,21 @@ def backtest_panel_view():
     
 @main.route('/trades')
 def current_trades_view():
+    """
+    View for the trades panel. This view is accessible only to authenticated users 
+    with control panel access.
+
+    Displays current trades for all bots. The view processes trade history, and if valid 
+    trades exist, a balance plot is generated for each bot.
+
+    Returns:
+        Rendered trades_history.html template with all bot data.
+        If an error occurs, redirects to the user panel.
+    """
     from ..utils.plot_utils import create_balance_plot
 
-    if not current_user.is_authenticated:
-        flash('Please log in to access the trades panel.', 'warning')
-        return redirect(url_for('main.login'))
-
-    if not current_user.control_panel_access:
-        logger.warning(f'{current_user.login} tried to access the Trades Panel without permission.')
-        flash(f'Error. User {current_user.login} is not allowed to access the Trades Panel.', 'danger')
-        return redirect(url_for('main.user_panel_view'))
+    check_if_user_is_authenticated(current_user, 'trades')
+    check_if_user_have_control_access(current_user, 'Trades')
 
     try:
         all_bots = BotSettings.query.all()
@@ -209,14 +240,18 @@ def current_trades_view():
 
 @main.route('/admin')
 def admin_panel_view():
-    if not current_user.is_authenticated:
-        flash('Please log in to access the admin panel.', 'warning')
-        return redirect(url_for('main.login'))
+    """
+    View for the admin panel. This view is accessible only to authenticated users 
+    with admin panel access.
 
-    if not current_user.admin_panel_access:
-        logger.warning(f'{current_user.login} tried to access the Admin Panel without permission.')
-        flash(f'Error. User {current_user.login} is not allowed to access the Admin Panel.', 'danger')
-        return redirect(url_for('main.user_panel_view'))
+    If the user is authenticated and has admin access, they are redirected to the admin 
+    panel index. If an error occurs, the user is redirected to the user panel.
+
+    Returns:
+        Redirects to the admin panel index or redirects to the user panel in case of error.
+    """
+    check_if_user_is_authenticated(current_user, 'admin')
+    check_if_user_is_admin(current_user)
 
     try:
         return redirect(url_for('admin.index'))

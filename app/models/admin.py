@@ -4,34 +4,77 @@ from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 
 class MyAdmin(Admin):
+    """
+    Custom Admin class for managing access to the admin panel.
+
+    Allows access to the admin panel only for authenticated users with admin panel access.
+    Redirects unauthenticated or unauthorized users with a flash message.
+    """
     @expose('/')
     def index(self):
+        """
+        The home page of the admin panel.
+
+        If the user is authenticated and has admin panel access, it renders the default index view.
+        Otherwise, it redirects the user to the main index page with a warning message.
+        """
         if current_user.is_authenticated and current_user.admin_panel_access:
             return super().index()
         else:
             flash('Please log in to access the admin panel.', 'warning')
             return redirect(url_for('main.index'))
-        
+
         
 class MyAdminIndexView(AdminIndexView):
+    """
+    Custom view for the admin index page.
+
+    Restricts access to the admin index page to authenticated users with admin panel access.
+    """
     def is_accessible(self):
+        """
+        Check if the current user has access to the admin index page.
+
+        Returns True if the user is authenticated and has admin panel access.
+        """
         return current_user.is_authenticated and current_user.admin_panel_access
 
     def inaccessible_callback(self, name, **kwargs):
+        """
+        Redirect unauthenticated or unauthorized users to the login page with a flash message.
+        """
         flash('Please log in to access this page.', 'danger')
         return redirect(url_for('main.login'))
     
     
 class AdminModelView(ModelView):
+    """
+    Base model view for managing database models in the admin panel.
+
+    Provides access control for viewing and editing model data.
+    """
     def is_accessible(self):
+        """
+        Check if the current user has access to the model view.
+
+        Returns True if the user is authenticated and has admin panel access.
+        """
         return current_user.is_authenticated and current_user.admin_panel_access
 
     def inaccessible_callback(self, name, **kwargs):
+        """
+        Redirect unauthenticated or unauthorized users to the login page with a flash message.
+        """
         flash('You do not have access to this page.', 'danger')
         return redirect(url_for('main.login'))
 
 
 class UserAdmin(AdminModelView):
+    """
+    Admin view for managing user data.
+
+    Allows viewing and editing user details such as login, email, access permissions, and more.
+    """
     column_list = (
         'id', 
         'login', 
@@ -61,6 +104,12 @@ class UserAdmin(AdminModelView):
 
 
 class BotSettingsAdmin(AdminModelView):
+    """
+    Admin view for managing bot settings.
+
+    Allows configuring bot strategies, technical analysis settings, stop-loss and take-profit parameters,
+    and more.
+    """
     column_list = (
         'id', 
         'bot_current_trade',
@@ -78,23 +127,19 @@ class BotSettingsAdmin(AdminModelView):
         'is_suspended_after_negative_trade',
         'cycles_of_suspension_after_negative_trade',
         'suspension_cycles_remaining',
-        
         'use_technical_analysis',
         'use_machine_learning',
         'sell_signal_only_stop_loss_or_take_profit',
-        
         'use_stop_loss',
         'use_trailing_stop_loss',
         'stop_loss_pct',
         'trailing_stop_with_atr',
         'trailing_stop_atr_calc',
-        
         'use_take_profit',
         'use_trailing_take_profit',
         'take_profit_pct',
         'take_profit_with_atr',
         'take_profit_atr_calc',
-        
         'trend_signals',
         'rsi_signals',
         'rsi_divergence_signals',
@@ -119,7 +164,6 @@ class BotSettingsAdmin(AdminModelView):
         'ma50_signals',
         'ma200_signals',
         'ma_cross_signals',
-        
         'cci_buy',
         'cci_sell',
         'rsi_buy',
@@ -129,7 +173,6 @@ class BotSettingsAdmin(AdminModelView):
         'stoch_buy',
         'stoch_sell',
         'atr_buy_treshold',
-        
         'general_timeperiod',
         'di_timeperiod',
         'adx_timeperiod',
@@ -150,7 +193,6 @@ class BotSettingsAdmin(AdminModelView):
         'ema_slow_timeperiod',
         'psar_acceleration',
         'psar_maximum',
-        
         'avg_close_period',
         'avg_volume_period',
         'avg_adx_period',
@@ -165,11 +207,9 @@ class BotSettingsAdmin(AdminModelView):
         'avg_stoch_rsi_period',
         'avg_psar_period',
         'avg_vwap_period',
-        
         'adx_strong_trend',
         'adx_weak_trend',
         'adx_no_trend',
-    
         'ml_general_timeperiod',
         'ml_macd_timeperiod',
         'ml_macd_signalperiod',
@@ -180,19 +220,16 @@ class BotSettingsAdmin(AdminModelView):
         'ml_rsi_buy',
         'ml_rsi_sell',
         'ml_lag_period',
-        
         'ml_use_random_forest_model',
         'ml_random_forest_model_filename',
         'ml_random_forest_predictions_avg',
         'ml_random_forest_buy_trigger_pct',
         'ml_random_forest_sell_trigger_pct',
-        
         'ml_use_xgboost_model',
         'ml_xgboost_model_filename',
         'ml_xgboost_predictions_avg',
         'ml_xgboost_buy_trigger_pct',
         'ml_xgboost_sell_trigger_pct',
-        
         'ml_use_lstm_model',
         'ml_lstm_window_size',
         'ml_lstm_window_lookback',
@@ -201,9 +238,14 @@ class BotSettingsAdmin(AdminModelView):
         'ml_lstm_buy_trigger_pct',
         'ml_lstm_sell_trigger_pct',
     )
-    
-    
+
+
 class BacktestSettingsAdmin(AdminModelView):
+    """
+    Admin view for managing backtest settings.
+
+    Allows configuring backtesting parameters such as date range, initial balance, and more.
+    """
     column_list = (
         'id', 
         'bot_id',
@@ -213,9 +255,14 @@ class BacktestSettingsAdmin(AdminModelView):
         'initial_balance',
         'crypto_balance',
     )
-    
-    
+
+
 class BacktestResultsAdmin(AdminModelView):
+    """
+    Admin view for managing backtest results.
+
+    Displays results such as profit, final balance, and other backtest metrics.
+    """
     column_list = (
         'id', 
         'bot_id',
@@ -227,9 +274,14 @@ class BacktestResultsAdmin(AdminModelView):
         'final_balance',
         'profit',
     )
-    
-    
+
+
 class BotCurrentTradeAdmin(AdminModelView):
+    """
+    Admin view for managing the current trade of the bot.
+
+    Displays information about the active trade, such as buy price, stop-loss price, and more.
+    """
     column_list = (
         'id', 
         'bot_settings',
@@ -245,9 +297,14 @@ class BotCurrentTradeAdmin(AdminModelView):
         'use_take_profit',
         'buy_timestamp',
     )
-    
-    
+
+
 class TradesHistoryAdmin(AdminModelView):
+    """
+    Admin view for managing the history of trades.
+
+    Allows viewing trade details such as amount, buy and sell prices, and timestamps.
+    """
     column_list = (
         'id', 
         'bot_id', 
@@ -265,9 +322,14 @@ class TradesHistoryAdmin(AdminModelView):
         'buy_timestamp',
         'sell_timestamp',
     )
-    
-    
+
+
 class BotTechnicalAnalysisAdmin(AdminModelView):
+    """
+    Admin view for managing the bot's technical analysis data.
+
+    Displays various indicators like RSI, MACD, ATR, and more.
+    """
     column_list = (
         'id', 
         'bot_settings',

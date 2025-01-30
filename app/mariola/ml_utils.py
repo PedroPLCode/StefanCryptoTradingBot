@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
 from ..utils.logging import logger
-from ..utils.app_utils import send_admin_email
+from ..utils.email_utils import send_admin_email
 
 def normalize_df(df, bot_settings):
     """
@@ -37,7 +37,6 @@ def normalize_df(df, bot_settings):
         normalized_df = normalize_df(df, training_mode=True, result_marker='target')
     """
     try:
-        
         if df is None or df.empty:
             raise ValueError("df must be provided and cannot be None.")
         
@@ -86,7 +85,6 @@ def handle_pca(df, bot_settings):
         The PCA transformation reduces the features to the specified number of components (`n_components=50`).
     """
     try:
-        
         if df is None or df.empty:
             raise ValueError("df_normalized must be provided and cannot be None.")
         

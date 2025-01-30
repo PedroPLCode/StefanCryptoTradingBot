@@ -1,15 +1,15 @@
 from .. import db
 import pandas as pd
 from datetime import datetime as dt
-from decimal import Decimal
 from datetime import datetime
-from ..models import BotSettings, TradesHistory, BotCurrentTrade
+from ..models import BotSettings, BotCurrentTrade
 from ..utils.logging import logger
-from ..utils.app_utils import (
+from ..utils.bots_utils import suspend_after_negative_trade
+from ..utils.email_utils import (
     send_admin_email,
-    send_trade_email,
-    update_technical_analysis_data
+    send_trade_email
 )
+from ..utils.trades_utils import update_technical_analysis_data
 from .api_utils import (
     fetch_data,
     place_buy_order, 
@@ -22,9 +22,22 @@ from .calc_utils import (
 )
 from .buy_signals import check_classic_ta_buy_signal
 from .sell_signals import check_classic_ta_sell_signal
-from ..mariola.mariola_predict import check_ml_trade_signal
+from ..mariola.predict import check_ml_trade_signal
 
 def is_df_valid(df, bot_id):
+    """
+    Checks if a DataFrame is valid for use in the bot's trading logic.
+
+    This function validates that the provided DataFrame is not empty, has at least two rows, 
+    and is not None. If the DataFrame fails these conditions, it logs a message and returns False.
+
+    Args:
+        df (pandas.DataFrame): The DataFrame to validate, containing market data.
+        bot_id (int): The ID of the bot, used for logging purposes.
+
+    Returns:
+        bool: True if the DataFrame is valid, False otherwise.
+    """
     if df is None or df.empty or len(df) < 2:
         logger.trade(f'DataFrame is empty or too short for bot {bot_id}.')
         return False
@@ -32,6 +45,25 @@ def is_df_valid(df, bot_id):
 
 
 def fetch_data_and_validate(symbol, interval, lookback_period, bot_id):
+    """
+    Fetches market data and validates the resulting DataFrame.
+
+    This function fetches the market data using the specified symbol, interval, and lookback period, 
+    then checks if the fetched DataFrame is valid using the `is_df_valid` function. 
+    If the DataFrame is invalid, it returns None.
+
+    Args:
+        symbol (str): The trading pair symbol, e.g., 'BTCUSDC'.
+        interval (str): The interval for the market data (e.g., '1m', '5m').
+        lookback_period (int): The lookback period for fetching historical data.
+        bot_id (int): The ID of the bot, used for logging purposes.
+
+    Returns:
+        pandas.DataFrame or None: The validated DataFrame containing market data, or None if invalid.
+    
+    Raises:
+        Exception: If any error occurs during the data fetching process.
+    """
     try:
         df = fetch_data(
             symbol=symbol, 
@@ -49,6 +81,25 @@ def fetch_data_and_validate(symbol, interval, lookback_period, bot_id):
 
 
 def get_current_price(df, bot_id):
+    """
+    Retrieves the current market price from the provided DataFrame.
+
+    This function extracts the current market price from the last row of the DataFrame, assuming
+    that the DataFrame has a 'close' column. If any error occurs during this process, it logs the error 
+    and returns None.
+
+    Args:
+        df (pandas.DataFrame): The DataFrame containing market data with a 'close' column.
+        bot_id (int): The ID of the bot, used for logging purposes.
+
+    Returns:
+        float or None: The current market price as a float, or None if there was an error.
+
+    Raises:
+        IndexError: If the DataFrame is empty or does not have the expected structure.
+        ValueError: If there is a conversion issue while extracting the price.
+        Exception: If any other unexpected error occurs.
+    """
     try:
         current_price = float(df['close'].iloc[-1])
         logger.trade(f'Current price for bot {bot_id} is: {current_price}')
@@ -69,6 +120,33 @@ def get_current_price(df, bot_id):
 
 
 def manage_trading_logic(bot_settings, current_trade, current_price, df):
+    """
+    Manages the core trading logic of the bot, including buying, selling, stop-loss, take-profit, 
+    trailing stop-loss, and technical analysis updates.
+
+    This function handles the following trading actions based on the bot's settings and the current market data:
+    - Checks for buy and sell signals using technical analysis indicators.
+    - Executes buy or sell orders depending on the signal and market conditions.
+    - Activates stop-loss or take-profit mechanisms if the price hits the respective levels.
+    - Updates trailing stop-loss based on price movements.
+    - Performs technical analysis (e.g., trend, averages, ATR) and updates relevant data.
+    - Handles price rises and drops according to the trading strategy.
+
+    Args:
+        bot_settings (object): Configuration settings for the trading bot, including stop-loss, 
+                                take-profit, and other strategy settings.
+        current_trade (object): The current trade object, which contains details about the ongoing trade 
+                                 (e.g., stop-loss price, take-profit price, previous price, etc.).
+        current_price (float): The latest market price of the trading pair.
+        df (pandas.DataFrame): A DataFrame containing the market data and technical indicators (e.g., ATR, trend, etc.).
+
+    Returns:
+        None: This function does not return any value, but performs trading actions like executing orders, 
+              updating settings, and logging trade information.
+
+    Raises:
+        Exception: If any unexpected error occurs during the execution of the trading logic.
+    """
     try:
         use_stop_loss = bot_settings.use_stop_loss
         use_trailing_stop_loss = bot_settings.use_trailing_stop_loss
@@ -217,8 +295,26 @@ def check_signal(
     latest_data,
     previous_data
     ):
+    """
+    Checks whether a buy or sell signal is triggered based on technical analysis or machine learning.
+
+    Args:
+        signal_type (str): Type of the signal to check ('buy' or 'sell').
+        df (pandas.DataFrame): DataFrame containing historical market data.
+        bot_settings (object): Settings of the trading bot.
+        trend (str): The current market trend.
+        averages (dict): Calculated technical analysis averages.
+        latest_data (pandas.Series): Latest market data.
+        previous_data (pandas.Series): Previous market data.
+
+    Returns:
+        bool: True if the signal condition is met, False otherwise.
+        None: If an error occurs during signal checking.
+    
+    Raises:
+        ValueError: If an unsupported signal type is provided.
+    """
     try:
-        
         if bot_settings.use_technical_analysis:
             if signal_type == 'buy':
                 return check_classic_ta_buy_signal(
@@ -255,14 +351,36 @@ def check_signal(
     except Exception as e:
         logger.error(f"Bot {bot_settings.id} Exception in check_signal ({signal_type}): {str(e)}")
         send_admin_email(f"Bot {bot_settings.id} Exception in check_signal ({signal_type})", str(e))
-        return None
-    
-    
+        return False
+
+
 def execute_buy_order(
     bot_settings, 
     current_price, 
     atr_value
     ):
+    """
+    Executes a buy order for the trading bot, including setting stop loss, take profit, 
+    and trailing stop loss prices based on the bot settings and ATR value.
+
+    Args:
+        bot_settings (object): Settings of the trading bot.
+        current_price (float): The current market price for the asset.
+        atr_value (float): The Average True Range (ATR) value used for calculating stop loss and take profit.
+
+    Returns:
+        None: Executes the buy order and updates the trade status.
+    
+    Raises:
+        Exception: If an error occurs during the buy order execution process.
+    """
+    from .calc_utils import (
+        calculate_take_profit,
+        calculate_atr_take_profit,
+        calculate_stop_loss,
+        calculate_atr_trailing_stop_loss
+    )
+    
     now = datetime.now()
     formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
     
@@ -271,19 +389,18 @@ def execute_buy_order(
         buy_success, amount = place_buy_order(bot_settings.id)
 
         if buy_success:
-            
             stop_loss_price = 0
             take_profit_price = 0
             
             if bot_settings.use_stop_loss:
-                stop_loss_price = update_stop_loss(
+                stop_loss_price = calculate_stop_loss(
                     current_price, 
                     0, 
                     bot_settings
                 )
                 
                 if bot_settings.trailing_stop_with_atr:
-                    stop_loss_price = update_atr_trailing_stop_loss(
+                    stop_loss_price = calculate_atr_trailing_stop_loss(
                         current_price, 
                         0, 
                         atr_value,
@@ -340,6 +457,25 @@ def execute_sell_order(
     stop_loss_activated, 
     take_profit_activated
     ):
+    """
+    Executes a sell order for the trading bot, including updating trade history and handling 
+    stop loss, take profit, and other conditions.
+
+    Args:
+        bot_settings (object): Settings of the trading bot.
+        current_trade (object): The current active trade.
+        current_price (float): The current market price for the asset.
+        stop_loss_activated (bool): Whether the stop loss condition has been met.
+        take_profit_activated (bool): Whether the take profit condition has been met.
+
+    Returns:
+        None: Executes the sell order and updates the trade status.
+    
+    Raises:
+        Exception: If an error occurs during the sell order execution process.
+    """
+    from ..utils.history_utils import update_trade_history
+    
     now = datetime.now()
     formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
     
@@ -411,11 +547,28 @@ def activate_trailing_take_profit(
     current_price, 
     atr_value
     ):
+    """
+    Activates the trailing take profit for the bot. This function adjusts the stop loss 
+    based on the ATR value and updates the current trade with the new stop loss value.
+
+    Args:
+        bot_settings (object): The settings of the trading bot.
+        current_trade (object): The current trade being executed.
+        current_price (float): The current price of the asset.
+        atr_value (float): The current Average True Range (ATR) value used for calculating trailing stop loss.
+
+    Returns:
+        None: Updates the current trade and bot settings without returning a value.
+    
+    Raises:
+        Exception: If an error occurs during the process, it is logged and reported.
+    """
+    from .calc_utils import calculate_atr_trailing_stop_loss
+        
     now = datetime.now()
     formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
     
     try:
-        
         bot_settings = change_bot_settings(
                 bot_id=bot_settings.id,
                 use_stop_loss=True,
@@ -425,7 +578,7 @@ def activate_trailing_take_profit(
                 stop_loss_pct=0.01,
             )
         
-        trailing_stop_price = update_atr_trailing_stop_loss(
+        trailing_stop_price = calculate_atr_trailing_stop_loss(
                 current_price, 
                 float(current_trade.stop_loss_price), 
                 atr_value, bot_settings
@@ -447,25 +600,46 @@ def activate_trailing_take_profit(
     except Exception as e:
         logger.error(f"Bot {bot_settings.id} Exception in activate_trailing_take_profit: {str(e)}")
         send_admin_email(f'Bot {bot_settings.id} Exception in activate_trailing_take_profit', str(e))
-                   
-                        
+
+
 def update_trailing_stop(
     bot_settings, 
     current_trade, 
     current_price, 
     atr_value
     ):
+    """
+    Updates the trailing stop loss for the current trade. This function recalculates 
+    the stop loss based on the current price and ATR value, and updates the trade's stop loss accordingly.
+
+    Args:
+        bot_settings (object): The settings of the trading bot.
+        current_trade (object): The current trade being executed.
+        current_price (float): The current price of the asset.
+        atr_value (float): The current Average True Range (ATR) value used for adjusting the trailing stop loss.
+
+    Returns:
+        None: Updates the current trade's stop loss without returning a value.
+    
+    Raises:
+        Exception: If an error occurs during the process, it is logged and reported.
+    """
+    from .calc_utils import (
+        calculate_stop_loss,
+        calculate_atr_trailing_stop_loss
+    )
+    
     try:
         logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price rises.")
         
-        trailing_stop_price = update_stop_loss(
+        trailing_stop_price = calculate_stop_loss(
             current_price, 
             float(current_trade.stop_loss_price), 
             bot_settings
         )
         
         if bot_settings.trailing_stop_with_atr:
-            trailing_stop_price = update_atr_trailing_stop_loss(
+            trailing_stop_price = calculate_atr_trailing_stop_loss(
                 current_price, 
                 float(current_trade.stop_loss_price), 
                 atr_value, bot_settings
@@ -483,152 +657,69 @@ def update_trailing_stop(
     except Exception as e:
         logger.error(f"Bot {bot_settings.id} Exception in update_trailing_stop: {str(e)}")
         send_admin_email(f'Bot {bot_settings.id} Exception in update_trailing_stop', str(e))
-        
+
         
 def handle_price_rises(
     bot_settings, 
     current_price
     ):
-    
-    current_trade = update_current_trade(
-        bot_id=bot_settings.id, 
-        current_price=current_price, 
-        previous_price=current_price, 
-        price_rises=True
-    )
-    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price_rises. previous price updated.")
-    
-    
+    """
+    Handles the event when the price rises. Updates the current trade with the new price 
+    and marks that the price has risen.
+
+    Args:
+        bot_settings (object): The settings of the trading bot.
+        current_price (float): The current price of the asset.
+
+    Returns:
+        None: Updates the current trade without returning a value.
+
+    Raises:
+        Exception: If an error occurs during the update process, it is logged and reported.
+    """
+    try:
+        current_trade = update_current_trade(
+            bot_id=bot_settings.id, 
+            current_price=current_price, 
+            previous_price=current_price, 
+            price_rises=True
+        )
+        logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price_rises. previous price updated.")
+
+    except Exception as e:
+        logger.error(f"Bot {bot_settings.id} Exception in handle_price_rises: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in handle_price_rises', str(e))
+
+
 def handle_price_drops(
     bot_settings, 
     current_price
     ):
-    
-    current_trade = update_current_trade(
-        bot_id=bot_settings.id, 
-        current_price=current_price
-    )
-    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price_drops. previous price not updated.")
+    """
+    Handles the event when the price drops. Updates the current trade without changing the 
+    previous price, as the drop does not trigger any specific action.
 
+    Args:
+        bot_settings (object): The settings of the trading bot.
+        current_price (float): The current price of the asset.
 
-def round_down_to_step_size(amount, step_size):
-    
+    Returns:
+        None: Updates the current trade without returning a value.
+
+    Raises:
+        Exception: If an error occurs during the update process, it is logged and reported.
+    """
     try:
-        if step_size > 0:
-            amount_decimal = Decimal(str(amount))
-            step_size_decimal = Decimal(str(step_size))
-            rounded_amount = (amount_decimal // step_size_decimal) * step_size_decimal
-            return float(rounded_amount)
-        return float(amount)
-    
-    except Exception as e:
-            logger.error(f"Exception in round_down_to_step_size: {str(e)}")
-            send_admin_email(f'Exception in round_down_to_step_size', str(e))
-            return float(amount)
+        current_trade = update_current_trade(
+            bot_id=bot_settings.id, 
+            current_price=current_price
+        )
+        logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price_drops. previous price not updated.")
         
-
-def update_stop_loss(
-    current_price, 
-    trailing_stop_price, 
-    bot_settings
-    ):
-    
-    try:
-        trailing_stop_price = float(trailing_stop_price)
-        current_price = float(current_price)
-        new_stop_price = current_price * (1 - bot_settings.stop_loss_pct)
-
-        return max(trailing_stop_price, new_stop_price)
-
-    except ValueError as e:
-        logger.error(f"Bot {bot_settings.id} ValueError in update_stop_loss: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} ValueError in update_stop_loss', str(e))
-        return trailing_stop_price
     except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in update_stop_loss: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in update_stop_loss', str(e))
-        return trailing_stop_price
-    
-    
-def update_atr_trailing_stop_loss(
-    current_price, 
-    trailing_stop_price, 
-    atr, 
-    bot_settings
-    ):
-    
-    try:
-        current_price = float(current_price)
-        trailing_stop_price = float(trailing_stop_price)
-        atr = float(atr)
-        
-        dynamic_trailing_stop = current_price * (1 - (bot_settings.trailing_stop_atr_calc * atr / current_price))
-        minimal_trailing_stop = current_price * (1 - bot_settings.stop_loss_pct)
-        new_trailing_stop = max(dynamic_trailing_stop, minimal_trailing_stop)
+        logger.error(f"Bot {bot_settings.id} Exception in handle_price_drops: {str(e)}")
+        send_admin_email(f'Bot {bot_settings.id} Exception in handle_price_drops', str(e))
 
-        return max(trailing_stop_price, new_trailing_stop)
-
-    except ValueError as e:
-        logger.error(f"Bot {bot_settings.id} ValueError in update_atr_trailing_stop_loss: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} ValueError in update_atr_trailing_stop_loss', str(e))
-        return trailing_stop_price
-    except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in update_atr_trailing_stop_loss: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in update_atr_trailing_stop_loss', str(e))
-        return trailing_stop_price
-
-
-def calculate_take_profit(current_price, bot_settings):
-    
-    try:
-        current_price = float(current_price)
-
-        if not (0 < bot_settings.take_profit_pct < 1):
-            raise ValueError("bot_settings.take_profit_pct must be between 0 and 1.")
-
-        take_profit_price = current_price + (current_price * (bot_settings.take_profit_pct))
-        logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} "
-                     f"Calculated take profit: current_price={current_price}, "
-                     f"take_profit_pct={bot_settings.take_profit_pct}, "
-                     f"take_profit_price={take_profit_price}")
-        return take_profit_price
-
-    except ValueError as e:
-        logger.error(f"Bot {bot_settings.id} ValueError in calculate_take_profit: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} ValueError in calculate_take_profit', str(e))
-        return None
-    except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in calculate_take_profit: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_take_profit', str(e))
-        return None
-    
-    
-def calculate_atr_take_profit(current_price, atr, bot_settings):
-    
-    try:
-        current_price = float(current_price)
-        atr = float(atr)
-
-        if bot_settings.take_profit_atr_calc <= 0:
-            raise ValueError("bot_settings.take_profit_atr_calc must be a positive value.")
-        if atr <= 0:
-            raise ValueError("ATR must be a positive value.")
-
-        take_profit_price = current_price + (atr * bot_settings.take_profit_atr_calc)
-        logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} "
-                    f"Calculated ATR-based take profit: {take_profit_price}, "
-                    f"current_price={current_price}, atr={atr}, multiplier={bot_settings.take_profit_atr_calc}")
-        return take_profit_price
-
-    except ValueError as e:
-        logger.error(f"Bot {bot_settings.id} ValueError in calculate_atr_take_profit: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} ValueError in calculate_atr_take_profit', str(e))
-        return None
-    except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in calculate_atr_take_profit: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in calculate_atr_take_profit', str(e))
-        return None
-    
 
 def update_current_trade(
     bot_id=None, 
@@ -645,7 +736,31 @@ def update_current_trade(
     price_rises=None,
     reset_price_rises_counter=None
     ):
-    
+    """
+    Updates the current trade details in the database based on the provided parameters. 
+    It will modify the values of the trade fields such as price, stop loss, take profit, etc.
+
+    Args:
+        bot_id (int): The ID of the bot associated with the current trade.
+        is_active (bool, optional): Indicates whether the trade is active or not.
+        amount (float, optional): The amount of the asset involved in the trade.
+        buy_price (float, optional): The price at which the asset was purchased.
+        current_price (float, optional): The current price of the asset.
+        previous_price (float, optional): The previous price of the asset.
+        stop_loss_price (float, optional): The price at which the stop loss is set.
+        take_profit_price (float, optional): The price at which the take profit is set.
+        trailing_take_profit_activated (bool, optional): Indicates if trailing take profit is activated.
+        use_take_profit (bool, optional): Whether to use take profit for the current trade.
+        buy_timestamp (datetime, optional): The timestamp when the asset was bought.
+        price_rises (bool, optional): Indicates whether the price has risen.
+        reset_price_rises_counter (bool, optional): Whether to reset the price rise counter.
+
+    Returns:
+        current_trade (object): The updated current trade object.
+
+    Raises:
+        Exception: If an error occurs during the update process, it is logged and reported.
+    """
     if bot_id:
         
         try:
@@ -686,7 +801,7 @@ def update_current_trade(
             db.session.rollback()
             logger.error(f"Bot {bot_id} Exception in update_current_trade: {str(e)}")
             send_admin_email(f'Bot {bot_id} Exception in update_current_trade', str(e))
-    
+
 
 def change_bot_settings(
     bot_id=None, 
@@ -696,7 +811,24 @@ def change_bot_settings(
     trailing_stop_atr_calc=None, 
     stop_loss_pct=None, 
     ):
-    
+    """
+    Changes the settings of the trading bot based on the provided parameters. Updates the bot's 
+    stop loss, trailing stop loss, ATR-based trailing stop, and other configuration options.
+
+    Args:
+        bot_id (int): The ID of the bot whose settings are to be changed.
+        use_stop_loss (bool, optional): Whether to use stop loss for the bot.
+        use_trailing_stop_loss (bool, optional): Whether to use trailing stop loss for the bot.
+        trailing_stop_with_atr (bool, optional): Whether to use ATR-based trailing stop.
+        trailing_stop_atr_calc (float, optional): The ATR calculation method for the trailing stop.
+        stop_loss_pct (float, optional): The percentage for stop loss.
+
+    Returns:
+        bot_settings (object): The updated bot settings object.
+
+    Raises:
+        Exception: If an error occurs during the settings update process, it is logged and reported.
+    """
     if bot_id:
         
         try:
@@ -721,129 +853,3 @@ def change_bot_settings(
             db.session.rollback()
             logger.error(f"Bot {bot_id} Exception in change_bot_settings: {str(e)}")
             send_admin_email(f'Bot {bot_id} Exception in change_bot_settings', str(e))
-            
-            
-def next_trade_id(bot_id):
-    
-    try:
-        max_existing_trade_id = (
-            db.session.query(db.func.max(TradesHistory.trade_id))
-            .filter_by(bot_id=bot_id)
-            .scalar()
-        )
-        return (max_existing_trade_id or 0) + 1
-
-    except Exception as e:
-        logger.error(f"Bot {bot_id} Exception in next_trade_id: {str(e)}")
-        send_admin_email(f'Bot {bot_id} Exception in next_trade_id', str(e))
-        return None
-
-                        
-def update_trade_history(
-    bot_settings, 
-    strategy, 
-    amount, 
-    buy_price, 
-    sell_price,
-    stop_loss_price,
-    take_profit_price,
-    price_rises_counter,
-    stop_loss_activated,
-    take_profit_activated,
-    trailing_take_profit_activated,
-    buy_timestamp,
-    current_price
-    ):
-    from .api_utils import get_account_balance
-        
-    try:
-        bot_id = bot_settings.id
-        symbol = bot_settings.symbol
-        cryptocoin_symbol = symbol[:3]
-        stablecoin_symbol = symbol[-4:]
-
-        balance = get_account_balance(bot_id, [stablecoin_symbol, cryptocoin_symbol])
-        stablecoin_balance = float(balance.get(stablecoin_symbol, 0))
-        cryptocoin_balance = float(balance.get(cryptocoin_symbol, 0))
-        total_stablecoin_balance = float(stablecoin_balance + (cryptocoin_balance * current_price))
-    
-        current_trade = BotCurrentTrade.query.filter_by(id=bot_id).first()
-        trade = TradesHistory(
-            bot_id=bot_id,
-            trade_id=next_trade_id(bot_id),
-            strategy=strategy,
-            amount=amount, 
-            buy_price=buy_price,
-            sell_price=sell_price,
-            stablecoin_balance=total_stablecoin_balance,
-            stop_loss_price=stop_loss_price,
-            take_profit_price=take_profit_price,
-            price_rises_counter=price_rises_counter,
-            stop_loss_activated=stop_loss_activated,
-            take_profit_activated=take_profit_activated,
-            trailing_take_profit_activated=trailing_take_profit_activated,
-            buy_timestamp=buy_timestamp,
-            sell_timestamp=dt.now()
-        )
-        db.session.add(trade)
-        db.session.commit()
-        
-        logger.trade(
-            f'Transaction {trade.id}: bot: {bot_id}, strategy: {strategy}'
-            f'amount: {amount}, symbol: {current_trade.bot_settings.symbol} saved in database.'
-        )
-        
-        return trade
-    
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"Bot {bot_settings.id} Exception in update_trade_history: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in update_trade_history', str(e))
-        
-        
-def is_bot_suspended(bot_settings):
-    
-    try:
-        
-        if bot_settings.is_suspended_after_negative_trade:
-            if bot_settings.suspension_cycles_remaining > 0:
-                bot_settings.suspension_cycles_remaining -= 1
-                db.session.commit()
-                return True
-            
-            bot_settings.is_suspended_after_negative_trade = False
-            bot_settings.suspension_cycles_remaining = 0
-            db.session.commit()
-            
-            now = datetime.now()
-            formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
-            logger.info(f"Bot {bot_settings.id} suspension after negative trade finished.")
-            send_trade_email(f"Bot {bot_settings.id} suspend_after_negative_trade report.", f"StafanCryptoTradingBotBot suspend_after_negative_trade report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nSuspension after negative trade finished.\nBot {bot_settings.id} is back in operation")
-        
-        return False
-
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"Bot {bot_settings.id} Exception in is_bot_suspended: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in is_bot_suspended', str(e))
-        return False
-
-
-def suspend_after_negative_trade(bot_settings):
-    
-    try:
-        
-        now = datetime.now()
-        formatted_now = now.strftime('%Y-%m-%d %H:%M:%S') 
-        
-        bot_settings.is_suspended_after_negative_trade = True
-        bot_settings.suspension_cycles_remaining = bot_settings.cycles_of_suspension_after_negative_trade
-        db.session.commit()
-            
-        logger.info(f"Bot {bot_settings.id} suspended after negative trade. Cycles remaininig: {bot_settings.cycles_of_suspension_after_negative_trade}.")
-        send_trade_email(f"Bot {bot_settings.id} suspend_after_negative_trade report.", f"StafanCryptoTradingBotBot suspend_after_negative_trade report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nBot {bot_settings.id} is suspended after negative trade.\nCycles of suspension: {bot_settings.cycles_of_suspension_after_negative_trade}\nCycles remaininig: {bot_settings.cycles_of_suspension_after_negative_trade}")
-            
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"Bot {bot_settings.id} Exception in suspend_after_negative_trade: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in suspend_after_negative_trade', str(e))

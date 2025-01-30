@@ -10,6 +10,16 @@ from ..utils.logging import logger
 load_dotenv()
 
 def get_binance_api_credentials(bot_id=None, testnet=False):
+    """
+    Retrieves Binance API credentials from environment variables.
+
+    Args:
+        bot_id (str, optional): The bot identifier to retrieve specific API credentials.
+        testnet (bool, optional): Whether to use the testnet credentials. Default is False.
+
+    Returns:
+        tuple: A tuple containing the API key and API secret.
+    """
     if testnet:
         api_key = os.environ.get('BINANCE_TESTNET_API_KEY')
         api_secret = os.environ.get('BINANCE_TESTNET_API_SECRET')
@@ -25,6 +35,19 @@ def get_binance_api_credentials(bot_id=None, testnet=False):
 
 
 def create_binance_client(bot_id=None, testnet=False):
+    """
+    Creates a Binance client instance using the provided API credentials.
+
+    Args:
+        bot_id (str, optional): The bot identifier to retrieve specific API credentials.
+        testnet (bool, optional): Whether to use the testnet environment. Default is False.
+
+    Returns:
+        Client: The Binance client instance.
+    
+    Raises:
+        Exception: If there is an issue creating the client, an exception is logged and an email is sent to the admin.
+    """
     try:
         api_key, api_secret = get_binance_api_credentials(bot_id, testnet)
         return Client(api_key, api_secret, testnet=testnet)
@@ -37,8 +60,29 @@ general_client = create_binance_client(None)
 
 
 def fetch_data(symbol, interval='1m', lookback='4h', start_str=None, end_str=None):
+    """
+    Fetch historical kline (candlestick) data for a specific trading symbol.
+
+    Args:
+        symbol (str): The trading pair symbol (e.g., 'BTCUSDT').
+        interval (str, optional): The interval between each candlestick. Default is '1m'.
+        lookback (str, optional): The lookback period for historical data. Can be in hours (e.g., '4h'), days (e.g., '2d'), or minutes (e.g., '30m'). Default is '4h'.
+        start_str (str, optional): The start time for the historical data. If None, it uses the lookback period.
+        end_str (str, optional): The end time for the historical data. If None, it uses the current time.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the historical kline data.
+
+    Raises:
+        BinanceAPIException: If there is an error from the Binance API.
+        ConnectionError: If there is a connection error.
+        TimeoutError: If there is a timeout error.
+        ValueError: If an invalid lookback period format is provided.
+        Exception: For any other exception, an email is sent to the admin.
+    """
     from ..utils.app_utils import send_admin_email
-    try: 
+    
+    try:
         klines = None
         if not start_str and not end_str:
             if lookback[-1] == 'h':
@@ -106,7 +150,24 @@ def fetch_data(symbol, interval='1m', lookback='4h', start_str=None, end_str=Non
 
 
 def get_account_balance(bot_id, assets):
-    from ..utils.app_utils import send_admin_email
+    """
+    Retrieves the balance of specified assets from the Binance account.
+
+    Args:
+        bot_id (str): The bot identifier to retrieve account balance for.
+        assets (list): A list of asset symbols (e.g., ['BTC', 'USDT']) to retrieve the balances for.
+
+    Returns:
+        dict: A dictionary with asset symbols as keys and the available balance as values.
+
+    Raises:
+        BinanceAPIException: If there is an error from the Binance API.
+        ConnectionError: If there is a connection error.
+        TimeoutError: If there is a timeout error.
+        Exception: For any other exception, an email is sent to the admin.
+    """
+    from ..utils.email_utils import send_admin_email
+    
     try:
         bot_client = create_binance_client(bot_id)
         account_info = bot_client.get_account()
@@ -114,6 +175,7 @@ def get_account_balance(bot_id, assets):
             balance['asset']: float(balance['free']) 
             for balance in account_info['balances']
         }
+        
         return {asset: balances.get(asset, 0) for asset in assets}
 
     except BinanceAPIException as e:
@@ -135,7 +197,23 @@ def get_account_balance(bot_id, assets):
     
     
 def fetch_current_price(symbol):
-    from ..utils.app_utils import send_admin_email
+    """
+    Retrieves the current price of a specific trading symbol from Binance.
+
+    Args:
+        symbol (str): The trading pair symbol (e.g., 'BTCUSDT').
+
+    Returns:
+        float: The current price of the symbol.
+
+    Raises:
+        BinanceAPIException: If there is an error from the Binance API.
+        ConnectionError: If there is a connection error.
+        TimeoutError: If there is a timeout error.
+        Exception: For any other exception, an email is sent to the admin.
+    """
+    from ..utils.email_utils import send_admin_email
+    
     try:
         ticker = general_client.get_symbol_ticker(symbol=symbol)
         return float(ticker['price'])
@@ -159,8 +237,20 @@ def fetch_current_price(symbol):
 
 
 def get_minimum_order_quantity(bot_id, symbol):
-    from ..utils.app_utils import send_admin_email
-    try: 
+    """
+    Fetches the minimum order quantity and step size for a given symbol on Binance.
+
+    Args:
+        bot_id (int): The ID of the bot.
+        symbol (str): The trading symbol (e.g., 'BTCUSDT').
+
+    Returns:
+        tuple: A tuple containing the minimum order quantity and step size.
+               Returns (0, 0) if not found.
+    """
+    from ..utils.email_utils import send_admin_email
+    
+    try:
         bot_client = create_binance_client(bot_id)
         exchange_info = bot_client.get_symbol_info(symbol)
         filters = exchange_info['filters']
@@ -187,10 +277,21 @@ def get_minimum_order_quantity(bot_id, symbol):
         logger.error(f"Bot {bot_id} Exception in get_minimum_order_quantity: {str(e)}")
         send_admin_email(f'Bot {bot_id} Exception in get_minimum_order_quantity', str(e))
         return None, 0
-    
-    
+
+
 def get_minimum_order_value(bot_id, symbol):
-    from ..utils.app_utils import send_admin_email
+    """
+    Fetches the minimum order value (notional) for a given symbol on Binance.
+
+    Args:
+        bot_id (int): The ID of the bot.
+        symbol (str): The trading symbol (e.g., 'BTCUSDT').
+
+    Returns:
+        float or None: The minimum notional value for the symbol, or None if not found.
+    """
+    from ..utils.email_utils import send_admin_email
+    
     try:
         bot_client = create_binance_client(bot_id)
         exchange_info = bot_client.get_symbol_info(symbol)
@@ -220,22 +321,36 @@ def get_minimum_order_value(bot_id, symbol):
 
 
 def place_buy_order(bot_id):
-    from .logic_utils import round_down_to_step_size
-    from ..utils.app_utils import send_admin_email
+    """
+    Places a market buy order for a specified symbol on Binance using available stablecoin balance.
+
+    The function calculates the amount of cryptocurrency to buy based on available capital
+    and the minimum order requirements. It checks for sufficient balance, order size, and notional
+    value before placing the buy order.
+
+    Args:
+        bot_id (int): The ID of the bot placing the order.
+
+    Returns:
+        tuple: A tuple containing a boolean indicating success or failure and the amount purchased,
+               or False if the order couldn't be placed.
+    """
+    from .calc_utils import round_down_to_step_size
+    from ..utils.email_utils import send_admin_email
     
     binance_min_order_amount = 0.0001
     
-    try:    
+    try:
         bot_settings = BotSettings.query.get(bot_id)
         symbol = bot_settings.symbol
-        bot_client = create_binance_client(bot_id=bot_id) # add testnet=True for binance sandbox
+        capital_utilization_pct = float(bot_settings.capital_utilization_pct)
+        bot_client = create_binance_client(bot_id=bot_id) # add testnet=True for binance api sandbox
         cryptocoin_symbol = symbol[:3]
         stablecoin_symbol = symbol[-4:]
 
         balance = get_account_balance(bot_id, [stablecoin_symbol, cryptocoin_symbol])
         stablecoin_balance = float(balance.get(stablecoin_symbol, '0.0'))
         price = float(fetch_current_price(symbol))
-        capital_utilization_pct = float(bot_settings.capital_utilization_pct)
         
         logger.trade(f'place_buy_order() Bot {bot_id} Fetched stablecoin balance: {stablecoin_balance}')
         logger.trade(f'place_buy_order() Bot {bot_id} Fetched price for {symbol}: {price}')
@@ -293,7 +408,7 @@ def place_buy_order(bot_id):
         send_admin_email(f'Bot {bot_id} Connection Error in place_buy_order', str(e))
         return False, False
     except TimeoutError as e:
-        logger.error(f"Bot {bot_id} TimeoutError in place_buy_order:  {str(e)}")
+        logger.error(f"Bot {bot_id} TimeoutError in place_buy_order: {str(e)}")
         send_admin_email(f"Bot {bot_id} TimeoutError in place_buy_order", str(e))
         return False, False
     except Exception as e:
@@ -303,13 +418,24 @@ def place_buy_order(bot_id):
 
 
 def place_sell_order(bot_id):
-    from ..utils.app_utils import send_admin_email
-    from .logic_utils import round_down_to_step_size
+    """
+    Places a sell order for a specified bot. The function fetches the account balance for the specified cryptocurrency
+    symbol, calculates the amount to sell based on the available balance and step size, and places a market sell order.
 
+    Args:
+        bot_id (int): The ID of the bot for which the sell order is placed.
+
+    Returns:
+        tuple: A tuple containing a boolean indicating the success of the order and the amount of cryptocurrency sold.
+               Returns (False, False) if the order couldn't be placed or there isn't enough balance to sell.
+    """
+    from ..utils.email_utils import send_admin_email
+    from .calc_utils import round_down_to_step_size
+    
     try:
         bot_settings = BotSettings.query.get(bot_id)
         symbol = bot_settings.symbol
-        bot_client = create_binance_client(bot_id=bot_id) # add testnet=True for binance sandbox
+        bot_client = create_binance_client(bot_id=bot_id) # add testnet=True for binance api sandbox
         cryptocoin_symbol = symbol[:3]
         stablecoin_symbol = symbol[-4:]
 
@@ -331,7 +457,7 @@ def place_sell_order(bot_id):
             logger.trade(f'step_size {step_size}')
             logger.trade(f'amount_to_sell {amount_to_sell}')
             
-            order_response = bot_client.order_market_sell(symbol=symbol, quantity=amount_to_sell) #crypto_balance
+            order_response = bot_client.order_market_sell(symbol=symbol, quantity=amount_to_sell) # quantity=crypto_balance
             order_id = order_response['orderId'] or None
             order_status = order_response['status'] or None
             logger.trade(f'place_sell_order() Bot {bot_id} Sell {amount_to_sell} {cryptocoin_symbol} at price {price}.')
@@ -366,7 +492,14 @@ def place_sell_order(bot_id):
 
 
 def fetch_system_status():
-    from ..utils.app_utils import send_admin_email
+    """
+    Fetches the current system status from the Binance API.
+
+    Returns:
+        dict: A dictionary containing the system status if the request is successful, otherwise returns None.
+    """
+    from ..utils.email_utils import send_admin_email
+    
     try:
         status = general_client.get_system_status()
         return status
@@ -390,7 +523,17 @@ def fetch_system_status():
 
 
 def fetch_account_status(bot_id=None):
-    from ..utils.app_utils import send_admin_email
+    """
+    Fetches the account status of the bot's associated Binance account.
+
+    Args:
+        bot_id (int, optional): The ID of the bot. If no bot_id is provided, it fetches the status for the general account.
+
+    Returns:
+        dict: A dictionary containing the account status if the request is successful, otherwise returns None.
+    """
+    from ..utils.email_utils import send_admin_email
+    
     try:
         if not bot_id:
             status = general_client.get_account()
@@ -419,7 +562,14 @@ def fetch_account_status(bot_id=None):
 
 
 def fetch_server_time():
-    from ..utils.app_utils import send_admin_email
+    """
+    Fetches the current server time from the Binance API.
+
+    Returns:
+        dict: A dictionary containing the server time if the request is successful, otherwise returns None.
+    """
+    from ..utils.email_utils import send_admin_email
+    
     try:
         server_time = general_client.get_server_time()
         return server_time

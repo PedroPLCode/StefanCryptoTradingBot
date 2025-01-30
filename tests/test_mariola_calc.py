@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 from unittest.mock import Mock
-from app.mariola.mariola_calc import is_hammer, is_morning_star, is_bullish_engulfing
+from app.mariola.df_utils import is_hammer, is_morning_star, is_bullish_engulfing
 
 bot_settings = Mock()
 bot_settings.id = 1

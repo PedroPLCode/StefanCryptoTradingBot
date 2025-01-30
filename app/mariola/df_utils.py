@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import talib
 from ..utils.logging import logger
-from ..utils.app_utils import send_admin_email
+from ..utils.email_utils import send_admin_email
 
 def find_ml_hammer_patterns(df, bot_settings):
     """
@@ -30,7 +30,6 @@ def find_ml_hammer_patterns(df, bot_settings):
         Exception: If any error occurs during the pattern identification process.
     """
     try:
-        
         if df is None or df.empty:
             raise ValueError("df must be provided and cannot be None or empty.")
         
@@ -78,7 +77,6 @@ def find_ml_morning_star_patterns(df, bot_settings):
         Exception: If any error occurs during the pattern identification process.
     """
     try:
-        
         if df is None or df.empty:
             raise ValueError("df must be provided and cannot be None or empty.")
         
@@ -126,7 +124,6 @@ def find_ml_bullish_engulfing_patterns(df, bot_settings):
         Exception: If any error occurs during the pattern identification process.
     """
     try:
-        
         if df is None or df.empty:
             raise ValueError("df must be provided and cannot be None or empty.")
         
@@ -173,7 +170,6 @@ def calculate_ml_pct_change_and_lags(df, column_names_list, bot_settings):
         Exception: If an error occurs during the calculation of percentage change or lag features for any column.
     """
     try:
-        
         lag_period = bot_settings.ml_lag_period
         
         for column_name in column_names_list:
@@ -206,7 +202,6 @@ def calculate_ml_momentum_signals(df, bot_settings):
                                    Returns None if an error occurs during the calculation.
     """
     try:
-        
         general_timeperiod = bot_settings.ml_general_timeperiod
         
         df['is_support'] = df['close'] == df['close'].rolling(window=general_timeperiod).min()
@@ -243,7 +238,6 @@ def calculate_ml_rsi(df, bot_settings):
                                    Returns None if an error occurs during the calculation.
     """
     try:
-        
         general_timeperiod = bot_settings.ml_general_timeperiod
         rsi_buy_value = bot_settings.ml_rsi_buy
         rsi_sell_value = bot_settings.ml_rsi_sell
@@ -281,7 +275,6 @@ def calculate_ml_ema(df, bot_settings):
                                    Returns None if an error occurs during the calculation.
     """
     try:
-        
         ema_fast_timeperiod = bot_settings.ml_ema_fast_timeperiod
         ema_slow_timeperiod = bot_settings.ml_ema_slow_timeperiod
         
@@ -323,7 +316,6 @@ def calculate_ml_macd(df, bot_settings):
                                    Returns None if an error occurs during the calculation.
     """
     try:
-        
         macd_timeperiod = bot_settings.ml_macd_timeperiod
         macd_signalperiod = bot_settings.ml_macd_signalperiod
         
@@ -365,7 +357,6 @@ def calculate_ml_bollinger_bands(df, bot_settings):
                                    Returns None if an error occurs during the calculation.
     """
     try:
-        
         bollinger_timeperiod = bot_settings.ml_bollinger_timeperiod
         bollinger_nbdev = bot_settings.ml_bollinger_nbdev
         
@@ -406,7 +397,6 @@ def calculate_ml_time_patterns(df, bot_settings):
                                    Returns None if an error occurs during the calculation.
     """
     try:
-        
         df['close_time'] = pd.to_datetime(df['close_time'], unit='ms')
         
         df['close_time_hour'] = df['close_time'].dt.hour
@@ -448,7 +438,6 @@ def calculate_ml_rsi_macd_ratio_and_diff(df, bot_settings):
         df = preprocess_df_for_random_forest(df)
     """
     try:
-        
         general_timeperiod = bot_settings.ml_general_timeperiod
         macd_timeperiod = bot_settings.ml_macd_timeperiod
         macd_signalperiod = bot_settings.ml_macd_signalperiod
@@ -488,7 +477,6 @@ def handle_initial_ml_df_preparaition(df, bot_settings):
         None: All exceptions are handled and logged internally.
     """
     try:
-        
         df['open'] = pd.to_numeric(df['open'], errors='coerce')
         df['low'] = pd.to_numeric(df['low'], errors='coerce')
         df['high'] = pd.to_numeric(df['high'], errors='coerce')
@@ -523,7 +511,6 @@ def handle_final_ml_df_cleaninig(df, columns_to_drop, bot_settings):
         None: All exceptions are handled and logged internally.
     """
     try:
-        
         df.drop(columns=columns_to_drop, inplace=True)
         df.fillna(0, inplace=True)
         df[df.select_dtypes(include=['bool']).columns] = \
@@ -557,7 +544,6 @@ def prepare_ml_df(df=None,
         raise ValueError("bot_settings must be provided and cannot be None or empty.")
     
     try:
-        
         if df is None or df.empty:
             raise ValueError("df must be provided and cannot be None or empty.")
         
