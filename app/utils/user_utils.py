@@ -2,8 +2,10 @@ from flask import redirect, url_for, flash
 from werkzeug.security import generate_password_hash
 from app.models import User
 from ..utils.logging import logger
+from ..utils.exception_handlers import exception_handler
 from ..utils.email_utils import send_admin_email
 
+@exception_handler()
 def create_new_user(form):
     """
     Creates a new user based on the provided form data and hashes the password.
@@ -21,19 +23,13 @@ def create_new_user(form):
     Raises:
         Exception: If there is an error during the user creation process, the exception is logged, and an email is sent to the admin.
     """
-    try:
-        new_user = User(
-            login=form.login.data,
-            name=form.name.data,
-            email=form.email.data,
-            password_hash=generate_password_hash(form.password.data),
-        )
-        return new_user
-    
-    except Exception as e:
-        logger.error(f"Exception in create_new_user: {str(e)}")
-        send_admin_email('Exception in create_new_user', str(e))
-        raise
+    new_user = User(
+        login=form.login.data,
+        name=form.name.data,
+        email=form.email.data,
+        password_hash=generate_password_hash(form.password.data),
+    )
+    return new_user
 
 
 def check_if_user_is_authenticated(user, panel_name):

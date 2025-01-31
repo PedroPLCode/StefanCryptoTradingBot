@@ -1,8 +1,10 @@
 from datetime import datetime
 import os
 from .logging import logger
+from ..utils.exception_handlers import exception_handler
 from ..utils.email_utils import send_admin_email
 
+@exception_handler()
 def send_logs_via_email_and_clear_logs():
     """
     Sends daily log files via email to the admin and then clears the logs.
@@ -25,28 +27,22 @@ def send_logs_via_email_and_clear_logs():
         today = now.strftime('%Y-%m-%d')
         subject = f"{today} Daily Logs"
         
-        try:
-            
-            if os.path.exists(log_file_path):
-                with open(log_file_path, 'r') as log_file:
-                    log_content = log_file.read()
-                    
-                send_admin_email(
-                    f"{subject}: {log}", 
-                    f"StafanCryptoTradingBot daily logs.\n{formatted_now}\n\n{log}\n\n{log_content}"
-                    )
-                logger.info(f"Successfully sent email with log: {log}")
-            else:
-                logger.warning(f"Log file does not exist: {log_file_path}")
+        if os.path.exists(log_file_path):
+            with open(log_file_path, 'r') as log_file:
+                log_content = log_file.read()
                 
-        except Exception as e:
-            logger.error(f"Exception in send_logs_via_email_and_clear_logs log {log}: {str(e)}")
-            send_admin_email(f"Exception in send_logs_via_email_and_clear_logs log {log}", str(e))
-            
-        finally:
-            clear_logs()
+            send_admin_email(
+                f"{subject}: {log}", 
+                f"StafanCryptoTradingBot daily logs.\n{formatted_now}\n\n{log}\n\n{log_content}"
+                )
+            logger.info(f"Successfully sent email with log: {log}")
+        else:
+            logger.warning(f"Log file does not exist: {log_file_path}")
+
+        clear_logs()
 
 
+@exception_handler()
 def clear_logs():
     """
     Clears the content of all log files listed in `logs`.
@@ -66,18 +62,12 @@ def clear_logs():
         log_file_path = os.path.join(os.getcwd(), log)
         now = datetime.now()
         timestamp = now.strftime("%Y-%m-%d %H:%M:%S,%f")[:-3]
-        
-        try:
             
-            if os.path.exists(log_file_path):
-                with open(log_file_path, 'w') as log_file:
-                    log_file.write(
-                        f'{timestamp} CLEAN: Log file {log_file_path} cleared succesfully.\n'
-                        )
-                logger.info(f"Successfully cleared log file: {log_file_path}")
-            else:
-                logger.warning(f"Log file does not exist: {log_file_path}")
-                
-        except Exception as e:
-            logger.error(f"Exception in clear_logs log {log}: {str(e)}")
-            send_admin_email(f"Exception in clear_logs log {log}", str(e))
+        if os.path.exists(log_file_path):
+            with open(log_file_path, 'w') as log_file:
+                log_file.write(
+                    f'{timestamp} CLEAN: Log file {log_file_path} cleared succesfully.\n'
+                    )
+            logger.info(f"Successfully cleared log file: {log_file_path}")
+        else:
+            logger.warning(f"Log file does not exist: {log_file_path}")

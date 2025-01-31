@@ -1,7 +1,7 @@
 from flask import current_app
 from ..models import BotSettings
-from binance.exceptions import BinanceAPIException
 from ..utils.logging import logger
+from ..utils.exception_handlers import exception_handler
 from ..utils.email_utils import send_admin_email
 from ..utils.bots_utils import is_bot_suspended
 from .logic_utils import (
@@ -72,6 +72,7 @@ def run_all_swing_1d_trading_bots():
     logger.trade('1d interval bots run completed.')
     
 
+@exception_handler()
 def run_selected_trading_bots(interval):
     """
     Runs selected trading bots based on the specified interval.
@@ -89,23 +90,19 @@ def run_selected_trading_bots(interval):
     all_selected_bots = BotSettings.query.filter(BotSettings.interval == interval).all()
     
     for bot_settings in all_selected_bots:
-        try:
-            if bot_settings.bot_running and (
-                bot_settings.use_technical_analysis or bot_settings.use_machine_learning
-            ):
-                
-                if bot_settings.bot_current_trade and bot_settings.bot_technical_analysis:
-                    run_single_trading_logic(bot_settings)
-                else:
-                    error_message = f"No BotCurrentTrade or BotTechnicalAnalysis found for Bot: {bot_settings.id}"
-                    send_admin_email(f'Error starting bot {bot_settings.id}', error_message)
-                    logger.trade(error_message)
-                    
-        except Exception as e:
-            logger.error(f'Exception in run_selected_trading_bots: {str(e)}')
-            send_admin_email('Exception in run_selected_trading_bots', str(e))
+        if bot_settings.bot_running and (
+            bot_settings.use_technical_analysis or bot_settings.use_machine_learning
+        ):
+            
+            if bot_settings.bot_current_trade and bot_settings.bot_technical_analysis:
+                run_single_trading_logic(bot_settings)
+            else:
+                error_message = f"No BotCurrentTrade or BotTechnicalAnalysis found for Bot: {bot_settings.id}"
+                send_admin_email(f'Error starting bot {bot_settings.id}', error_message)
+                logger.trade(error_message)
 
 
+@exception_handler()
 def run_single_trading_logic(bot_settings):
     """
     Runs the trading logic for a single bot based on its settings.
@@ -120,48 +117,34 @@ def run_single_trading_logic(bot_settings):
     Returns:
         None
     """
-    try:
-        with current_app.app_context():
-            if not bot_settings:
-                logger.info(f"Bot {bot_settings.id} BotSettings not found. Cycle skipped.")
-                return
-            
-            if is_bot_suspended(bot_settings):
-                logger.info(f"Bot {bot_settings.id} is suspended after negative trade. Cycles remaining: {bot_settings.suspension_cycles_remaining}")
-                return
-            
-            current_trade = bot_settings.bot_current_trade
-            symbol = bot_settings.symbol
-            interval = bot_settings.interval
-            lookback_period = bot_settings.lookback_period
-            lookback_extended = f'{int(bot_settings.interval[:-1]) * 205}{bot_settings.interval[-1:]}'
-            
-            logger.trade(f'Bot {bot_settings.id} {bot_settings.strategy} Fetching data for {symbol} with interval {interval} and lookback {lookback_period}')
-            df = fetch_data_and_validate(
-                symbol, 
-                interval, 
-                lookback_extended, 
-                bot_settings.id
-                )
-            
-            if df is None:
-                return
-            
-            current_price = get_current_price(df, bot_settings.id)
-            if current_price is None:
-                return
-            
-            manage_trading_logic(bot_settings, current_trade, current_price, df)
-
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in run_single_trading_logic: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in run_single_trading_logic', str(e))
-    except BinanceAPIException as e:
-        logger.error(f'Bot {bot_settings.id} BinanceAPIException in run_single_trading_logic bot: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} BinanceAPIException in run_single_trading_logic', str(e))
-    except ConnectionError as e:
-        logger.error(f'Bot {bot_settings.id} ConnectionError in run_single_trading_logic: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} ConnectionError in run_single_trading_logic', str(e))
-    except TimeoutError as e:
-        logger.error(f'Bot {bot_settings.id} TimeoutError in run_single_trading_logic: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} TimeoutError in run_single_trading_logic', str(e))
+    with current_app.app_context():
+        if not bot_settings:
+            logger.info(f"Bot {bot_settings.id} BotSettings not found. Cycle skipped.")
+            return
+        
+        if is_bot_suspended(bot_settings):
+            logger.info(f"Bot {bot_settings.id} is suspended after negative trade. Cycles remaining: {bot_settings.suspension_cycles_remaining}")
+            return
+        
+        current_trade = bot_settings.bot_current_trade
+        symbol = bot_settings.symbol
+        interval = bot_settings.interval
+        lookback_period = bot_settings.lookback_period
+        lookback_extended = f'{int(bot_settings.interval[:-1]) * 205}{bot_settings.interval[-1:]}'
+        
+        logger.trade(f'Bot {bot_settings.id} {bot_settings.strategy} Fetching data for {symbol} with interval {interval} and lookback {lookback_period}')
+        df = fetch_data_and_validate(
+            symbol, 
+            interval, 
+            lookback_extended, 
+            bot_settings.id
+            )
+        
+        if df is None:
+            return
+        
+        current_price = get_current_price(df, bot_settings.id)
+        if current_price is None:
+            return
+        
+        manage_trading_logic(bot_settings, current_trade, current_price, df)

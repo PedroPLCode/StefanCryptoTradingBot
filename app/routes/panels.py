@@ -4,6 +4,11 @@ import json
 import pandas as pd
 from ..models import BotSettings, BacktestResult
 from .. import db
+from ..routes.auth_decorators import (
+    requires_authentication,
+    requires_control_access,
+    requires_admin_access
+)
 from ..utils.logging import logger
 from . import main
 from ..stefan.api_utils import (
@@ -13,13 +18,9 @@ from ..stefan.api_utils import (
 )
 from ..utils.email_utils import send_admin_email
 from ..utils.trades_utils import show_account_balance
-from ..utils.user_utils import (
-    check_if_user_have_control_access,
-    check_if_user_is_admin,
-    check_if_user_is_authenticated
-)
     
 @main.route('/')
+@requires_authentication('User')
 def user_panel_view():
     """
     View for the user panel. This view is accessible only to authenticated users.
@@ -32,8 +33,6 @@ def user_panel_view():
         Rendered user_panel.html template with user data, account status, and system status.
         If an error occurs, redirects to the login page.
     """
-    check_if_user_is_authenticated(current_user, 'user')
-        
     try:
         binance_status = fetch_system_status()
         account_status = fetch_account_status()
@@ -54,6 +53,8 @@ def user_panel_view():
 
     
 @main.route('/control')
+@requires_authentication('Control')
+@requires_control_access('Control')
 def control_panel_view():
     """
     View for the control panel. This view is accessible only to authenticated users with control panel access.
@@ -66,9 +67,6 @@ def control_panel_view():
         Rendered control_panel.html template with all bot settings.
         If an error occurs, redirects to the user panel.
     """
-    check_if_user_is_authenticated(current_user, 'control')
-    check_if_user_have_control_access(current_user, 'Control')
-
     try:
         all_bots_settings = BotSettings.query.all()
         
@@ -96,6 +94,8 @@ def control_panel_view():
     
     
 @main.route('/analysis', methods=['GET', 'POST'])
+@requires_authentication('Technical Analysis')
+@requires_control_access('Technical Analysis')
 def analysis_panel_view():
     """
     View for the technical analysis panel. This view is accessible only to authenticated users 
@@ -109,9 +109,6 @@ def analysis_panel_view():
         If an error occurs, redirects to the user panel.
     """
     from ..utils.plot_utils import plot_selected_ta_indicators
-    
-    check_if_user_is_authenticated(current_user, 'analysis')
-    check_if_user_have_control_access(current_user, 'Technical Analysis')
 
     try:
         all_bots_info = BotSettings.query.all()
@@ -157,6 +154,8 @@ def analysis_panel_view():
     
     
 @main.route('/backtest')
+@requires_authentication('Backtest')
+@requires_control_access('Backtest')
 def backtest_panel_view():
     """
     View for the backtest panel. This view is accessible only to authenticated users 
@@ -168,9 +167,6 @@ def backtest_panel_view():
         Rendered backtest_panel.html template with all backtest results.
         If an error occurs, redirects to the user panel.
     """
-    check_if_user_is_authenticated(current_user, 'backtest')
-    check_if_user_have_control_access(current_user, 'Backtest')
-
     try:
         all_backtest_results = BacktestResult.query.all()
         for result in all_backtest_results:
@@ -190,6 +186,8 @@ def backtest_panel_view():
     
     
 @main.route('/trades')
+@requires_authentication('Trades')
+@requires_control_access('Trades')
 def current_trades_view():
     """
     View for the trades panel. This view is accessible only to authenticated users 
@@ -203,9 +201,6 @@ def current_trades_view():
         If an error occurs, redirects to the user panel.
     """
     from ..utils.plot_utils import create_balance_plot
-
-    check_if_user_is_authenticated(current_user, 'trades')
-    check_if_user_have_control_access(current_user, 'Trades')
 
     try:
         all_bots = BotSettings.query.all()
@@ -239,6 +234,8 @@ def current_trades_view():
 
 
 @main.route('/admin')
+@requires_authentication('Admin')
+@requires_admin_access()
 def admin_panel_view():
     """
     View for the admin panel. This view is accessible only to authenticated users 
@@ -250,9 +247,6 @@ def admin_panel_view():
     Returns:
         Redirects to the admin panel index or redirects to the user panel in case of error.
     """
-    check_if_user_is_authenticated(current_user, 'admin')
-    check_if_user_is_admin(current_user)
-
     try:
         return redirect(url_for('admin.index'))
 

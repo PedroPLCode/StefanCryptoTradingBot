@@ -1,6 +1,8 @@
 from ..utils.logging import logger
 from ..utils.email_utils import send_admin_email
+from ..utils.exception_handlers import exception_handler
 
+@exception_handler(default_return=False)
 def trend_buy_signal(trend, bot_settings):
     """
     Determines whether to trigger a buy signal based on the current trend.
@@ -12,21 +14,12 @@ def trend_buy_signal(trend, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.trend_signals:
-            return (trend == 'uptrend')
-        return True
-        
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in trend_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in trend_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in trend_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in trend_buy_signal', str(e))
-        return False
+    if bot_settings.trend_signals:
+        return (trend == 'uptrend')
+    return True
 
 
+@exception_handler(default_return=False)
 def rsi_buy_signal(latest_data, averages, bot_settings):
     """
     Determines whether to trigger a buy signal based on the RSI values.
@@ -39,22 +32,13 @@ def rsi_buy_signal(latest_data, averages, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.rsi_signals:
-            return (float(latest_data['rsi']) <= float(bot_settings.rsi_buy) and
-                    float(latest_data['rsi']) >= float(averages['avg_rsi'])) 
-        return True
-        
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in rsi_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in rsi_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in rsi_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in rsi_buy_signal', str(e))
-        return False
+    if bot_settings.rsi_signals:
+        return (float(latest_data['rsi']) <= float(bot_settings.rsi_buy) and
+                float(latest_data['rsi']) >= float(averages['avg_rsi'])) 
+    return True
 
 
+@exception_handler(default_return=False)
 def rsi_divergence_buy_signal(latest_data, averages, bot_settings):
     """
     Determines whether to trigger a buy signal based on RSI divergence.
@@ -67,22 +51,13 @@ def rsi_divergence_buy_signal(latest_data, averages, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.rsi_divergence_signals:
-            return (float(latest_data['close']) <= float(averages['avg_close']) and
-                    float(latest_data['rsi']) >= float(averages['avg_rsi'])) 
-        return True
-        
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in rsi_divergence_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in rsi_divergence_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in rsi_divergence_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in rsi_divergence_buy_signal', str(e))
-        return False
+    if bot_settings.rsi_divergence_signals:
+        return (float(latest_data['close']) <= float(averages['avg_close']) and
+                float(latest_data['rsi']) >= float(averages['avg_rsi'])) 
+    return True
 
 
+@exception_handler(default_return=False)
 def vol_rising(latest_data, averages, bot_settings):
     """
     Determines whether to trigger a buy signal based on increasing volume.
@@ -95,21 +70,12 @@ def vol_rising(latest_data, averages, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.vol_signals:
-            return float(latest_data['volume']) >= float(averages['avg_volume']) 
-        return True
-    
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in vol_rising: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in vol_rising', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in vol_rising: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in vol_rising', str(e))
-        return False
+    if bot_settings.vol_signals:
+        return float(latest_data['volume']) >= float(averages['avg_volume']) 
+    return True
 
 
+@exception_handler(default_return=False)
 def macd_cross_buy_signal(latest_data, previous_data, bot_settings):
     """
     Determines whether to trigger a buy signal based on MACD cross.
@@ -122,22 +88,13 @@ def macd_cross_buy_signal(latest_data, previous_data, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.macd_cross_signals:
-            return (float(previous_data['macd']) <= float(previous_data['macd_signal']) and
-                    float(latest_data['macd']) >= float(latest_data['macd_signal'])) 
-        return True
-    
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in macd_cross_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in macd_cross_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in macd_cross_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in macd_cross_buy_signal', str(e))
-        return False
+    if bot_settings.macd_cross_signals:
+        return (float(previous_data['macd']) <= float(previous_data['macd_signal']) and
+                float(latest_data['macd']) >= float(latest_data['macd_signal'])) 
+    return True
 
 
+@exception_handler(default_return=False)
 def macd_histogram_buy_signal(latest_data, previous_data, bot_settings):
     """
     Determines whether to trigger a buy signal based on MACD histogram.
@@ -150,22 +107,13 @@ def macd_histogram_buy_signal(latest_data, previous_data, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.macd_histogram_signals:
-            return (float(previous_data['macd_histogram']) <= 0 and
-                    float(latest_data['macd_histogram']) >= 0) 
-        return True
-    
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in macd_histogram_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in macd_histogram_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in macd_histogram_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in macd_histogram_buy_signal', str(e))
-        return False
+    if bot_settings.macd_histogram_signals:
+        return (float(previous_data['macd_histogram']) <= 0 and
+                float(latest_data['macd_histogram']) >= 0) 
+    return True
 
 
+@exception_handler(default_return=False)
 def bollinger_buy_signal(latest_data, bot_settings):
     """
     Determines whether to trigger a buy signal based on Bollinger Bands.
@@ -177,21 +125,12 @@ def bollinger_buy_signal(latest_data, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.bollinger_signals:
-            return float(latest_data['close']) <= float(latest_data['lower_band'])
-        return True
-        
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in bollinger_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in bollinger_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in bollinger_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in bollinger_buy_signal', str(e))
-        return False
+    if bot_settings.bollinger_signals:
+        return float(latest_data['close']) <= float(latest_data['lower_band'])
+    return True
 
 
+@exception_handler(default_return=False)
 def stoch_buy_signal(latest_data, previous_data, bot_settings):
     """
     Determines whether to trigger a buy signal based on Stochastic Oscillator.
@@ -204,23 +143,14 @@ def stoch_buy_signal(latest_data, previous_data, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.stoch_signals:
-            return (float(previous_data['stoch_k']) <= float(previous_data['stoch_d']) and
-                    float(latest_data['stoch_k']) >= float(latest_data['stoch_d']) and
-                    float(latest_data['stoch_k']) <= float(bot_settings.stoch_buy)) 
-        return True
-        
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in stoch_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in stoch_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in stoch_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in stoch_buy_signal', str(e))
-        return False
+    if bot_settings.stoch_signals:
+        return (float(previous_data['stoch_k']) <= float(previous_data['stoch_d']) and
+                float(latest_data['stoch_k']) >= float(latest_data['stoch_d']) and
+                float(latest_data['stoch_k']) <= float(bot_settings.stoch_buy)) 
+    return True
 
 
+@exception_handler(default_return=False)
 def stoch_divergence_buy_signal(latest_data, averages, bot_settings):
     """
     Determines whether to trigger a buy signal based on Stochastic Divergence.
@@ -233,22 +163,13 @@ def stoch_divergence_buy_signal(latest_data, averages, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.stoch_divergence_signals:
-            return (float(latest_data['stoch_k']) >= float(averages['avg_stoch_k']) and
-                    float(latest_data['close']) <= float(averages['avg_close'])) 
-        return True
-        
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in stoch_divergence_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in stoch_divergence_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in stoch_divergence_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in stoch_divergence_buy_signal', str(e))
-        return False
+    if bot_settings.stoch_divergence_signals:
+        return (float(latest_data['stoch_k']) >= float(averages['avg_stoch_k']) and
+                float(latest_data['close']) <= float(averages['avg_close'])) 
+    return True
 
 
+@exception_handler(default_return=False)
 def stoch_rsi_buy_signal(latest_data, averages, bot_settings):
     """
     Determines whether to trigger a buy signal based on Stochastic RSI.
@@ -261,22 +182,13 @@ def stoch_rsi_buy_signal(latest_data, averages, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.stoch_rsi_signals:
-            return (float(latest_data['stoch_rsi_k']) <= float(bot_settings.stoch_buy) and
-                    float(latest_data['stoch_rsi_k']) >= float(averages['avg_stoch_rsi_k'])) 
-        return True
-        
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in stoch_rsi_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in stoch_rsi_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in stoch_rsi_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in stoch_rsi_buy_signal', str(e))
-        return False
+    if bot_settings.stoch_rsi_signals:
+        return (float(latest_data['stoch_rsi_k']) <= float(bot_settings.stoch_buy) and
+                float(latest_data['stoch_rsi_k']) >= float(averages['avg_stoch_rsi_k'])) 
+    return True
 
 
+@exception_handler(default_return=False)
 def ema_cross_buy_signal(latest_data, previous_data, bot_settings):
     """
     Determines whether to trigger a buy signal based on EMA cross.
@@ -289,22 +201,13 @@ def ema_cross_buy_signal(latest_data, previous_data, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.ema_cross_signals:
-            return (float(previous_data['ema_fast']) <= float(previous_data['ema_slow']) and
-                    float(latest_data['ema_fast']) >= float(latest_data['ema_slow'])) 
-        return True
-        
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in ema_cross_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in ema_cross_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in ema_cross_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in ema_cross_buy_signal', str(e))
-        return False
+    if bot_settings.ema_cross_signals:
+        return (float(previous_data['ema_fast']) <= float(previous_data['ema_slow']) and
+                float(latest_data['ema_fast']) >= float(latest_data['ema_slow'])) 
+    return True
 
 
+@exception_handler(default_return=False)
 def ema_fast_buy_signal(latest_data, averages, bot_settings):
     """
     Determines whether to trigger a buy signal based on fast EMA.
@@ -317,21 +220,12 @@ def ema_fast_buy_signal(latest_data, averages, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.ema_fast_signals:
-            return float(latest_data['close']) >= float(averages['avg_ema_fast']) 
-        return True
-    
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in ema_fast_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in ema_fast_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in ema_fast_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in ema_fast_buy_signal', str(e))
-        return False
+    if bot_settings.ema_fast_signals:
+        return float(latest_data['close']) >= float(averages['avg_ema_fast']) 
+    return True
 
 
+@exception_handler(default_return=False)
 def ema_slow_buy_signal(latest_data, averages, bot_settings):
     """
     Determines whether to trigger a buy signal based on slow EMA.
@@ -344,21 +238,12 @@ def ema_slow_buy_signal(latest_data, averages, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.ema_slow_signals:
-            return float(latest_data['close']) >= float(averages['avg_ema_slow']) 
-        return True
-    
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in ema_slow_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in ema_slow_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in ema_slow_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in ema_slow_buy_signal', str(e))
-        return False
+    if bot_settings.ema_slow_signals:
+        return float(latest_data['close']) >= float(averages['avg_ema_slow']) 
+    return True
 
 
+@exception_handler(default_return=False)
 def di_cross_buy_signal(latest_data, previous_data, bot_settings):
     """
     Determines whether to trigger a buy signal based on Directional Indicator cross.
@@ -371,22 +256,13 @@ def di_cross_buy_signal(latest_data, previous_data, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.di_signals:
-            return (float(previous_data['plus_di']) <= float(previous_data['minus_di']) and
-                        float(latest_data['plus_di']) >= float(latest_data['minus_di'])) 
-        return True
+    if bot_settings.di_signals:
+        return (float(previous_data['plus_di']) <= float(previous_data['minus_di']) and
+                    float(latest_data['plus_di']) >= float(latest_data['minus_di'])) 
+    return True
     
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in di_cross_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in di_cross_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in di_cross_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in di_cross_buy_signal', str(e))
-        return False
 
-
+@exception_handler(default_return=False)
 def cci_buy_signal(latest_data, averages, bot_settings):
     """
     Determines whether to trigger a buy signal based on Commodity Channel Index (CCI).
@@ -399,22 +275,13 @@ def cci_buy_signal(latest_data, averages, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.cci_signals:
-            return (float(latest_data['cci']) <= float(bot_settings.cci_buy) and
-                    float(latest_data['cci']) >= float(averages['avg_cci']))  
-        return True
-    
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in cci_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in cci_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in cci_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in cci_buy_signal', str(e))
-        return False
+    if bot_settings.cci_signals:
+        return (float(latest_data['cci']) <= float(bot_settings.cci_buy) and
+                float(latest_data['cci']) >= float(averages['avg_cci']))  
+    return True
 
 
+@exception_handler(default_return=False)
 def cci_divergence_buy_signal(latest_data, averages, bot_settings):
     """
     Determines whether to trigger a buy signal based on CCI divergence.
@@ -427,22 +294,13 @@ def cci_divergence_buy_signal(latest_data, averages, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.cci_divergence_signals:
-            return (float(latest_data['close']) <= float(averages['avg_close']) and
-                    float(latest_data['cci']) >= float(averages['avg_cci'])) 
-        return True
-    
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in cci_divergence_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in cci_divergence_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in cci_divergence_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in cci_divergence_buy_signal', str(e))
-        return False
+    if bot_settings.cci_divergence_signals:
+        return (float(latest_data['close']) <= float(averages['avg_close']) and
+                float(latest_data['cci']) >= float(averages['avg_cci'])) 
+    return True
 
 
+@exception_handler(default_return=False)
 def mfi_buy_signal(latest_data, averages, bot_settings):
     """
     Determines whether to trigger a buy signal based on Money Flow Index (MFI).
@@ -455,22 +313,13 @@ def mfi_buy_signal(latest_data, averages, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.mfi_signals:
-            return (float(latest_data['mfi']) <= float(bot_settings.mfi_buy) and
-                    float(latest_data['mfi']) >= float(averages['avg_mfi'])) 
-        return True
-    
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in mfi_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in mfi_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in mfi_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in mfi_buy_signal', str(e))
-        return False
+    if bot_settings.mfi_signals:
+        return (float(latest_data['mfi']) <= float(bot_settings.mfi_buy) and
+                float(latest_data['mfi']) >= float(averages['avg_mfi'])) 
+    return True
 
 
+@exception_handler(default_return=False)
 def mfi_divergence_buy_signal(latest_data, averages, bot_settings):
     """
     Determines whether to trigger a buy signal based on MFI divergence.
@@ -483,22 +332,13 @@ def mfi_divergence_buy_signal(latest_data, averages, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.mfi_divergence_signals:
-            return (float(latest_data['close']) <= float(averages['avg_close']) and
-                    float(latest_data['mfi']) >= float(averages['avg_mfi'])) 
-        return True
-    
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in mfi_divergence_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in mfi_divergence_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in mfi_divergence_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in mfi_divergence_buy_signal', str(e))
-        return False
+    if bot_settings.mfi_divergence_signals:
+        return (float(latest_data['close']) <= float(averages['avg_close']) and
+                float(latest_data['mfi']) >= float(averages['avg_mfi'])) 
+    return True
 
 
+@exception_handler(default_return=False)
 def atr_buy_signal(latest_data, averages, bot_settings):
     """
     Determines whether to trigger a buy signal based on Average True Range (ATR).
@@ -511,23 +351,14 @@ def atr_buy_signal(latest_data, averages, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.atr_signals:
-            atr_buy_level = bot_settings.atr_buy_treshold * float(latest_data['close'])
-            return (float(latest_data['atr']) >= float(averages['avg_atr']) and
-                    float(latest_data['atr']) >= float(atr_buy_level))
-        return True
-    
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in atr_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in atr_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in atr_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in atr_buy_signal', str(e))
-        return False
+    if bot_settings.atr_signals:
+        atr_buy_level = bot_settings.atr_buy_treshold * float(latest_data['close'])
+        return (float(latest_data['atr']) >= float(averages['avg_atr']) and
+                float(latest_data['atr']) >= float(atr_buy_level))
+    return True
 
 
+@exception_handler(default_return=False)
 def vwap_buy_signal(latest_data, bot_settings):
     """
     Determines whether to trigger a buy signal based on VWAP.
@@ -539,21 +370,12 @@ def vwap_buy_signal(latest_data, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.vwap_signals:
-            return float(latest_data['close']) >= float(latest_data['vwap']) 
-        return True
+    if bot_settings.vwap_signals:
+        return float(latest_data['close']) >= float(latest_data['vwap']) 
+    return True
     
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in vwap_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in vwap_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in vwap_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in vwap_buy_signal', str(e))
-        return False
 
-
+@exception_handler(default_return=False)
 def psar_buy_signal(latest_data, previous_data, bot_settings):
     """
     Determines whether to trigger a buy signal based on Parabolic SAR (PSAR).
@@ -566,22 +388,13 @@ def psar_buy_signal(latest_data, previous_data, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.psar_signals:
-            return (float(previous_data['psar']) >= float(previous_data['close']) and
-                    float(latest_data['psar']) <= float(latest_data['close'])) 
-        return True
-    
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in psar_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in psar_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in psar_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in psar_buy_signal', str(e))
-        return False
+    if bot_settings.psar_signals:
+        return (float(previous_data['psar']) >= float(previous_data['close']) and
+                float(latest_data['psar']) <= float(latest_data['close'])) 
+    return True
 
 
+@exception_handler(default_return=False)
 def ma50_buy_signal(latest_data, bot_settings):
     """
     Determines whether to trigger a buy signal based on Moving Average (MA50).
@@ -593,21 +406,12 @@ def ma50_buy_signal(latest_data, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.ma50_signals:
-            return float(latest_data['close']) >= float(latest_data['ma_50']) 
-        return True
-        
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in ma50_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in ma50_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in ma50_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in ma50_buy_signal', str(e))
-        return False
+    if bot_settings.ma50_signals:
+        return float(latest_data['close']) >= float(latest_data['ma_50']) 
+    return True
 
 
+@exception_handler(default_return=False)
 def ma200_buy_signal(latest_data, bot_settings):
     """
     Determines whether to trigger a buy signal based on Moving Average (MA200).
@@ -619,21 +423,12 @@ def ma200_buy_signal(latest_data, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.ma200_signals:
-            return float(latest_data['close']) >= float(latest_data['ma_200']) 
-        return True
-    
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in ma200_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in ma200_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in ma200_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in ma200_buy_signal', str(e))
-        return False
+    if bot_settings.ma200_signals:
+        return float(latest_data['close']) >= float(latest_data['ma_200']) 
+    return True
 
 
+@exception_handler(default_return=False)
 def ma_cross_buy_signal(latest_data, previous_data, bot_settings):
     """
     Determines whether to trigger a buy signal based on Moving Averages (MA50 and MA200).
@@ -645,22 +440,13 @@ def ma_cross_buy_signal(latest_data, previous_data, bot_settings):
     Returns:
         bool: True if the buy signal should be triggered, otherwise False.
     """
-    try:
-        if bot_settings.ma_cross_signals:
-            return (float(previous_data['ma_50']) <= float(previous_data['ma_200']) and
-                        float(latest_data['ma_50']) >= float(latest_data['ma_200'])) 
-        return True
-        
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in ma_cross_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in ma_cross_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in ma_cross_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in ma_cross_buy_signal', str(e))
-        return False
-
+    if bot_settings.ma_cross_signals:
+        return (float(previous_data['ma_50']) <= float(previous_data['ma_200']) and
+                    float(latest_data['ma_50']) >= float(latest_data['ma_200'])) 
+    return True
     
+
+@exception_handler(default_return=False)
 def check_classic_ta_buy_signal(
     df, 
     bot_settings, 
@@ -686,49 +472,39 @@ def check_classic_ta_buy_signal(
     if not is_df_valid(df, bot_settings.id):
         return False
     
-    try:
-        if trend == 'downtrend':
-            return False
-
-        buy_signals = [
-            trend_buy_signal(trend, bot_settings),
-            rsi_buy_signal(latest_data, averages, bot_settings),
-            rsi_divergence_buy_signal(latest_data, averages, bot_settings),
-            vol_rising(latest_data, averages, bot_settings),
-            macd_cross_buy_signal(latest_data, previous_data, bot_settings),
-            macd_histogram_buy_signal(latest_data, previous_data, bot_settings),
-            bollinger_buy_signal(latest_data, bot_settings),
-            stoch_buy_signal(latest_data, previous_data, bot_settings),
-            stoch_divergence_buy_signal(latest_data, averages, bot_settings),
-            stoch_rsi_buy_signal(latest_data, averages, bot_settings),
-            ema_cross_buy_signal(latest_data, previous_data, bot_settings),
-            ema_fast_buy_signal(latest_data, averages, bot_settings),
-            ema_slow_buy_signal(latest_data, averages, bot_settings),
-            di_cross_buy_signal(latest_data, previous_data, bot_settings),
-            cci_buy_signal(latest_data, averages, bot_settings),
-            cci_divergence_buy_signal(latest_data, averages, bot_settings),
-            mfi_buy_signal(latest_data, averages, bot_settings),
-            mfi_divergence_buy_signal(latest_data, averages, bot_settings),
-            atr_buy_signal(latest_data, averages, bot_settings),
-            vwap_buy_signal(latest_data, bot_settings),
-            psar_buy_signal(latest_data, previous_data, bot_settings),
-            ma50_buy_signal(latest_data, bot_settings),
-            ma200_buy_signal(latest_data, bot_settings),
-            ma_cross_buy_signal(latest_data, previous_data, bot_settings)
-        ]
-        
-        signals_to_check = [bool(signal) for signal in buy_signals]
-
-        if all(signals_to_check):
-            return True
-        
+    if trend == 'downtrend':
         return False
 
-    except IndexError as e:
-        logger.error(f'Bot {bot_settings.id} IndexError in check_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} IndexError in check_buy_signal', str(e))
-        return False
-    except Exception as e:
-        logger.error(f'Bot {bot_settings.id} Exception in check_buy_signal: {str(e)}')
-        send_admin_email(f'Bot {bot_settings.id} Exception in check_buy_signal', str(e))
-        return False
+    buy_signals = [
+        trend_buy_signal(trend, bot_settings),
+        rsi_buy_signal(latest_data, averages, bot_settings),
+        rsi_divergence_buy_signal(latest_data, averages, bot_settings),
+        vol_rising(latest_data, averages, bot_settings),
+        macd_cross_buy_signal(latest_data, previous_data, bot_settings),
+        macd_histogram_buy_signal(latest_data, previous_data, bot_settings),
+        bollinger_buy_signal(latest_data, bot_settings),
+        stoch_buy_signal(latest_data, previous_data, bot_settings),
+        stoch_divergence_buy_signal(latest_data, averages, bot_settings),
+        stoch_rsi_buy_signal(latest_data, averages, bot_settings),
+        ema_cross_buy_signal(latest_data, previous_data, bot_settings),
+        ema_fast_buy_signal(latest_data, averages, bot_settings),
+        ema_slow_buy_signal(latest_data, averages, bot_settings),
+        di_cross_buy_signal(latest_data, previous_data, bot_settings),
+        cci_buy_signal(latest_data, averages, bot_settings),
+        cci_divergence_buy_signal(latest_data, averages, bot_settings),
+        mfi_buy_signal(latest_data, averages, bot_settings),
+        mfi_divergence_buy_signal(latest_data, averages, bot_settings),
+        atr_buy_signal(latest_data, averages, bot_settings),
+        vwap_buy_signal(latest_data, bot_settings),
+        psar_buy_signal(latest_data, previous_data, bot_settings),
+        ma50_buy_signal(latest_data, bot_settings),
+        ma200_buy_signal(latest_data, bot_settings),
+        ma_cross_buy_signal(latest_data, previous_data, bot_settings)
+    ]
+    
+    signals_to_check = [bool(signal) for signal in buy_signals]
+
+    if all(signals_to_check):
+        return True
+    
+    return False

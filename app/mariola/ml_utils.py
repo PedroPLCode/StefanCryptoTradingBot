@@ -2,9 +2,9 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
-from ..utils.logging import logger
-from ..utils.email_utils import send_admin_email
+from ..utils.exception_handlers import exception_handler
 
+@exception_handler()
 def normalize_df(df, bot_settings):
     """
     Normalize the numeric columns in a DataFrame using MinMaxScaler, while replacing infinite values 
@@ -36,39 +36,34 @@ def normalize_df(df, bot_settings):
     Example:
         normalized_df = normalize_df(df, training_mode=True, result_marker='target')
     """
-    try:
-        if df is None or df.empty:
-            raise ValueError("df must be provided and cannot be None.")
-        
-        non_numeric_features = df.select_dtypes(
-            include=['bool', 'datetime', 'string']
-        ).columns.tolist()
-        
-        numeric_features = df.select_dtypes(
-            include=['float64', 'int64']
-        ).columns.tolist()
-        
-        df = df.replace([np.inf, -np.inf], 0)
-        
-        df[numeric_features] = df[numeric_features].clip(
-            lower=-1.8e308, upper=1.8e308
-        )
-        
-        scaler = MinMaxScaler(feature_range=(0, 1))
-        
-        df_normalized = pd.DataFrame(
-            scaler.fit_transform(df[numeric_features]),
-            columns=numeric_features
-        )
-        
-        return df_normalized
+    if df is None or df.empty:
+        raise ValueError("df must be provided and cannot be None.")
     
-    except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in normalize_df: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in normalize_df', str(e))
-        return None
+    non_numeric_features = df.select_dtypes(
+        include=['bool', 'datetime', 'string']
+    ).columns.tolist()
+    
+    numeric_features = df.select_dtypes(
+        include=['float64', 'int64']
+    ).columns.tolist()
+    
+    df = df.replace([np.inf, -np.inf], 0)
+    
+    df[numeric_features] = df[numeric_features].clip(
+        lower=-1.8e308, upper=1.8e308
+    )
+    
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    
+    df_normalized = pd.DataFrame(
+        scaler.fit_transform(df[numeric_features]),
+        columns=numeric_features
+    )
+    
+    return df_normalized
 
 
+@exception_handler()
 def handle_pca(df, bot_settings):
     """
     Perform Principal Component Analysis (PCA) on the normalized DataFrame and add the target marker to the resulting DataFrame.
@@ -84,22 +79,17 @@ def handle_pca(df, bot_settings):
     Notes:
         The PCA transformation reduces the features to the specified number of components (`n_components=50`).
     """
-    try:
-        if df is None or df.empty:
-            raise ValueError("df_normalized must be provided and cannot be None.")
-        
-        pca = PCA(n_components=50)
-        df_reduced = pca.fit_transform(df)
-        df_reduced = pd.DataFrame(df_reduced)
-            
-        return df_reduced
+    if df is None or df.empty:
+        raise ValueError("df_normalized must be provided and cannot be None.")
     
-    except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in handle_pca: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in handle_pca', str(e))
-        return None
+    pca = PCA(n_components=50)
+    df_reduced = pca.fit_transform(df)
+    df_reduced = pd.DataFrame(df_reduced)
+        
+    return df_reduced
 
 
+@exception_handler()
 def create_sequences(df, lookback, window_size, bot_settings):
     """
     Create sequences of features and corresponding target labels from the reduced DataFrame for time series prediction.
@@ -134,24 +124,18 @@ def create_sequences(df, lookback, window_size, bot_settings):
         X = create_sequences(df, lookback=14, window_size=30, result_marker='marker_column', training_mode=False)
 
     """
-    try:
-        if (
-            df is None or
-            lookback is None or
-            window_size is None
-        ):
-            raise ValueError("All arguments must be provided and cannot be None.")
-        
-        X = []
-        
-        df_features = df
-
-        for i in range(window_size, len(df) - lookback):
-            X.append(df_features.iloc[i-window_size:i].values)
-        
-        return np.array(X)
+    if (
+        df is None or
+        lookback is None or
+        window_size is None
+    ):
+        raise ValueError("All arguments must be provided and cannot be None.")
     
-    except Exception as e:
-        logger.error(f"Bot {bot_settings.id} Exception in create_sequences: {str(e)}")
-        send_admin_email(f'Bot {bot_settings.id} Exception in create_sequences', str(e))
-        return None
+    X = []
+    
+    df_features = df
+
+    for i in range(window_size, len(df) - lookback):
+        X.append(df_features.iloc[i-window_size:i].values)
+    
+    return np.array(X)

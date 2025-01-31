@@ -2,7 +2,7 @@
 
 StefanCryptoTradingBot is an automated trading bot built for trading in cryptocurrency market on the Binance exchange, designed to operate using scalping, swing and day trading strategies. The bot integrates advanced technical indicators, real-time performance monitoring, and dynamic parameter adjustments to improve trading efficiency. 
 
-The bot utilizes machine learning through the [MariolaCryptoTradingBot](https://github.com/PedroPLCode/MariolaCryptoTradingBot) module to improve the prediction of future prices, providing a significant edge in the market.
+The bot utilizes machine learning through the [MariolaMLCryptoTradingUtils](https://github.com/PedroPLCode/MariolaMLCryptoTradingUtils) module to improve the prediction of future prices, providing a significant edge in the market.
 
 The bot provides an easy-to-use interface for starting and stopping the bot, real-time trade and balance monitoring, technical analysis panel, daily report emails and backtesting features. User can access a control panel to manage bot operations, and an admin panel for modifying key settings and strategies.
 
@@ -114,7 +114,7 @@ pytest
 
 ## Future Plans
 - Strategy Optimization: Enhancing strategies and trading logic.
-- Machine Learning: Incorporating machine learning to improve trade predictions and make the bot more adaptive. That's how [MariolaCryptoTradingBot](https://github.com/PedroPLCode/MariolaCryptoTradingBot) was just born. All my effort is now directed toward her development.
+- Machine Learning: Incorporating machine learning to improve trade predictions and make the bot more adaptive. That's how [MariolaMLCryptoTradingUtils](https://github.com/PedroPLCode/MariolaMLCryptoTradingUtils) was just born. All my effort is now directed toward her development.
 
 ## Important! 
 Familiarize yourself thoroughly with the source code. Understand its operation. Only then will you be able to customize and adjust scripts to your own needs, preferences, and requirements. Only then will you be able to use it correctly and avoid potential issues. Knowledge of the underlying code is essential for making informed decisions and ensuring the successful implementation of the bot for your specific use case. Make sure to review all components and dependencies before running the scripts.

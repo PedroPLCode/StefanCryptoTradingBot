@@ -1,6 +1,6 @@
-from .logging import logger
-from ..utils.email_utils import send_admin_email
+from ..utils.exception_handlers import exception_handler
 
+@exception_handler(default_return='unknown')
 def get_ip_address(request):
     """
     Retrieves the client's IP address from the request headers.
@@ -16,12 +16,6 @@ def get_ip_address(request):
     Raises:
         Logs an error and sends an admin email if an exception occurs.
     """
-    try:
-        if 'X-Forwarded-For' in request.headers:
-            return request.headers['X-Forwarded-For'].split(',')[0]
-        return request.remote_addr
-    
-    except Exception as e:
-        logger.error(f"Exception in get_ip_address: {str(e)}")
-        send_admin_email('Exception in get_ip_address', str(e))
-        return 'unknown'
+    if 'X-Forwarded-For' in request.headers:
+        return request.headers['X-Forwarded-For'].split(',')[0]
+    return request.remote_addr
