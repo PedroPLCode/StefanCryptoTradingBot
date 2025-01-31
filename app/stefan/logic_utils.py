@@ -137,7 +137,9 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
     use_trailing_take_profit = bot_settings.use_trailing_take_profit
     take_profit_price = float(current_trade.take_profit_price)
     
-    calculate_ta_indicators(
+    df_for_ml = df.copy() if bot_settings.use_machine_learning else None
+        
+    df = calculate_ta_indicators(
         df, 
         bot_settings
         )   
@@ -167,6 +169,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         buy_signal = check_signal(
             'buy', 
             df, 
+            df_for_ml,
             bot_settings, 
             trend, 
             averages, 
@@ -191,6 +194,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         sell_signal = check_signal(
             'sell',
             df, 
+            df_for_ml,
             bot_settings, 
             trend, 
             averages, 
@@ -267,6 +271,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
 def check_signal(
     signal_type,
     df,
+    df_for_ml,
     bot_settings,
     trend,
     averages,
@@ -316,7 +321,7 @@ def check_signal(
     
     elif bot_settings.use_machine_learning:
         return check_ml_trade_signal(
-            df,
+            df_for_ml,
             signal_type,
             bot_settings
             )
