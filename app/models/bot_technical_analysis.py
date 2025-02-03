@@ -126,6 +126,12 @@ class BotTechnicalAnalysis(db.Model):
     last_updated_timestamp = db.Column(db.DateTime, default=db.func.current_timestamp(), nullable=True)
     
     bot_settings_id = db.Column(db.Integer, db.ForeignKey('bot_settings.id'), nullable=False)
+    
+    bot_settings = db.relationship(
+        'BotSettings',
+        back_populates='bot_technical_analysis',
+        overlaps="bot_technical_analysis"
+    )
 
 
     def set_df(self, df):

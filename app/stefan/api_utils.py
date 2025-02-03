@@ -2,7 +2,6 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import pandas as pd
 from binance.client import Client
-from binance.exceptions import BinanceAPIException
 from app.models import BotSettings
 import os
 from ..utils.logging import logger

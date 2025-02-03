@@ -1,7 +1,7 @@
+import sys
 import functools
 import logging
 from binance.exceptions import BinanceAPIException
-from .email_utils import send_admin_email
 
 logger = logging.getLogger(__name__)
 
@@ -69,17 +69,24 @@ def exception_handler(default_return=None, db_rollback=False):
                 FileNotFoundError
             ) as e:
                 exception_type = type(e).__name__
+                logger.error(f"{bot_str}{exception_type} in {func.__name__}: {str(e)}")
+                from .email_utils import send_admin_email
+                send_admin_email(f"{bot_str}{exception_type} in {func.__name__}", str(e))
             except Exception as e:
                 exception_type = "Exception"
+                logger.error(f"{bot_str}{exception_type} in {func.__name__}: {str(e)}")
+                from .email_utils import send_admin_email
+                send_admin_email(f"{bot_str}{exception_type} in {func.__name__}", str(e))
 
             if db_rollback:
                 from .. import db
                 db.session.rollback()
-
-            logger.error(f"{bot_str}{exception_type} in {func.__name__}: {str(e)}")
-            send_admin_email(f"{bot_str}{exception_type} in {func.__name__}", str(e))
+                logger.error(f"db.session.rollback() Database transaction rollback executed.")
             
-            if callable(default_return):
+            if default_return is exit:
+                logger.error('sys.exit(1) Exiting program due to an error.')
+                sys.exit(1)
+            elif callable(default_return):
                 return default_return()
             return default_return
 

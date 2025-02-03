@@ -109,7 +109,7 @@
 
                                     <p class="text-muted m-0 p-0 border-bottom">Lag Calc Period: {{ bot_info.ml_lag_period }}</p>
 
-                                    <p class="text-muted m-0 p-0">Use ScikitLearn.RandomForestRegressor: <span class="{{ 'text-success' if bot_info.ml_use_random_forest_model else 'text-danger border-bottom' }}">{{ bot_info.ml_use_random_forest_model }}</span></p>
+                                    <p class="text-muted m-0 p-0 {{ '' if bot_info.ml_use_random_forest_model else 'border-bottom' }}">Use ScikitLearn.RandomForestRegressor: <span class="{{ 'text-success' if bot_info.ml_use_random_forest_model else 'text-danger border-bottom' }}">{{ bot_info.ml_use_random_forest_model }}</span></p>
                                     {% if bot_info.ml_use_random_forest_model %}
                                         <p class="text-muted m-0 p-0">Avg Last Predictions: {{ bot_info.ml_random_forest_predictions_avg}}</p>
                                         <p class="text-muted m-0 p-0">Model Filename: {{ bot_info.ml_random_forest_model_filename }}</p>
@@ -117,7 +117,7 @@
                                         <p class="text-muted m-0 p-0 border-bottom">Sell Trigger pct: {{ bot_info.ml_random_forest_sell_trigger_pct }}</p>
                                     {% endif %}
 
-                                    <p class="text-muted m-0 p-0">Use XGBoost.XGBRegressor: <span class="{{ 'text-success' if bot_info.ml_use_xgboost_model else 'text-danger border-bottom' }}">{{ bot_info.ml_use_xgboost_model }}</span></p>
+                                    <p class="text-muted m-0 p-0 {{ '' if bot_info.ml_use_xgboost_model else 'border-bottom' }}">Use XGBoost.XGBRegressor: <span class="{{ 'text-success' if bot_info.ml_use_xgboost_model else 'text-danger' }}">{{ bot_info.ml_use_xgboost_model }}</span></p>
                                     {% if bot_info.ml_use_xgboost_model %}
                                         <p class="text-muted m-0 p-0">Avg Last Predictions: {{ bot_info.ml_xgboost_predictions_avg }}</p>
                                         <p class="text-muted m-0 p-0">Model Filename: {{ bot_info.ml_xgboost_model_filename }}</p>
@@ -125,7 +125,7 @@
                                         <p class="text-muted m-0 p-0 border-bottom">Sell Trigger pct: {{ bot_info.ml_xgboost_sell_trigger_pct }}</p>
                                     {% endif %}
 
-                                    <p class="text-muted m-0 p-0">Use Keras.LSTM: <span class="{{ 'text-success' if bot_info.ml_use_lstm_model else 'text-danger border-bottom' }}">{{ bot_info.ml_use_lstm_model }}</span></p>
+                                    <p class="text-muted m-0 p-0 {{ '' if bot_info.ml_use_lstm_model else 'border-bottom' }}">Use Keras.LSTM: <span class="{{ 'text-success' if bot_info.ml_use_lstm_model else 'text-danger border-bottom' }}">{{ bot_info.ml_use_lstm_model }}</span></p>
                                     {% if bot_info.ml_use_lstm_model %}
                                         <p class="text-muted m-0 p-0">Window Size: {{ bot_info.ml_lstm_window_size }}</p>
                                         <p class="text-muted m-0 p-0">Window Loopback: {{ bot_info.ml_lstm_window_lookback }}</p>

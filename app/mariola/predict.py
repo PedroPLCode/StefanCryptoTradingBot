@@ -48,7 +48,7 @@ def check_ml_trade_signal(df, signal_type, bot_settings):
         result = model_predictions <= sell_trigger_pct if model_predictions is not None else False
 
     logger.trade(
-        f"ML {model_name if model_name else 'UNDEFINED'} {signal_type.capitalize()} signal: {result}, "
+        f"ML {model_name if model_name else 'ModelNameUndefined'} {signal_type.capitalize()} signal: {result}, "
         f"model predictions: {model_predictions}, trigger_pct: {buy_trigger_pct if signal_type == 'buy' else sell_trigger_pct}"
     )
     return result
@@ -141,7 +141,7 @@ def xgboost_price_change_pct_predict(
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
     
-    model_filename = bot_settings.ml_lstm_model_filename
+    model_filename = bot_settings.ml_xgboost_model_filename
     model_path = f'app/mariola/models/{model_filename}'
     model = xgb.Booster()
     model.load_model(model_path)
@@ -183,7 +183,7 @@ def random_forest_price_change_pct_predict(
         bot_settings
         )
 
-    model_filename = bot_settings.ml_lstm_model_filename
+    model_filename = bot_settings.ml_random_forest_model_filename
     model_path = f'app/mariola/models/{model_filename}'
     model = joblib.load(model_path)
 

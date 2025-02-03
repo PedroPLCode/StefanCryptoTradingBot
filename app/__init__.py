@@ -114,9 +114,7 @@ def create_app(config_name=None):
         
     except Exception as e:
         logger.error(f'Error in create_app: {e}')
-        with app.app_context():
-            from .utils.email_utils import send_admin_email
-            send_admin_email('Error in create_app', str(e))
+        print((f'Error in create_app: {e}'))
         raise
     
     return app

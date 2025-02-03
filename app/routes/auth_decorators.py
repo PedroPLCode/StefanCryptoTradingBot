@@ -1,7 +1,7 @@
 import functools
 import logging
 from flask import flash, redirect, url_for, request
-from .email_utils import send_admin_email
+from ..utils.email_utils import send_admin_email
 from flask_login import current_user
 
 logger = logging.getLogger(__name__)
