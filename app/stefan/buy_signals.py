@@ -452,8 +452,6 @@ def check_classic_ta_buy_signal(
     bot_settings, 
     trend, 
     averages, 
-    latest_data, 
-    previous_data
     ):
     """
     Calculates whether a buy signal should be triggered based on multiple conditions.
@@ -471,6 +469,9 @@ def check_classic_ta_buy_signal(
     
     if not is_df_valid(df, bot_settings.id):
         return False
+    
+    latest_data = df.iloc[-1]
+    previous_data = df.iloc[-2]
     
     if trend == 'downtrend':
         return False

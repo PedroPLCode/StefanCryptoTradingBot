@@ -606,6 +606,26 @@ def round_down_to_step_size(amount, step_size):
         
         
 @exception_handler()
+def calculate_atr_value(df, bot_settings):
+    """
+    Calculates the latest ATR (Average True Range) value.
+
+    Args:
+        df (DataFrame): The calculated DataFrame containing market indicators.
+        bot_settings (object): The bot settings object (not used in the current implementation).
+
+    Returns:
+        float: The latest ATR value, which can be used to determine the take profit level.
+        None: If an error occurs.
+    """
+    if df.empty or 'atr' not in df.columns:
+        return None
+
+    latest_data = df.iloc[-1]
+    return latest_data.get('atr', None)
+
+    
+@exception_handler()
 def calculate_take_profit(current_price, bot_settings):
     """
     Calculates the take profit price based on the current market price and the bot's take profit percentage.

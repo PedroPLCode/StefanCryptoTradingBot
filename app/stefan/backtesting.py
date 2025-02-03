@@ -2,9 +2,9 @@ import pandas as pd
 from .. import db
 from ..utils.logging import logger
 from .api_utils import fetch_data
-from .logic_utils import (
-    update_stop_loss,
-    update_atr_trailing_stop_loss,
+from .calc_utils import (
+    calculate_stop_loss,
+    calculate_atr_trailing_stop_loss,
     calculate_take_profit,
     calculate_atr_take_profit
 )
@@ -177,14 +177,14 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                 take_profit_price = 0
                 
                 if bot_settings.use_stop_loss:
-                    stop_loss_price = update_stop_loss(
+                    stop_loss_price = calculate_stop_loss(
                         current_price, 
                         stop_loss_price, 
                         bot_settings
                     )
                     
                     if bot_settings.trailing_stop_with_atr:
-                        stop_loss_price = update_atr_trailing_stop_loss(
+                        stop_loss_price = calculate_atr_trailing_stop_loss(
                             current_price, 
                             stop_loss_price, 
                             atr,
@@ -233,14 +233,14 @@ def backtest_strategy(df, bot_settings, backtest_settings):
                 )
             
             elif crypto_balance > 0 and price_rises:
-                stop_loss_price = update_stop_loss(
+                stop_loss_price = calculate_stop_loss(
                     current_price, 
                     stop_loss_price, 
                     bot_settings
                 )
                 
                 if bot_settings.trailing_stop_with_atr:
-                    stop_loss_price = update_atr_trailing_stop_loss(
+                    stop_loss_price = calculate_atr_trailing_stop_loss(
                         current_price, 
                         stop_loss_price, 
                         atr, 

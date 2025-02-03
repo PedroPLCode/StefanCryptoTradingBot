@@ -214,7 +214,7 @@ def run_backtest():
         backtest_settings = BacktestSettings.query.first()
         bot_settings = BotSettings.query.filter(BotSettings.id == backtest_settings.bot_id).first()
         if bot_settings:
-            df = pd.read_csv(backtest_settings.csv_file_path)
+            df = pd.read_csv(f'/backtesting/{backtest_settings.csv_file_path}')
             if is_df_valid(df, bot_settings.id):
                 df['time'] = pd.to_datetime(df['close_time'])
                 backtest_strategy(df, bot_settings, backtest_settings)

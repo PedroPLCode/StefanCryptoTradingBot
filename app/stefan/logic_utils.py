@@ -8,6 +8,9 @@ from ..utils.exception_handlers import exception_handler
 from ..utils.bots_utils import suspend_after_negative_trade
 from ..utils.email_utils import send_trade_email
 from ..utils.trades_utils import update_technical_analysis_data
+from .buy_signals import check_classic_ta_buy_signal
+from .sell_signals import check_classic_ta_sell_signal
+from ..mariola.predict import check_ml_trade_signal
 from .api_utils import (
     fetch_data,
     place_buy_order, 
@@ -16,11 +19,9 @@ from .api_utils import (
 from .calc_utils import (
     calculate_ta_indicators,
     calculate_ta_averages,
-    check_ta_trend
+    check_ta_trend,
+    calculate_atr_value
 )
-from .buy_signals import check_classic_ta_buy_signal
-from .sell_signals import check_classic_ta_sell_signal
-from ..mariola.predict import check_ml_trade_signal
 
 @exception_handler()
 def is_df_valid(df, bot_id):
@@ -101,7 +102,7 @@ def get_current_price(df, bot_id):
     
 
 @exception_handler()
-def manage_trading_logic(bot_settings, current_trade, current_price, df):
+def manage_trading_logic(bot_settings, current_trade, current_price, df_fetched):
     """
     Manages the core trading logic of the bot, including buying, selling, stop-loss, take-profit, 
     trailing stop-loss, and technical analysis updates.
@@ -120,7 +121,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         current_trade (object): The current trade object, which contains details about the ongoing trade 
                                  (e.g., stop-loss price, take-profit price, previous price, etc.).
         current_price (float): The latest market price of the trading pair.
-        df (pandas.DataFrame): A DataFrame containing the market data and technical indicators (e.g., ATR, trend, etc.).
+        df_fetched (pandas.DataFrame): A DataFrame containing the market data and technical indicators (e.g., ATR, trend, etc.).
 
     Returns:
         None: This function does not return any value, but performs trading actions like executing orders, 
@@ -137,17 +138,14 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
     use_trailing_take_profit = bot_settings.use_trailing_take_profit
     take_profit_price = float(current_trade.take_profit_price)
     
-    df_for_ml = df.copy() if bot_settings.use_machine_learning else None
+    df_raw = df_fetched.copy() if bot_settings.use_machine_learning else None
         
-    df = calculate_ta_indicators(
-        df, 
+    df_calculated = calculate_ta_indicators(
+        df_fetched, 
         bot_settings
         )   
     
     previous_price = float(current_trade.previous_price if current_trade.is_active else 0)
-    latest_data = df.iloc[-1]
-    previous_data = df.iloc[-2]
-    atr = latest_data['atr']
     
     price_rises = current_price > previous_price if current_trade.is_active else False
     price_drops = current_price < previous_price if current_trade.is_active else False
@@ -155,12 +153,17 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
     price_hits_take_profit = current_price >= take_profit_price
     
     trend = check_ta_trend(
-        df, 
+        df_calculated, 
         bot_settings
         )
     
     averages = calculate_ta_averages(
-        df, 
+        df_calculated, 
+        bot_settings
+        )
+    
+    atr_value = calculate_atr_value(
+        df_calculated, 
         bot_settings
         )
 
@@ -168,13 +171,11 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         
         buy_signal = check_signal(
             'buy', 
-            df, 
-            df_for_ml,
+            df_calculated, 
+            df_raw,
             bot_settings, 
             trend, 
-            averages, 
-            latest_data, 
-            previous_data
+            averages
             )
 
         if isinstance(buy_signal, pd.Series):
@@ -184,7 +185,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
             execute_buy_order(
                 bot_settings, 
                 current_price, 
-                atr
+                atr_value
                 )
         else:
             logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} no buy signal.")
@@ -193,13 +194,11 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
         
         sell_signal = check_signal(
             'sell',
-            df, 
-            df_for_ml,
+            df_calculated, 
+            df_raw,
             bot_settings, 
             trend, 
-            averages, 
-            latest_data, 
-            previous_data
+            averages
             )
         
         if isinstance(sell_signal, pd.Series):
@@ -219,7 +218,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
                         bot_settings, 
                         current_trade, 
                         current_price, 
-                        atr
+                        atr_value
                         )
             else:
                 logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} take_profit activated.")
@@ -243,7 +242,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
                     bot_settings, 
                     current_trade, 
                     current_price, 
-                    atr
+                    atr_value
                     )  
             else:
                 handle_price_rises(
@@ -258,10 +257,9 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
             
     update_technical_analysis_data(
         bot_settings, 
-        df,
+        df_calculated,
         trend, 
-        averages, 
-        latest_data
+        averages
         )
                             
     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} loop completed.")
@@ -270,13 +268,11 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df):
 @exception_handler(default_return=False)
 def check_signal(
     signal_type,
-    df,
-    df_for_ml,
+    df_calculated,
+    df_raw,
     bot_settings,
     trend,
-    averages,
-    latest_data,
-    previous_data
+    averages
     ):
     """
     Checks whether a buy or sell signal is triggered based on technical analysis or machine learning.
@@ -287,8 +283,6 @@ def check_signal(
         bot_settings (object): Settings of the trading bot.
         trend (str): The current market trend.
         averages (dict): Calculated technical analysis averages.
-        latest_data (pandas.Series): Latest market data.
-        previous_data (pandas.Series): Previous market data.
 
     Returns:
         bool: True if the signal condition is met, False otherwise.
@@ -300,28 +294,24 @@ def check_signal(
     if bot_settings.use_technical_analysis:
         if signal_type == 'buy':
             return check_classic_ta_buy_signal(
-                df, 
+                df_calculated, 
                 bot_settings, 
                 trend, 
-                averages, 
-                latest_data, 
-                previous_data
+                averages
                 )
         elif signal_type == 'sell':
             return check_classic_ta_sell_signal(
-                df, 
+                df_calculated, 
                 bot_settings,
                 trend, 
-                averages, 
-                latest_data, 
-                previous_data
+                averages
                 )
             
         raise ValueError(f"Unsupported signal_type: {signal_type}")
     
     elif bot_settings.use_machine_learning:
         return check_ml_trade_signal(
-            df_for_ml,
+            df_raw,
             signal_type,
             bot_settings
             )

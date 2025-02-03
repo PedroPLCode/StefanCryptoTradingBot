@@ -133,18 +133,18 @@ def run_single_trading_logic(bot_settings):
         lookback_extended = f'{int(bot_settings.interval[:-1]) * 205}{bot_settings.interval[-1:]}'
         
         logger.trade(f'Bot {bot_settings.id} {bot_settings.strategy} Fetching data for {symbol} with interval {interval} and lookback {lookback_period}')
-        df = fetch_data_and_validate(
+        df_fetched = fetch_data_and_validate(
             symbol, 
             interval, 
             lookback_extended, 
             bot_settings.id
             )
         
-        if df is None:
+        if df_fetched is None:
             return
         
-        current_price = get_current_price(df, bot_settings.id)
+        current_price = get_current_price(df_fetched, bot_settings.id)
         if current_price is None:
             return
         
-        manage_trading_logic(bot_settings, current_trade, current_price, df)
+        manage_trading_logic(bot_settings, current_trade, current_price, df_fetched)

@@ -422,8 +422,6 @@ def check_classic_ta_sell_signal(
     bot_settings, 
     trend, 
     averages, 
-    latest_data, 
-    previous_data
     ):
     """
     Checks if all classic technical analysis sell signals are triggered based on the provided data.
@@ -437,8 +435,6 @@ def check_classic_ta_sell_signal(
         bot_settings (object): The bot settings containing preferences for each technical signal.
         trend (object): The current market trend data used for trend-based sell signal evaluation.
         averages (dict): The average market data for comparison (e.g., moving averages).
-        latest_data (dict): The most recent market data for evaluation of technical indicators.
-        previous_data (dict): The previous market data for evaluating changes in indicators.
 
     Returns:
         bool: True if all sell signals are triggered, otherwise False.
@@ -453,6 +449,9 @@ def check_classic_ta_sell_signal(
     
     if not is_df_valid(df, bot_settings.id):
         return False
+    
+    latest_data = df.iloc[-1]
+    previous_data = df.iloc[-2]
     
     sell_signals = [
         trend_sell_signal(trend, bot_settings),

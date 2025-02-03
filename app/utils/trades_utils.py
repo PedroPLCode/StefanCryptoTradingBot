@@ -81,7 +81,7 @@ def calculate_profit_percentage(buy_price, sell_price):
 
 
 @exception_handler(db_rollback=True)
-def update_technical_analysis_data(bot_settings, df, trend, averages, latest_data):
+def update_technical_analysis_data(bot_settings, df, trend, averages):
     """
     Updates technical analysis data for a given bot and stores it in the database.
 
@@ -90,7 +90,6 @@ def update_technical_analysis_data(bot_settings, df, trend, averages, latest_dat
         df (DataFrame): The historical data DataFrame.
         trend (str): The current trend direction.
         averages (dict): A dictionary containing averaged values of various indicators.
-        latest_data (dict): A dictionary containing the latest values of indicators.
 
     Returns:
         None
@@ -98,6 +97,8 @@ def update_technical_analysis_data(bot_settings, df, trend, averages, latest_dat
     Raises:
         Logs an error, rolls back the database session, and sends an admin email if an exception occurs.
     """
+    latest_data = df.iloc[-1]
+    
     technical_analysis = BotTechnicalAnalysis.query.filter_by(id=bot_settings.id).first()
 
     technical_analysis.set_df(df)
