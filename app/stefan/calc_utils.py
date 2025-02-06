@@ -606,7 +606,7 @@ def round_down_to_step_size(amount, step_size):
         
         
 @exception_handler()
-def calculate_atr_value(df, bot_settings):
+def get_atr_value(df, bot_settings):
     """
     Calculates the latest ATR (Average True Range) value.
 

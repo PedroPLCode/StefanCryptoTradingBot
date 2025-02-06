@@ -20,7 +20,7 @@ from .calc_utils import (
     calculate_ta_indicators,
     calculate_ta_averages,
     check_ta_trend,
-    calculate_atr_value
+    get_atr_value
 )
 
 @exception_handler()
@@ -162,7 +162,7 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df_fetched)
         bot_settings
         )
     
-    atr_value = calculate_atr_value(
+    atr_value = get_atr_value(
         df_calculated, 
         bot_settings
         )
