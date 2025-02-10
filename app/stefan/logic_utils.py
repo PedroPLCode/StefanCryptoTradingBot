@@ -20,8 +20,7 @@ from .calc_utils import (
     calculate_ta_indicators,
     calculate_ta_averages,
     check_ta_trend,
-    get_atr_value,
-    is_df_valid
+    get_atr_value
 )
 
 @exception_handler()

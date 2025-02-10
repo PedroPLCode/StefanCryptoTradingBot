@@ -271,6 +271,10 @@ def get_bot_specific_plot_indicators(bot_settings):
         list: A list of strings representing the selected indicators.
     """
     indicators = []
+    
+    if bot_settings.use_machine_learning:
+        indicators = bot_settings.selected_plot_indicators or ['close', 'boll']
+        return indicators
 
     if bot_settings.rsi_signals or bot_settings.rsi_divergence_signals:
         indicators.append('rsi')

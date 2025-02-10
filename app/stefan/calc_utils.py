@@ -3,7 +3,6 @@ import pandas as pd
 from ..utils.logging import logger
 from ..utils.email_utils import send_admin_email
 from ..utils.exception_handlers import exception_handler
-from .logic_utils import is_df_valid
 
 @exception_handler(default_return=(None, None))
 def get_latest_and_previus_data(df, bot_settings):
@@ -432,6 +431,8 @@ def calculate_ta_indicators(df, bot_settings):
     Returns:
         pandas.DataFrame: The updated DataFrame with calculated technical indicators, or False if an error occurs.
     """
+    from .logic_utils import is_df_valid
+    
     if not is_df_valid(df, bot_settings):
         logger.error('DataFrame is empty, cannot calculate indicators.')
         return df
