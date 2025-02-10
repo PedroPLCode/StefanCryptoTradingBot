@@ -84,7 +84,7 @@
                                     <p class="text-muted m-0 p-0">Select Plot Indicators:</p>
                                     
                                     <div class="grid-container">
-                                        {% for indicator in ['close', 'rsi', 'cci', 'mfi', 'macd', 'ema', 'boll', 'stoch', 'st_rsi', 'ma50', 'ma200', 'adx', 'atr', 'psar', 'vwap', 'di'] %}
+                                        {% for indicator in ['close', 'rsi', 'cci', 'mfi', 'macd', 'ema', 'boll', 'stoch', 'stoch_rsi', 'ma50', 'ma200', 'adx', 'atr', 'psar', 'vwap', 'di'] %}
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" name="indicators" value="{{ indicator }}" style="display: none;" 
                                             {% if indicator in bot_info.selected_plot_indicators %}checked{% endif %} 

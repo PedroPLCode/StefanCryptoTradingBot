@@ -138,7 +138,7 @@ def plot_selected_ta_indicators(
         ax.plot(df['open_time'], df['stoch_k'], label='Stoch %K', color='blue', linewidth=linw_width)
         ax.plot(df['open_time'], df['stoch_d'], label='Stoch %D', color='orange', linewidth=linw_width)
 
-    if 'st_rsi' in indicators:
+    if 'stoch_rsi' in indicators:
         ax.plot(df['open_time'], df['stoch_rsi_k'], label='Stoch RSI %K', color='blue', linewidth=linw_width)
         ax.plot(df['open_time'], df['stoch_rsi_d'], label='Stoch RSI %D', color='orange', linewidth=linw_width)
 
@@ -242,7 +242,7 @@ def validate_indicators(df, indicators):
         'cci': ['cci'],
         'mfi': ['mfi'],
         'stoch': ['stoch_k', 'stoch_d'],
-        'st_rsi': ['stoch_rsi_k', 'stoch_rsi_d'],
+        'stoch_rsi': ['stoch_rsi_k', 'stoch_rsi_d'],
         'psar': ['psar'],
         'vwap': ['vwap'],
         'adx': ['adx'],
@@ -256,3 +256,51 @@ def validate_indicators(df, indicators):
                 raise ValueError(f"Missing required columns for indicator {indicator}: {', '.join(missing_columns)}")
         else:
             raise ValueError(f"Unknown indicator: {indicator}")
+        
+        
+@exception_handler()
+def get_bot_specific_plot_indicators(bot_settings):
+    """
+    Extracts and returns a list of selected trading indicators based on the given bot_settings.
+
+    Parameters:
+        bot_settings (object): An object containing boolean attributes that determine 
+                          which indicators are selected for plotting.
+
+    Returns:
+        list: A list of strings representing the selected indicators.
+    """
+    indicators = []
+
+    if bot_settings.rsi_signals or bot_settings.rsi_divergence_signals:
+        indicators.append('rsi')
+    if bot_settings.cci_signals or bot_settings.cci_divergence_signals:
+        indicators.append('cci')
+    if bot_settings.mfi_signals or bot_settings.mfi_divergence_signals:
+        indicators.append('mfi')
+    if bot_settings.macd_cross_signals or bot_settings.macd_histogram_signals:
+        indicators.append('macd')
+    if bot_settings.bollinger_signals:
+        indicators.append('boll')
+    if bot_settings.stoch_signals or bot_settings.stoch_divergence_signals:
+        indicators.append('stoch')
+    if bot_settings.stoch_rsi_signals:
+        indicators.append('stoch_rsi')
+    if bot_settings.ema_cross_signals or bot_settings.ema_fast_signals or bot_settings.ema_slow_signals:
+        indicators.append('ema')
+    if bot_settings.di_signals:
+        indicators.append('di')
+    if bot_settings.atr_signals:
+        indicators.append('atr')
+    if bot_settings.vwap_signals:
+        indicators.append('vwap')
+    if bot_settings.psar_signals:
+        indicators.append('psar')
+    if bot_settings.ma50_signals or bot_settings.ma_cross_signals:
+        indicators.append('ma50')
+    if bot_settings.ma200_signals or bot_settings.ma_cross_signals:
+        indicators.append('ma200')
+    if bot_settings.trend_signals:
+        indicators.append('adx')
+
+    return indicators

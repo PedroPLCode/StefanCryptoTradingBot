@@ -3,6 +3,27 @@ import pandas as pd
 from ..utils.logging import logger
 from ..utils.email_utils import send_admin_email
 from ..utils.exception_handlers import exception_handler
+from .logic_utils import is_df_valid
+
+@exception_handler(default_return=(None, None))
+def get_latest_and_previus_data(df, bot_settings):
+    """
+    Pobiera najnowszy oraz poprzedni wiersz z przekazanego DataFrame.
+
+    Args:
+        df (pd.DataFrame): Pandas DataFrame zawierający dane.
+
+    Returns:
+        tuple: Krotka zawierająca dwa elementy:
+            - latest_data (pd.Series): Ostatni wiersz DataFrame.
+            - previous_data (pd.Series): Przedostatni wiersz DataFrame.
+
+    Jeśli DataFrame ma mniej niż dwa wiersze, zwraca (None, None).
+    """
+    latest_data = df.iloc[-1]
+    previous_data = df.iloc[-2]
+    return latest_data, previous_data
+
 
 @exception_handler(default_return=False)
 def handle_ta_df_initial_praparation(df, bot_settings):
@@ -411,7 +432,7 @@ def calculate_ta_indicators(df, bot_settings):
     Returns:
         pandas.DataFrame: The updated DataFrame with calculated technical indicators, or False if an error occurs.
     """
-    if df.empty:
+    if not is_df_valid(df, bot_settings):
         logger.error('DataFrame is empty, cannot calculate indicators.')
         return df
 

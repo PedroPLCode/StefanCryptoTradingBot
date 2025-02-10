@@ -20,11 +20,12 @@ from .calc_utils import (
     calculate_ta_indicators,
     calculate_ta_averages,
     check_ta_trend,
-    get_atr_value
+    get_atr_value,
+    is_df_valid
 )
 
 @exception_handler()
-def is_df_valid(df, bot_id):
+def is_df_valid(df, bot_info):
     """
     Checks if a DataFrame is valid for use in the bot's trading logic.
 
@@ -38,8 +39,8 @@ def is_df_valid(df, bot_id):
     Returns:
         bool: True if the DataFrame is valid, False otherwise.
     """
-    if df is None or df.empty or len(df) < 2:
-        logger.trade(f'DataFrame is empty or too short for bot {bot_id}.')
+    if df is None or df.empty:
+        logger.trade(f'DataFrame is empty or too short for bot {bot_info.id}.')
         return False
     return True
 

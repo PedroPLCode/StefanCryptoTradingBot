@@ -62,6 +62,12 @@
 
                                 {% if bot_info.use_technical_analysis %}
 
+                                    {% if bot_info.plot_url %}
+                                        <img src="data:image/png;base64,{{ bot_info.plot_url }}" alt="Technical Analysis Plot" style="max-width: 100%; height: auto; max-height: 500px;">
+                                    {% else %}
+                                        <p>No data available for {{ bot_info.symbol }} Technical Analysis Plot.</p>
+                                    {% endif %}
+
                                     <p class="text-muted m-0 p-0 border-bottom border-top">
                                         Technical Analysis Trade Signals:<br>
                                         {% if bot_info.trend_signals %}TREND({{ bot_info.adx_timeperiod }}, avg: {{ bot_info.avg_adx_period }})<br>{% endif %}

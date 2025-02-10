@@ -18,6 +18,7 @@ from ..stefan.api_utils import (
 )
 from ..utils.email_utils import send_admin_email
 from ..utils.trades_utils import show_account_balance
+from ..stefan.logic_utils import is_df_valid
     
 @main.route('/')
 @requires_authentication('User')
@@ -67,6 +68,11 @@ def control_panel_view():
         Rendered control_panel.html template with all bot settings.
         If an error occurs, redirects to the user panel.
     """
+    from ..utils.plot_utils import (
+        plot_selected_ta_indicators,
+        get_bot_specific_plot_indicators
+    )
+    
     try:
         all_bots_settings = BotSettings.query.all()
         
@@ -79,6 +85,23 @@ def control_panel_view():
                 account_status, 
                 {cryptocoin_symbol, stablecoin_symbol})
             bot_info.balance = balance
+            
+            technical_analysis_data = bot_info.bot_technical_analysis
+            df = technical_analysis_data.get_df()
+            
+            if not is_df_valid(df, bot_info):
+                logger.warning(f'Bot {bot_info.symbol} returned an empty DataFrame.')
+                bot_info.plot_url = None
+                continue
+            
+            plot_indicators = get_bot_specific_plot_indicators(bot_info) or ['rsi', 'macd']
+            plot_url = plot_selected_ta_indicators(
+                df, 
+                plot_indicators,
+                bot_info,
+                bot_info.lookback_period
+                )
+            bot_info.plot_url = plot_url
 
         return render_template(
             'control_panel.html', 
@@ -127,7 +150,7 @@ def analysis_panel_view():
             technical_analysis_data = bot_info.bot_technical_analysis
             df = technical_analysis_data.get_df()
             
-            if df.empty:
+            if not is_df_valid(df, bot_info):
                 logger.warning(f'Bot {bot_info.symbol} returned an empty DataFrame.')
                 bot_info.plot_url = None
                 continue

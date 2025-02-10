@@ -450,8 +450,7 @@ def check_classic_ta_sell_signal(
     if not is_df_valid(df, bot_settings.id):
         return False
     
-    latest_data = df.iloc[-1]
-    previous_data = df.iloc[-2]
+    latest_data, previous_data = get_latest_and_previus_data(df, bot_settings)
     
     sell_signals = [
         trend_sell_signal(trend, bot_settings),

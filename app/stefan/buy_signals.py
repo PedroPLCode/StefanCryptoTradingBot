@@ -1,6 +1,7 @@
 from ..utils.logging import logger
 from ..utils.email_utils import send_admin_email
 from ..utils.exception_handlers import exception_handler
+from .calc_utils import get_latest_and_previus_data
 
 @exception_handler(default_return=False)
 def trend_buy_signal(trend, bot_settings):
@@ -470,8 +471,7 @@ def check_classic_ta_buy_signal(
     if not is_df_valid(df, bot_settings.id):
         return False
     
-    latest_data = df.iloc[-1]
-    previous_data = df.iloc[-2]
+    latest_data, previous_data = get_latest_and_previus_data(df, bot_settings)
     
     if trend == 'downtrend':
         return False
