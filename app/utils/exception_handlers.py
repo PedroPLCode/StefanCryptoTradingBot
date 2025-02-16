@@ -2,6 +2,7 @@ import sys
 import functools
 import logging
 from binance.exceptions import BinanceAPIException
+from sqlalchemy.exc import SQLAlchemyError
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +67,8 @@ def exception_handler(default_return=None, db_rollback=False):
                 TimeoutError, 
                 ValueError, 
                 TypeError, 
-                FileNotFoundError
+                FileNotFoundError,
+                SQLAlchemyError
             ) as e:
                 exception_type = type(e).__name__
                 logger.error(f"{bot_str}{exception_type} in {func.__name__}: {str(e)}")

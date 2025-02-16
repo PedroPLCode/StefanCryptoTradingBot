@@ -5,6 +5,7 @@ from ..models import User
 from sqlalchemy import or_
 from .. import db
 from ..utils.logging import logger
+from ..utils.exception_handlers import exception_handler
 from datetime import datetime as dt
 from . import main
 from .. import limiter
@@ -14,6 +15,7 @@ from ..utils.app_utils import get_ip_address
 
 @main.route('/register', methods=['GET', 'POST'])
 @limiter.limit("4/min")
+@exception_handler(default_return=False)
 def register():
     """
     Handles the user registration process. If the user is authenticated, they are redirected 
@@ -81,6 +83,7 @@ def register():
 
 @main.route('/login', methods=['GET', 'POST'])
 @limiter.limit("4/min")
+@exception_handler(default_return=False)
 def login():
     """
     Handles the user login process. If the user is already authenticated, redirects them 
@@ -126,6 +129,7 @@ def login():
     return render_template('login.html', form=form)
 
 
+@exception_handler(default_return=False)
 def handle_successful_login(user):
     """
     Handles the actions required for a successful user login.
@@ -139,20 +143,14 @@ def handle_successful_login(user):
     Returns:
         None
     """
-    try:
-        login_user(user)
-        user.last_login = dt.now()
-        db.session.commit()
-        flash(f'Logged in successfully. Welcome back, {user.name}!', 'success')
-        return True
-    
-    except Exception as e:
-        flash(f'Unexpected error when logging user {user.name}', 'danger')
-        logger.error(f'Exception in handle_successful_login: {str(e)}')
-        send_admin_email('Exception in handle_successful_login', str(e))
-        return False
+    login_user(user)
+    user.last_login = dt.now()
+    db.session.commit()
+    flash(f'Logged in successfully. Welcome back, {user.name}!', 'success')
+    return True
     
 
+@exception_handler(default_return=False)
 def handle_failed_login(user, user_ip):
     """
     Handles a failed login attempt for a user.
@@ -168,27 +166,22 @@ def handle_failed_login(user, user_ip):
     Returns:
         None
     """
-    try:
-        user.login_errors += 1
-        db.session.commit()
-        logger.warning(f'User {user.name} login error number {user.login_errors} from {user_ip}.')
-        flash(f'User {user.name} login error number {user.login_errors}.', 'danger')
+    user.login_errors += 1
+    db.session.commit()
+    logger.warning(f'User {user.name} login error number {user.login_errors} from {user_ip}.')
+    flash(f'User {user.name} login error number {user.login_errors}.', 'danger')
 
-        if user.login_errors >= 4:
-            user.account_suspended = True
-            db.session.commit()
-            logger.warning(f'User {user.name} suspended from address {user_ip}')
-            flash(f'User {user.name} suspended. Admin will contact you.', 'danger')
-            
-        return True
-    
-    except Exception as e:
-        logger.error(f'Exception in handle_failed_login: {str(e)}')
-        send_admin_email('Exception in handle_failed_login', str(e))
-        return False
+    if user.login_errors >= 4:
+        user.account_suspended = True
+        db.session.commit()
+        logger.warning(f'User {user.name} suspended from address {user_ip}')
+        flash(f'User {user.name} suspended. Admin will contact you.', 'danger')
+        
+    return True
 
 
 @main.route('/logout')
+@exception_handler()
 @login_required
 def logout():
     """
@@ -202,14 +195,8 @@ def logout():
     Returns:
         Redirect: Redirects the user to the login page.
     """
-    try:
-        login = current_user.login
-        logout_user()
-        flash(f'User {login} logged out successfully.', 'success')
-        
-    except Exception as e:
-        logger.error(f'Error during logout user {login}: {str(e)}')
-        send_admin_email(f'Logout error user {login}', str(e))
-        flash(f'An error occurred during logout user {login}. Please try again.', 'danger')
+    login = current_user.login
+    logout_user()
+    flash(f'User {login} logged out successfully.', 'success')
 
     return redirect(url_for('main.login'))
