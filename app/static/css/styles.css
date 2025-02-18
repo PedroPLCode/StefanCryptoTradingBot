@@ -57,3 +57,12 @@
     text-align: center;
     white-space: nowrap;
 }
+
+.navbar-collapse {
+    transition: height 0.2s linear;
+}
+
+.navbar-collapse.show {
+    height: 100vh;
+    padding-top: 25vh;
+}

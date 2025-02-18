@@ -1,145 +1,85 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base_inside.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StefanCryptoTradingBot</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-</head>
+{% block content %}
 
-<body>
-    <div class="container d-flex flex-column justify-content-center align-items-center mt-3">
-
-        {% with messages = get_flashed_messages(with_categories=True) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="col-md-6 text-center alert alert-{{ category }} mt-0 mb-3" role="alert">
-            {{ message }}
+    <div class="col-12 col-md-6 card mt-0 mb-3">
+        <div class="card-header text-center">
+            <h5>User Info</h5>
         </div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
+        <div class="card-body text-center">
+            <p class="text-muted m-0 p-0">Login: {{ user.login }}</p>
+            <p class="text-muted m-0 p-0">Name: {{ user.name }}</p>
+            <p class="text-muted m-0 p-0">Comment: {{ user.comment }}</p>
+            <p class="text-muted m-0 p-0">Email: {{ user.email }}</p>
+            <p class="text-muted m-0 p-0">Control Panel Access: <span class="{{ 'text-success' if user.control_panel_access else 'text-danger' }}">{{ user.control_panel_access }}</span></p>
+            <p class="text-muted m-0 p-0">Admin Panel Access: <span class="{{ 'text-success' if user.admin_panel_access else 'text-danger' }}">{{ user.admin_panel_access }}</span></p>
+            <p class="text-muted m-0 p-0">Email Reports Receiver: <span class="{{ 'text-success' if user.email_raports_receiver else 'text-muted' }}">{{ user.email_raports_receiver }}</span></p>
+            <p class="text-muted m-0 p-0">Email Trades Receiver: <span class="{{ 'text-success' if user.email_trades_receiver else 'text-muted' }}">{{ user.email_trades_receiver }}</span></p>
+            <p class="text-muted m-0 p-0">Account Suspended: <span class="{{ 'text-success' if not user.account_suspended else 'text-danger' }}">{{ user.account_suspended }}</span></p>
 
-        <h4 class="col-md-6 card-header text-center">StefanCryptoTradingBot</h4>
-        <p class="text-muted text-center m-0 p-0">current time: {{ date_and_time }}</p>
+            {% if account_status is not none %}
+            <p class="text-muted m-0 p-0">Binance API canTrade: <span class="{{ 'text-success' if account_status.canTrade else 'text-danger' }}">{{ account_status.canTrade }}</span></p>
+            <p class="text-muted m-0 p-0">Binance API canWithdraw: <span class="{{ 'text-success' if account_status.canWithdraw else 'text-danger' }}">{{ account_status.canWithdraw }}</span></p>
+            <p class="text-muted m-0 p-0">Binance API canDeposit: <span class="{{ 'text-success' if account_status.canDeposit else 'text-danger' }}">{{ account_status.canDeposit }}</span></p>
+            {% endif%}
 
-        {% if current_user.is_authenticated %}
-            <p class="text-center text-muted m-0 p-0">{{ current_user.login }} logged in at {{ current_user.last_login }}</p>
-        {% endif %}
-
-        <div class="col-12 col-md-6 card mt-3 mb-3">
-            <div class="card-header text-center">
-                <h5>User Info</h5>
-            </div>
-            <div class="card-body text-center">
-                <p class="text-muted m-0 p-0">Login: {{ user.login }}</p>
-                <p class="text-muted m-0 p-0">Name: {{ user.name }}</p>
-                <p class="text-muted m-0 p-0">Comment: {{ user.comment }}</p>
-                <p class="text-muted m-0 p-0">Email: {{ user.email }}</p>
-                <p class="text-muted m-0 p-0">Control Panel Access: <span class="{{ 'text-success' if user.control_panel_access else 'text-danger' }}">{{ user.control_panel_access }}</span></p>
-                <p class="text-muted m-0 p-0">Admin Panel Access: <span class="{{ 'text-success' if user.admin_panel_access else 'text-danger' }}">{{ user.admin_panel_access }}</span></p>
-                <p class="text-muted m-0 p-0">Email Reports Receiver: <span class="{{ 'text-success' if user.email_raports_receiver else 'text-muted' }}">{{ user.email_raports_receiver }}</span></p>
-                <p class="text-muted m-0 p-0">Email Trades Receiver: <span class="{{ 'text-success' if user.email_trades_receiver else 'text-muted' }}">{{ user.email_trades_receiver }}</span></p>
-                <p class="text-muted m-0 p-0">Account Suspended: <span class="{{ 'text-success' if not user.account_suspended else 'text-danger' }}">{{ user.account_suspended }}</span></p>
-
-                {% if account_status is not none %}
-                <p class="text-muted m-0 p-0">Binance API canTrade: <span class="{{ 'text-success' if account_status.canTrade else 'text-danger' }}">{{ account_status.canTrade }}</span></p>
-                <p class="text-muted m-0 p-0">Binance API canWithdraw: <span class="{{ 'text-success' if account_status.canWithdraw else 'text-danger' }}">{{ account_status.canWithdraw }}</span></p>
-                <p class="text-muted m-0 p-0">Binance API canDeposit: <span class="{{ 'text-success' if account_status.canDeposit else 'text-danger' }}">{{ account_status.canDeposit }}</span></p>
-                {% else %}
-                    error
-                {% endif%}
-
-                </p>
-            </div>
         </div>
-
-        <div class="col-12 col-md-6 card mb-3">
-            <div class="card-header text-center">
-                <h5>
-                    {% if user.control_panel_access %}
-                    System Info
-                    {% else %}
-                    Limited Access
-                    {% endif %}
-                </h5>
-            </div>
-            <div class="card-body text-center">
-                <p class="text-muted m-0 p-0">StefanCryptoTradingBot version: 2.1 TA&ML</p>
-                {% if user.control_panel_access %}
-                    <p class="text-muted m-0 p-0">System: {{ system_info }}</p>
-                    <p class="text-muted m-0 p-0">Uptime: {{ system_uptime }}</p>
-                    <p class="text-muted m-0 p-0">Python: {{ python_version }}</p>
-                    <p class="text-muted m-0 p-0">Flask: {{ flask_version }}</p>
-                    <p class="text-muted m-0 p-0">Numpy: {{ numpy_version }}</p>
-                    <p class="text-muted m-0 p-0">Pandas: {{ pandas_version }}</p>
-                    <p class="text-muted m-0 p-0">Keras: {{ keras_version }}</p>
-                    <p class="text-muted m-0 p-0">Database: {{ db_engine }}</p>
-                    <p class="text-muted m-0 p-0">Binance API Status:
-                        {% if binance_status is not none %}
-                        {{ binance_status.status }} {{ binance_status.msg | title}}
-                        {% else %}
-                        error
-                        {% endif%}
-                    </p>
-                    <p class="text-muted m-0 p-0">Binance API Server Time:
-                        {% if server_time is not none %}
-                        {{ server_time.serverTime }}
-                        {% else %}
-                        error
-                        {% endif %}
-                    </p>
-                {% else %}
-                    <p class="text-muted m-0 p-0">You have no permission to visit other pages.</p>
-                    <p class="text-muted m-0 p-0">Admin will contact you.</p>
-                {% endif %}
-                <p class="text-muted m-0 p-0">User Agent: {{ user_agent }}</p>
-            </div>
-        </div>
-
-        {% if user.email_raports_receiver %}
-        <div class="col-12 col-md-6 card mb-3">
-            <div class="card-header text-center bg-light">
-                <h5>Options</h5>
-            </div>
-            <div class="card-body text-center">
-                <div class="d-flex flex-column justify-content-center align-items-center gap-2">    
-                    <a href="{{ url_for('main.report') }}" class="btn btn-primary w-100">Email Raport</a>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        <div class="col-12 col-md-6 card mb-3">
-            <div class="card-header text-center">
-                <h5>Navigation</h5>
-            </div>
-            <div class="card-body text-center">
-                <div class="d-flex flex-column justify-content-center align-items-center gap-2">
-                    {% if user.control_panel_access %}
-                        <a href="/control" class="btn btn-primary w-100">Control Panel</a>
-                        <a href="/analysis" class="btn btn-primary w-100">Techical Analysis</a>
-                        <a href="/trades" class="btn btn-primary w-100">Trades History</a>
-                        <a href="/backtest" class="btn btn-primary w-100">Backtest Panel</a>
-                    {% endif %}
-                    {% if user.admin_panel_access %}
-                        <a href="/admin" class="btn btn-primary w-100">Admin Panel</a>
-                    {% endif %}
-                    <a href="{{ url_for('main.logout') }}" class="btn btn-danger w-100">Logout</a>
-                </div>
-            </div>
-        </div>
-
-        <footer class="col-md-6 text-center mb-3">
-            <p class="text-muted">
-                <a href="mailto:StefanCryptoTradingBot@gmail.com">StefanCryptoTradingBot@gmail.com</a>
-            </p>
-        </footer>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <div class="col-12 col-md-6 card mb-3">
+        <div class="card-header text-center">
+            <h5>
+                {% if user.control_panel_access %}
+                System Info
+                {% else %}
+                Limited Access
+                {% endif %}
+            </h5>
+        </div>
+        <div class="card-body text-center">
+            <p class="text-muted m-0 p-0">StefanCryptoTradingBot version: 2.1 TA&ML</p>
+            {% if user.control_panel_access %}
+                <p class="text-muted m-0 p-0">System: {{ system_info }}</p>
+                <p class="text-muted m-0 p-0">Uptime: {{ system_uptime }}</p>
+                <p class="text-muted m-0 p-0">Python: {{ python_version }}</p>
+                <p class="text-muted m-0 p-0">Flask: {{ flask_version }}</p>
+                <p class="text-muted m-0 p-0">Numpy: {{ numpy_version }}</p>
+                <p class="text-muted m-0 p-0">Pandas: {{ pandas_version }}</p>
+                <p class="text-muted m-0 p-0">Keras: {{ keras_version }}</p>
+                <p class="text-muted m-0 p-0">Database: {{ db_engine }}</p>
+                <p class="text-muted m-0 p-0">Binance API Status:
+                    {% if binance_status is not none %}
+                    {{ binance_status.status }} {{ binance_status.msg | title}}
+                    {% else %}
+                    error
+                    {% endif%}
+                </p>
+                <p class="text-muted m-0 p-0">Binance API Server Time:
+                    {% if server_time is not none %}
+                    {{ server_time.serverTime }}
+                    {% else %}
+                    error
+                    {% endif %}
+                </p>
+            {% else %}
+                <p class="text-muted m-0 p-0">You have no permission to visit other pages.</p>
+                <p class="text-muted m-0 p-0">Admin will contact you.</p>
+            {% endif %}
+            <p class="text-muted m-0 p-0">User Agent: {{ user_agent }}</p>
+        </div>
+    </div>
 
-</html>
+    {% if user.email_raports_receiver %}
+    <div class="col-12 col-md-6 card mb-3">
+        <div class="card-header text-center bg-light">
+            <h5>Options</h5>
+        </div>
+        <div class="card-body text-center">
+            <div class="d-flex flex-column justify-content-center align-items-center gap-2">    
+                <a href="{{ url_for('main.report') }}" class="btn btn-primary w-100">Email Raport</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+{% endblock %}

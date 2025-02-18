@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block base %}
+
+    <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-white bg-opacity-75">
+        <div class="container-fluid">
+            <div class="d-flex flex-column justify-content-center align-items-center">
+                <a class="text-dark fs-6 navbar-brand p-0 m-0" href="/">StefanCryptoTradingBot</a>
+                <p class="text-dark p-0 m-0">{{ date_and_time }}</p>
+                <p class="text-dark p-0 m-0">{{ user.email }}</p>
+            </div>       
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if user.control_panel_access %}
+                    <li class="nav-item">
+                        <a href="/control" class="text-center text-dark nav-link {% if request.path.startswith('/control') %}fw-bold{% endif %}">Control Panel</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/analysis" class="text-center text-dark nav-link {% if request.path.startswith('/analysis') %}fw-bold{% endif %}">Technical Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/trades" class="text-center text-dark nav-link {% if request.path.startswith('/trades') %}fw-bold{% endif %}">Trades History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/backtest" class="text-center text-dark nav-link {% if request.path.startswith('/backtest') %}fw-bold{% endif %}">Backtest Panel</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% if user.admin_panel_access %}
+                    <li class="nav-item">
+                        <a href="/admin" class="text-center text-dark nav-link {% if request.path.startswith('/admin') %}fw-bold{% endif %}">Admin Panel</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="nav-item">
+                        <a href="/" class="text-center text-dark nav-link {% if request.path.startswith('/user') %}fw-bold{% endif %}">User Panel</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a href="{{ url_for('main.logout') }}" class="text-center text-dark nav-link">Logout</a>
+                    </li>
+                </ul>
+            </div>            
+        </div>
+    </nav>
+
+    <div class="container d-flex flex-column justify-content-center align-items-center mt-5">
+
+        {% with messages = get_flashed_messages(with_categories=True) %}
+
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="col-md-6 text-center alert alert-{{ category }} mt-5" role="alert">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="mt-5"></div>
+            {% endif %}
+
+        {% endwith %}
+        
+        {% block content %}
+        {% endblock content %}
+
+    </div>
+
+{% endblock base %}
