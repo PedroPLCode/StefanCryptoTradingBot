@@ -3,6 +3,7 @@ from ..utils.email_utils import send_admin_email
 from ..utils.exception_handlers import exception_handler
 from .calc_utils import get_latest_and_previus_data
 
+
 @exception_handler(default_return=False)
 def trend_buy_signal(trend, bot_settings):
     """
@@ -16,7 +17,7 @@ def trend_buy_signal(trend, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.trend_signals:
-        return (trend == 'uptrend')
+        return trend == "uptrend"
     return True
 
 
@@ -34,8 +35,9 @@ def rsi_buy_signal(latest_data, averages, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.rsi_signals:
-        return (float(latest_data['rsi']) <= float(bot_settings.rsi_buy) and
-                float(latest_data['rsi']) >= float(averages['avg_rsi'])) 
+        return float(latest_data["rsi"]) <= float(bot_settings.rsi_buy) and float(
+            latest_data["rsi"]
+        ) >= float(averages["avg_rsi"])
     return True
 
 
@@ -53,8 +55,9 @@ def rsi_divergence_buy_signal(latest_data, averages, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.rsi_divergence_signals:
-        return (float(latest_data['close']) <= float(averages['avg_close']) and
-                float(latest_data['rsi']) >= float(averages['avg_rsi'])) 
+        return float(latest_data["close"]) <= float(averages["avg_close"]) and float(
+            latest_data["rsi"]
+        ) >= float(averages["avg_rsi"])
     return True
 
 
@@ -72,7 +75,7 @@ def vol_rising(latest_data, averages, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.vol_signals:
-        return float(latest_data['volume']) >= float(averages['avg_volume']) 
+        return float(latest_data["volume"]) >= float(averages["avg_volume"])
     return True
 
 
@@ -90,8 +93,9 @@ def macd_cross_buy_signal(latest_data, previous_data, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.macd_cross_signals:
-        return (float(previous_data['macd']) <= float(previous_data['macd_signal']) and
-                float(latest_data['macd']) >= float(latest_data['macd_signal'])) 
+        return float(previous_data["macd"]) <= float(
+            previous_data["macd_signal"]
+        ) and float(latest_data["macd"]) >= float(latest_data["macd_signal"])
     return True
 
 
@@ -109,8 +113,10 @@ def macd_histogram_buy_signal(latest_data, previous_data, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.macd_histogram_signals:
-        return (float(previous_data['macd_histogram']) <= 0 and
-                float(latest_data['macd_histogram']) >= 0) 
+        return (
+            float(previous_data["macd_histogram"]) <= 0
+            and float(latest_data["macd_histogram"]) >= 0
+        )
     return True
 
 
@@ -127,7 +133,7 @@ def bollinger_buy_signal(latest_data, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.bollinger_signals:
-        return float(latest_data['close']) <= float(latest_data['lower_band'])
+        return float(latest_data["close"]) <= float(latest_data["lower_band"])
     return True
 
 
@@ -145,9 +151,11 @@ def stoch_buy_signal(latest_data, previous_data, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.stoch_signals:
-        return (float(previous_data['stoch_k']) <= float(previous_data['stoch_d']) and
-                float(latest_data['stoch_k']) >= float(latest_data['stoch_d']) and
-                float(latest_data['stoch_k']) <= float(bot_settings.stoch_buy)) 
+        return (
+            float(previous_data["stoch_k"]) <= float(previous_data["stoch_d"])
+            and float(latest_data["stoch_k"]) >= float(latest_data["stoch_d"])
+            and float(latest_data["stoch_k"]) <= float(bot_settings.stoch_buy)
+        )
     return True
 
 
@@ -165,8 +173,9 @@ def stoch_divergence_buy_signal(latest_data, averages, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.stoch_divergence_signals:
-        return (float(latest_data['stoch_k']) >= float(averages['avg_stoch_k']) and
-                float(latest_data['close']) <= float(averages['avg_close'])) 
+        return float(latest_data["stoch_k"]) >= float(
+            averages["avg_stoch_k"]
+        ) and float(latest_data["close"]) <= float(averages["avg_close"])
     return True
 
 
@@ -184,8 +193,9 @@ def stoch_rsi_buy_signal(latest_data, averages, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.stoch_rsi_signals:
-        return (float(latest_data['stoch_rsi_k']) <= float(bot_settings.stoch_buy) and
-                float(latest_data['stoch_rsi_k']) >= float(averages['avg_stoch_rsi_k'])) 
+        return float(latest_data["stoch_rsi_k"]) <= float(
+            bot_settings.stoch_buy
+        ) and float(latest_data["stoch_rsi_k"]) >= float(averages["avg_stoch_rsi_k"])
     return True
 
 
@@ -203,8 +213,9 @@ def ema_cross_buy_signal(latest_data, previous_data, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.ema_cross_signals:
-        return (float(previous_data['ema_fast']) <= float(previous_data['ema_slow']) and
-                float(latest_data['ema_fast']) >= float(latest_data['ema_slow'])) 
+        return float(previous_data["ema_fast"]) <= float(
+            previous_data["ema_slow"]
+        ) and float(latest_data["ema_fast"]) >= float(latest_data["ema_slow"])
     return True
 
 
@@ -222,7 +233,7 @@ def ema_fast_buy_signal(latest_data, averages, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.ema_fast_signals:
-        return float(latest_data['close']) >= float(averages['avg_ema_fast']) 
+        return float(latest_data["close"]) >= float(averages["avg_ema_fast"])
     return True
 
 
@@ -240,7 +251,7 @@ def ema_slow_buy_signal(latest_data, averages, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.ema_slow_signals:
-        return float(latest_data['close']) >= float(averages['avg_ema_slow']) 
+        return float(latest_data["close"]) >= float(averages["avg_ema_slow"])
     return True
 
 
@@ -258,10 +269,11 @@ def di_cross_buy_signal(latest_data, previous_data, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.di_signals:
-        return (float(previous_data['plus_di']) <= float(previous_data['minus_di']) and
-                    float(latest_data['plus_di']) >= float(latest_data['minus_di'])) 
+        return float(previous_data["plus_di"]) <= float(
+            previous_data["minus_di"]
+        ) and float(latest_data["plus_di"]) >= float(latest_data["minus_di"])
     return True
-    
+
 
 @exception_handler(default_return=False)
 def cci_buy_signal(latest_data, averages, bot_settings):
@@ -277,8 +289,9 @@ def cci_buy_signal(latest_data, averages, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.cci_signals:
-        return (float(latest_data['cci']) <= float(bot_settings.cci_buy) and
-                float(latest_data['cci']) >= float(averages['avg_cci']))  
+        return float(latest_data["cci"]) <= float(bot_settings.cci_buy) and float(
+            latest_data["cci"]
+        ) >= float(averages["avg_cci"])
     return True
 
 
@@ -296,8 +309,9 @@ def cci_divergence_buy_signal(latest_data, averages, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.cci_divergence_signals:
-        return (float(latest_data['close']) <= float(averages['avg_close']) and
-                float(latest_data['cci']) >= float(averages['avg_cci'])) 
+        return float(latest_data["close"]) <= float(averages["avg_close"]) and float(
+            latest_data["cci"]
+        ) >= float(averages["avg_cci"])
     return True
 
 
@@ -315,8 +329,9 @@ def mfi_buy_signal(latest_data, averages, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.mfi_signals:
-        return (float(latest_data['mfi']) <= float(bot_settings.mfi_buy) and
-                float(latest_data['mfi']) >= float(averages['avg_mfi'])) 
+        return float(latest_data["mfi"]) <= float(bot_settings.mfi_buy) and float(
+            latest_data["mfi"]
+        ) >= float(averages["avg_mfi"])
     return True
 
 
@@ -334,8 +349,9 @@ def mfi_divergence_buy_signal(latest_data, averages, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.mfi_divergence_signals:
-        return (float(latest_data['close']) <= float(averages['avg_close']) and
-                float(latest_data['mfi']) >= float(averages['avg_mfi'])) 
+        return float(latest_data["close"]) <= float(averages["avg_close"]) and float(
+            latest_data["mfi"]
+        ) >= float(averages["avg_mfi"])
     return True
 
 
@@ -353,9 +369,10 @@ def atr_buy_signal(latest_data, averages, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.atr_signals:
-        atr_buy_level = bot_settings.atr_buy_treshold * float(latest_data['close'])
-        return (float(latest_data['atr']) >= float(averages['avg_atr']) and
-                float(latest_data['atr']) >= float(atr_buy_level))
+        atr_buy_level = bot_settings.atr_buy_treshold * float(latest_data["close"])
+        return float(latest_data["atr"]) >= float(averages["avg_atr"]) and float(
+            latest_data["atr"]
+        ) >= float(atr_buy_level)
     return True
 
 
@@ -372,9 +389,9 @@ def vwap_buy_signal(latest_data, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.vwap_signals:
-        return float(latest_data['close']) >= float(latest_data['vwap']) 
+        return float(latest_data["close"]) >= float(latest_data["vwap"])
     return True
-    
+
 
 @exception_handler(default_return=False)
 def psar_buy_signal(latest_data, previous_data, bot_settings):
@@ -390,8 +407,9 @@ def psar_buy_signal(latest_data, previous_data, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.psar_signals:
-        return (float(previous_data['psar']) >= float(previous_data['close']) and
-                float(latest_data['psar']) <= float(latest_data['close'])) 
+        return float(previous_data["psar"]) >= float(previous_data["close"]) and float(
+            latest_data["psar"]
+        ) <= float(latest_data["close"])
     return True
 
 
@@ -408,7 +426,7 @@ def ma50_buy_signal(latest_data, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.ma50_signals:
-        return float(latest_data['close']) >= float(latest_data['ma_50']) 
+        return float(latest_data["close"]) >= float(latest_data["ma_50"])
     return True
 
 
@@ -425,7 +443,7 @@ def ma200_buy_signal(latest_data, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.ma200_signals:
-        return float(latest_data['close']) >= float(latest_data['ma_200']) 
+        return float(latest_data["close"]) >= float(latest_data["ma_200"])
     return True
 
 
@@ -442,18 +460,19 @@ def ma_cross_buy_signal(latest_data, previous_data, bot_settings):
         bool: True if the buy signal should be triggered, otherwise False.
     """
     if bot_settings.ma_cross_signals:
-        return (float(previous_data['ma_50']) <= float(previous_data['ma_200']) and
-                    float(latest_data['ma_50']) >= float(latest_data['ma_200'])) 
+        return float(previous_data["ma_50"]) <= float(
+            previous_data["ma_200"]
+        ) and float(latest_data["ma_50"]) >= float(latest_data["ma_200"])
     return True
-    
+
 
 @exception_handler(default_return=False)
 def check_classic_ta_buy_signal(
-    df, 
-    bot_settings, 
-    trend, 
-    averages, 
-    ):
+    df,
+    bot_settings,
+    trend,
+    averages,
+):
     """
     Calculates whether a buy signal should be triggered based on multiple conditions.
 
@@ -467,13 +486,13 @@ def check_classic_ta_buy_signal(
         bool: True if a buy signal is triggered, otherwise False.
     """
     from .logic_utils import is_df_valid
-    
+
     if not is_df_valid(df, bot_settings.id):
         return False
-    
+
     latest_data, previous_data = get_latest_and_previus_data(df, bot_settings)
-    
-    if trend == 'downtrend':
+
+    if trend == "downtrend":
         return False
 
     buy_signals = [
@@ -500,12 +519,12 @@ def check_classic_ta_buy_signal(
         psar_buy_signal(latest_data, previous_data, bot_settings),
         ma50_buy_signal(latest_data, bot_settings),
         ma200_buy_signal(latest_data, bot_settings),
-        ma_cross_buy_signal(latest_data, previous_data, bot_settings)
+        ma_cross_buy_signal(latest_data, previous_data, bot_settings),
     ]
-    
+
     signals_to_check = [bool(signal) for signal in buy_signals]
 
     if all(signals_to_check):
         return True
-    
+
     return False

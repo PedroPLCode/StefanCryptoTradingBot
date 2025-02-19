@@ -5,13 +5,14 @@ from .logging import logger
 from ..utils.exception_handlers import exception_handler
 from ..utils.email_utils import send_admin_email
 
+
 @exception_handler(db_rollback=True)
 def clear_old_trade_history():
     """
     Clears old trade history based on each bot's configured retention period.
 
-    This function iterates through all bot settings and removes trade records 
-    older than the configured `days_period_to_clean_history` value. It logs 
+    This function iterates through all bot settings and removes trade records
+    older than the configured `days_period_to_clean_history` value. It logs
     the process, sends a summary report via email, and handles any errors.
 
     Process:
@@ -28,33 +29,43 @@ def clear_old_trade_history():
         Logs any exceptions encountered and notifies the admin.
     """
     now = dt.now()
-    formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
-    today = now.strftime('%Y-%m-%d')
-    
+    formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
+    today = now.strftime("%Y-%m-%d")
+
     all_bot_settings = BotSettings.query.all()
     errors = []
     summary_logs = []
-    
+
     for bot_settings in all_bot_settings:
         days_to_clean_history = bot_settings.days_period_to_clean_history
-        
-        if not days_to_clean_history or not isinstance(days_to_clean_history, int) or days_to_clean_history <= 0:
-            error_message = (
-                f"Bot {bot_settings.id} has invalid 'days_period_to_clean_history': {days_to_clean_history}"
-            )
+
+        if (
+            not days_to_clean_history
+            or not isinstance(days_to_clean_history, int)
+            or days_to_clean_history <= 0
+        ):
+            error_message = f"Bot {bot_settings.id} has invalid 'days_period_to_clean_history': {days_to_clean_history}"
             logger.warning(error_message)
             errors.append(error_message)
             continue
-        
+
         period_to_clean = now - timedelta(days=days_to_clean_history)
-        
-        deleted_count = db.session.query(TradesHistory).filter(
-            TradesHistory.bot_id == bot_settings.id,
-            TradesHistory.sell_timestamp < period_to_clean
-        ).delete(synchronize_session=False)
-        
+
+        deleted_count = (
+            db.session.query(TradesHistory)
+            .filter(
+                TradesHistory.bot_id == bot_settings.id,
+                TradesHistory.sell_timestamp < period_to_clean,
+            )
+            .delete(synchronize_session=False)
+        )
+
         log_message = ""
-        days_count_string = f'{days_to_clean_history} day' if days_to_clean_history == 1 else f'{days_to_clean_history} days'
+        days_count_string = (
+            f"{days_to_clean_history} day"
+            if days_to_clean_history == 1
+            else f"{days_to_clean_history} days"
+        )
         if deleted_count > 0:
             log_message = (
                 f"Bot {bot_settings.id}: {deleted_count} trades "
@@ -65,7 +76,7 @@ def clear_old_trade_history():
                 f"Bot {bot_settings.id}: No trades older than "
                 f"{days_count_string} found. Nothing to clean."
             )
-            
+
         logger.trade(log_message)
         summary_logs.append(log_message)
 
@@ -80,22 +91,24 @@ def clear_old_trade_history():
         f"Errors during trade history cleaning.\n"
         f"{formatted_now}\n\n"
     )
-    
+
     if summary_logs:
         summary_message += "\n".join(summary_logs)
         logger.trade("Trade history cleaning completed:\n" + summary_message)
-        send_admin_email(f'{today} Daily Cleaning Report', summary_message)
+        send_admin_email(f"{today} Daily Cleaning Report", summary_message)
 
     if errors:
         error_message += "\n".join(errors)
         logger.error("Errors during trade history cleaning:\n" + error_message)
-        send_admin_email(f"{today} Errors in Daily Trade History Cleaning", error_message)
-    
-        
+        send_admin_email(
+            f"{today} Errors in Daily Trade History Cleaning", error_message
+        )
+
+
 @exception_handler()
 def next_trade_id(bot_id):
     """
-    Generates the next trade ID for a given bot by querying the maximum existing trade ID 
+    Generates the next trade ID for a given bot by querying the maximum existing trade ID
     from the `TradesHistory` table and incrementing it by 1. If no trades exist, it returns 1.
 
     Args:
@@ -115,10 +128,10 @@ def next_trade_id(bot_id):
 
 @exception_handler(db_rollback=True)
 def update_trade_history(
-    bot_settings, 
-    strategy, 
-    amount, 
-    buy_price, 
+    bot_settings,
+    strategy,
+    amount,
+    buy_price,
     sell_price,
     stop_loss_price,
     take_profit_price,
@@ -127,10 +140,10 @@ def update_trade_history(
     take_profit_activated,
     trailing_take_profit_activated,
     buy_timestamp,
-    current_price
+    current_price,
 ):
     """
-    Updates the trade history for a given bot by creating a new `TradesHistory` entry with 
+    Updates the trade history for a given bot by creating a new `TradesHistory` entry with
     the provided trade details. The trade is then committed to the database.
 
     Args:
@@ -153,7 +166,7 @@ def update_trade_history(
         None: If an exception occurs during the process.
     """
     from ..stefan.api_utils import get_account_balance
-    
+
     bot_id = bot_settings.id
     symbol = bot_settings.symbol
     cryptocoin_symbol = symbol[:3]
@@ -162,14 +175,16 @@ def update_trade_history(
     balance = get_account_balance(bot_id, [stablecoin_symbol, cryptocoin_symbol])
     stablecoin_balance = float(balance.get(stablecoin_symbol, 0))
     cryptocoin_balance = float(balance.get(cryptocoin_symbol, 0))
-    total_stablecoin_balance = float(stablecoin_balance + (cryptocoin_balance * current_price))
+    total_stablecoin_balance = float(
+        stablecoin_balance + (cryptocoin_balance * current_price)
+    )
 
     current_trade = BotCurrentTrade.query.filter_by(id=bot_id).first()
     trade = TradesHistory(
         bot_id=bot_id,
         trade_id=next_trade_id(bot_id),
         strategy=strategy,
-        amount=amount, 
+        amount=amount,
         buy_price=buy_price,
         sell_price=sell_price,
         stablecoin_balance=total_stablecoin_balance,
@@ -180,14 +195,14 @@ def update_trade_history(
         take_profit_activated=take_profit_activated,
         trailing_take_profit_activated=trailing_take_profit_activated,
         buy_timestamp=buy_timestamp,
-        sell_timestamp=dt.now()
+        sell_timestamp=dt.now(),
     )
     db.session.add(trade)
     db.session.commit()
-    
+
     logger.trade(
-        f'Transaction {trade.id}: bot: {bot_id}, strategy: {strategy}'
-        f'amount: {amount}, symbol: {current_trade.bot_settings.symbol} saved in database.'
+        f"Transaction {trade.id}: bot: {bot_id}, strategy: {strategy}"
+        f"amount: {amount}, symbol: {current_trade.bot_settings.symbol} saved in database."
     )
-    
+
     return trade

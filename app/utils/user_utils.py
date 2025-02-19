@@ -5,6 +5,7 @@ from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
 from ..utils.email_utils import send_admin_email
 
+
 @exception_handler()
 def create_new_user(form):
     """
@@ -36,8 +37,8 @@ def check_if_user_is_authenticated(user, panel_name):
     """
     Checks if the user is authenticated.
 
-    If the user is not authenticated, a warning message is flashed, and the user is redirected 
-    to the login page. The panel name is dynamically included in the flash message to specify 
+    If the user is not authenticated, a warning message is flashed, and the user is redirected
+    to the login page. The panel name is dynamically included in the flash message to specify
     which panel requires authentication.
 
     Args:
@@ -49,21 +50,26 @@ def check_if_user_is_authenticated(user, panel_name):
     """
     try:
         if not user.is_authenticated:
-            flash(f'Please log in to access the {panel_name} panel.', 'warning')
-            return redirect(url_for('main.login'))
+            flash(f"Please log in to access the {panel_name} panel.", "warning")
+            return redirect(url_for("main.login"))
     except Exception as e:
-        logger.error(f"Exception in check_if_user_is_authenticated user {user.login}: {e}")
-        send_admin_email('Exception in check_if_user_is_authenticated', str(e))
-        flash('An error occurred while checking authentication. Please try again.', 'danger')
-        return redirect(url_for('main.login'))
+        logger.error(
+            f"Exception in check_if_user_is_authenticated user {user.login}: {e}"
+        )
+        send_admin_email("Exception in check_if_user_is_authenticated", str(e))
+        flash(
+            "An error occurred while checking authentication. Please try again.",
+            "danger",
+        )
+        return redirect(url_for("main.login"))
 
 
 def check_if_user_have_control_access(user, panel_name):
     """
     Checks if the user has access to the specified control panel.
 
-    If the user does not have control panel access, a warning is logged, a flash message 
-    is shown to the user indicating they are not allowed to access the panel, 
+    If the user does not have control panel access, a warning is logged, a flash message
+    is shown to the user indicating they are not allowed to access the panel,
     and the user is redirected to the user panel view.
 
     Args:
@@ -75,22 +81,32 @@ def check_if_user_have_control_access(user, panel_name):
     """
     try:
         if not user.control_panel_access:
-            logger.warning(f'{user.login} tried to access the {panel_name} Panel without permission.')
-            flash(f'Error. User {user.login} is not allowed to access the {panel_name} Panel.', 'danger')
-            return redirect(url_for('main.user_panel_view'))
+            logger.warning(
+                f"{user.login} tried to access the {panel_name} Panel without permission."
+            )
+            flash(
+                f"Error. User {user.login} is not allowed to access the {panel_name} Panel.",
+                "danger",
+            )
+            return redirect(url_for("main.user_panel_view"))
     except Exception as e:
-        logger.error(f"Exception in check_if_user_have_control_access user {user.login}: {e}")
-        send_admin_email('Exception in check_if_user_have_control_access', str(e))
-        flash('An unexpected error occurred while checking access permissions. Please try again.', 'danger')
-        return redirect(url_for('main.user_panel_view'))
+        logger.error(
+            f"Exception in check_if_user_have_control_access user {user.login}: {e}"
+        )
+        send_admin_email("Exception in check_if_user_have_control_access", str(e))
+        flash(
+            "An unexpected error occurred while checking access permissions. Please try again.",
+            "danger",
+        )
+        return redirect(url_for("main.user_panel_view"))
 
 
 def check_if_user_is_admin(user):
     """
     Checks if the user has admin panel access.
 
-    If the user does not have admin panel access, a warning is logged, a flash message 
-    is shown to the user indicating they are not allowed to access the admin panel, 
+    If the user does not have admin panel access, a warning is logged, a flash message
+    is shown to the user indicating they are not allowed to access the admin panel,
     and the user is redirected to the user panel view.
 
     Args:
@@ -101,11 +117,19 @@ def check_if_user_is_admin(user):
     """
     try:
         if not user.admin_panel_access:
-            logger.warning(f'{user.login} tried to access the Admin Panel without permission.')
-            flash(f'Error. User {user.login} is not allowed to access the Admin Panel.', 'danger')
-            return redirect(url_for('main.user_panel_view'))
+            logger.warning(
+                f"{user.login} tried to access the Admin Panel without permission."
+            )
+            flash(
+                f"Error. User {user.login} is not allowed to access the Admin Panel.",
+                "danger",
+            )
+            return redirect(url_for("main.user_panel_view"))
     except Exception as e:
         logger.error(f"Exception in check_if_user_is_admin user {user.login}: {e}")
-        send_admin_email('Exception in check_if_user_is_admin', str(e))
-        flash('An unexpected error occurred while checking admin access. Please try again.', 'danger')
-        return redirect(url_for('main.user_panel_view'))
+        send_admin_email("Exception in check_if_user_is_admin", str(e))
+        flash(
+            "An unexpected error occurred while checking admin access. Please try again.",
+            "danger",
+        )
+        return redirect(url_for("main.user_panel_view"))

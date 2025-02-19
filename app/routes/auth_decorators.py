@@ -6,6 +6,7 @@ from flask_login import current_user
 
 logger = logging.getLogger(__name__)
 
+
 def requires_authentication(panel_name):
     """
     A decorator that checks if the user is authenticated before accessing a route.
@@ -22,22 +23,32 @@ def requires_authentication(panel_name):
     Returns:
         function: A wrapped function that enforces authentication.
     """
+
     def decorator(view_func):
         @functools.wraps(view_func)
         def wrapped_view(*args, **kwargs):
             try:
                 if not current_user.is_authenticated:
-                    flash(f'Please log in to access the {panel_name} panel.', 'warning')
-                    return redirect(url_for('main.login', next=request.url))
+                    flash(f"Please log in to access the {panel_name} panel.", "warning")
+                    return redirect(url_for("main.login", next=request.url))
             except Exception as e:
-                logger.error(f"Exception in decorator requires_authentication (panel: {panel_name}): {e}")
-                send_admin_email(f'Exception in decorator requires_authentication ({panel_name})', str(e))
-                flash('An error occurred while checking authentication. Please try again.', 'danger')
-                return redirect(url_for('main.login'))
+                logger.error(
+                    f"Exception in decorator requires_authentication (panel: {panel_name}): {e}"
+                )
+                send_admin_email(
+                    f"Exception in decorator requires_authentication ({panel_name})",
+                    str(e),
+                )
+                flash(
+                    "An error occurred while checking authentication. Please try again.",
+                    "danger",
+                )
+                return redirect(url_for("main.login"))
 
             return view_func(*args, **kwargs)
 
         return wrapped_view
+
     return decorator
 
 
@@ -57,23 +68,38 @@ def requires_control_access(panel_name):
     Returns:
         function: A wrapped function that enforces access control.
     """
+
     def decorator(view_func):
         @functools.wraps(view_func)
         def wrapped_view(*args, **kwargs):
             try:
                 if not current_user.control_panel_access:
-                    logger.warning(f'{current_user.login} tried to access the {panel_name} Panel without permission.')
-                    flash(f'Error. User {current_user.login} is not allowed to access the {panel_name} Panel.', 'danger')
-                    return redirect(url_for('main.user_panel_view'))
+                    logger.warning(
+                        f"{current_user.login} tried to access the {panel_name} Panel without permission."
+                    )
+                    flash(
+                        f"Error. User {current_user.login} is not allowed to access the {panel_name} Panel.",
+                        "danger",
+                    )
+                    return redirect(url_for("main.user_panel_view"))
             except Exception as e:
-                logger.error(f"Exception in decorator requires_control_access (panel: {panel_name}): {e}")
-                send_admin_email(f'Exception in decorator requires_control_access ({panel_name})', str(e))
-                flash('An unexpected error occurred while checking access permissions. Please try again.', 'danger')
-                return redirect(url_for('main.user_panel_view'))
+                logger.error(
+                    f"Exception in decorator requires_control_access (panel: {panel_name}): {e}"
+                )
+                send_admin_email(
+                    f"Exception in decorator requires_control_access ({panel_name})",
+                    str(e),
+                )
+                flash(
+                    "An unexpected error occurred while checking access permissions. Please try again.",
+                    "danger",
+                )
+                return redirect(url_for("main.user_panel_view"))
 
             return view_func(*args, **kwargs)
 
         return wrapped_view
+
     return decorator
 
 
@@ -90,21 +116,31 @@ def requires_admin_access():
     Returns:
         function: A wrapped function that enforces admin access control.
     """
+
     def decorator(view_func):
         @functools.wraps(view_func)
         def wrapped_view(*args, **kwargs):
             try:
                 if not current_user.admin_panel_access:
-                    logger.warning(f'{current_user.login} tried to access the Admin Panel without permission.')
-                    flash(f'Error. User {current_user.login} is not allowed to access the Admin Panel.', 'danger')
-                    return redirect(url_for('main.user_panel_view'))
+                    logger.warning(
+                        f"{current_user.login} tried to access the Admin Panel without permission."
+                    )
+                    flash(
+                        f"Error. User {current_user.login} is not allowed to access the Admin Panel.",
+                        "danger",
+                    )
+                    return redirect(url_for("main.user_panel_view"))
             except Exception as e:
                 logger.error(f"Exception in decorator requires_admin_access: {e}")
-                send_admin_email('Exception in decorator requires_admin_access', str(e))
-                flash('An unexpected error occurred while checking admin access. Please try again.', 'danger')
-                return redirect(url_for('main.user_panel_view'))
+                send_admin_email("Exception in decorator requires_admin_access", str(e))
+                flash(
+                    "An unexpected error occurred while checking admin access. Please try again.",
+                    "danger",
+                )
+                return redirect(url_for("main.user_panel_view"))
 
             return view_func(*args, **kwargs)
 
         return wrapped_view
+
     return decorator

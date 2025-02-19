@@ -5,6 +5,7 @@ from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
 from ..stefan.api_utils import fetch_current_price
 
+
 @exception_handler(default_return=False)
 def show_account_balance(symbol, account_status, assets_to_include):
     """
@@ -22,19 +23,20 @@ def show_account_balance(symbol, account_status, assets_to_include):
     Raises:
         Logs an error and sends an admin email if an exception occurs.
     """
-    if not account_status or 'balances' not in account_status:
+    if not account_status or "balances" not in account_status:
         return False
 
     asset_price = fetch_current_price(symbol)
     account_balance = [
         {
-            'asset': single['asset'],
-            'amount': float(single['free']) + float(single['locked']),
-            'value': (float(single['free']) + float(single['locked'])) * float(asset_price),
-            'price': float(asset_price)
+            "asset": single["asset"],
+            "amount": float(single["free"]) + float(single["locked"]),
+            "value": (float(single["free"]) + float(single["locked"]))
+            * float(asset_price),
+            "price": float(asset_price),
         }
-        for single in account_status['balances']
-        if single['asset'] in assets_to_include
+        for single in account_status["balances"]
+        if single["asset"] in assets_to_include
     ]
     return account_balance
 
@@ -56,12 +58,12 @@ def get_balance_for_symbol(account_status, cryptocoin_symbol):
         Logs an error and sends an admin email if an exception occurs.
     """
     for balance in account_status:
-        if balance['asset'] == cryptocoin_symbol:
-            return balance['amount']
+        if balance["asset"] == cryptocoin_symbol:
+            return balance["amount"]
     return 0
 
 
-@exception_handler(default_return='unknown')
+@exception_handler(default_return="unknown")
 def calculate_profit_percentage(buy_price, sell_price):
     """
     Calculates the profit percentage between the buy price and the sell price.
@@ -98,29 +100,70 @@ def update_technical_analysis_data(bot_settings, df, trend, averages):
         Logs an error, rolls back the database session, and sends an admin email if an exception occurs.
     """
     latest_data = df.iloc[-1]
-    
-    technical_analysis = BotTechnicalAnalysis.query.filter_by(id=bot_settings.id).first()
+
+    technical_analysis = BotTechnicalAnalysis.query.filter_by(
+        id=bot_settings.id
+    ).first()
 
     technical_analysis.set_df(df)
     technical_analysis.current_trend = trend
 
     latest_data_fields = [
-        'close', 'high', 'low', 'volume', 'rsi', 'cci', 'mfi', 'ema_fast', 'ema_slow',
-        'macd', 'macd_signal', 'macd_histogram', 'upper_band', 'lower_band', 'stoch_k',
-        'stoch_d', 'stoch_rsi', 'stoch_rsi_k', 'stoch_rsi_d', 'atr', 'psar', 'vwap',
-        'adx', 'plus_di', 'minus_di'
+        "close",
+        "high",
+        "low",
+        "volume",
+        "rsi",
+        "cci",
+        "mfi",
+        "ema_fast",
+        "ema_slow",
+        "macd",
+        "macd_signal",
+        "macd_histogram",
+        "upper_band",
+        "lower_band",
+        "stoch_k",
+        "stoch_d",
+        "stoch_rsi",
+        "stoch_rsi_k",
+        "stoch_rsi_d",
+        "atr",
+        "psar",
+        "vwap",
+        "adx",
+        "plus_di",
+        "minus_di",
     ]
 
     for field in latest_data_fields:
         setattr(technical_analysis, f"current_{field}", latest_data.get(field, 0))
 
-    technical_analysis.current_ma_50 = latest_data['ma_50'] if bot_settings.ma50_signals else 0
-    technical_analysis.current_ma_200 = latest_data['ma_200'] if bot_settings.ma200_signals else 0
+    technical_analysis.current_ma_50 = (
+        latest_data["ma_50"] if bot_settings.ma50_signals else 0
+    )
+    technical_analysis.current_ma_200 = (
+        latest_data["ma_200"] if bot_settings.ma200_signals else 0
+    )
 
     averages_fields = [
-        'avg_close', 'avg_volume', 'avg_rsi', 'avg_cci', 'avg_mfi', 'avg_atr',
-        'avg_stoch_rsi_k', 'avg_macd', 'avg_macd_signal', 'avg_stoch_k', 'avg_stoch_d',
-        'avg_ema_fast', 'avg_ema_slow', 'avg_plus_di', 'avg_minus_di', 'avg_psar', 'avg_vwap'
+        "avg_close",
+        "avg_volume",
+        "avg_rsi",
+        "avg_cci",
+        "avg_mfi",
+        "avg_atr",
+        "avg_stoch_rsi_k",
+        "avg_macd",
+        "avg_macd_signal",
+        "avg_stoch_k",
+        "avg_stoch_d",
+        "avg_ema_fast",
+        "avg_ema_slow",
+        "avg_plus_di",
+        "avg_minus_di",
+        "avg_psar",
+        "avg_vwap",
     ]
 
     for field in averages_fields:
@@ -129,4 +172,6 @@ def update_technical_analysis_data(bot_settings, df, trend, averages):
     technical_analysis.last_updated_timestamp = datetime.now()
 
     db.session.commit()
-    logger.trade(f'BotTechnicalAnalysis {technical_analysis.id}: bot {bot_settings.id} updated in database.')
+    logger.trade(
+        f"BotTechnicalAnalysis {technical_analysis.id}: bot {bot_settings.id} updated in database."
+    )

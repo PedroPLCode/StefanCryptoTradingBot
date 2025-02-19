@@ -11,24 +11,21 @@ from ..utils.trades_utils import update_technical_analysis_data
 from .buy_signals import check_classic_ta_buy_signal
 from .sell_signals import check_classic_ta_sell_signal
 from ..mariola.predict import check_ml_trade_signal
-from .api_utils import (
-    fetch_data,
-    place_buy_order, 
-    place_sell_order
-)
+from .api_utils import fetch_data, place_buy_order, place_sell_order
 from .calc_utils import (
     calculate_ta_indicators,
     calculate_ta_averages,
     check_ta_trend,
-    get_atr_value
+    get_atr_value,
 )
+
 
 @exception_handler()
 def is_df_valid(df, bot_info):
     """
     Checks if a DataFrame is valid for use in the bot's trading logic.
 
-    This function validates that the provided DataFrame is not empty, has at least two rows, 
+    This function validates that the provided DataFrame is not empty, has at least two rows,
     and is not None. If the DataFrame fails these conditions, it logs a message and returns False.
 
     Args:
@@ -39,7 +36,7 @@ def is_df_valid(df, bot_info):
         bool: True if the DataFrame is valid, False otherwise.
     """
     if df is None or df.empty:
-        logger.trade(f'DataFrame is empty or too short for bot {bot_info.id}.')
+        logger.trade(f"DataFrame is empty or too short for bot {bot_info.id}.")
         return False
     return True
 
@@ -49,8 +46,8 @@ def fetch_data_and_validate(symbol, interval, lookback_period, bot_id):
     """
     Fetches market data and validates the resulting DataFrame.
 
-    This function fetches the market data using the specified symbol, interval, and lookback period, 
-    then checks if the fetched DataFrame is valid using the `is_df_valid` function. 
+    This function fetches the market data using the specified symbol, interval, and lookback period,
+    then checks if the fetched DataFrame is valid using the `is_df_valid` function.
     If the DataFrame is invalid, it returns None.
 
     Args:
@@ -61,19 +58,15 @@ def fetch_data_and_validate(symbol, interval, lookback_period, bot_id):
 
     Returns:
         pandas.DataFrame or None: The validated DataFrame containing market data, or None if invalid.
-    
+
     Raises:
         Exception: If any error occurs during the data fetching process.
     """
-    df = fetch_data(
-        symbol=symbol, 
-        interval=interval, 
-        lookback=lookback_period
-        )
+    df = fetch_data(symbol=symbol, interval=interval, lookback=lookback_period)
     if not is_df_valid(df, bot_id):
         return None
     return df
-    
+
 
 @exception_handler()
 def get_current_price(df, bot_id):
@@ -81,7 +74,7 @@ def get_current_price(df, bot_id):
     Retrieves the current market price from the provided DataFrame.
 
     This function extracts the current market price from the last row of the DataFrame, assuming
-    that the DataFrame has a 'close' column. If any error occurs during this process, it logs the error 
+    that the DataFrame has a 'close' column. If any error occurs during this process, it logs the error
     and returns None.
 
     Args:
@@ -96,15 +89,15 @@ def get_current_price(df, bot_id):
         ValueError: If there is a conversion issue while extracting the price.
         Exception: If any other unexpected error occurs.
     """
-    current_price = float(df['close'].iloc[-1])
-    logger.trade(f'Current price for bot {bot_id} is: {current_price}')
+    current_price = float(df["close"].iloc[-1])
+    logger.trade(f"Current price for bot {bot_id} is: {current_price}")
     return current_price
-    
+
 
 @exception_handler()
 def manage_trading_logic(bot_settings, current_trade, current_price, df_fetched):
     """
-    Manages the core trading logic of the bot, including buying, selling, stop-loss, take-profit, 
+    Manages the core trading logic of the bot, including buying, selling, stop-loss, take-profit,
     trailing stop-loss, and technical analysis updates.
 
     This function handles the following trading actions based on the bot's settings and the current market data:
@@ -116,15 +109,15 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df_fetched)
     - Handles price rises and drops according to the trading strategy.
 
     Args:
-        bot_settings (object): Configuration settings for the trading bot, including stop-loss, 
+        bot_settings (object): Configuration settings for the trading bot, including stop-loss,
                                 take-profit, and other strategy settings.
-        current_trade (object): The current trade object, which contains details about the ongoing trade 
+        current_trade (object): The current trade object, which contains details about the ongoing trade
                                  (e.g., stop-loss price, take-profit price, previous price, etc.).
         current_price (float): The latest market price of the trading pair.
         df_fetched (pandas.DataFrame): A DataFrame containing the market data and technical indicators (e.g., ATR, trend, etc.).
 
     Returns:
-        None: This function does not return any value, but performs trading actions like executing orders, 
+        None: This function does not return any value, but performs trading actions like executing orders,
               updating settings, and logging trade information.
 
     Raises:
@@ -133,147 +126,108 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df_fetched)
     use_stop_loss = bot_settings.use_stop_loss
     use_trailing_stop_loss = bot_settings.use_trailing_stop_loss
     stop_loss_price = float(current_trade.stop_loss_price)
-    
+
     use_take_profit = bot_settings.use_take_profit and current_trade.use_take_profit
     use_trailing_take_profit = bot_settings.use_trailing_take_profit
     take_profit_price = float(current_trade.take_profit_price)
-    
+
     df_raw = df_fetched.copy() if bot_settings.use_machine_learning else None
-        
-    df_calculated = calculate_ta_indicators(
-        df_fetched, 
-        bot_settings
-        )   
-    
-    previous_price = float(current_trade.previous_price if current_trade.is_active else 0)
-    
+
+    df_calculated = calculate_ta_indicators(df_fetched, bot_settings)
+
+    previous_price = float(
+        current_trade.previous_price if current_trade.is_active else 0
+    )
+
     price_rises = current_price > previous_price if current_trade.is_active else False
     price_drops = current_price < previous_price if current_trade.is_active else False
     price_hits_stop_loss = current_price <= stop_loss_price
     price_hits_take_profit = current_price >= take_profit_price
-    
-    trend = check_ta_trend(
-        df_calculated, 
-        bot_settings
-        )
-    
-    averages = calculate_ta_averages(
-        df_calculated, 
-        bot_settings
-        )
-    
-    atr_value = get_atr_value(
-        df_calculated, 
-        bot_settings
-        )
+
+    trend = check_ta_trend(df_calculated, bot_settings)
+
+    averages = calculate_ta_averages(df_calculated, bot_settings)
+
+    atr_value = get_atr_value(df_calculated, bot_settings)
 
     if not current_trade.is_active:
-        
+
         buy_signal = check_signal(
-            'buy', 
-            df_calculated, 
-            df_raw,
-            bot_settings, 
-            trend, 
-            averages
-            )
+            "buy", df_calculated, df_raw, bot_settings, trend, averages
+        )
 
         if isinstance(buy_signal, pd.Series):
             buy_signal = buy_signal.all()
 
         if buy_signal:
-            execute_buy_order(
-                bot_settings, 
-                current_price, 
-                atr_value
-                )
+            execute_buy_order(bot_settings, current_price, atr_value)
         else:
-            logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} no buy signal.")
-        
-    elif current_trade.is_active:
-        
-        sell_signal = check_signal(
-            'sell',
-            df_calculated, 
-            df_raw,
-            bot_settings, 
-            trend, 
-            averages
+            logger.trade(
+                f"bot {bot_settings.id} {bot_settings.strategy} no buy signal."
             )
-        
+
+    elif current_trade.is_active:
+
+        sell_signal = check_signal(
+            "sell", df_calculated, df_raw, bot_settings, trend, averages
+        )
+
         if isinstance(sell_signal, pd.Series):
             sell_signal = sell_signal.all()
 
         stop_loss_activated = False
         take_profit_activated = False
         full_sell_signal = False
-    
+
         if price_hits_stop_loss and use_stop_loss:
-            logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} stop_loss activated.")
+            logger.trade(
+                f"bot {bot_settings.id} {bot_settings.strategy} stop_loss activated."
+            )
             stop_loss_activated = True
-            
+
         if price_hits_take_profit and use_take_profit:
-            if use_trailing_take_profit and not current_trade.trailing_take_profit_activated:
-                    activate_trailing_take_profit(
-                        bot_settings, 
-                        current_trade, 
-                        current_price, 
-                        atr_value
-                        )
+            if (
+                use_trailing_take_profit
+                and not current_trade.trailing_take_profit_activated
+            ):
+                activate_trailing_take_profit(
+                    bot_settings, current_trade, current_price, atr_value
+                )
             else:
-                logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} take_profit activated.")
+                logger.trade(
+                    f"bot {bot_settings.id} {bot_settings.strategy} take_profit activated."
+                )
                 take_profit_activated = True
-    
+
         full_sell_signal = stop_loss_activated or take_profit_activated or sell_signal
         if bot_settings.sell_signal_only_stop_loss_or_take_profit:
             full_sell_signal = stop_loss_activated or take_profit_activated
-    
+
         if full_sell_signal:
             execute_sell_order(
-                bot_settings, 
-                current_trade, 
-                current_price, 
-                stop_loss_activated, 
-                take_profit_activated
-                )
+                bot_settings,
+                current_trade,
+                current_price,
+                stop_loss_activated,
+                take_profit_activated,
+            )
         elif price_rises:
             if use_trailing_stop_loss:
                 update_trailing_stop(
-                    bot_settings, 
-                    current_trade, 
-                    current_price, 
-                    atr_value
-                    )  
-            else:
-                handle_price_rises(
-                    bot_settings, 
-                    current_price
-                    )
-        elif price_drops:
-            handle_price_drops(
-                bot_settings, 
-                current_price
+                    bot_settings, current_trade, current_price, atr_value
                 )
-            
-    update_technical_analysis_data(
-        bot_settings, 
-        df_calculated,
-        trend, 
-        averages
-        )
-                            
+            else:
+                handle_price_rises(bot_settings, current_price)
+        elif price_drops:
+            handle_price_drops(bot_settings, current_price)
+
+    update_technical_analysis_data(bot_settings, df_calculated, trend, averages)
+
     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} loop completed.")
 
 
 @exception_handler(default_return=False)
-def check_signal(
-    signal_type,
-    df_calculated,
-    df_raw,
-    bot_settings,
-    trend,
-    averages
-    ):
+def check_signal(signal_type, df_calculated, df_raw, bot_settings, trend, averages):
     """
     Checks whether a buy or sell signal is triggered based on technical analysis or machine learning.
 
@@ -287,48 +241,36 @@ def check_signal(
     Returns:
         bool: True if the signal condition is met, False otherwise.
         None: If an error occurs during signal checking.
-    
+
     Raises:
         ValueError: If an unsupported signal type is provided.
     """
     if bot_settings.use_technical_analysis:
-        if signal_type == 'buy':
+        if signal_type == "buy":
             return check_classic_ta_buy_signal(
-                df_calculated, 
-                bot_settings, 
-                trend, 
-                averages
-                )
-        elif signal_type == 'sell':
-            return check_classic_ta_sell_signal(
-                df_calculated, 
-                bot_settings,
-                trend, 
-                averages
-                )
-            
-        raise ValueError(f"Unsupported signal_type: {signal_type}")
-    
-    elif bot_settings.use_machine_learning:
-        return check_ml_trade_signal(
-            df_raw,
-            signal_type,
-            bot_settings
+                df_calculated, bot_settings, trend, averages
             )
-        
+        elif signal_type == "sell":
+            return check_classic_ta_sell_signal(
+                df_calculated, bot_settings, trend, averages
+            )
+
+        raise ValueError(f"Unsupported signal_type: {signal_type}")
+
+    elif bot_settings.use_machine_learning:
+        return check_ml_trade_signal(df_raw, signal_type, bot_settings)
+
     else:
-        logger.error(f"Bot {bot_settings.id} not use_technical_analysis and not use_machine_learning")
+        logger.error(
+            f"Bot {bot_settings.id} not use_technical_analysis and not use_machine_learning"
+        )
         return False
 
 
 @exception_handler()
-def execute_buy_order(
-    bot_settings, 
-    current_price, 
-    atr_value
-    ):
+def execute_buy_order(bot_settings, current_price, atr_value):
     """
-    Executes a buy order for the trading bot, including setting stop loss, take profit, 
+    Executes a buy order for the trading bot, including setting stop loss, take profit,
     and trailing stop loss prices based on the bot settings and ATR value.
 
     Args:
@@ -338,7 +280,7 @@ def execute_buy_order(
 
     Returns:
         None: Executes the buy order and updates the trade status.
-    
+
     Raises:
         Exception: If an error occurs during the buy order execution process.
     """
@@ -346,47 +288,35 @@ def execute_buy_order(
         calculate_take_profit,
         calculate_atr_take_profit,
         calculate_stop_loss,
-        calculate_atr_trailing_stop_loss
+        calculate_atr_trailing_stop_loss,
     )
-    
+
     now = datetime.now()
-    formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
-    
+    formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
+
     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} BUY signal.")
     buy_success, amount = place_buy_order(bot_settings.id)
 
     if buy_success:
         stop_loss_price = 0
         take_profit_price = 0
-        
+
         if bot_settings.use_stop_loss:
-            stop_loss_price = calculate_stop_loss(
-                current_price, 
-                0, 
-                bot_settings
-            )
-            
+            stop_loss_price = calculate_stop_loss(current_price, 0, bot_settings)
+
             if bot_settings.trailing_stop_with_atr:
                 stop_loss_price = calculate_atr_trailing_stop_loss(
-                    current_price, 
-                    0, 
-                    atr_value,
-                    bot_settings
+                    current_price, 0, atr_value, bot_settings
                 )
-            
+
         if bot_settings.use_take_profit:
-            take_profit_price = calculate_take_profit(
-                current_price, 
-                bot_settings
-            )
-            
+            take_profit_price = calculate_take_profit(current_price, bot_settings)
+
             if bot_settings.take_profit_with_atr:
                 take_profit_price = calculate_atr_take_profit(
-                    current_price, 
-                    atr_value, 
-                    bot_settings
+                    current_price, atr_value, bot_settings
                 )
-            
+
         current_trade = update_current_trade(
             bot_id=bot_settings.id,
             is_active=True,
@@ -398,9 +328,9 @@ def execute_buy_order(
             take_profit_price=take_profit_price,
             trailing_take_profit_activated=False,
             use_take_profit=True,
-            buy_timestamp=dt.now()
+            buy_timestamp=dt.now(),
         )
-        
+
         bot_settings = change_bot_settings(
             bot_id=bot_settings.id,
             use_trailing_stop_loss=False,
@@ -408,21 +338,26 @@ def execute_buy_order(
             trailing_stop_atr_calc=2,
             stop_loss_pct=0.02,
         )
-        
-        logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} buy process completed.")
-        send_trade_email(f"Bot {bot_settings.id} execute_buy_order report.", f"StafanCryptoTradingBotBot execute_buy_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_price}\nstop_loss_price: {stop_loss_price}\ntake_profit_price: {take_profit_price}\nbuy_timestamp: {formatted_now}\nbuy_success: {buy_success}")
+
+        logger.trade(
+            f"bot {bot_settings.id} {bot_settings.strategy} buy process completed."
+        )
+        send_trade_email(
+            f"Bot {bot_settings.id} execute_buy_order report.",
+            f"StafanCryptoTradingBotBot execute_buy_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_price}\nstop_loss_price: {stop_loss_price}\ntake_profit_price: {take_profit_price}\nbuy_timestamp: {formatted_now}\nbuy_success: {buy_success}",
+        )
 
 
 @exception_handler()
 def execute_sell_order(
-    bot_settings, 
-    current_trade, 
-    current_price, 
-    stop_loss_activated, 
-    take_profit_activated
-    ):
+    bot_settings,
+    current_trade,
+    current_price,
+    stop_loss_activated,
+    take_profit_activated,
+):
     """
-    Executes a sell order for the trading bot, including updating trade history and handling 
+    Executes a sell order for the trading bot, including updating trade history and handling
     stop loss, take profit, and other conditions.
 
     Args:
@@ -434,24 +369,24 @@ def execute_sell_order(
 
     Returns:
         None: Executes the sell order and updates the trade status.
-    
+
     Raises:
         Exception: If an error occurs during the sell order execution process.
     """
     from ..utils.history_utils import update_trade_history
-    
+
     now = datetime.now()
-    formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
-    
+    formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
+
     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} SELL signal.")
     sell_success, amount = place_sell_order(bot_settings.id)
-    
+
     trade_buy_price = current_trade.buy_price
     trade_stop_loss_price = current_trade.stop_loss_price
     trade_take_profit_price = current_trade.take_profit_price
     trade_price_rises_counter = current_trade.price_rises_counter
     trade_trailing_take_profit_activated = current_trade.trailing_take_profit_activated
-    trade_buy_timestamp = current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S')
+    trade_buy_timestamp = current_trade.buy_timestamp.strftime("%Y-%m-%d %H:%M:%S")
     is_trade_profit_negative = trade_buy_price > current_price
 
     if sell_success:
@@ -470,7 +405,7 @@ def execute_sell_order(
             buy_timestamp=current_trade.buy_timestamp,
             current_price=current_price,
         )
-                    
+
         current_trade = update_current_trade(
             bot_id=bot_settings.id,
             is_active=False,
@@ -484,7 +419,7 @@ def execute_sell_order(
             use_take_profit=True,
             reset_price_rises_counter=True,
         )
-        
+
         bot_settings = change_bot_settings(
             bot_id=bot_settings.id,
             use_trailing_stop_loss=False,
@@ -492,23 +427,28 @@ def execute_sell_order(
             trailing_stop_atr_calc=2,
             stop_loss_pct=0.02,
         )
-        
-        if is_trade_profit_negative and bot_settings.use_suspension_after_negative_trade:
+
+        if (
+            is_trade_profit_negative
+            and bot_settings.use_suspension_after_negative_trade
+        ):
             suspend_after_negative_trade(bot_settings)
-    
-        logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} sell process completed.")
-        send_trade_email(f"Bot {bot_settings.id} execute_sell_order report.", f"StafanCryptoTradingBot execute_sell_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {trade_buy_price}\nsell_price: {current_price}\nstop_loss_price: {trade_stop_loss_price}\ntake_profit_price: {trade_take_profit_price}\nprice_rises_counter: {trade_price_rises_counter}\nstop_loss_activated: {stop_loss_activated}\ntake_profit_activated: {take_profit_activated}\ntrailing_take_profit_activated: {trade_trailing_take_profit_activated}\nbuy_timestamp: {trade_buy_timestamp}\nsell_timestamp: {formatted_now}\nsell_success: {sell_success}")
+
+        logger.trade(
+            f"bot {bot_settings.id} {bot_settings.strategy} sell process completed."
+        )
+        send_trade_email(
+            f"Bot {bot_settings.id} execute_sell_order report.",
+            f"StafanCryptoTradingBot execute_sell_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {trade_buy_price}\nsell_price: {current_price}\nstop_loss_price: {trade_stop_loss_price}\ntake_profit_price: {trade_take_profit_price}\nprice_rises_counter: {trade_price_rises_counter}\nstop_loss_activated: {stop_loss_activated}\ntake_profit_activated: {take_profit_activated}\ntrailing_take_profit_activated: {trade_trailing_take_profit_activated}\nbuy_timestamp: {trade_buy_timestamp}\nsell_timestamp: {formatted_now}\nsell_success: {sell_success}",
+        )
 
 
 @exception_handler()
 def activate_trailing_take_profit(
-    bot_settings, 
-    current_trade, 
-    current_price, 
-    atr_value
-    ):
+    bot_settings, current_trade, current_price, atr_value
+):
     """
-    Activates the trailing take profit for the bot. This function adjusts the stop loss 
+    Activates the trailing take profit for the bot. This function adjusts the stop loss
     based on the ATR value and updates the current trade with the new stop loss value.
 
     Args:
@@ -519,30 +459,28 @@ def activate_trailing_take_profit(
 
     Returns:
         None: Updates the current trade and bot settings without returning a value.
-    
+
     Raises:
         Exception: If an error occurs during the process, it is logged and reported.
     """
     from .calc_utils import calculate_atr_trailing_stop_loss
-        
+
     now = datetime.now()
-    formatted_now = now.strftime('%Y-%m-%d %H:%M:%S')
-    
+    formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
+
     bot_settings = change_bot_settings(
-            bot_id=bot_settings.id,
-            use_stop_loss=True,
-            use_trailing_stop_loss=True,
-            trailing_stop_with_atr=True,
-            trailing_stop_atr_calc=1,
-            stop_loss_pct=0.01,
-        )
-    
+        bot_id=bot_settings.id,
+        use_stop_loss=True,
+        use_trailing_stop_loss=True,
+        trailing_stop_with_atr=True,
+        trailing_stop_atr_calc=1,
+        stop_loss_pct=0.01,
+    )
+
     trailing_stop_price = calculate_atr_trailing_stop_loss(
-            current_price, 
-            float(current_trade.stop_loss_price), 
-            atr_value, bot_settings
-        )
-    
+        current_price, float(current_trade.stop_loss_price), atr_value, bot_settings
+    )
+
     current_trade = update_current_trade(
         bot_id=bot_settings.id,
         current_price=current_price,
@@ -552,20 +490,20 @@ def activate_trailing_take_profit(
         trailing_take_profit_activated=True,
         use_take_profit=False,
     )
-    
-    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} trailing take profit activated.")
-    send_trade_email(f"Bot {bot_settings.id} activate_trailing_take_profit report.", f"StafanCryptoTradingBot activate_trailing_take_profit report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nTrailing take profit has been activated.\n\namount: {current_trade.amount}\nbuy_price: {current_trade.buy_price}\nbuy_timestamp: {current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S')}\ncurrent_price: {current_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}")
+
+    logger.trade(
+        f"bot {bot_settings.id} {bot_settings.strategy} trailing take profit activated."
+    )
+    send_trade_email(
+        f"Bot {bot_settings.id} activate_trailing_take_profit report.",
+        f"StafanCryptoTradingBot activate_trailing_take_profit report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nTrailing take profit has been activated.\n\namount: {current_trade.amount}\nbuy_price: {current_trade.buy_price}\nbuy_timestamp: {current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S')}\ncurrent_price: {current_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}",
+    )
 
 
 @exception_handler()
-def update_trailing_stop(
-    bot_settings, 
-    current_trade, 
-    current_price, 
-    atr_value
-    ):
+def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
     """
-    Updates the trailing stop loss for the current trade. This function recalculates 
+    Updates the trailing stop loss for the current trade. This function recalculates
     the stop loss based on the current price and ATR value, and updates the trade's stop loss accordingly.
 
     Args:
@@ -576,47 +514,39 @@ def update_trailing_stop(
 
     Returns:
         None: Updates the current trade's stop loss without returning a value.
-    
+
     Raises:
         Exception: If an error occurs during the process, it is logged and reported.
     """
-    from .calc_utils import (
-        calculate_stop_loss,
-        calculate_atr_trailing_stop_loss
-    )
-    
+    from .calc_utils import calculate_stop_loss, calculate_atr_trailing_stop_loss
+
     logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price rises.")
-    
+
     trailing_stop_price = calculate_stop_loss(
-        current_price, 
-        float(current_trade.stop_loss_price), 
-        bot_settings
+        current_price, float(current_trade.stop_loss_price), bot_settings
     )
-    
+
     if bot_settings.trailing_stop_with_atr:
         trailing_stop_price = calculate_atr_trailing_stop_loss(
-            current_price, 
-            float(current_trade.stop_loss_price), 
-            atr_value, bot_settings
+            current_price, float(current_trade.stop_loss_price), atr_value, bot_settings
         )
-    
+
     current_trade = update_current_trade(
         bot_id=bot_settings.id,
         current_price=current_price,
         previous_price=current_price,
         stop_loss_price=trailing_stop_price,
-        price_rises=True
+        price_rises=True,
     )
-    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} previous price and trailing stop loss updated.")
-    
+    logger.trade(
+        f"bot {bot_settings.id} {bot_settings.strategy} previous price and trailing stop loss updated."
+    )
 
-@exception_handler()        
-def handle_price_rises(
-    bot_settings, 
-    current_price
-    ):
+
+@exception_handler()
+def handle_price_rises(bot_settings, current_price):
     """
-    Handles the event when the price rises. Updates the current trade with the new price 
+    Handles the event when the price rises. Updates the current trade with the new price
     and marks that the price has risen.
 
     Args:
@@ -630,21 +560,20 @@ def handle_price_rises(
         Exception: If an error occurs during the update process, it is logged and reported.
     """
     current_trade = update_current_trade(
-        bot_id=bot_settings.id, 
-        current_price=current_price, 
-        previous_price=current_price, 
-        price_rises=True
+        bot_id=bot_settings.id,
+        current_price=current_price,
+        previous_price=current_price,
+        price_rises=True,
     )
-    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price_rises. previous price updated.")
+    logger.trade(
+        f"bot {bot_settings.id} {bot_settings.strategy} price_rises. previous price updated."
+    )
 
 
 @exception_handler()
-def handle_price_drops(
-    bot_settings, 
-    current_price
-    ):
+def handle_price_drops(bot_settings, current_price):
     """
-    Handles the event when the price drops. Updates the current trade without changing the 
+    Handles the event when the price drops. Updates the current trade without changing the
     previous price, as the drop does not trigger any specific action.
 
     Args:
@@ -658,30 +587,31 @@ def handle_price_drops(
         Exception: If an error occurs during the update process, it is logged and reported.
     """
     current_trade = update_current_trade(
-        bot_id=bot_settings.id, 
-        current_price=current_price
+        bot_id=bot_settings.id, current_price=current_price
     )
-    logger.trade(f"bot {bot_settings.id} {bot_settings.strategy} price_drops. previous price not updated.")
+    logger.trade(
+        f"bot {bot_settings.id} {bot_settings.strategy} price_drops. previous price not updated."
+    )
 
 
 @exception_handler(db_rollback=True)
 def update_current_trade(
-    bot_id=None, 
-    is_active=None, 
-    amount=None, 
-    buy_price=None, 
-    current_price=None, 
-    previous_price=None, 
+    bot_id=None,
+    is_active=None,
+    amount=None,
+    buy_price=None,
+    current_price=None,
+    previous_price=None,
     stop_loss_price=None,
     take_profit_price=None,
     trailing_take_profit_activated=None,
     use_take_profit=None,
     buy_timestamp=None,
     price_rises=None,
-    reset_price_rises_counter=None
-    ):
+    reset_price_rises_counter=None,
+):
     """
-    Updates the current trade details in the database based on the provided parameters. 
+    Updates the current trade details in the database based on the provided parameters.
     It will modify the values of the trade fields such as price, stop loss, take profit, etc.
 
     Args:
@@ -707,7 +637,7 @@ def update_current_trade(
     """
     if bot_id:
         current_trade = BotCurrentTrade.query.filter_by(id=bot_id).first()
-        
+
         if is_active != None:
             current_trade.is_active = is_active
         if amount != None:
@@ -731,26 +661,28 @@ def update_current_trade(
         if reset_price_rises_counter != None:
             current_trade.price_rises_counter = 0
         if trailing_take_profit_activated != None:
-            current_trade.trailing_take_profit_activated = trailing_take_profit_activated
+            current_trade.trailing_take_profit_activated = (
+                trailing_take_profit_activated
+            )
         if use_take_profit != None:
             current_trade.use_take_profit = use_take_profit
-            
+
         db.session.commit()
-        
+
         return current_trade
 
 
 @exception_handler(db_rollback=True)
 def change_bot_settings(
-    bot_id=None, 
+    bot_id=None,
     use_stop_loss=None,
-    use_trailing_stop_loss=None, 
-    trailing_stop_with_atr=None, 
-    trailing_stop_atr_calc=None, 
-    stop_loss_pct=None, 
-    ):
+    use_trailing_stop_loss=None,
+    trailing_stop_with_atr=None,
+    trailing_stop_atr_calc=None,
+    stop_loss_pct=None,
+):
     """
-    Changes the settings of the trading bot based on the provided parameters. Updates the bot's 
+    Changes the settings of the trading bot based on the provided parameters. Updates the bot's
     stop loss, trailing stop loss, ATR-based trailing stop, and other configuration options.
 
     Args:
@@ -769,7 +701,7 @@ def change_bot_settings(
     """
     if bot_id:
         bot_settings = BotSettings.query.filter_by(id=bot_id).first()
-        
+
         if use_stop_loss != None:
             bot_settings.use_stop_loss = use_stop_loss
         if use_trailing_stop_loss != None:
@@ -780,7 +712,7 @@ def change_bot_settings(
             bot_settings.trailing_stop_atr_calc = trailing_stop_atr_calc
         if stop_loss_pct != None:
             bot_settings.stop_loss_pct = stop_loss_pct
-            
+
         db.session.commit()
-        
+
         return bot_settings

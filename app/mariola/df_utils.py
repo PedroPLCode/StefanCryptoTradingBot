@@ -3,6 +3,7 @@ import numpy as np
 import talib
 from ..utils.exception_handlers import exception_handler
 
+
 @exception_handler()
 def find_ml_hammer_patterns(df, bot_settings):
     """
@@ -22,7 +23,7 @@ def find_ml_hammer_patterns(df, bot_settings):
         df (pandas.DataFrame): DataFrame containing candlestick data (open, high, low, close, close_time).
 
     Returns:
-        pandas.DataFrame or None: DataFrame with the 'hammer', 'is_hammer_morning', 
+        pandas.DataFrame or None: DataFrame with the 'hammer', 'is_hammer_morning',
                                    and 'is_hammer_weekend' columns added. Returns None if an error occurs.
 
     Raises:
@@ -31,17 +32,19 @@ def find_ml_hammer_patterns(df, bot_settings):
     """
     if df is None or df.empty:
         raise ValueError("df must be provided and cannot be None or empty.")
-    
-    df['hammer'] = ((df['high'] - df['close']) > 2 * (df['open'] - df['low'])) & \
-                ((df['close'] - df['low']) / (df['high'] - df['low']) > 0.6) & \
-                ((df['open'] - df['low']) / (df['high'] - df['low']) > 0.6)
-                
-    df['is_hammer_morning'] = \
-        (df['hammer'] & (df['close_time_hour'] >= 9) & (df['close_time_hour'] <= 12))
 
-    df['is_hammer_weekend'] = \
-        (df['hammer'] & df['close_time_weekday'].isin([5, 6]))
-        
+    df["hammer"] = (
+        ((df["high"] - df["close"]) > 2 * (df["open"] - df["low"]))
+        & ((df["close"] - df["low"]) / (df["high"] - df["low"]) > 0.6)
+        & ((df["open"] - df["low"]) / (df["high"] - df["low"]) > 0.6)
+    )
+
+    df["is_hammer_morning"] = (
+        df["hammer"] & (df["close_time_hour"] >= 9) & (df["close_time_hour"] <= 12)
+    )
+
+    df["is_hammer_weekend"] = df["hammer"] & df["close_time_weekday"].isin([5, 6])
+
     return df
 
 
@@ -64,7 +67,7 @@ def find_ml_morning_star_patterns(df, bot_settings):
         df (pandas.DataFrame): DataFrame containing candlestick data (open, close, close_time).
 
     Returns:
-        pandas.DataFrame or None: DataFrame with the 'morning_star', 'is_morning_star_morning', 
+        pandas.DataFrame or None: DataFrame with the 'morning_star', 'is_morning_star_morning',
                                    and 'is_morning_star_weekend' columns added. Returns None if an error occurs.
 
     Raises:
@@ -73,17 +76,23 @@ def find_ml_morning_star_patterns(df, bot_settings):
     """
     if df is None or df.empty:
         raise ValueError("df must be provided and cannot be None or empty.")
-    
-    df['morning_star'] = ((df['close'].shift(2) < df['open'].shift(2)) &
-                        (df['open'].shift(1) < df['close'].shift(1)) &
-                        (df['close'] > df['open']))
-    
-    df['is_morning_star_morning'] = \
-        (df['morning_star'] & (df['close_time_hour'] >= 9) & (df['close_time_hour'] <= 12))
 
-    df['is_morning_star_weekend'] = \
-        (df['morning_star'] & df['close_time_weekday'].isin([5, 6]))
-        
+    df["morning_star"] = (
+        (df["close"].shift(2) < df["open"].shift(2))
+        & (df["open"].shift(1) < df["close"].shift(1))
+        & (df["close"] > df["open"])
+    )
+
+    df["is_morning_star_morning"] = (
+        df["morning_star"]
+        & (df["close_time_hour"] >= 9)
+        & (df["close_time_hour"] <= 12)
+    )
+
+    df["is_morning_star_weekend"] = df["morning_star"] & df["close_time_weekday"].isin(
+        [5, 6]
+    )
+
     return df
 
 
@@ -106,7 +115,7 @@ def find_ml_bullish_engulfing_patterns(df, bot_settings):
         df (pandas.DataFrame): DataFrame containing candlestick data (open, close, close_time).
 
     Returns:
-        pandas.DataFrame or None: DataFrame with the 'bullish_engulfing', 'is_bullish_engulfing_morning', 
+        pandas.DataFrame or None: DataFrame with the 'bullish_engulfing', 'is_bullish_engulfing_morning',
                                    and 'is_bullish_engulfing_weekend' columns added. Returns None if an error occurs.
 
     Raises:
@@ -115,20 +124,26 @@ def find_ml_bullish_engulfing_patterns(df, bot_settings):
     """
     if df is None or df.empty:
         raise ValueError("df must be provided and cannot be None or empty.")
-    
-    df['bullish_engulfing'] = (df['open'].shift(1) > df['close'].shift(1)) & \
-                            (df['open'] < df['close']) & \
-                            (df['open'] < df['close'].shift(1)) & \
-                            (df['close'] > df['open'].shift(1))
-                            
-    df['is_bullish_engulfing_morning'] = \
-        (df['bullish_engulfing'] & (df['close_time_hour'] >= 9) & (df['close_time_hour'] <= 12))
 
-    df['is_bullish_engulfing_weekend'] = \
-        (df['bullish_engulfing'] & df['close_time_weekday'].isin([5, 6]))
-        
+    df["bullish_engulfing"] = (
+        (df["open"].shift(1) > df["close"].shift(1))
+        & (df["open"] < df["close"])
+        & (df["open"] < df["close"].shift(1))
+        & (df["close"] > df["open"].shift(1))
+    )
+
+    df["is_bullish_engulfing_morning"] = (
+        df["bullish_engulfing"]
+        & (df["close_time_hour"] >= 9)
+        & (df["close_time_hour"] <= 12)
+    )
+
+    df["is_bullish_engulfing_weekend"] = df["bullish_engulfing"] & df[
+        "close_time_weekday"
+    ].isin([5, 6])
+
     return df
-    
+
 
 @exception_handler()
 def calculate_ml_pct_change_and_lags(df, column_names_list, bot_settings):
@@ -137,30 +152,30 @@ def calculate_ml_pct_change_and_lags(df, column_names_list, bot_settings):
 
     This function iterates over a list of column names and performs the following operations:
     - Calculates the percentage change for each column and creates a new column for it.
-    - Generates lagged versions of each column for a range of lag values (from 'lag_min' to 'lag_max' 
+    - Generates lagged versions of each column for a range of lag values (from 'lag_min' to 'lag_max'
       as specified).
 
     Args:
         result (pandas.DataFrame): The DataFrame containing the data.
-        column_names_list (list of str): A list of column names to which the percentage change and lag features 
+        column_names_list (list of str): A list of column names to which the percentage change and lag features
                                          will be added.
         lag_min (int): The minimum lag value to compute.
         lag_max (int): The maximum lag value to compute.
 
     Returns:
-        pandas.DataFrame or None: The DataFrame with the added columns for percentage change and lags. 
+        pandas.DataFrame or None: The DataFrame with the added columns for percentage change and lags.
                                    Returns None if an error occurs during the process.
 
     Raises:
         Exception: If an error occurs during the calculation of percentage change or lag features for any column.
     """
     lag_period = bot_settings.ml_lag_period
-    
+
     for column_name in column_names_list:
-    
-        df[f'{column_name}_pct_change'] = df[f'{column_name}'].pct_change() * 100
-        df[f'{column_name}_lag_{lag_period}'] = df[f'{column_name}'].shift(lag_period)
-        
+
+        df[f"{column_name}_pct_change"] = df[f"{column_name}"].pct_change() * 100
+        df[f"{column_name}_lag_{lag_period}"] = df[f"{column_name}"].shift(lag_period)
+
     return df
 
 
@@ -182,17 +197,23 @@ def calculate_ml_momentum_signals(df, bot_settings):
                                    Returns None if an error occurs during the calculation.
     """
     general_timeperiod = bot_settings.ml_general_timeperiod
-    
-    df['is_support'] = df['close'] == df['close'].rolling(window=general_timeperiod).min()
-    df['is_resistance'] = df['close'] == df['close'].rolling(window=general_timeperiod).max()
 
-    df['momentum_positive'] = df['close_pct_change'] > 0
-    df['momentum_negative'] = df['close_pct_change'] < 0
-    
-    df['trend_reversal_signal'] = df['close_pct_change'].shift(1) * df['close_pct_change'] < 0
-    
+    df["is_support"] = (
+        df["close"] == df["close"].rolling(window=general_timeperiod).min()
+    )
+    df["is_resistance"] = (
+        df["close"] == df["close"].rolling(window=general_timeperiod).max()
+    )
+
+    df["momentum_positive"] = df["close_pct_change"] > 0
+    df["momentum_negative"] = df["close_pct_change"] < 0
+
+    df["trend_reversal_signal"] = (
+        df["close_pct_change"].shift(1) * df["close_pct_change"] < 0
+    )
+
     return df
-    
+
 
 @exception_handler()
 def calculate_ml_rsi(df, bot_settings):
@@ -215,15 +236,18 @@ def calculate_ml_rsi(df, bot_settings):
     general_timeperiod = bot_settings.ml_general_timeperiod
     rsi_buy_value = bot_settings.ml_rsi_buy
     rsi_sell_value = bot_settings.ml_rsi_sell
-    
-    df[f'rsi_{general_timeperiod}'] = talib.RSI(
-        df['close'], 
-        timeperiod=general_timeperiod
+
+    df[f"rsi_{general_timeperiod}"] = talib.RSI(
+        df["close"], timeperiod=general_timeperiod
     )
-    
-    df[f'rsi_{general_timeperiod}_buy_signal'] = df[f'rsi_{general_timeperiod}'] < rsi_buy_value
-    df[f'rsi_{general_timeperiod}_sell_signal'] = df[f'rsi_{general_timeperiod}'] > rsi_sell_value
-    
+
+    df[f"rsi_{general_timeperiod}_buy_signal"] = (
+        df[f"rsi_{general_timeperiod}"] < rsi_buy_value
+    )
+    df[f"rsi_{general_timeperiod}_sell_signal"] = (
+        df[f"rsi_{general_timeperiod}"] > rsi_sell_value
+    )
+
     return df
 
 
@@ -232,7 +256,7 @@ def calculate_ml_ema(df, bot_settings):
     """
     Calculates the Exponential Moving Averages (EMA) and generates buy/sell signals.
 
-    This function calculates the fast and slow EMAs based on the closing prices and adds buy/sell signals 
+    This function calculates the fast and slow EMAs based on the closing prices and adds buy/sell signals
     based on the crossovers between the fast and slow EMAs.
 
     Args:
@@ -246,20 +270,22 @@ def calculate_ml_ema(df, bot_settings):
     """
     ema_fast_timeperiod = bot_settings.ml_ema_fast_timeperiod
     ema_slow_timeperiod = bot_settings.ml_ema_slow_timeperiod
-    
-    df[f'ema_{ema_fast_timeperiod}'] = talib.EMA(
-        df['close'], 
-        timeperiod=ema_fast_timeperiod
+
+    df[f"ema_{ema_fast_timeperiod}"] = talib.EMA(
+        df["close"], timeperiod=ema_fast_timeperiod
     )
-    
-    df[f'ema_{ema_slow_timeperiod}'] = talib.EMA(
-        df['close'], 
-        timeperiod=ema_slow_timeperiod
+
+    df[f"ema_{ema_slow_timeperiod}"] = talib.EMA(
+        df["close"], timeperiod=ema_slow_timeperiod
     )
-    
-    df['ema_buy_signal'] = df[f'ema_{ema_fast_timeperiod}'] > df[f'ema_{ema_slow_timeperiod}']
-    df['ema_sell_signal'] = df[f'ema_{ema_fast_timeperiod}'] < df[f'ema_{ema_slow_timeperiod}']
-    
+
+    df["ema_buy_signal"] = (
+        df[f"ema_{ema_fast_timeperiod}"] > df[f"ema_{ema_slow_timeperiod}"]
+    )
+    df["ema_sell_signal"] = (
+        df[f"ema_{ema_fast_timeperiod}"] < df[f"ema_{ema_slow_timeperiod}"]
+    )
+
     return df
 
 
@@ -268,7 +294,7 @@ def calculate_ml_macd(df, bot_settings):
     """
     Calculates the Moving Average Convergence Divergence (MACD) and generates buy/sell signals.
 
-    This function calculates the MACD and its signal line, and generates buy/sell signals based on 
+    This function calculates the MACD and its signal line, and generates buy/sell signals based on
     the MACD line crossing above or below the signal line. It also calculates the MACD histogram.
 
     Args:
@@ -282,20 +308,27 @@ def calculate_ml_macd(df, bot_settings):
     """
     macd_timeperiod = bot_settings.ml_macd_timeperiod
     macd_signalperiod = bot_settings.ml_macd_signalperiod
-    
-    df[f'macd_{macd_timeperiod}'], df[f'macd_signal_{macd_signalperiod}'], _ = talib.MACD(
-        df['close'], 
-        fastperiod=macd_timeperiod, 
-        slowperiod=macd_timeperiod * 2, 
-        signalperiod=macd_signalperiod
+
+    df[f"macd_{macd_timeperiod}"], df[f"macd_signal_{macd_signalperiod}"], _ = (
+        talib.MACD(
+            df["close"],
+            fastperiod=macd_timeperiod,
+            slowperiod=macd_timeperiod * 2,
+            signalperiod=macd_signalperiod,
+        )
     )
-    
-    df[f'macd_histogram_{macd_timeperiod}'] = \
-        df[f'macd_{macd_timeperiod}'] - df[f'macd_signal_{macd_signalperiod}']
-    
-    df['macd_buy_signal'] = df[f'macd_{macd_timeperiod}'] > df[f'macd_signal_{macd_signalperiod}']
-    df['macd_sell_signal'] = df[f'macd_{macd_timeperiod}'] < df[f'macd_signal_{macd_signalperiod}']
-    
+
+    df[f"macd_histogram_{macd_timeperiod}"] = (
+        df[f"macd_{macd_timeperiod}"] - df[f"macd_signal_{macd_signalperiod}"]
+    )
+
+    df["macd_buy_signal"] = (
+        df[f"macd_{macd_timeperiod}"] > df[f"macd_signal_{macd_signalperiod}"]
+    )
+    df["macd_sell_signal"] = (
+        df[f"macd_{macd_timeperiod}"] < df[f"macd_signal_{macd_signalperiod}"]
+    )
+
     return df
 
 
@@ -304,7 +337,7 @@ def calculate_ml_bollinger_bands(df, bot_settings):
     """
     Calculates Bollinger Bands and generates buy/sell signals.
 
-    This function calculates the upper and lower Bollinger Bands based on the closing prices, 
+    This function calculates the upper and lower Bollinger Bands based on the closing prices,
     and generates buy/sell signals when the price crosses the bands.
 
     Args:
@@ -318,20 +351,20 @@ def calculate_ml_bollinger_bands(df, bot_settings):
     """
     bollinger_timeperiod = bot_settings.ml_bollinger_timeperiod
     bollinger_nbdev = bot_settings.ml_bollinger_nbdev
-    
-    df['upper_band'], df['middle_band'], df['lower_band'] = talib.BBANDS(
-        df['close'],
+
+    df["upper_band"], df["middle_band"], df["lower_band"] = talib.BBANDS(
+        df["close"],
         timeperiod=bollinger_timeperiod,
         nbdevup=bollinger_nbdev,
         nbdevdn=bollinger_nbdev,
-        matype=0
+        matype=0,
     )
-    
-    df['bollinger_buy_signal'] = df['close'] < df['lower_band']
-    df['bollinger_sell_signal'] = df['close'] > df['upper_band']
-    
+
+    df["bollinger_buy_signal"] = df["close"] < df["lower_band"]
+    df["bollinger_sell_signal"] = df["close"] > df["upper_band"]
+
     return df
-    
+
 
 @exception_handler()
 def calculate_ml_time_patterns(df, bot_settings):
@@ -340,34 +373,34 @@ def calculate_ml_time_patterns(df, bot_settings):
 
     This function creates new features based on the 'close_time' column:
     - Extracts the hour, weekday, and month from 'close_time'.
-    - Computes cyclic (sinusoidal and cosinusoidal) transformations for hour, weekday, and month 
+    - Computes cyclic (sinusoidal and cosinusoidal) transformations for hour, weekday, and month
       to capture cyclical patterns in time.
     - Adds a boolean feature indicating whether the 'close_time' corresponds to a weekend (Saturday or Sunday).
 
     Args:
         df (pandas.DataFrame): The DataFrame containing the 'close_time' column.
-    
+
     Returns:
-        pandas.DataFrame or None: The DataFrame with additional time-based features. 
+        pandas.DataFrame or None: The DataFrame with additional time-based features.
                                    Returns None if an error occurs during the calculation.
     """
-    df['close_time'] = pd.to_datetime(df['close_time'], unit='ms')
-    
-    df['close_time_hour'] = df['close_time'].dt.hour
-    df['close_time_weekday'] = df['close_time'].dt.weekday
-    df['close_time_month'] = df['close_time'].dt.month
+    df["close_time"] = pd.to_datetime(df["close_time"], unit="ms")
 
-    df['hour_sin'] = np.sin(2 * np.pi * df['close_time_hour'] / 24)
-    df['hour_cos'] = np.cos(2 * np.pi * df['close_time_hour'] / 24)
-    df['weekday_sin'] = np.sin(2 * np.pi * df['close_time_weekday'] / 7)
-    df['weekday_cos'] = np.cos(2 * np.pi * df['close_time_weekday'] / 7)
-    df['month_sin'] = np.sin(2 * np.pi * df['close_time_month'] / 12)
-    df['month_cos'] = np.cos(2 * np.pi * df['close_time_month'] / 12)
+    df["close_time_hour"] = df["close_time"].dt.hour
+    df["close_time_weekday"] = df["close_time"].dt.weekday
+    df["close_time_month"] = df["close_time"].dt.month
 
-    df['is_weekend'] = df['close_time_weekday'].isin([5, 6])
-    
+    df["hour_sin"] = np.sin(2 * np.pi * df["close_time_hour"] / 24)
+    df["hour_cos"] = np.cos(2 * np.pi * df["close_time_hour"] / 24)
+    df["weekday_sin"] = np.sin(2 * np.pi * df["close_time_weekday"] / 7)
+    df["weekday_cos"] = np.cos(2 * np.pi * df["close_time_weekday"] / 7)
+    df["month_sin"] = np.sin(2 * np.pi * df["close_time_month"] / 12)
+    df["month_cos"] = np.cos(2 * np.pi * df["close_time_month"] / 12)
+
+    df["is_weekend"] = df["close_time_weekday"].isin([5, 6])
+
     return df
-        
+
 
 @exception_handler()
 def calculate_ml_rsi_macd_ratio_and_diff(df, bot_settings):
@@ -390,28 +423,30 @@ def calculate_ml_rsi_macd_ratio_and_diff(df, bot_settings):
     general_timeperiod = bot_settings.ml_general_timeperiod
     macd_timeperiod = bot_settings.ml_macd_timeperiod
     macd_signalperiod = bot_settings.ml_macd_signalperiod
-    
+
     epsilon = 1e-10
-    df['rsi_macd_ratio'] = df[f'rsi_{general_timeperiod}'] / \
-        (df[f'macd_histogram_{macd_timeperiod}'] + epsilon)
-    df['macd_signal_diff'] = df[f'macd_signal_{macd_signalperiod}'] - \
-        df[f'macd_histogram_{macd_timeperiod}']
-    
+    df["rsi_macd_ratio"] = df[f"rsi_{general_timeperiod}"] / (
+        df[f"macd_histogram_{macd_timeperiod}"] + epsilon
+    )
+    df["macd_signal_diff"] = (
+        df[f"macd_signal_{macd_signalperiod}"] - df[f"macd_histogram_{macd_timeperiod}"]
+    )
+
     return df
-    
+
 
 @exception_handler()
 def handle_initial_ml_df_preparaition(df, bot_settings):
     """
     Prepares the initial DataFrame by converting specific columns to numeric types.
 
-    This function ensures that the columns 'open', 'low', 'high', 'close', and 'volume' 
-    in the given DataFrame are converted to numeric types. Non-numeric values are coerced 
-    to NaN. If an exception occurs during processing, it is logged, and the function 
+    This function ensures that the columns 'open', 'low', 'high', 'close', and 'volume'
+    in the given DataFrame are converted to numeric types. Non-numeric values are coerced
+    to NaN. If an exception occurs during processing, it is logged, and the function
     returns None.
 
     Parameters:
-        df (pandas.DataFrame): The input DataFrame containing market data with columns 
+        df (pandas.DataFrame): The input DataFrame containing market data with columns
         'open', 'low', 'high', 'close', and 'volume'.
 
     Returns:
@@ -421,21 +456,21 @@ def handle_initial_ml_df_preparaition(df, bot_settings):
     Raises:
         None: All exceptions are handled and logged internally.
     """
-    df['open'] = pd.to_numeric(df['open'], errors='coerce')
-    df['low'] = pd.to_numeric(df['low'], errors='coerce')
-    df['high'] = pd.to_numeric(df['high'], errors='coerce')
-    df['close'] = pd.to_numeric(df['close'], errors='coerce')
-    df['volume'] = pd.to_numeric(df['volume'], errors='coerce')
-    
+    df["open"] = pd.to_numeric(df["open"], errors="coerce")
+    df["low"] = pd.to_numeric(df["low"], errors="coerce")
+    df["high"] = pd.to_numeric(df["high"], errors="coerce")
+    df["close"] = pd.to_numeric(df["close"], errors="coerce")
+    df["volume"] = pd.to_numeric(df["volume"], errors="coerce")
+
     return df
-    
+
 
 @exception_handler()
 def handle_final_ml_df_cleaninig(df, columns_to_drop, bot_settings):
     """
     Performs final cleaning on the DataFrame.
 
-    This function removes specified columns, fills missing values with 0, 
+    This function removes specified columns, fills missing values with 0,
     and converts boolean columns to integer type for further processing.
 
     Parameters:
@@ -443,7 +478,7 @@ def handle_final_ml_df_cleaninig(df, columns_to_drop, bot_settings):
         columns_to_drop (list): A list of column names to be dropped from the DataFrame.
 
     Returns:
-        pandas.DataFrame: The cleaned DataFrame with specified columns dropped, 
+        pandas.DataFrame: The cleaned DataFrame with specified columns dropped,
         missing values filled with 0, and boolean columns converted to integers.
         Returns None if an exception occurs.
 
@@ -452,22 +487,24 @@ def handle_final_ml_df_cleaninig(df, columns_to_drop, bot_settings):
     """
     df.drop(columns=columns_to_drop, inplace=True)
     df.fillna(0, inplace=True)
-    df[df.select_dtypes(include=['bool']).columns] = \
-        df.select_dtypes(include=['bool']).astype(int)
-        
+    df[df.select_dtypes(include=["bool"]).columns] = df.select_dtypes(
+        include=["bool"]
+    ).astype(int)
+
     return df
-        
+
 
 @exception_handler()
-def prepare_ml_df(df=None, 
-               bot_settings=None, 
-               ):
+def prepare_ml_df(
+    df=None,
+    bot_settings=None,
+):
     """
-    Prepares the dataframe by calculating technical indicators such as 
+    Prepares the dataframe by calculating technical indicators such as
     moving averages, RSI, MACD, volume trends, etc., and returns the modified dataframe.
 
     Parameters:
-        - df (pd.DataFrame): The input dataframe containing market data. 
+        - df (pd.DataFrame): The input dataframe containing market data.
         - regresion (bool): Flag to indicate if the dataframe is being prepared for regression (not used in the code right now).
         - clasification (bool): Flag to indicate if the dataframe is being prepared for classification (not used in the code right now).
 
@@ -476,39 +513,39 @@ def prepare_ml_df(df=None,
     """
     if bot_settings is None:
         raise ValueError("bot_settings must be provided and cannot be None or empty.")
-    
+
     if df is None or df.empty:
         raise ValueError("df must be provided and cannot be None or empty.")
-    
+
     result_df = df.copy()
-    
+
     handle_initial_ml_df_preparaition(result_df, bot_settings)
-    
+
     calculate_ml_rsi(result_df, bot_settings)
     calculate_ml_macd(result_df, bot_settings)
     calculate_ml_ema(result_df, bot_settings)
     calculate_ml_bollinger_bands(result_df, bot_settings)
     calculate_ml_rsi_macd_ratio_and_diff(result_df, bot_settings)
-    
+
     calculate_ml_time_patterns(result_df, bot_settings)
     find_ml_hammer_patterns(result_df, bot_settings)
     find_ml_morning_star_patterns(result_df, bot_settings)
     find_ml_bullish_engulfing_patterns(result_df, bot_settings)
-    
-    columns_to_calc = ['close', 'volume', f'rsi_{bot_settings.ml_general_timeperiod}']
+
+    columns_to_calc = ["close", "volume", f"rsi_{bot_settings.ml_general_timeperiod}"]
     calculate_ml_pct_change_and_lags(result_df, columns_to_calc, bot_settings)
-    
+
     calculate_ml_momentum_signals(result_df, bot_settings)
 
-    columns_to_drop=[
-        'open_time', 
-        'close_time', 
-        'ignore', 
-        'quote_asset_volume', 
-        'number_of_trades',
-        'taker_buy_base_asset_volume', 
-        'taker_buy_quote_asset_volume',
-        ]
+    columns_to_drop = [
+        "open_time",
+        "close_time",
+        "ignore",
+        "quote_asset_volume",
+        "number_of_trades",
+        "taker_buy_base_asset_volume",
+        "taker_buy_quote_asset_volume",
+    ]
     handle_final_ml_df_cleaninig(result_df, columns_to_drop, bot_settings)
 
     return result_df

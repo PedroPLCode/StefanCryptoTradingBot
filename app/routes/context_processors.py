@@ -11,6 +11,7 @@ import pytz
 from datetime import datetime
 from .. import app, db, login_manager
 
+
 @login_manager.user_loader
 def inject_user(user_id):
     """
@@ -23,10 +24,11 @@ def inject_user(user_id):
         User: The user object if found, else None.
     """
     from ..models import User
+
     return User.query.get(int(user_id))
 
 
-@app.template_filter('to_datetime')
+@app.template_filter("to_datetime")
 def to_datetime(timestamp):
     """
     Converts a timestamp (in milliseconds) to a formatted datetime string.
@@ -37,10 +39,10 @@ def to_datetime(timestamp):
     Returns:
         str: A formatted datetime string in 'YYYY-MM-DD HH:MM:SS' format.
     """
-    return datetime.fromtimestamp(
-        timestamp / 1000.0, tz=pytz.utc).strftime('%Y-%m-%d %H:%M:%S'
+    return datetime.fromtimestamp(timestamp / 1000.0, tz=pytz.utc).strftime(
+        "%Y-%m-%d %H:%M:%S"
     )
-        
+
 
 @app.context_processor
 def inject_current_user():
@@ -75,7 +77,7 @@ def inject_user_agent():
               or an error message if the header retrieval fails.
     """
     try:
-        user_agent = request.headers.get('User-Agent') 
+        user_agent = request.headers.get("User-Agent")
     except Exception as e:
         user_agent = f"Error retrieving user agent: {e}"
     return dict(user_agent=user_agent)
@@ -96,7 +98,7 @@ def inject_system_info():
         release = platform.release()
     except Exception as e:
         system_name = f"Error retrieving system info: {e}"
-    return dict(system_info=f'{system_name} {release} {system_version}')
+    return dict(system_info=f"{system_name} {release} {system_version}")
 
 
 @app.context_processor
@@ -109,7 +111,7 @@ def inject_system_uptime():
               or an error message if the uptime retrieval fails.
     """
     try:
-        uptime = subprocess.check_output(['uptime'], text=True).strip()
+        uptime = subprocess.check_output(["uptime"], text=True).strip()
     except Exception as e:
         uptime = f"Error retrieving system uptime: {e}"
     return dict(system_uptime=uptime)
