@@ -1,6 +1,7 @@
 from flask import redirect, url_for, flash, current_app, jsonify
 from flask_login import login_required, current_user
 import pandas as pd
+from typing import Callable
 from ..models import BotSettings, BacktestSettings
 from datetime import datetime
 from ..utils.logging import logger
@@ -24,7 +25,7 @@ from ..utils.bots_utils import (
 @main.route("/start/<int:bot_id>")
 @exception_handler(default_return=lambda: redirect(url_for("main.control_panel_view")))
 @login_required
-def start_bot(bot_id):
+def start_bot(bot_id: int) -> Callable:
     """
     Starts a specific bot based on the provided bot ID.
     Only accessible to users with control panel access.
@@ -45,7 +46,7 @@ def start_bot(bot_id):
 @main.route("/stop/<int:bot_id>")
 @exception_handler(default_return=lambda: redirect(url_for("main.control_panel_view")))
 @login_required
-def stop_bot(bot_id):
+def stop_bot(bot_id: int) -> Callable:
     """
     Stops a specific bot based on the provided bot ID.
     If an active trade exists, executes a sell order before stopping.

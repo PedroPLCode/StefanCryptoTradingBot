@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
+from typing import Tuple, Union, Optional
 import pandas as pd
 from binance.client import Client
 from app.models import BotSettings
@@ -10,7 +11,9 @@ from ..utils.exception_handlers import exception_handler
 load_dotenv()
 
 
-def get_binance_api_credentials(bot_id=None, testnet=False):
+def get_binance_api_credentials(
+    bot_id: str = None, testnet: bool = False
+) -> Tuple[str, str]:
     """
     Retrieves Binance API credentials from environment variables.
 
@@ -36,7 +39,9 @@ def get_binance_api_credentials(bot_id=None, testnet=False):
 
 
 @exception_handler()
-def create_binance_client(bot_id=None, testnet=False):
+def create_binance_client(
+    bot_id: str = None, testnet: bool = False
+) -> Union[Optional[int], Client]:
     """
     Creates a Binance client instance using the provided API credentials.
 
@@ -58,7 +63,13 @@ general_client = create_binance_client(None)
 
 
 @exception_handler()
-def fetch_data(symbol, interval="1m", lookback="4h", start_str=None, end_str=None):
+def fetch_data(
+    symbol: str,
+    interval: str = "1m",
+    lookback: str = "4h",
+    start_str: Optional[str] = None,
+    end_str: Optional[str] = None,
+) -> pd.DataFrame:
     """
     Fetch historical kline (candlestick) data for a specific trading symbol.
 
@@ -131,7 +142,7 @@ def fetch_data(symbol, interval="1m", lookback="4h", start_str=None, end_str=Non
 
 
 @exception_handler(default_return=0)
-def get_account_balance(bot_id, assets):
+def get_account_balance(bot_id: str, assets: list) -> Union[dict, int]:
     """
     Retrieves the balance of specified assets from the Binance account.
 
@@ -158,7 +169,7 @@ def get_account_balance(bot_id, assets):
 
 
 @exception_handler()
-def fetch_current_price(symbol):
+def fetch_current_price(symbol: str) -> Union[float, Optional[int]]:
     """
     Retrieves the current price of a specific trading symbol from Binance.
 
@@ -178,8 +189,8 @@ def fetch_current_price(symbol):
     return float(ticker["price"])
 
 
-@exception_handler(default_return=(None, 0))
-def get_minimum_order_quantity(bot_id, symbol):
+@exception_handler(default_return=(0, 0))
+def get_minimum_order_quantity(bot_id: str, symbol: str) -> Tuple[float, float]:
     """
     Fetches the minimum order quantity and step size for a given symbol on Binance.
 
@@ -203,7 +214,9 @@ def get_minimum_order_quantity(bot_id, symbol):
 
 
 @exception_handler()
-def get_minimum_order_value(bot_id, symbol):
+def get_minimum_order_value(
+    bot_id: str, symbol: str
+) -> Union[Tuple[float, float], Optional[int]]:
     """
     Fetches the minimum order value (notional) for a given symbol on Binance.
 
@@ -225,7 +238,7 @@ def get_minimum_order_value(bot_id, symbol):
 
 
 @exception_handler(default_return=(False, False))
-def place_buy_order(bot_id):
+def place_buy_order(bot_id: str) -> Union[Tuple[bool, float], Tuple[bool, bool]]:
     """
     Places a market buy order for a specified symbol on Binance using available stablecoin balance.
 
@@ -328,7 +341,7 @@ def place_buy_order(bot_id):
 
 
 @exception_handler(default_return=(False, False))
-def place_sell_order(bot_id):
+def place_sell_order(bot_id: str) -> Union[Tuple[bool, float], Tuple[bool, bool]]:
     """
     Places a sell order for a specified bot. The function fetches the account balance for the specified cryptocurrency
     symbol, calculates the amount to sell based on the available balance and step size, and places a market sell order.
@@ -411,7 +424,7 @@ def fetch_system_status():
 
 
 @exception_handler()
-def fetch_account_status(bot_id=None):
+def fetch_account_status(bot_id: str = None) -> Union[dict, Optional[int]]:
     """
     Fetches the account status of the bot's associated Binance account.
 

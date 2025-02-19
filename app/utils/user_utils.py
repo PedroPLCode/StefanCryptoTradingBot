@@ -1,13 +1,16 @@
 from flask import redirect, url_for, flash
 from werkzeug.security import generate_password_hash
+from typing import Callable
+from ..forms import RegistrationForm
 from app.models import User
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
 from ..utils.email_utils import send_admin_email
+from typing import Optional
 
 
 @exception_handler()
-def create_new_user(form):
+def create_new_user(form: RegistrationForm) -> User:
     """
     Creates a new user based on the provided form data and hashes the password.
 
@@ -33,7 +36,7 @@ def create_new_user(form):
     return new_user
 
 
-def check_if_user_is_authenticated(user, panel_name):
+def check_if_user_is_authenticated(user: User, panel_name: str) -> Callable:
     """
     Checks if the user is authenticated.
 
@@ -64,7 +67,7 @@ def check_if_user_is_authenticated(user, panel_name):
         return redirect(url_for("main.login"))
 
 
-def check_if_user_have_control_access(user, panel_name):
+def check_if_user_have_control_access(user: User, panel_name: str) -> Callable:
     """
     Checks if the user has access to the specified control panel.
 
@@ -101,7 +104,7 @@ def check_if_user_have_control_access(user, panel_name):
         return redirect(url_for("main.user_panel_view"))
 
 
-def check_if_user_is_admin(user):
+def check_if_user_is_admin(user: User) -> Callable:
     """
     Checks if the user has admin panel access.
 

@@ -1,5 +1,6 @@
 from .. import db
 
+
 class BotCurrentTrade(db.Model):
     """
     Represents the current trade being executed by the trading bot.
@@ -25,9 +26,9 @@ class BotCurrentTrade(db.Model):
         bot_settings_id (int): The foreign key to the `BotSettings` table, linking the trade to specific bot settings.
         bot_settings (BotSettings): The `BotSettings` object associated with this trade.
     """
-    
+
     __tablename__ = 'bot_current_trade'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     is_active = db.Column(db.Boolean, nullable=False, default=False)
     amount = db.Column(db.Float, default=0, nullable=True)
@@ -37,17 +38,20 @@ class BotCurrentTrade(db.Model):
     stop_loss_price = db.Column(db.Float, default=0, nullable=True)
     take_profit_price = db.Column(db.Float, default=0, nullable=True)
     use_take_profit = db.Column(db.Boolean, nullable=False, default=False)
-    trailing_take_profit_activated = db.Column(db.Boolean, nullable=False, default=False)
+    trailing_take_profit_activated = db.Column(
+        db.Boolean, nullable=False, default=False)
     price_rises_counter = db.Column(db.Integer, default=0, nullable=True)
-    buy_timestamp = db.Column(db.DateTime, default=db.func.current_timestamp(), nullable=True)
-    
-    bot_settings_id = db.Column(db.Integer, db.ForeignKey('bot_settings.id'), nullable=False)
+    buy_timestamp = db.Column(
+        db.DateTime, default=db.func.current_timestamp(), nullable=True)
+
+    bot_settings_id = db.Column(db.Integer, db.ForeignKey(
+        'bot_settings.id'), nullable=False)
     bot_settings = db.relationship(
         'BotSettings',
         back_populates='bot_current_trade',
         overlaps="bot_current_trade"
     )
-    
+
     def __repr__(self):
         """Return a string representation of the object."""
         return (f'{self.id}')

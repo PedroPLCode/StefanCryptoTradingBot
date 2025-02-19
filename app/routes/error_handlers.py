@@ -1,9 +1,10 @@
 from flask import render_template, redirect, url_for, flash
+from typing import Callable
 from .. import app, limiter, login_manager
 
 
 @app.errorhandler(404)
-def page_not_found(error_msg):
+def page_not_found(error_msg: str) -> Callable:
     """
     Handles 404 errors (Page Not Found). This function is triggered when the requested page does not exist.
 
@@ -19,7 +20,7 @@ def page_not_found(error_msg):
 
 @app.errorhandler(429)
 @limiter.exempt
-def too_many_requests(error_msg):
+def too_many_requests(error_msg: str) -> Callable:
     """
     Handles 429 errors (Too Many Requests). This function is triggered when a user exceeds the rate limit.
 

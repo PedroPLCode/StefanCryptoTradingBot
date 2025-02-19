@@ -52,6 +52,7 @@ joblib==1.4.2
 keras==3.6.0
 kiwisolver==1.4.8
 libclang==18.1.1
+libcst==1.6.0
 limits==3.13.0
 Mako==1.3.5
 Markdown==3.7
@@ -60,9 +61,11 @@ MarkupSafe==2.1.5
 matplotlib==3.10.0
 mdurl==0.1.2
 ml-dtypes==0.4.1
+MonkeyType==23.3.0
 multidict==6.1.0
 mypy-extensions==1.0.0
 namex==0.0.8
+nodeenv==1.9.1
 numpy==1.26.4
 nvidia-nccl-cu12==2.25.1
 oauthlib==3.2.2
@@ -81,12 +84,14 @@ pycryptodome==3.20.0
 Pygments==2.18.0
 PyJWT==2.9.0
 pyparsing==3.2.1
+pyright==1.1.394
 pytest==8.3.3
 pytest-mock==3.14.0
 python-binance==1.0.19
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytz==2024.2
+PyYAML==6.0.2
 regex==2024.9.11
 requests==2.32.3
 requests-oauthlib==1.3.1

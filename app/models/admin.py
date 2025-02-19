@@ -3,6 +3,7 @@ from flask_login import current_user
 from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 
+
 class MyAdmin(Admin):
     """
     Custom Admin class for managing access to the admin panel.
@@ -24,13 +25,14 @@ class MyAdmin(Admin):
             flash('Please log in to access the admin panel.', 'warning')
             return redirect(url_for('main.index'))
 
-        
+
 class MyAdminIndexView(AdminIndexView):
     """
     Custom view for the admin index page.
 
     Restricts access to the admin index page to authenticated users with admin panel access.
     """
+
     def is_accessible(self):
         """
         Check if the current user has access to the admin index page.
@@ -45,14 +47,15 @@ class MyAdminIndexView(AdminIndexView):
         """
         flash('Please log in to access this page.', 'danger')
         return redirect(url_for('main.login'))
-    
-    
+
+
 class AdminModelView(ModelView):
     """
     Base model view for managing database models in the admin panel.
 
     Provides access control for viewing and editing model data.
     """
+
     def is_accessible(self):
         """
         Check if the current user has access to the model view.
@@ -76,28 +79,28 @@ class UserAdmin(AdminModelView):
     Allows viewing and editing user details such as login, email, access permissions, and more.
     """
     column_list = (
-        'id', 
-        'login', 
-        'name', 
-        'email', 
+        'id',
+        'login',
+        'name',
+        'email',
         'comment',
         'control_panel_access',
-        'admin_panel_access', 
-        'email_raports_receiver', 
+        'admin_panel_access',
+        'email_raports_receiver',
         'email_trades_receiver',
-        'account_suspended', 
-        'login_errors', 
-        'creation_date', 
+        'account_suspended',
+        'login_errors',
+        'creation_date',
         'last_login'
     )
     column_filters = (
-        'login', 
-        'name', 
-        'email', 
-        'control_panel_access', 
-        'admin_panel_access', 
-        'email_raports_receiver', 
-        'account_suspended', 
+        'login',
+        'name',
+        'email',
+        'control_panel_access',
+        'admin_panel_access',
+        'email_raports_receiver',
+        'account_suspended',
         'login_errors'
     )
     form_excluded_columns = ('password_hash',)
@@ -111,13 +114,13 @@ class BotSettingsAdmin(AdminModelView):
     and more.
     """
     column_list = (
-        'id', 
+        'id',
         'bot_current_trade',
         'bot_technical_analysis',
         'bot_running',
-        'symbol', 
-        'interval', 
-        'lookback_period', 
+        'symbol',
+        'interval',
+        'lookback_period',
         'strategy',
         'comment',
         'capital_utilization_pct',
@@ -247,9 +250,9 @@ class BacktestSettingsAdmin(AdminModelView):
     Allows configuring backtesting parameters such as date range, initial balance, and more.
     """
     column_list = (
-        'id', 
+        'id',
         'bot_id',
-        'start_date', 
+        'start_date',
         'end_date',
         'csv_file_path',
         'initial_balance',
@@ -264,11 +267,11 @@ class BacktestResultsAdmin(AdminModelView):
     Displays results such as profit, final balance, and other backtest metrics.
     """
     column_list = (
-        'id', 
+        'id',
         'bot_id',
         'symbol',
         'strategy',
-        'start_date', 
+        'start_date',
         'end_date',
         'initial_balance',
         'final_balance',
@@ -283,14 +286,14 @@ class BotCurrentTradeAdmin(AdminModelView):
     Displays information about the active trade, such as buy price, stop-loss price, and more.
     """
     column_list = (
-        'id', 
+        'id',
         'bot_settings',
-        'is_active', 
+        'is_active',
         'trailing_take_profit_activated',
-        'amount', 
-        'current_price', 
+        'amount',
+        'current_price',
         'buy_price',
-        'previous_price', 
+        'previous_price',
         'stop_loss_price',
         'take_profit_price',
         'price_rises_counter',
@@ -306,11 +309,11 @@ class TradesHistoryAdmin(AdminModelView):
     Allows viewing trade details such as amount, buy and sell prices, and timestamps.
     """
     column_list = (
-        'id', 
-        'bot_id', 
+        'id',
+        'bot_id',
         'strategy',
-        'amount', 
-        'buy_price', 
+        'amount',
+        'buy_price',
         'sell_price',
         'stablecoin_balance',
         'stop_loss_price',
@@ -331,12 +334,12 @@ class BotTechnicalAnalysisAdmin(AdminModelView):
     Displays various indicators like RSI, MACD, ATR, and more.
     """
     column_list = (
-        'id', 
+        'id',
         'bot_settings',
-        'current_trend', 
+        'current_trend',
         'current_close',
-        'current_high', 
-        'current_low', 
+        'current_high',
+        'current_low',
         'current_volume',
         'current_rsi',
         'current_cci',

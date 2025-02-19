@@ -1,11 +1,13 @@
 from ..utils.logging import logger
+from ..models import BotSettings
+import pandas as pd
 from ..utils.email_utils import send_admin_email
 from ..utils.exception_handlers import exception_handler
 from .calc_utils import get_latest_and_previus_data
 
 
 @exception_handler(default_return=False)
-def trend_buy_signal(trend, bot_settings):
+def trend_buy_signal(trend: str, bot_settings: BotSettings) -> bool:
     """
     Determines whether to trigger a buy signal based on the current trend.
 
@@ -22,7 +24,9 @@ def trend_buy_signal(trend, bot_settings):
 
 
 @exception_handler(default_return=False)
-def rsi_buy_signal(latest_data, averages, bot_settings):
+def rsi_buy_signal(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on the RSI values.
 
@@ -42,7 +46,9 @@ def rsi_buy_signal(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def rsi_divergence_buy_signal(latest_data, averages, bot_settings):
+def rsi_divergence_buy_signal(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on RSI divergence.
 
@@ -62,7 +68,9 @@ def rsi_divergence_buy_signal(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def vol_rising(latest_data, averages, bot_settings):
+def vol_rising(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on increasing volume.
 
@@ -80,7 +88,9 @@ def vol_rising(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def macd_cross_buy_signal(latest_data, previous_data, bot_settings):
+def macd_cross_buy_signal(
+    latest_data: pd.DataFrame, previous_data: pd.DataFrame, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on MACD cross.
 
@@ -100,7 +110,9 @@ def macd_cross_buy_signal(latest_data, previous_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def macd_histogram_buy_signal(latest_data, previous_data, bot_settings):
+def macd_histogram_buy_signal(
+    latest_data: pd.DataFrame, previous_data: pd.DataFrame, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on MACD histogram.
 
@@ -121,7 +133,7 @@ def macd_histogram_buy_signal(latest_data, previous_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def bollinger_buy_signal(latest_data, bot_settings):
+def bollinger_buy_signal(latest_data: pd.DataFrame, bot_settings: BotSettings) -> bool:
     """
     Determines whether to trigger a buy signal based on Bollinger Bands.
 
@@ -138,7 +150,9 @@ def bollinger_buy_signal(latest_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def stoch_buy_signal(latest_data, previous_data, bot_settings):
+def stoch_buy_signal(
+    latest_data: pd.DataFrame, previous_data: pd.DataFrame, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on Stochastic Oscillator.
 
@@ -160,7 +174,9 @@ def stoch_buy_signal(latest_data, previous_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def stoch_divergence_buy_signal(latest_data, averages, bot_settings):
+def stoch_divergence_buy_signal(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on Stochastic Divergence.
 
@@ -180,7 +196,9 @@ def stoch_divergence_buy_signal(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def stoch_rsi_buy_signal(latest_data, averages, bot_settings):
+def stoch_rsi_buy_signal(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on Stochastic RSI.
 
@@ -200,7 +218,9 @@ def stoch_rsi_buy_signal(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def ema_cross_buy_signal(latest_data, previous_data, bot_settings):
+def ema_cross_buy_signal(
+    latest_data: pd.DataFrame, previous_data: pd.DataFrame, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on EMA cross.
 
@@ -220,7 +240,9 @@ def ema_cross_buy_signal(latest_data, previous_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def ema_fast_buy_signal(latest_data, averages, bot_settings):
+def ema_fast_buy_signal(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on fast EMA.
 
@@ -238,7 +260,9 @@ def ema_fast_buy_signal(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def ema_slow_buy_signal(latest_data, averages, bot_settings):
+def ema_slow_buy_signal(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on slow EMA.
 
@@ -256,7 +280,9 @@ def ema_slow_buy_signal(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def di_cross_buy_signal(latest_data, previous_data, bot_settings):
+def di_cross_buy_signal(
+    latest_data: pd.DataFrame, previous_data: pd.DataFrame, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on Directional Indicator cross.
 
@@ -276,7 +302,9 @@ def di_cross_buy_signal(latest_data, previous_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def cci_buy_signal(latest_data, averages, bot_settings):
+def cci_buy_signal(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on Commodity Channel Index (CCI).
 
@@ -296,7 +324,9 @@ def cci_buy_signal(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def cci_divergence_buy_signal(latest_data, averages, bot_settings):
+def cci_divergence_buy_signal(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on CCI divergence.
 
@@ -316,7 +346,9 @@ def cci_divergence_buy_signal(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def mfi_buy_signal(latest_data, averages, bot_settings):
+def mfi_buy_signal(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on Money Flow Index (MFI).
 
@@ -336,7 +368,9 @@ def mfi_buy_signal(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def mfi_divergence_buy_signal(latest_data, averages, bot_settings):
+def mfi_divergence_buy_signal(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on MFI divergence.
 
@@ -356,7 +390,9 @@ def mfi_divergence_buy_signal(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def atr_buy_signal(latest_data, averages, bot_settings):
+def atr_buy_signal(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on Average True Range (ATR).
 
@@ -377,7 +413,7 @@ def atr_buy_signal(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def vwap_buy_signal(latest_data, bot_settings):
+def vwap_buy_signal(latest_data: pd.DataFrame, bot_settings: BotSettings) -> bool:
     """
     Determines whether to trigger a buy signal based on VWAP.
 
@@ -394,7 +430,9 @@ def vwap_buy_signal(latest_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def psar_buy_signal(latest_data, previous_data, bot_settings):
+def psar_buy_signal(
+    latest_data: pd.DataFrame, previous_data: pd.DataFrame, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on Parabolic SAR (PSAR).
 
@@ -414,7 +452,7 @@ def psar_buy_signal(latest_data, previous_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def ma50_buy_signal(latest_data, bot_settings):
+def ma50_buy_signal(latest_data: pd.DataFrame, bot_settings: BotSettings) -> bool:
     """
     Determines whether to trigger a buy signal based on Moving Average (MA50).
 
@@ -431,7 +469,7 @@ def ma50_buy_signal(latest_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def ma200_buy_signal(latest_data, bot_settings):
+def ma200_buy_signal(latest_data: pd.DataFrame, bot_settings: BotSettings) -> bool:
     """
     Determines whether to trigger a buy signal based on Moving Average (MA200).
 
@@ -448,7 +486,9 @@ def ma200_buy_signal(latest_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def ma_cross_buy_signal(latest_data, previous_data, bot_settings):
+def ma_cross_buy_signal(
+    latest_data: pd.DataFrame, previous_data: pd.DataFrame, bot_settings: BotSettings
+) -> bool:
     """
     Determines whether to trigger a buy signal based on Moving Averages (MA50 and MA200).
 
@@ -468,11 +508,8 @@ def ma_cross_buy_signal(latest_data, previous_data, bot_settings):
 
 @exception_handler(default_return=False)
 def check_classic_ta_buy_signal(
-    df,
-    bot_settings,
-    trend,
-    averages,
-):
+    df: pd.DataFrame, bot_settings: BotSettings, trend: str, averages: dict
+) -> bool:
     """
     Calculates whether a buy signal should be triggered based on multiple conditions.
 

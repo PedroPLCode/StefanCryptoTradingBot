@@ -1,6 +1,7 @@
 from flask import current_app
 from flask_mail import Message
 from datetime import datetime
+from typing import Any
 from app.models import User
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
@@ -8,7 +9,7 @@ from ..utils.reports_utils import generate_trade_report
 
 
 @exception_handler(default_return=False)
-def send_email(email, subject, body):
+def send_email(email: str, subject: str, body: str) -> bool:
     """
     Sends an email to a specified recipient.
 
@@ -37,7 +38,7 @@ def send_email(email, subject, body):
         return True
 
 
-def send_admin_email(subject, body):
+def send_admin_email(subject: str, body: str) -> Any:
     """
     Sends an email notification to all users with admin panel access.
 
@@ -66,7 +67,7 @@ def send_admin_email(subject, body):
 
 
 @exception_handler()
-def send_trade_email(subject, body):
+def send_trade_email(subject: str, body: str) -> Any:
     """
     Sends trade-related notifications via email.
 
@@ -90,7 +91,8 @@ def send_trade_email(subject, body):
                     f"Failed to send trade info email to {user.email}. {subject} {body}"
                 )
                 send_admin_email(
-                    f"Failed to send trade info email to {user.email}", str(e)
+                    f"Error in send_trade_email",
+                    f"Failed to send trade info email to {user.email}",
                 )
 
 

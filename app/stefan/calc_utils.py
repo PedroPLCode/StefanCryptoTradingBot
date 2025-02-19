@@ -1,12 +1,16 @@
 import talib
 import pandas as pd
+from typing import Union, Optional, Tuple
+from ..models import BotSettings
 from ..utils.logging import logger
 from ..utils.email_utils import send_admin_email
 from ..utils.exception_handlers import exception_handler
 
 
 @exception_handler(default_return=(None, None))
-def get_latest_and_previus_data(df, bot_settings):
+def get_latest_and_previus_data(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[tuple[Optional[int], Optional[int]], Tuple[pd.DataFrame, pd.DataFrame]]:
     """
     Pobiera najnowszy oraz poprzedni wiersz z przekazanego DataFrame.
 
@@ -26,7 +30,9 @@ def get_latest_and_previus_data(df, bot_settings):
 
 
 @exception_handler(default_return=False)
-def handle_ta_df_initial_praparation(df, bot_settings):
+def handle_ta_df_initial_praparation(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], pd.DataFrame]:
     """
     Prepares the DataFrame for technical analysis by converting relevant columns to numeric
     types and handling missing values.
@@ -53,7 +59,9 @@ def handle_ta_df_initial_praparation(df, bot_settings):
 
 
 @exception_handler(default_return=False)
-def calculate_ta_rsi(df, bot_settings):
+def calculate_ta_rsi(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], pd.DataFrame]:
     """
     Calculates the Relative Strength Index (RSI) using the 'close' price.
 
@@ -71,7 +79,9 @@ def calculate_ta_rsi(df, bot_settings):
 
 
 @exception_handler(default_return=False)
-def calculate_ta_cci(df, bot_settings):
+def calculate_ta_cci(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], pd.DataFrame]:
     """
     Calculates the Commodity Channel Index (CCI) using 'high', 'low', and 'close' prices.
 
@@ -91,7 +101,9 @@ def calculate_ta_cci(df, bot_settings):
 
 
 @exception_handler(default_return=False)
-def calculate_ta_mfi(df, bot_settings):
+def calculate_ta_mfi(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], pd.DataFrame]:
     """
     Calculates the Money Flow Index (MFI) using 'high', 'low', 'close', and 'volume' data.
 
@@ -115,7 +127,9 @@ def calculate_ta_mfi(df, bot_settings):
 
 
 @exception_handler(default_return=False)
-def calculate_ta_adx(df, bot_settings):
+def calculate_ta_adx(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], pd.DataFrame]:
     """
     Calculates the Average Directional Index (ADX) using 'high', 'low', and 'close' prices.
 
@@ -136,7 +150,9 @@ def calculate_ta_adx(df, bot_settings):
 
 
 @exception_handler(default_return=False)
-def calculate_ta_atr(df, bot_settings):
+def calculate_ta_atr(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], pd.DataFrame]:
     """
     Calculates the Average True Range (ATR) using 'high', 'low', and 'close' prices.
 
@@ -156,7 +172,9 @@ def calculate_ta_atr(df, bot_settings):
 
 
 @exception_handler(default_return=False)
-def calculate_ta_di(df, bot_settings):
+def calculate_ta_di(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], pd.DataFrame]:
     """
     Calculates the Directional Indicators (DI) including the Plus DI and Minus DI
     using 'high', 'low', and 'close' prices.
@@ -181,7 +199,9 @@ def calculate_ta_di(df, bot_settings):
 
 
 @exception_handler(default_return=False)
-def calculate_ta_stochastic(df, bot_settings):
+def calculate_ta_stochastic(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], pd.DataFrame]:
     """
     Calculates the Stochastic Oscillator using 'high', 'low', and 'close' prices.
 
@@ -208,7 +228,9 @@ def calculate_ta_stochastic(df, bot_settings):
 
 
 @exception_handler(default_return=False)
-def calculate_ta_bollinger_bands(df, bot_settings):
+def calculate_ta_bollinger_bands(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], pd.DataFrame]:
     """
     Calculates the Bollinger Bands using 'close' price.
 
@@ -232,7 +254,9 @@ def calculate_ta_bollinger_bands(df, bot_settings):
 
 
 @exception_handler(default_return=False)
-def calculate_ta_vwap(df, bot_settings):
+def calculate_ta_vwap(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], pd.DataFrame]:
     """
     Calculate the Volume Weighted Average Price (VWAP) for the given DataFrame.
 
@@ -251,7 +275,9 @@ def calculate_ta_vwap(df, bot_settings):
 
 
 @exception_handler(default_return=False)
-def calculate_ta_psar(df, bot_settings):
+def calculate_ta_psar(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], pd.DataFrame]:
     """
     Calculate the Parabolic SAR (PSAR) for the given DataFrame using bot settings.
 
@@ -274,7 +300,9 @@ def calculate_ta_psar(df, bot_settings):
 
 
 @exception_handler(default_return=False)
-def calculate_ta_macd(df, bot_settings):
+def calculate_ta_macd(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], pd.DataFrame]:
     """
     Calculate the Moving Average Convergence Divergence (MACD) for the given DataFrame.
 
@@ -303,7 +331,9 @@ def calculate_ta_macd(df, bot_settings):
 
 
 @exception_handler(default_return=False)
-def calculate_ta_ma(df, bot_settings):
+def calculate_ta_ma(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], pd.DataFrame]:
     """
     Calculate the 200-period and 50-period Moving Averages (MA) for the given DataFrame.
 
@@ -322,7 +352,9 @@ def calculate_ta_ma(df, bot_settings):
 
 
 @exception_handler(default_return=False)
-def calculate_ta_ema(df, bot_settings):
+def calculate_ta_ema(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], pd.DataFrame]:
     """
     Calculate the Fast and Slow Exponential Moving Averages (EMA) for the given DataFrame.
 
@@ -342,7 +374,9 @@ def calculate_ta_ema(df, bot_settings):
 
 
 @exception_handler(default_return=False)
-def calculate_ta_stochastic_rsi(df, bot_settings):
+def calculate_ta_stochastic_rsi(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], pd.DataFrame]:
     """
     Calculate the Stochastic RSI (Relative Strength Index) for the given DataFrame.
 
@@ -371,7 +405,9 @@ def calculate_ta_stochastic_rsi(df, bot_settings):
 
 
 @exception_handler(default_return=False)
-def handle_ta_df_final_cleaning(df, columns_to_check, bot_settings):
+def handle_ta_df_final_cleaning(
+    df: pd.DataFrame, columns_to_check: list, bot_settings: BotSettings
+) -> Union[bool, pd.DataFrame]:
     """
     Clean the final DataFrame by removing rows with missing values in the specified columns.
 
@@ -390,7 +426,9 @@ def handle_ta_df_final_cleaning(df, columns_to_check, bot_settings):
 
 
 @exception_handler(default_return=False)
-def calculate_ta_indicators(df, bot_settings):
+def calculate_ta_indicators(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], pd.DataFrame]:
     """
     Calculates various technical analysis indicators on the given DataFrame.
 
@@ -446,7 +484,9 @@ def calculate_ta_indicators(df, bot_settings):
 
 
 @exception_handler()
-def calculate_ta_averages(df, bot_settings):
+def calculate_ta_averages(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], dict]:
     """
     Calculates the average values for various technical analysis indicators.
 
@@ -489,7 +529,7 @@ def calculate_ta_averages(df, bot_settings):
 
 
 @exception_handler(default_return="none")
-def check_ta_trend(df, bot_settings):
+def check_ta_trend(df: pd.DataFrame, bot_settings: BotSettings) -> str:
     """
     Checks the market trend based on technical analysis indicators.
 
@@ -577,7 +617,10 @@ def check_ta_trend(df, bot_settings):
         return "horizontal"
 
 
-def round_down_to_step_size(amount, step_size):
+@exception_handler(default_return=False)
+def round_down_to_step_size(
+    amount: float, step_size: float
+) -> Union[float, Optional[int]]:
     """
     Rounds down a given amount to the nearest multiple of the specified step size.
 
@@ -611,7 +654,9 @@ def round_down_to_step_size(amount, step_size):
 
 
 @exception_handler()
-def get_atr_value(df, bot_settings):
+def get_atr_value(
+    df: pd.DataFrame, bot_settings: BotSettings
+) -> Union[Optional[int], float]:
     """
     Calculates the latest ATR (Average True Range) value.
 
@@ -631,7 +676,9 @@ def get_atr_value(df, bot_settings):
 
 
 @exception_handler()
-def calculate_take_profit(current_price, bot_settings):
+def calculate_take_profit(
+    current_price: float, bot_settings: BotSettings
+) -> Union[float, Optional[int]]:
     """
     Calculates the take profit price based on the current market price and the bot's take profit percentage.
 
@@ -666,7 +713,9 @@ def calculate_take_profit(current_price, bot_settings):
 
 
 @exception_handler()
-def calculate_atr_take_profit(current_price, atr, bot_settings):
+def calculate_atr_take_profit(
+    current_price: float, atr: float, bot_settings: BotSettings
+) -> Union[float, Optional[int]]:
     """
     Calculates the take profit price based on the current market price and the ATR (Average True Range) value.
 
@@ -703,7 +752,9 @@ def calculate_atr_take_profit(current_price, atr, bot_settings):
     return take_profit_price
 
 
-def calculate_stop_loss(current_price, trailing_stop_price, bot_settings):
+def calculate_stop_loss(
+    current_price: float, trailing_stop_price: float, bot_settings: BotSettings
+) -> Union[float, Optional[int]]:
     """
     Calculates the stop loss price based on the current market price and the bot's stop loss percentage.
 
@@ -743,8 +794,11 @@ def calculate_stop_loss(current_price, trailing_stop_price, bot_settings):
 
 
 def calculate_atr_trailing_stop_loss(
-    current_price, trailing_stop_price, atr, bot_settings
-):
+    current_price: float,
+    trailing_stop_price: float,
+    atr: float,
+    bot_settings: BotSettings,
+) -> Union[float, Optional[int]]:
     """
     Calculates the trailing stop loss price based on the current market price, the ATR (Average True Range) value,
     and the bot's settings for ATR-based trailing stop calculation.

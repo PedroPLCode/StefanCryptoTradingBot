@@ -9,7 +9,7 @@ TRADE_LEVEL = 25
 logging.addLevelName(TRADE_LEVEL, "TRADE")
 
 
-def trade(self, message, *args, **kws):
+def trade(self, message: str, *args: tuple, **kws: dict) -> None:
     """
     Custom logging function for the TRADE level.
 

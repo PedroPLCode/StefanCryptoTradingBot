@@ -1,11 +1,13 @@
 from ..utils.logging import logger
+from ..models import BotSettings
+import pandas as pd
 from ..utils.email_utils import send_admin_email
 from ..utils.exception_handlers import exception_handler
 from .calc_utils import get_latest_and_previus_data
 
 
 @exception_handler(default_return=False)
-def trend_sell_signal(trend, bot_settings):
+def trend_sell_signal(trend: str, bot_settings: object) -> bool:
     """
     Determines if a sell signal should be triggered based on the market trend.
 
@@ -22,7 +24,7 @@ def trend_sell_signal(trend, bot_settings):
 
 
 @exception_handler(default_return=False)
-def rsi_sell_signal(latest_data, bot_settings):
+def rsi_sell_signal(latest_data: pd.DataFrame, bot_settings: BotSettings) -> bool:
     """
     Determines if a sell signal should be triggered based on the Relative Strength Index (RSI).
 
@@ -39,7 +41,9 @@ def rsi_sell_signal(latest_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def rsi_divergence_sell_signal(latest_data, averages, bot_settings):
+def rsi_divergence_sell_signal(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines if a sell signal should be triggered based on RSI divergence.
 
@@ -59,7 +63,9 @@ def rsi_divergence_sell_signal(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def macd_cross_sell_signal(latest_data, previous_data, bot_settings):
+def macd_cross_sell_signal(
+    latest_data: pd.DataFrame, previous_data: pd.DataFrame, bot_settings: BotSettings
+) -> bool:
     """
     Determines if a sell signal should be triggered based on MACD crossover.
 
@@ -79,7 +85,9 @@ def macd_cross_sell_signal(latest_data, previous_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def macd_histogram_sell_signal(latest_data, previous_data, bot_settings):
+def macd_histogram_sell_signal(
+    latest_data: pd.DataFrame, previous_data: pd.DataFrame, bot_settings: BotSettings
+) -> bool:
     """
     Determines if a sell signal should be triggered based on MACD histogram.
 
@@ -100,7 +108,7 @@ def macd_histogram_sell_signal(latest_data, previous_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def bollinger_sell_signal(latest_data, bot_settings):
+def bollinger_sell_signal(latest_data: pd.DataFrame, bot_settings: BotSettings) -> bool:
     """
     Determines if a sell signal should be triggered based on Bollinger Bands.
 
@@ -117,7 +125,9 @@ def bollinger_sell_signal(latest_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def stoch_sell_signal(latest_data, previous_data, bot_settings):
+def stoch_sell_signal(
+    latest_data: pd.DataFrame, previous_data: pd.DataFrame, bot_settings: BotSettings
+) -> bool:
     """
     Determines if a sell signal should be triggered based on Stochastic Oscillator crossover.
 
@@ -139,7 +149,9 @@ def stoch_sell_signal(latest_data, previous_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def stoch_divergence_sell_signal(latest_data, averages, bot_settings):
+def stoch_divergence_sell_signal(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines if a sell signal should be triggered based on Stochastic Oscillator divergence.
 
@@ -159,7 +171,7 @@ def stoch_divergence_sell_signal(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def stoch_rsi_sell_signal(latest_data, bot_settings):
+def stoch_rsi_sell_signal(latest_data: pd.DataFrame, bot_settings: BotSettings) -> bool:
     """
     Determines if a sell signal should be triggered based on Stochastic RSI.
 
@@ -178,7 +190,9 @@ def stoch_rsi_sell_signal(latest_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def ema_cross_sell_signal(latest_data, previous_data, bot_settings):
+def ema_cross_sell_signal(
+    latest_data: pd.DataFrame, previous_data: pd.DataFrame, bot_settings: BotSettings
+) -> bool:
     """
     Determines if a sell signal should be triggered based on the crossover of two Exponential Moving Averages (EMA).
 
@@ -198,7 +212,7 @@ def ema_cross_sell_signal(latest_data, previous_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def ema_fast_sell_signal(latest_data, bot_settings):
+def ema_fast_sell_signal(latest_data: pd.DataFrame, bot_settings: BotSettings) -> bool:
     """
     Determines if a sell signal should be triggered based on the fast Exponential Moving Average (EMA).
 
@@ -215,7 +229,7 @@ def ema_fast_sell_signal(latest_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def ema_slow_sell_signal(latest_data, bot_settings):
+def ema_slow_sell_signal(latest_data: pd.DataFrame, bot_settings: BotSettings) -> bool:
     """
     Determines if a sell signal should be triggered based on the slow Exponential Moving Average (EMA).
 
@@ -232,7 +246,9 @@ def ema_slow_sell_signal(latest_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def di_cross_sell_signal(latest_data, previous_data, bot_settings):
+def di_cross_sell_signal(
+    latest_data: pd.DataFrame, previous_data: pd.DataFrame, bot_settings: BotSettings
+) -> bool:
     """
     Determines if a sell signal should be triggered based on the Directional Indicator (DI) crossover.
 
@@ -252,7 +268,7 @@ def di_cross_sell_signal(latest_data, previous_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def cci_sell_signal(latest_data, bot_settings):
+def cci_sell_signal(latest_data: pd.DataFrame, bot_settings: BotSettings) -> bool:
     """
     Determines if a sell signal should be triggered based on the Commodity Channel Index (CCI).
 
@@ -269,7 +285,9 @@ def cci_sell_signal(latest_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def cci_divergence_buy_signal(latest_data, averages, bot_settings):
+def cci_divergence_buy_signal(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines if a buy signal should be triggered based on CCI divergence.
 
@@ -289,7 +307,7 @@ def cci_divergence_buy_signal(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def mfi_sell_signal(latest_data, bot_settings):
+def mfi_sell_signal(latest_data: pd.DataFrame, bot_settings: BotSettings) -> bool:
     """
     Determines if a sell signal should be triggered based on the Money Flow Index (MFI).
 
@@ -306,7 +324,9 @@ def mfi_sell_signal(latest_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def mfi_divergence_sell_signal(latest_data, averages, bot_settings):
+def mfi_divergence_sell_signal(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines if a sell signal should be triggered based on MFI divergence.
 
@@ -326,7 +346,9 @@ def mfi_divergence_sell_signal(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def atr_sell_signal(latest_data, averages, bot_settings):
+def atr_sell_signal(
+    latest_data: pd.DataFrame, averages: dict, bot_settings: BotSettings
+) -> bool:
     """
     Determines if a sell signal should be triggered based on the Average True Range (ATR).
 
@@ -344,7 +366,7 @@ def atr_sell_signal(latest_data, averages, bot_settings):
 
 
 @exception_handler(default_return=False)
-def vwap_sell_signal(latest_data, bot_settings):
+def vwap_sell_signal(latest_data: pd.DataFrame, bot_settings: BotSettings) -> bool:
     """
     Determines if a sell signal should be triggered based on the Volume-Weighted Average Price (VWAP).
 
@@ -361,7 +383,7 @@ def vwap_sell_signal(latest_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def psar_sell_signal(latest_data, bot_settings):
+def psar_sell_signal(latest_data: pd.DataFrame, bot_settings: BotSettings) -> bool:
     """
     Determines if a sell signal should be triggered based on the Parabolic SAR (PSAR).
 
@@ -378,7 +400,7 @@ def psar_sell_signal(latest_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def ma50_sell_signal(latest_data, bot_settings):
+def ma50_sell_signal(latest_data: pd.DataFrame, bot_settings: BotSettings) -> bool:
     """
     Determines if a sell signal should be triggered based on the 50-period Moving Average (MA50).
 
@@ -395,7 +417,7 @@ def ma50_sell_signal(latest_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def ma200_sell_signal(latest_data, bot_settings):
+def ma200_sell_signal(latest_data: pd.DataFrame, bot_settings: BotSettings) -> bool:
     """
     Determines if a sell signal should be triggered based on the 200-period Moving Average (MA200).
 
@@ -412,7 +434,9 @@ def ma200_sell_signal(latest_data, bot_settings):
 
 
 @exception_handler(default_return=False)
-def ma_cross_sell_signal(latest_data, previous_data, bot_settings):
+def ma_cross_sell_signal(
+    latest_data: pd.DataFrame, previous_data: pd.DataFrame, bot_settings: BotSettings
+) -> bool:
     """
     Determines if a sell signal should be triggered based on the crossover of the 50-period and 200-period Moving Averages (MA50 and MA200).
 
@@ -433,11 +457,8 @@ def ma_cross_sell_signal(latest_data, previous_data, bot_settings):
 
 @exception_handler(default_return=False)
 def check_classic_ta_sell_signal(
-    df,
-    bot_settings,
-    trend,
-    averages,
-):
+    df: pd.DataFrame, bot_settings: BotSettings, trend: str, averages: dict
+) -> bool:
     """
     Checks if all classic technical analysis sell signals are triggered based on the provided data.
 

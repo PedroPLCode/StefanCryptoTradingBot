@@ -3,6 +3,7 @@ from datetime import datetime as dt
 from werkzeug.security import generate_password_hash, check_password_hash
 from .. import db
 
+
 class User(UserMixin, db.Model):
     """
     Represents a user in the application.
@@ -31,7 +32,7 @@ class User(UserMixin, db.Model):
         reset_login_errors(): Resets the login error counter to zero.
         __repr__(): Returns a string representation of the user object.
     """
-    
+
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(56), nullable=False, unique=True)
@@ -41,15 +42,17 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     creation_date = db.Column(db.DateTime, nullable=False, default=dt.now)
     last_login = db.Column(db.DateTime, nullable=False, default=dt.now)
-    
+
     control_panel_access = db.Column(db.Boolean, nullable=False, default=False)
     admin_panel_access = db.Column(db.Boolean, nullable=False, default=False)
-    email_raports_receiver = db.Column(db.Boolean, nullable=False, default=False)
-    email_trades_receiver = db.Column(db.Boolean, nullable=False, default=False)
-    
-    login_errors = db.Column(db.Integer, nullable=False, unique=False, default=0)
-    account_suspended = db.Column(db.Boolean, nullable=False, default=False)
+    email_raports_receiver = db.Column(
+        db.Boolean, nullable=False, default=False)
+    email_trades_receiver = db.Column(
+        db.Boolean, nullable=False, default=False)
 
+    login_errors = db.Column(
+        db.Integer, nullable=False, unique=False, default=0)
+    account_suspended = db.Column(db.Boolean, nullable=False, default=False)
 
     def set_password(self, password):
         """
@@ -59,7 +62,6 @@ class User(UserMixin, db.Model):
             password (str): The plain-text password to be hashed.
         """
         self.password_hash = generate_password_hash(password)
-
 
     def check_password(self, password):
         """
@@ -72,24 +74,20 @@ class User(UserMixin, db.Model):
             bool: True if the password matches, False otherwise.
         """
         return check_password_hash(self.password_hash, password)
-    
-    
+
     def update_last_login(self):
         """Updates the last login timestamp to the current time."""
         self.last_login = dt.now()
 
-
     def increment_login_errors(self):
         """Increments the login error counter."""
-        if self.login_errors is None: 
+        if self.login_errors is None:
             self.login_errors = 0
         self.login_errors += 1
-
 
     def reset_login_errors(self):
         """Resets the login error counter to zero."""
         self.login_errors = 0
-
 
     def __repr__(self):
         """Returns a string representation of the user object."""

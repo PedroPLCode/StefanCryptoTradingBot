@@ -6,7 +6,7 @@ from wtforms.validators import ValidationError
 from ..models import User
 
 
-def is_login_exits(form, field):
+def is_login_exits(form: FlaskForm, field: StringField) -> None:
     """
     Validator to check if the login is already in use.
 
@@ -23,7 +23,7 @@ def is_login_exits(form, field):
         raise ValidationError("This login is in use.")
 
 
-def is_email_exists(form, field):
+def is_email_exists(form: FlaskForm, field: StringField) -> None:
     """
     Validator to check if the email is already in use.
 
@@ -40,7 +40,7 @@ def is_email_exists(form, field):
         raise ValidationError("This email is in use.")
 
 
-def password_complexity(form, field):
+def password_complexity(form: FlaskForm, field: StringField) -> None:
     """
     Validator to enforce password complexity rules.
 

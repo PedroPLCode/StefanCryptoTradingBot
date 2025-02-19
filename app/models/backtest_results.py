@@ -1,5 +1,6 @@
 from .. import db
 
+
 class BacktestResult(db.Model):
     """
     Represents the result of a backtest run for a trading bot.
@@ -20,9 +21,9 @@ class BacktestResult(db.Model):
         profit (float): The profit or loss from the backtest (nullable).
         trade_log (str): The log of trades made during the backtest (nullable).
     """
-    
+
     __tablename__ = 'backtest_results'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     bot_id = db.Column(db.Integer, nullable=True)
     symbol = db.Column(db.String(16), nullable=True)

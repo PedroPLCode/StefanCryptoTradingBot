@@ -3,10 +3,13 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
 from ..utils.exception_handlers import exception_handler
+from typing import Union, Optional
 
 
 @exception_handler()
-def normalize_df(df, bot_settings):
+def normalize_df(
+    df: pd.DataFrame, bot_settings: object
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Normalize the numeric columns in a DataFrame using MinMaxScaler, while replacing infinite values
     and clipping extreme values. Non-numeric columns are excluded from normalization, and the
@@ -60,7 +63,9 @@ def normalize_df(df, bot_settings):
 
 
 @exception_handler()
-def handle_pca(df, bot_settings):
+def handle_pca(
+    df: pd.DataFrame, bot_settings: object
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Perform Principal Component Analysis (PCA) on the normalized DataFrame and add the target marker to the resulting DataFrame.
 
@@ -86,7 +91,9 @@ def handle_pca(df, bot_settings):
 
 
 @exception_handler()
-def create_sequences(df, lookback, window_size, bot_settings):
+def create_sequences(
+    df: pd.DataFrame, lookback: str, window_size: str, bot_settings: object
+) -> Union[np.array, Optional[int]]:
     """
     Create sequences of features and corresponding target labels from the reduced DataFrame for time series prediction.
 

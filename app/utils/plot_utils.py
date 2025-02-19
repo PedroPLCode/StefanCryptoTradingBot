@@ -1,4 +1,6 @@
 from datetime import timedelta
+import pandas as pd
+from typing import Optional
 import re
 import matplotlib
 
@@ -11,7 +13,7 @@ from ..utils.exception_handlers import exception_handler
 
 
 @exception_handler()
-def create_balance_plot(df):
+def create_balance_plot(df: pd.DataFrame) -> Optional[int]:
     """
     Generates a plot representing the balance changes over time and returns a base64 encoded image URL.
 
@@ -67,7 +69,9 @@ def create_balance_plot(df):
 
 
 @exception_handler()
-def plot_selected_ta_indicators(df, indicators, bot_settings, lookback=None):
+def plot_selected_ta_indicators(
+    df: pd.DataFrame, indicators: list, bot_settings: object, lookback: str = None
+) -> Optional[int]:
     """
     Plots selected technical analysis indicators on a chart, such as moving averages, RSI, MACD, and others.
 
@@ -321,7 +325,7 @@ def plot_selected_ta_indicators(df, indicators, bot_settings, lookback=None):
 
 
 @exception_handler()
-def parse_lookback(lookback):
+def parse_lookback(lookback: str) -> Optional[int]:
     """
     Parses a lookback period string (e.g., '10d', '3h', '5m') into a timedelta object.
 
@@ -353,7 +357,7 @@ def parse_lookback(lookback):
 
 
 @exception_handler()
-def validate_indicators(df, indicators):
+def validate_indicators(df: pd.DataFrame, indicators: list) -> Optional[int]:
     """
     Validates that the required columns for the selected indicators are present in the DataFrame.
 
@@ -397,7 +401,7 @@ def validate_indicators(df, indicators):
 
 
 @exception_handler()
-def get_bot_specific_plot_indicators(bot_settings):
+def get_bot_specific_plot_indicators(bot_settings: object) -> Optional[int]:
     """
     Extracts and returns a list of selected trading indicators based on the given bot_settings.
 

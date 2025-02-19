@@ -32,6 +32,7 @@ To start the Flask application:
 ```bash
 python app.py
 """
+
 from flask import Flask, Blueprint
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -52,54 +53,55 @@ mail = Mail()
 migrate = Migrate()
 jwt = JWTManager()
 scheduler = BackgroundScheduler()
-    
+
+
 def create_app(config_name=None):
     app = Flask(__name__)
 
     try:
-        if config_name == 'testing':
-            app.config.from_object('config.TestingConfig')
+        if config_name == "testing":
+            app.config.from_object("config.TestingConfig")
         else:
-            app.config.from_object('config.DevelopmentConfig')
+            app.config.from_object("config.DevelopmentConfig")
 
         db.init_app(app)
         login_manager.init_app(app)
         mail.init_app(app)
         migrate.init_app(app, db)
         jwt.init_app(app)
-        CORS(app, resources={
-            r"/*": {
-                "origins": "*", 
-                "methods": ["GET", "POST", "OPTIONS"]
-                }
-            })
-        
+        CORS(
+            app,
+            resources={r"/*": {"origins": "*", "methods": ["GET", "POST", "OPTIONS"]}},
+        )
+
         from .models.admin import (
-            MyAdmin, 
+            MyAdmin,
             MyAdminIndexView,
-            UserAdmin, 
+            UserAdmin,
             BotSettingsAdmin,
             BacktestSettingsAdmin,
             BacktestResultsAdmin,
-            BotCurrentTradeAdmin, 
+            BotCurrentTradeAdmin,
             TradesHistoryAdmin,
-            BotTechnicalAnalysisAdmin
+            BotTechnicalAnalysisAdmin,
         )
+
         admin = MyAdmin(
-            app, 
-            name='StefanCryptoTradingBot', 
+            app,
+            name="StefanCryptoTradingBot",
             index_view=MyAdminIndexView(),
-            template_mode='bootstrap4'
+            template_mode="bootstrap4",
         )
         from .models import (
-            User, 
-            BotSettings, 
-            BacktestSettings, 
-            BacktestResult, 
-            BotCurrentTrade, 
+            User,
+            BotSettings,
+            BacktestSettings,
+            BacktestResult,
+            BotCurrentTrade,
             TradesHistory,
-            BotTechnicalAnalysis
+            BotTechnicalAnalysis,
         )
+
         admin.add_view(UserAdmin(User, db.session))
         admin.add_view(BotSettingsAdmin(BotSettings, db.session))
         admin.add_view(BotCurrentTradeAdmin(BotCurrentTrade, db.session))
@@ -107,43 +109,47 @@ def create_app(config_name=None):
         admin.add_view(BotTechnicalAnalysisAdmin(BotTechnicalAnalysis, db.session))
         admin.add_view(BacktestSettingsAdmin(BacktestSettings, db.session))
         admin.add_view(BacktestResultsAdmin(BacktestResult, db.session))
-        
-        main = Blueprint('main', __name__)
 
-        logger.info('Flask app initialized.')
-        
+        main = Blueprint("main", __name__)
+
+        logger.info("Flask app initialized.")
+
     except Exception as e:
-        logger.error(f'Error in create_app: {e}')
-        print((f'Error in create_app: {e}'))
+        logger.error(f"Error in create_app: {e}")
+        print((f"Error in create_app: {e}"))
         raise
-    
+
     return app
+
 
 app = create_app()
 
 limiter = Limiter(
-        get_remote_address,
-        app=app,
-        default_limits=["500 per day", "100 per hour"],
-        storage_uri="memory://",
-    )
+    get_remote_address,
+    app=app,
+    default_limits=["500 per day", "100 per hour"],
+    storage_uri="memory://",
+)
+
 
 def run_job_with_context(func, *args, **kwargs):
-    logger.info(f'Running job: {func.__name__} with args: {args} and kwargs: {kwargs}')
+    logger.info(f"Running job: {func.__name__} with args: {args} and kwargs: {kwargs}")
     with app.app_context():
         try:
             result = func(*args, **kwargs)
-            logger.info(f'Job {func.__name__} executed successfully. Result: {result}')
+            logger.info(f"Job {func.__name__} executed successfully. Result: {result}")
             return result
         except Exception as e:
-            logger.error(f'Error in run_job_with_context: job {func.__name__}: {e}')
+            logger.error(f"Error in run_job_with_context: job {func.__name__}: {e}")
             with app.app_context():
                 from .utils.email_utils import send_admin_email
-                send_admin_email('Error in run_job_with_context', str(e))
+
+                send_admin_email("Error in run_job_with_context", str(e))
             raise
-        
+
+
 def start_scheduler():
-    logger.info('Starting scheduler.')
+    logger.info("Starting scheduler.")
     try:
         from .stefan.trading_bot import (
             initial_run_all_trading_bots,
@@ -154,7 +160,7 @@ def start_scheduler():
             run_all_swing_30m_trading_bots,
             run_all_swing_1h_trading_bots,
             run_all_swing_4h_trading_bots,
-            run_all_swing_1d_trading_bots
+            run_all_swing_1d_trading_bots,
         )
         from .utils.email_utils import send_trade_report_via_email
         from .utils.logs_utils import send_logs_via_email_and_clear_logs
@@ -162,74 +168,77 @@ def start_scheduler():
 
         scheduler.add_job(
             func=partial(run_job_with_context, run_all_scalp_1m_trading_bots),
-            trigger='interval',
-            minutes=1
+            trigger="interval",
+            minutes=1,
         )
         scheduler.add_job(
             func=partial(run_job_with_context, run_all_scalp_3m_trading_bots),
-            trigger='interval',
-            minutes=3
+            trigger="interval",
+            minutes=3,
         )
         scheduler.add_job(
             func=partial(run_job_with_context, run_all_scalp_5m_trading_bots),
-            trigger='interval',
-            minutes=5
+            trigger="interval",
+            minutes=5,
         )
         scheduler.add_job(
             func=partial(run_job_with_context, run_all_scalp_15m_trading_bots),
-            trigger='interval',
-            minutes=15
+            trigger="interval",
+            minutes=15,
         )
         scheduler.add_job(
             func=partial(run_job_with_context, run_all_swing_30m_trading_bots),
-            trigger='interval',
-            minutes=30
+            trigger="interval",
+            minutes=30,
         )
         scheduler.add_job(
             func=partial(run_job_with_context, run_all_swing_1h_trading_bots),
-            trigger='interval',
-            hours=1
+            trigger="interval",
+            hours=1,
         )
         scheduler.add_job(
             func=partial(run_job_with_context, run_all_swing_4h_trading_bots),
-            trigger='interval',
-            hours=4
+            trigger="interval",
+            hours=4,
         )
         scheduler.add_job(
             func=partial(run_job_with_context, run_all_swing_1d_trading_bots),
-            trigger='interval',
-            hours=24
+            trigger="interval",
+            hours=24,
         )
         scheduler.add_job(
             func=partial(run_job_with_context, send_logs_via_email_and_clear_logs),
-            trigger='interval',
-            hours=24
+            trigger="interval",
+            hours=24,
         )
         scheduler.add_job(
             func=partial(run_job_with_context, send_trade_report_via_email),
             trigger="interval",
-            hours=24
+            hours=24,
         )
         scheduler.add_job(
             func=partial(run_job_with_context, clear_old_trade_history),
             trigger="interval",
-            hours=24
+            hours=24,
         )
         scheduler.start()
-        
+
         with app.app_context():
             initial_run_all_trading_bots()
-        
-        logger.info('Scheduler started successfully. Stefan Bot initialized.')
-        
+
+        logger.info("Scheduler started successfully. Stefan Bot initialized.")
+
     except Exception as e:
-        logger.error(f'Error in start_scheduler: {e}')
+        logger.error(f"Error in start_scheduler: {e}")
         with app.app_context():
             from .utils.email_utils import send_admin_email
-            send_admin_email('Error in start_scheduler', str(e))
+
+            send_admin_email("Error in start_scheduler", str(e))
+
 
 from .routes import main
+
 app.register_blueprint(main)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8000)
+    app.run(host="0.0.0.0", port=8000)

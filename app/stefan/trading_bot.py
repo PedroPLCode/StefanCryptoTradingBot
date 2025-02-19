@@ -1,5 +1,6 @@
 from flask import current_app
 from ..models import BotSettings
+from typing import Optional
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
 from ..utils.email_utils import send_admin_email
@@ -82,7 +83,7 @@ def run_all_swing_1d_trading_bots():
 
 
 @exception_handler()
-def run_selected_trading_bots(interval):
+def run_selected_trading_bots(interval: str) -> Optional[int]:
     """
     Runs selected trading bots based on the specified interval.
 
@@ -112,7 +113,7 @@ def run_selected_trading_bots(interval):
 
 
 @exception_handler()
-def run_single_trading_logic(bot_settings):
+def run_single_trading_logic(bot_settings: BotSettings) -> Optional[int]:
     """
     Runs the trading logic for a single bot based on its settings.
 

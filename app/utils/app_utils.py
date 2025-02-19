@@ -1,8 +1,9 @@
 from ..utils.exception_handlers import exception_handler
+from flask import Request
 
 
 @exception_handler(default_return="unknown")
-def get_ip_address(request):
+def get_ip_address(request: Request) -> str:
     """
     Retrieves the client's IP address from the request headers.
 

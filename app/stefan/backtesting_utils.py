@@ -1,18 +1,19 @@
+from typing import List, Dict, Any
 from .. import db
 import json
 from app.models import BacktestResult
 
 
 def update_trade_log(
-    action,
-    trade_log,
-    current_price,
-    latest_data,
-    crypto_balance,
-    usdc_balance,
-    stop_loss_price,
-    take_profit_price,
-):
+    action: str,
+    trade_log: List[Dict[str, Any]],
+    current_price: float,
+    latest_data: Dict[str, Any],
+    crypto_balance: float,
+    usdc_balance: float,
+    stop_loss_price: float,
+    take_profit_price: float,
+) -> None:
     """
     Updates the trade log with the details of a trade action.
 
@@ -43,8 +44,12 @@ def update_trade_log(
 
 
 def save_backtest_results(
-    bot_settings, backtest_settings, initial_balance, final_balance, trade_log
-):
+    bot_settings: Any,
+    backtest_settings: Any,
+    initial_balance: float,
+    final_balance: float,
+    trade_log: List[Dict[str, Any]],
+) -> None:
     """
     Saves the results of a backtest to the database.
 

@@ -1,12 +1,13 @@
 from datetime import datetime, timedelta
 from app.models import TradesHistory, BotSettings
+from typing import Union, Optional
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
 from ..utils.trades_utils import calculate_profit_percentage
 
 
 @exception_handler()
-def generate_trade_report(period):
+def generate_trade_report(period: str) -> Union[str, Optional[int]]:
     """
     Generates a trade report for a specified period.
 

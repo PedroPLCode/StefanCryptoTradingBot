@@ -1,14 +1,15 @@
 import os
 from flask.cli import load_dotenv
 
-load_dotenv()  
+load_dotenv()
+
 
 class DevelopmentConfig:
     """
     Configuration class for the development environment.
 
-    This class contains settings for the Flask application that are specific to the 
-    development environment, such as database URI, secret keys, session settings, 
+    This class contains settings for the Flask application that are specific to the
+    development environment, such as database URI, secret keys, session settings,
     email configuration, and CAPTCHA settings.
 
     Attributes:
@@ -33,41 +34,37 @@ class DevelopmentConfig:
         RECAPTCHA_PUBLIC_KEY (str): Public key for Google reCAPTCHA.
         RECAPTCHA_PRIVATE_KEY (str): Private key for Google reCAPTCHA.
     """
-    
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///stefan.db'
+
+    SQLALCHEMY_DATABASE_URI = "sqlite:///stefan.db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        "connect_args": {
-            "timeout": 30
-        }
-    }
-    SECRET_KEY = os.environ['APP_SECRET_KEY']
-    WTF_CSRF_SECRET_KEY = os.environ['CSRF_SECRET_KEY']
-    SESSION_COOKIE_SECURE = False # True if https ssl enabled
-    WTF_CSRF_SSL_STRICT = False # True if https ssl enabled
-    WTF_CSRF_ENABLED = False # True if https ssl enabled
+    SQLALCHEMY_ENGINE_OPTIONS = {"connect_args": {"timeout": 30}}
+    SECRET_KEY = os.environ["APP_SECRET_KEY"]
+    WTF_CSRF_SECRET_KEY = os.environ["CSRF_SECRET_KEY"]
+    SESSION_COOKIE_SECURE = False  # True if https ssl enabled
+    WTF_CSRF_SSL_STRICT = False  # True if https ssl enabled
+    WTF_CSRF_ENABLED = False  # True if https ssl enabled
     PERMANENT_SESSION_LIFETIME = 300
     SESSION_PERMANENT = False
-    
-    GMAIL_APP_PASSWORD = os.environ['GMAIL_APP_PASSWORD']
-    MAIL_SERVER = 'smtp.gmail.com'
+
+    GMAIL_APP_PASSWORD = os.environ["GMAIL_APP_PASSWORD"]
+    MAIL_SERVER = "smtp.gmail.com"
     MAIL_PORT = 465
     MAIL_USE_TLS = False
     MAIL_USE_SSL = True
-    MAIL_USERNAME = os.environ['GMAIL_USERNAME']
-    MAIL_PASSWORD = os.environ['GMAIL_APP_PASSWORD']
-    MAIL_DEFAULT_SENDER = os.environ['GMAIL_USERNAME']
-    
-    RECAPTCHA_PUBLIC_KEY = os.environ['RECAPTCHA_PUBLIC_KEY']
-    RECAPTCHA_PRIVATE_KEY = os.environ['RECAPTCHA_PRIVATE_KEY']
+    MAIL_USERNAME = os.environ["GMAIL_USERNAME"]
+    MAIL_PASSWORD = os.environ["GMAIL_APP_PASSWORD"]
+    MAIL_DEFAULT_SENDER = os.environ["GMAIL_USERNAME"]
 
-    
+    RECAPTCHA_PUBLIC_KEY = os.environ["RECAPTCHA_PUBLIC_KEY"]
+    RECAPTCHA_PRIVATE_KEY = os.environ["RECAPTCHA_PRIVATE_KEY"]
+
+
 class TestingConfig:
     """
     Configuration class for the testing environment.
 
-    This class contains settings for the Flask application that are specific to the 
-    testing environment. It includes configuration for in-memory SQLite database, 
+    This class contains settings for the Flask application that are specific to the
+    testing environment. It includes configuration for in-memory SQLite database,
     testing-specific settings, and server configurations.
 
     Attributes:
@@ -81,7 +78,7 @@ class TestingConfig:
 
     TESTING = True
     RECAPTCHA_TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SERVER_NAME = 'localhost:5000'
-    SECRET_KEY = 'test-secret-key'
+    SERVER_NAME = "localhost:5000"
+    SECRET_KEY = "test-secret-key"

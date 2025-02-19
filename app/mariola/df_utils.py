@@ -2,10 +2,13 @@ import pandas as pd
 import numpy as np
 import talib
 from ..utils.exception_handlers import exception_handler
+from typing import Union, Optional
 
 
 @exception_handler()
-def find_ml_hammer_patterns(df, bot_settings):
+def find_ml_hammer_patterns(
+    df: pd.DataFrame, bot_settings: object
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Identifies the Hammer candlestick pattern and adds related features to the DataFrame.
 
@@ -49,7 +52,9 @@ def find_ml_hammer_patterns(df, bot_settings):
 
 
 @exception_handler()
-def find_ml_morning_star_patterns(df, bot_settings):
+def find_ml_morning_star_patterns(
+    df: pd.DataFrame, bot_settings: object
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Identifies the Morning Star candlestick pattern and adds related features to the DataFrame.
 
@@ -97,7 +102,9 @@ def find_ml_morning_star_patterns(df, bot_settings):
 
 
 @exception_handler()
-def find_ml_bullish_engulfing_patterns(df, bot_settings):
+def find_ml_bullish_engulfing_patterns(
+    df: pd.DataFrame, bot_settings: object
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Identifies the Bullish Engulfing candlestick pattern and adds related features to the DataFrame.
 
@@ -146,7 +153,9 @@ def find_ml_bullish_engulfing_patterns(df, bot_settings):
 
 
 @exception_handler()
-def calculate_ml_pct_change_and_lags(df, column_names_list, bot_settings):
+def calculate_ml_pct_change_and_lags(
+    df: pd.DataFrame, column_names_list: list, bot_settings: object
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Adds percentage change and lag features to multiple columns in the DataFrame.
 
@@ -180,7 +189,9 @@ def calculate_ml_pct_change_and_lags(df, column_names_list, bot_settings):
 
 
 @exception_handler()
-def calculate_ml_momentum_signals(df, bot_settings):
+def calculate_ml_momentum_signals(
+    df: pd.DataFrame, bot_settings: object
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Adds momentum-related signals to the DataFrame based on the close price.
 
@@ -216,7 +227,9 @@ def calculate_ml_momentum_signals(df, bot_settings):
 
 
 @exception_handler()
-def calculate_ml_rsi(df, bot_settings):
+def calculate_ml_rsi(
+    df: pd.DataFrame, bot_settings: object
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Calculates the Relative Strength Index (RSI) and generates buy/sell signals.
 
@@ -252,7 +265,9 @@ def calculate_ml_rsi(df, bot_settings):
 
 
 @exception_handler()
-def calculate_ml_ema(df, bot_settings):
+def calculate_ml_ema(
+    df: pd.DataFrame, bot_settings: object
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Calculates the Exponential Moving Averages (EMA) and generates buy/sell signals.
 
@@ -290,7 +305,9 @@ def calculate_ml_ema(df, bot_settings):
 
 
 @exception_handler()
-def calculate_ml_macd(df, bot_settings):
+def calculate_ml_macd(
+    df: pd.DataFrame, bot_settings: object
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Calculates the Moving Average Convergence Divergence (MACD) and generates buy/sell signals.
 
@@ -333,7 +350,9 @@ def calculate_ml_macd(df, bot_settings):
 
 
 @exception_handler()
-def calculate_ml_bollinger_bands(df, bot_settings):
+def calculate_ml_bollinger_bands(
+    df: pd.DataFrame, bot_settings: object
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Calculates Bollinger Bands and generates buy/sell signals.
 
@@ -367,7 +386,9 @@ def calculate_ml_bollinger_bands(df, bot_settings):
 
 
 @exception_handler()
-def calculate_ml_time_patterns(df, bot_settings):
+def calculate_ml_time_patterns(
+    df: pd.DataFrame, bot_settings: object
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Adds time-based features to the DataFrame based on the 'close_time' column.
 
@@ -403,7 +424,9 @@ def calculate_ml_time_patterns(df, bot_settings):
 
 
 @exception_handler()
-def calculate_ml_rsi_macd_ratio_and_diff(df, bot_settings):
+def calculate_ml_rsi_macd_ratio_and_diff(
+    df: pd.DataFrame, bot_settings: object
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Preprocesses the input DataFrame for use in a Random Forest model.
 
@@ -436,7 +459,9 @@ def calculate_ml_rsi_macd_ratio_and_diff(df, bot_settings):
 
 
 @exception_handler()
-def handle_initial_ml_df_preparaition(df, bot_settings):
+def handle_initial_ml_df_preparaition(
+    df: pd.DataFrame, bot_settings: object
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Prepares the initial DataFrame by converting specific columns to numeric types.
 
@@ -466,7 +491,9 @@ def handle_initial_ml_df_preparaition(df, bot_settings):
 
 
 @exception_handler()
-def handle_final_ml_df_cleaninig(df, columns_to_drop, bot_settings):
+def handle_final_ml_df_cleaninig(
+    df: pd.DataFrame, columns_to_drop: list, bot_settings: object
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Performs final cleaning on the DataFrame.
 
@@ -496,9 +523,8 @@ def handle_final_ml_df_cleaninig(df, columns_to_drop, bot_settings):
 
 @exception_handler()
 def prepare_ml_df(
-    df=None,
-    bot_settings=None,
-):
+    df: pd.DataFrame = None, bot_settings: object = None
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Prepares the dataframe by calculating technical indicators such as
     moving averages, RSI, MACD, volume trends, etc., and returns the modified dataframe.

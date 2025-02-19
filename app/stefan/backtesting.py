@@ -1,6 +1,8 @@
 import pandas as pd
 from .. import db
 from ..utils.logging import logger
+from ..models import BacktestSettings, BotSettings
+from typing import Optional
 from .api_utils import fetch_data
 from .calc_utils import (
     calculate_stop_loss,
@@ -15,7 +17,9 @@ from .sell_signals import check_classic_ta_sell_signal
 from ..mariola.predict import check_ml_trade_signal
 
 
-def fetch_and_save_data(backtest_settings, bot_settings):
+def fetch_and_save_data(
+    backtest_settings: BacktestSettings, bot_settings: BotSettings
+) -> Optional[int]:
     """
     Fetches historical market data for the given symbol and interval from an API,
     and saves it as a CSV file for backtesting.
@@ -48,7 +52,9 @@ def fetch_and_save_data(backtest_settings, bot_settings):
     return df
 
 
-def backtest_strategy(df, bot_settings, backtest_settings):
+def backtest_strategy(
+    df: pd.DataFrame, bot_settings: BotSettings, backtest_settings: BacktestSettings
+) -> Optional[int]:
     """
     Performs backtesting of the trading strategy using historical market data.
 

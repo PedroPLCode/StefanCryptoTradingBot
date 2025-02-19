@@ -1,16 +1,17 @@
-bind = '0.0.0.0:8000'
+bind = "0.0.0.0:8000"
 workers = 4
 timeout = 256
 
-#accesslog = '/home/stefan/StefanCryptoTradingBot/gunicorn.log'
-#errorlog = '/home/stefan/StefanCryptoTradingBot/gunicorn.log'
-loglevel = 'info' # debug, info, warning, error, critical
+# accesslog = '/home/stefan/StefanCryptoTradingBot/gunicorn.log'
+# errorlog = '/home/stefan/StefanCryptoTradingBot/gunicorn.log'
+loglevel = "info"  # debug, info, warning, error, critical
+
 
 def when_ready(server):
     """
-    Callback function for Gunicorn that is executed when the server is ready. 
-    If the 'SCHEDULER_ENABLED' environment variable is set to "true", it will 
-    initialize the scheduler by calling the `start_scheduler` function from the 
+    Callback function for Gunicorn that is executed when the server is ready.
+    If the 'SCHEDULER_ENABLED' environment variable is set to "true", it will
+    initialize the scheduler by calling the `start_scheduler` function from the
     application.
 
     Args:
@@ -21,5 +22,6 @@ def when_ready(server):
     """
     import os
     from app import start_scheduler
+
     if os.getenv("SCHEDULER_ENABLED", "true") == "true":
         start_scheduler()

@@ -1,7 +1,8 @@
 from flask import flash, current_app
 import datetime as dt
+from typing import Union
 from .. import db
-from app.models import BotSettings
+from app.models import BotSettings, User
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
 from ..utils.email_utils import send_admin_email, send_trade_email
@@ -9,15 +10,13 @@ from ..stefan.api_utils import place_sell_order
 
 
 @exception_handler()
-def start_single_bot(bot_id, current_user):
+def start_single_bot(bot_id: int, current_user: User) -> None:
     """
     Starts a single trading bot by updating its `bot_running` status in the database.
 
     Args:
         bot_id (int): The ID of the bot to be started.
         current_user (User): The user requesting to start the bot.
-
-    Logs and notifies the admin via email if the bot starts successfully.
     """
     bot_settings = BotSettings.query.get(bot_id)
     if bot_settings.bot_running:
@@ -36,15 +35,13 @@ def start_single_bot(bot_id, current_user):
 
 
 @exception_handler()
-def stop_single_bot(bot_id, current_user):
+def stop_single_bot(bot_id: int, current_user: User) -> None:
     """
     Stops a single trading bot by updating its `bot_running` status in the database.
 
     Args:
         bot_id (int): The ID of the bot to be stopped.
         current_user (User): The user requesting to stop the bot.
-
-    Logs and notifies the admin via email if the bot stops successfully.
     """
     bot_settings = BotSettings.query.get(bot_id)
     if not bot_settings.bot_running:
@@ -63,15 +60,12 @@ def stop_single_bot(bot_id, current_user):
 
 
 @exception_handler()
-def stop_all_bots(current_user):
+def stop_all_bots(current_user: User) -> None:
     """
     Stops all active trading bots.
 
     Args:
         current_user (User): The user requesting to stop all bots.
-
-    If a bot has an active trade, it attempts to place a sell order before stopping it.
-    Logs and notifies the admin in case of errors.
     """
     all_bots_settings = BotSettings.query.all()
     with current_app.app_context():
@@ -83,14 +77,12 @@ def stop_all_bots(current_user):
 
 
 @exception_handler()
-def start_all_bots(current_user="undefined"):
+def start_all_bots(current_user: Union[User, str] = "undefined") -> None:
     """
     Starts all available trading bots.
 
     Args:
         current_user (User, optional): The user requesting to start all bots. Defaults to 'undefined'.
-
-    Logs and notifies the admin in case of errors.
     """
     all_bots_settings = BotSettings.query.all()
     with current_app.app_context():
@@ -100,11 +92,9 @@ def start_all_bots(current_user="undefined"):
 
 
 @exception_handler(default_return=False, db_rollback=True)
-def is_bot_suspended(bot_settings):
+def is_bot_suspended(bot_settings: BotSettings) -> bool:
     """
-    Checks if the bot is suspended after a negative trade. If the bot is suspended, it decreases
-    the remaining suspension cycles and returns True. If the suspension period is over, it resets
-    the suspension flag and sends a report email.
+    Checks if the bot is suspended after a negative trade.
 
     Args:
         bot_settings (BotSettings): The settings of the bot to check for suspension.
@@ -122,7 +112,7 @@ def is_bot_suspended(bot_settings):
         bot_settings.suspension_cycles_remaining = 0
         db.session.commit()
 
-        now = dt.now()
+        now = dt.datetime.now()
         formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
         logger.info(f"Bot {bot_settings.id} suspension after negative trade finished.")
         send_trade_email(
@@ -134,18 +124,15 @@ def is_bot_suspended(bot_settings):
 
 
 @exception_handler(db_rollback=True)
-def suspend_after_negative_trade(bot_settings):
+def suspend_after_negative_trade(bot_settings: BotSettings) -> None:
     """
     Suspends the bot after a negative trade by setting the `is_suspended_after_negative_trade` flag
-    and initializing the suspension cycle count. It then sends a report email about the suspension.
+    and initializing the suspension cycle count.
 
     Args:
         bot_settings (BotSettings): The settings of the bot to suspend.
-
-    Returns:
-        None
     """
-    now = dt.now()
+    now = dt.datetime.now()
     formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
 
     bot_settings.is_suspended_after_negative_trade = True
@@ -155,9 +142,9 @@ def suspend_after_negative_trade(bot_settings):
     db.session.commit()
 
     logger.info(
-        f"Bot {bot_settings.id} suspended after negative trade. Cycles remaininig: {bot_settings.cycles_of_suspension_after_negative_trade}."
+        f"Bot {bot_settings.id} suspended after negative trade. Cycles remaining: {bot_settings.cycles_of_suspension_after_negative_trade}."
     )
     send_trade_email(
         f"Bot {bot_settings.id} suspend_after_negative_trade report.",
-        f"StafanCryptoTradingBotBot suspend_after_negative_trade report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nBot {bot_settings.id} is suspended after negative trade.\nCycles of suspension: {bot_settings.cycles_of_suspension_after_negative_trade}\nCycles remaininig: {bot_settings.cycles_of_suspension_after_negative_trade}",
+        f"StafanCryptoTradingBotBot suspend_after_negative_trade report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nBot {bot_settings.id} is suspended after negative trade.\nCycles of suspension: {bot_settings.cycles_of_suspension_after_negative_trade}\nCycles remaining: {bot_settings.cycles_of_suspension_after_negative_trade}",
     )

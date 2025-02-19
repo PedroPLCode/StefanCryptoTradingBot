@@ -2,6 +2,7 @@ from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from ..forms import LoginForm, RegistrationForm
 from ..models import User
+from typing import Union, Optional
 from sqlalchemy import or_
 from .. import db
 from ..utils.logging import logger
@@ -152,7 +153,7 @@ def login():
 
 
 @exception_handler(default_return=False)
-def handle_successful_login(user):
+def handle_successful_login(user: User) -> Union[Optional[int], bool]:
     """
     Handles the actions required for a successful user login.
 
@@ -173,7 +174,7 @@ def handle_successful_login(user):
 
 
 @exception_handler(default_return=False)
-def handle_failed_login(user, user_ip):
+def handle_failed_login(user: User, user_ip: str) -> Union[Optional[int], bool]:
     """
     Handles a failed login attempt for a user.
 

@@ -1,13 +1,20 @@
 from datetime import datetime
+import pandas as pd
 from .. import db
 from app.models import BotTechnicalAnalysis
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
 from ..stefan.api_utils import fetch_current_price
+from typing import List, Dict, Union
+from datetime import datetime
 
 
 @exception_handler(default_return=False)
-def show_account_balance(symbol, account_status, assets_to_include):
+def show_account_balance(
+    symbol: str,
+    account_status: Dict[str, Union[List[Dict[str, str]], None]],
+    assets_to_include: List[str],
+) -> Union[List[Dict[str, Union[str, float]]], bool]:
     """
     Retrieves the account balance for specific assets and calculates their value in the given symbol.
 
@@ -19,9 +26,6 @@ def show_account_balance(symbol, account_status, assets_to_include):
     Returns:
         list: A list of dictionaries containing asset name, amount, value, and price.
         bool: Returns False if account status is invalid or an error occurs.
-
-    Raises:
-        Logs an error and sends an admin email if an exception occurs.
     """
     if not account_status or "balances" not in account_status:
         return False
@@ -42,7 +46,9 @@ def show_account_balance(symbol, account_status, assets_to_include):
 
 
 @exception_handler(default_return=0)
-def get_balance_for_symbol(account_status, cryptocoin_symbol):
+def get_balance_for_symbol(
+    account_status: List[Dict[str, Union[str, float]]], cryptocoin_symbol: str
+) -> float:
     """
     Retrieves the balance amount for a specific cryptocurrency.
 
@@ -53,9 +59,6 @@ def get_balance_for_symbol(account_status, cryptocoin_symbol):
     Returns:
         float: The balance amount of the specified cryptocurrency.
         int: Returns 0 if the cryptocurrency is not found or an error occurs.
-
-    Raises:
-        Logs an error and sends an admin email if an exception occurs.
     """
     for balance in account_status:
         if balance["asset"] == cryptocoin_symbol:
@@ -64,7 +67,9 @@ def get_balance_for_symbol(account_status, cryptocoin_symbol):
 
 
 @exception_handler(default_return="unknown")
-def calculate_profit_percentage(buy_price, sell_price):
+def calculate_profit_percentage(
+    buy_price: float, sell_price: float
+) -> Union[float, str]:
     """
     Calculates the profit percentage between the buy price and the sell price.
 
@@ -75,15 +80,14 @@ def calculate_profit_percentage(buy_price, sell_price):
     Returns:
         float: The profit percentage.
         str: Returns "unknown" if an error occurs.
-
-    Raises:
-        Logs an error and sends an admin email if an exception occurs.
     """
     return ((sell_price - buy_price) / buy_price) * 100
 
 
 @exception_handler(db_rollback=True)
-def update_technical_analysis_data(bot_settings, df, trend, averages):
+def update_technical_analysis_data(
+    bot_settings: object, df: pd.DataFrame, trend: str, averages: Dict[str, float]
+) -> None:
     """
     Updates technical analysis data for a given bot and stores it in the database.
 
@@ -95,9 +99,6 @@ def update_technical_analysis_data(bot_settings, df, trend, averages):
 
     Returns:
         None
-
-    Raises:
-        Logs an error, rolls back the database session, and sends an admin email if an exception occurs.
     """
     latest_data = df.iloc[-1]
 

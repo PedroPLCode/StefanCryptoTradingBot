@@ -2,6 +2,7 @@ from .. import db
 import pandas as pd
 from datetime import datetime as dt
 from datetime import datetime
+from typing import Union, Optional, Tuple, Any
 from ..models import BotSettings, BotCurrentTrade
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
@@ -20,8 +21,8 @@ from .calc_utils import (
 )
 
 
-@exception_handler()
-def is_df_valid(df, bot_info):
+@exception_handler(default_return=False)
+def is_df_valid(df: pd.DataFrame, bot_info: int) -> bool:
     """
     Checks if a DataFrame is valid for use in the bot's trading logic.
 
@@ -42,7 +43,9 @@ def is_df_valid(df, bot_info):
 
 
 @exception_handler()
-def fetch_data_and_validate(symbol, interval, lookback_period, bot_id):
+def fetch_data_and_validate(
+    symbol: str, interval: str, lookback_period: int, bot_id: int
+) -> Union[pd.DataFrame, Optional[int]]:
     """
     Fetches market data and validates the resulting DataFrame.
 
@@ -69,7 +72,7 @@ def fetch_data_and_validate(symbol, interval, lookback_period, bot_id):
 
 
 @exception_handler()
-def get_current_price(df, bot_id):
+def get_current_price(df: pd.DataFrame, bot_id: int) -> Union[float, Optional[int]]:
     """
     Retrieves the current market price from the provided DataFrame.
 
@@ -95,7 +98,12 @@ def get_current_price(df, bot_id):
 
 
 @exception_handler()
-def manage_trading_logic(bot_settings, current_trade, current_price, df_fetched):
+def manage_trading_logic(
+    bot_settings: object,
+    current_trade: object,
+    current_price: float,
+    df_fetched: pd.DataFrame,
+) -> None:
     """
     Manages the core trading logic of the bot, including buying, selling, stop-loss, take-profit,
     trailing stop-loss, and technical analysis updates.
@@ -227,7 +235,14 @@ def manage_trading_logic(bot_settings, current_trade, current_price, df_fetched)
 
 
 @exception_handler(default_return=False)
-def check_signal(signal_type, df_calculated, df_raw, bot_settings, trend, averages):
+def check_signal(
+    signal_type: str,
+    df_calculated: pd.DataFrame,
+    df_raw: Optional[pd.DataFrame],
+    bot_settings: object,
+    trend: str,
+    averages: dict,
+) -> bool:
     """
     Checks whether a buy or sell signal is triggered based on technical analysis or machine learning.
 
@@ -268,7 +283,9 @@ def check_signal(signal_type, df_calculated, df_raw, bot_settings, trend, averag
 
 
 @exception_handler()
-def execute_buy_order(bot_settings, current_price, atr_value):
+def execute_buy_order(
+    bot_settings: BotSettings, current_price: float, atr_value: float
+) -> Any:
     """
     Executes a buy order for the trading bot, including setting stop loss, take profit,
     and trailing stop loss prices based on the bot settings and ATR value.
@@ -350,12 +367,12 @@ def execute_buy_order(bot_settings, current_price, atr_value):
 
 @exception_handler()
 def execute_sell_order(
-    bot_settings,
-    current_trade,
-    current_price,
-    stop_loss_activated,
-    take_profit_activated,
-):
+    bot_settings: BotSettings,
+    current_trade: BotCurrentTrade,
+    current_price: float,
+    stop_loss_activated: bool,
+    take_profit_activated: bool,
+) -> Any:
     """
     Executes a sell order for the trading bot, including updating trade history and handling
     stop loss, take profit, and other conditions.
@@ -445,8 +462,11 @@ def execute_sell_order(
 
 @exception_handler()
 def activate_trailing_take_profit(
-    bot_settings, current_trade, current_price, atr_value
-):
+    bot_settings: BotSettings,
+    current_trade: BotCurrentTrade,
+    current_price: float,
+    atr_value: float,
+) -> Any:
     """
     Activates the trailing take profit for the bot. This function adjusts the stop loss
     based on the ATR value and updates the current trade with the new stop loss value.
@@ -501,7 +521,12 @@ def activate_trailing_take_profit(
 
 
 @exception_handler()
-def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
+def update_trailing_stop(
+    bot_settings: BotSettings,
+    current_trade: BotCurrentTrade,
+    current_price: float,
+    atr_value: float,
+) -> Any:
     """
     Updates the trailing stop loss for the current trade. This function recalculates
     the stop loss based on the current price and ATR value, and updates the trade's stop loss accordingly.
@@ -544,7 +569,7 @@ def update_trailing_stop(bot_settings, current_trade, current_price, atr_value):
 
 
 @exception_handler()
-def handle_price_rises(bot_settings, current_price):
+def handle_price_rises(bot_settings: BotSettings, current_price: float) -> Any:
     """
     Handles the event when the price rises. Updates the current trade with the new price
     and marks that the price has risen.
@@ -571,7 +596,7 @@ def handle_price_rises(bot_settings, current_price):
 
 
 @exception_handler()
-def handle_price_drops(bot_settings, current_price):
+def handle_price_drops(bot_settings: BotSettings, current_price: float) -> Any:
     """
     Handles the event when the price drops. Updates the current trade without changing the
     previous price, as the drop does not trigger any specific action.
@@ -596,20 +621,20 @@ def handle_price_drops(bot_settings, current_price):
 
 @exception_handler(db_rollback=True)
 def update_current_trade(
-    bot_id=None,
-    is_active=None,
-    amount=None,
-    buy_price=None,
-    current_price=None,
-    previous_price=None,
-    stop_loss_price=None,
-    take_profit_price=None,
-    trailing_take_profit_activated=None,
-    use_take_profit=None,
-    buy_timestamp=None,
-    price_rises=None,
-    reset_price_rises_counter=None,
-):
+    bot_id: Optional[int] = None,
+    is_active: Optional[bool] = None,
+    amount: Optional[float] = None,
+    buy_price: Optional[float] = None,
+    current_price: Optional[float] = None,
+    previous_price: Optional[float] = None,
+    stop_loss_price: Optional[float] = None,
+    take_profit_price: Optional[float] = None,
+    trailing_take_profit_activated: Optional[bool] = None,
+    use_take_profit: Optional[bool] = None,
+    buy_timestamp: Optional[datetime] = None,
+    price_rises: Optional[bool] = None,
+    reset_price_rises_counter: Optional[bool] = None,
+) -> Optional["BotCurrentTrade"]:
     """
     Updates the current trade details in the database based on the provided parameters.
     It will modify the values of the trade fields such as price, stop loss, take profit, etc.
@@ -674,13 +699,13 @@ def update_current_trade(
 
 @exception_handler(db_rollback=True)
 def change_bot_settings(
-    bot_id=None,
-    use_stop_loss=None,
-    use_trailing_stop_loss=None,
-    trailing_stop_with_atr=None,
-    trailing_stop_atr_calc=None,
-    stop_loss_pct=None,
-):
+    bot_id: Optional[int] = None,
+    use_stop_loss: Optional[bool] = None,
+    use_trailing_stop_loss: Optional[bool] = None,
+    trailing_stop_with_atr: Optional[bool] = None,
+    trailing_stop_atr_calc: Optional[float] = None,
+    stop_loss_pct: Optional[float] = None,
+) -> Optional["BotSettings"]:
     """
     Changes the settings of the trading bot based on the provided parameters. Updates the bot's
     stop loss, trailing stop loss, ATR-based trailing stop, and other configuration options.

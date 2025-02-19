@@ -1,4 +1,5 @@
 from datetime import datetime as dt, timedelta
+from typing import Optional
 from .. import db
 from app.models import TradesHistory, BotSettings, BotCurrentTrade
 from .logging import logger
@@ -106,7 +107,7 @@ def clear_old_trade_history():
 
 
 @exception_handler()
-def next_trade_id(bot_id):
+def next_trade_id(bot_id: int) -> Optional[int]:
     """
     Generates the next trade ID for a given bot by querying the maximum existing trade ID
     from the `TradesHistory` table and incrementing it by 1. If no trades exist, it returns 1.
@@ -128,20 +129,20 @@ def next_trade_id(bot_id):
 
 @exception_handler(db_rollback=True)
 def update_trade_history(
-    bot_settings,
-    strategy,
-    amount,
-    buy_price,
-    sell_price,
-    stop_loss_price,
-    take_profit_price,
-    price_rises_counter,
-    stop_loss_activated,
-    take_profit_activated,
-    trailing_take_profit_activated,
-    buy_timestamp,
-    current_price,
-):
+    bot_settings: BotSettings,
+    strategy: str,
+    amount: float,
+    buy_price: float,
+    sell_price: float,
+    stop_loss_price: float,
+    take_profit_price: float,
+    price_rises_counter: int,
+    stop_loss_activated: bool,
+    take_profit_activated: bool,
+    trailing_take_profit_activated: bool,
+    buy_timestamp: dt,
+    current_price: float,
+) -> Optional[TradesHistory]:
     """
     Updates the trade history for a given bot by creating a new `TradesHistory` entry with
     the provided trade details. The trade is then committed to the database.

@@ -1,10 +1,14 @@
+import pandas as pd
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
 from .df_utils import prepare_ml_df
+from typing import Union, Optional
 
 
 @exception_handler()
-def check_ml_trade_signal(df, signal_type, bot_settings):
+def check_ml_trade_signal(
+    df: pd.DataFrame, signal_type: str, bot_settings: object
+) -> Union[bool, Optional[int]]:
     """
     Checks if the given ML model's trade signal (buy or sell) meets the trigger percentage.
 
@@ -64,7 +68,9 @@ def check_ml_trade_signal(df, signal_type, bot_settings):
 
 
 @exception_handler()
-def lstm_price_change_pct_predict(df, bot_settings):
+def lstm_price_change_pct_predict(
+    df: pd.DataFrame, bot_settings: object
+) -> Union[float, Optional[int]]:
     """
     Predicts the price change percentage using an LSTM model.
 
@@ -104,7 +110,9 @@ def lstm_price_change_pct_predict(df, bot_settings):
 
 
 @exception_handler()
-def xgboost_price_change_pct_predict(df, bot_settings):
+def xgboost_price_change_pct_predict(
+    df: pd.DataFrame, bot_settings: object
+) -> Union[float, Optional[int]]:
     """
     Predicts the price change percentage using an XGBoost model.
 
@@ -146,7 +154,9 @@ def xgboost_price_change_pct_predict(df, bot_settings):
 
 
 @exception_handler()
-def random_forest_price_change_pct_predict(df, bot_settings):
+def random_forest_price_change_pct_predict(
+    df: pd.DataFrame, bot_settings: object
+) -> Union[float, Optional[int]]:
     """
     Predicts the price change percentage using a Random Forest model.
 

@@ -9,6 +9,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# db instances
+*.db
+*.sqlite3
+
 # machine learning models
 models/
 *.model

@@ -1,5 +1,6 @@
 import functools
 import logging
+from typing import Callable
 from flask import flash, redirect, url_for, request
 from ..utils.email_utils import send_admin_email
 from flask_login import current_user
@@ -7,7 +8,7 @@ from flask_login import current_user
 logger = logging.getLogger(__name__)
 
 
-def requires_authentication(panel_name):
+def requires_authentication(panel_name: str) -> Callable:
     """
     A decorator that checks if the user is authenticated before accessing a route.
 
@@ -52,7 +53,7 @@ def requires_authentication(panel_name):
     return decorator
 
 
-def requires_control_access(panel_name):
+def requires_control_access(panel_name: str) -> Callable:
     """
     A decorator that checks if the user has access to the specified control panel.
 

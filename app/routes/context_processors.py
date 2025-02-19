@@ -13,7 +13,7 @@ from .. import app, db, login_manager
 
 
 @login_manager.user_loader
-def inject_user(user_id):
+def inject_user(user_id: int) -> object:
     """
     Loads a user from the database based on the user_id.
 
@@ -29,7 +29,7 @@ def inject_user(user_id):
 
 
 @app.template_filter("to_datetime")
-def to_datetime(timestamp):
+def to_datetime(timestamp: int) -> object:
     """
     Converts a timestamp (in milliseconds) to a formatted datetime string.
 
