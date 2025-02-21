@@ -165,6 +165,7 @@ def start_scheduler():
         from .utils.email_utils import send_trade_report_via_email
         from .utils.logs_utils import send_logs_via_email_and_clear_logs
         from .utils.history_utils import clear_old_trade_history
+        from .utils.db_utils import backup_database
 
         scheduler.add_job(
             func=partial(run_job_with_context, run_all_scalp_1m_trading_bots),
@@ -220,6 +221,11 @@ def start_scheduler():
             func=partial(run_job_with_context, clear_old_trade_history),
             trigger="interval",
             hours=24,
+        )
+        scheduler.add_job(
+            func=partial(run_job_with_context, backup_database),
+            trigger="interval",
+            hours=24
         )
         scheduler.start()
 
