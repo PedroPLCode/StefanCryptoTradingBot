@@ -106,6 +106,7 @@ def analysis_panel_view():
     from ..utils.plot_utils import plot_selected_ta_indicators
 
     all_bots_info = BotSettings.query.all()
+    indicators = ["rsi", "macd"]
 
     for bot_info in all_bots_info:
 
