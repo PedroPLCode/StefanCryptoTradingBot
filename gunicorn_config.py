@@ -1,9 +1,9 @@
-bind = "0.0.0.0:8000"
+bind = "0.0.0.0:8001"
 workers = 4
 timeout = 256
 
-# accesslog = '/home/stefan/StefanCryptoTradingBot/gunicorn.log'
-# errorlog = '/home/stefan/StefanCryptoTradingBot/gunicorn.log'
+accesslog = '/home/pedro/StefanCryptoTradingBot/gunicorn.log'
+errorlog = '/home/pedro/StefanCryptoTradingBot/gunicorn.log'
 loglevel = "info"  # debug, info, warning, error, critical
 
 

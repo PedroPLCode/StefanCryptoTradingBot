@@ -240,6 +240,7 @@ class BotSettingsAdmin(AdminModelView):
         'ml_lstm_predictions_avg',
         'ml_lstm_buy_trigger_pct',
         'ml_lstm_sell_trigger_pct',
+        'etop_passwd',
     )
 
 

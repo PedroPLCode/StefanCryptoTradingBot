@@ -1,4 +1,4 @@
-from flask import redirect, url_for, flash, current_app, jsonify
+from flask import request, redirect, url_for, flash, current_app, jsonify
 from flask_login import login_required, current_user
 import pandas as pd
 from typing import Callable
@@ -221,3 +221,44 @@ def get_df():
 
     all_bots_df = [bot.bot_technical_analysis.df for bot in all_bots_info]
     return jsonify({"all_bots_df": all_bots_df}), 200
+
+
+#curl -X POST -d "passwd=change-it" http://twojserwer/estop
+@main.route("/estop", methods=["POST"])
+@exception_handler()
+def emergency_stop():
+    """
+    Emergency stops all active bots.
+    """
+    passwd = request.form.get("passwd")
+
+    if not passwd:
+        return "Missing password", 400
+
+    logger.trade("Emergency stop attempt.")
+    send_admin_email("Emergency stop attempt.", "An emergency stop attempt was made.")
+
+    from .. import db
+    from ..stefan.api_utils import place_sell_order
+
+    all_bots_settings = BotSettings.query.all()
+
+    for bot_settings in all_bots_settings:
+        if bot_settings.etop_passwd == passwd:
+            bot_id = bot_settings.id
+            if bot_settings.bot_current_trade and bot_settings.bot_current_trade.is_active:
+                place_sell_order(bot_id)
+
+            bot_settings.bot_running = False
+
+            logger.trade(
+                f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} Emergency stopped."
+            )
+            send_admin_email(
+                f"Bot {bot_settings.id} Emergency stopped.",
+                f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} Emergency stopped.",
+            )
+
+    db.session.commit()
+
+    return "Emergency stop executed.", 200
