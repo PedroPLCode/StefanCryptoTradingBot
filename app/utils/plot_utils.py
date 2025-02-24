@@ -157,12 +157,12 @@ def plot_selected_ta_indicators(
             color="orange",
             linewidth=linw_width,
         )
-        ax.bar(
+        ax.plot(
             df["open_time"],
             df["macd_histogram"],
             label="MACD Histogram",
             color="grey",
-            alpha=0.5,
+            linewidth=linw_width,
         )
 
     if "boll" in indicators:

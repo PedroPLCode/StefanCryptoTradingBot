@@ -111,7 +111,7 @@ def inject_system_uptime():
               or an error message if the uptime retrieval fails.
     """
     try:
-        uptime = subprocess.check_output(["uptime"], text=True).strip()
+        uptime = subprocess.check_output(["/usr/bin/uptime"], text=True).strip()
     except Exception as e:
         uptime = f"Error retrieving system uptime: {e}"
     return dict(system_uptime=uptime)

@@ -66,3 +66,7 @@
     height: 100vh;
     padding-top: 25vh;
 }
+
+body.nav-open .navbar {
+    top: 0 !important;
+}

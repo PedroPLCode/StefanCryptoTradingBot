@@ -40,7 +40,7 @@ def send_logs_via_email_and_clear_logs():
         else:
             logger.warning(f"Log file does not exist: {log_file_path}")
 
-        clear_logs()
+    clear_logs()
 
 
 @exception_handler()
