@@ -2,7 +2,7 @@ from .. import db
 import pandas as pd
 from datetime import datetime as dt
 from datetime import datetime
-from typing import Union, Optional, Tuple, Any
+from typing import Union, Optional, Any
 from ..models import BotSettings, BotCurrentTrade
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler

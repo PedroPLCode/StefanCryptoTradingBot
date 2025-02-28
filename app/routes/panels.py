@@ -64,11 +64,6 @@ def control_panel_view():
         Rendered control_panel.html template with all bot settings.
         If an error occurs, redirects to the user panel.
     """
-    from ..utils.plot_utils import (
-        plot_selected_ta_indicators,
-        get_bot_specific_plot_indicators,
-    )
-
     all_bots_settings = BotSettings.query.all()
 
     for bot_info in all_bots_settings:

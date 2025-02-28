@@ -1,7 +1,5 @@
-from ..utils.logging import logger
 from ..models import BotSettings
 import pandas as pd
-from ..utils.email_utils import send_admin_email
 from ..utils.exception_handlers import exception_handler
 from .calc_utils import get_latest_and_previus_data
 

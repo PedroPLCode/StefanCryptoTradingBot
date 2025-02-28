@@ -223,7 +223,7 @@ def get_df():
     return jsonify({"all_bots_df": all_bots_df}), 200
 
 
-#curl -X POST -d "passwd=change-it" http://twojserwer/estop
+#curl -X POST -d "passwd=change-it" http://url/estop
 @main.route("/estop", methods=["POST"])
 @exception_handler()
 def emergency_stop():
