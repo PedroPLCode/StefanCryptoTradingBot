@@ -40,7 +40,7 @@ def user_panel_view():
     account_status = fetch_account_status()
     server_time = fetch_server_time()
     return render_template(
-        "user_panel.html",
+        "user/user_panel.html",
         user=current_user,
         account_status=account_status,
         binance_status=binance_status,
@@ -76,7 +76,7 @@ def control_panel_view():
         bot_info.balance = balance
 
     return render_template(
-        "control_panel.html",
+        "control/control_panel.html",
         user=current_user,
         all_bots_settings=all_bots_settings,
     )
@@ -127,7 +127,7 @@ def analysis_panel_view():
         )
 
     return render_template(
-        "technical_analysis.html",
+        "analysis/technical_analysis.html",
         user=current_user,
         all_bots_info=all_bots_info,
         selected_indicators=indicators,
@@ -154,7 +154,7 @@ def backtest_panel_view():
         result.trade_log = json.loads(result.trade_log)
 
     return render_template(
-        "backtest_panel.html",
+        "backtest/backtest_panel.html",
         user=current_user,
         all_backtest_results=all_backtest_results,
     )
@@ -199,7 +199,7 @@ def current_trades_view():
         else:
             bot.plot_url = None
 
-    return render_template("trades_history.html", user=current_user, all_bots=all_bots)
+    return render_template("trades/trades_history.html", user=current_user, all_bots=all_bots)
 
 
 @main.route("/admin")

@@ -1,0 +1,41 @@
+{% extends 'base_inside.html'%}
+
+{% block content %}
+
+    <div class="col-12 col-md-6 card mt-0 mb-3">
+        <div class="card-header text-center bg-light">
+            <h5>Control Panel</h5>
+        </div>
+        {% if all_bots_settings %}
+        <div class="card-body text-center">
+            <div class="accordion" id="botsAccordion">
+                {% for bot_info in all_bots_settings %}
+                    {% include 'control.single_bot_control.html' %}
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="card-body text-center">
+            <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                <p class="mb-1">Nothing here.<br>No bots.<br>Nothing to control.<br>Boring...<br>Lets create some bots!</p>
+            </div>
+        </div>    
+    {% endif %}
+    </div>
+
+    <div class="col-12 col-md-6 card mb-3">
+        <div class="card-header text-center bg-light">
+            <h5>Options</h5>
+        </div>
+        <div class="card-body text-center">
+            <div class="d-flex flex-column justify-content-center align-items-center gap-2">    
+                {% if all_bots_settings %}
+                    <a href="{{ url_for('main.start_all') }}" class="btn btn-success w-100">Start All bots</a>    
+                    <a href="{{ url_for('main.stop_all') }}" class="btn btn-danger w-100">Stop All Bots</a>   
+                {% endif %}
+                <a href="{{ url_for('main.refresh') }}" class="btn btn-primary w-100">Refresh</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

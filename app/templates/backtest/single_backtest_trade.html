@@ -1,0 +1,13 @@
+<li class="list-group-item text-muted">
+    {{ trade.action | capitalize }} at price {{ trade.price }} USDC
+    <br>
+    Time: {{ trade.time }}
+    <br>
+    Crypto Balance: {{ trade.crypto_balance }} 
+    <br>
+    USDC Balance: {{ trade.usdc_balance }} 
+    {% if trade.stop_loss_price %}
+        <br>
+        Stop Loss Price: {{ trade.stop_loss_price }}
+    {% endif %}
+</li>

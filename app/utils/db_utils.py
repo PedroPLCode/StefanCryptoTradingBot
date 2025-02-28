@@ -6,6 +6,7 @@ from .logging import logger
 from .exception_handlers import exception_handler
 from .email_utils import send_admin_email
 
+
 @exception_handler()
 def backup_database() -> Optional[str]:
     """

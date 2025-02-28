@@ -94,7 +94,7 @@ def register():
             for error in errors:
                 flash(f"{field.capitalize()}: {error}", "danger")
 
-    return render_template("registration.html", form=form)
+    return render_template("user/registration.html", form=form)
 
 
 @main.route("/login", methods=["GET", "POST"])
@@ -122,18 +122,18 @@ def login():
             if not user:
                 logger.error(f"Bad login attempt. User not found from {user_ip}")
                 flash("Error: Login or Password Incorrect.", "danger")
-                return render_template("login.html", form=form)
+                return render_template("user/login.html", form=form)
 
             if user.account_suspended:
                 logger.error(
                     f"User {user.name} suspended trying to log in from {user_ip}"
                 )
                 flash(f"User {user.name} suspended. Admin will contact you.", "danger")
-                return render_template("login.html", form=form)
+                return render_template("user/login.html", form=form)
 
             if not user.check_password(form.password.data):
                 handle_failed_login(user, user_ip)
-                return render_template("login.html", form=form)
+                return render_template("user/login.html", form=form)
 
             handle_successful_login(user)
             next_page = request.args.get("next")
@@ -147,9 +147,9 @@ def login():
                 "An unexpected error occurred during login. Please try again later.",
                 "danger",
             )
-            return render_template("login.html", form=form)
+            return render_template("user/login.html", form=form)
 
-    return render_template("login.html", form=form)
+    return render_template("user/login.html", form=form)
 
 
 @exception_handler(default_return=False)

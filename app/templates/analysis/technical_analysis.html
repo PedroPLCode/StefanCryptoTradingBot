@@ -1,0 +1,37 @@
+{% extends 'base_inside.html'%}
+
+{% block content %}
+
+    <div class="col-12 col-md-6 card mt-0 mb-3">
+        <div class="card-header text-center bg-light">
+            <h5>Technical Analysis Panel</h5>
+        </div>
+        {% if all_bots_info %}
+        <div class="card-body text-center">
+            <div class="accordion" id="botsAccordion">
+                {% for bot_info in all_bots_info %}
+                    {% include 'analysis/single_bot_analysis.html' %}
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="card-body text-center">
+            <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                <p class="mb-1">Nothing here.<br>No bots.<br>Nothing to analyse.<br>Boring...<br>Lets create some bots!</p>
+            </div>
+        </div>    
+    {% endif %}
+    </div>
+
+    <div class="col-12 col-md-6 card mb-3">
+        <div class="card-header text-center bg-light">
+            <h5>Options</h5>
+        </div>
+        <div class="card-body text-center">
+            <div class="d-flex flex-column justify-content-center align-items-center gap-2">    
+                <a href="{{ url_for('main.analysis_panel_view') }}" class="btn btn-primary w-100">Refresh</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base_inside.html'%}
+
+{% block content %}
+
+    {% if user.control_panel_access %}
+    <div class="col-12 col-md-6 card mt-0">
+        <div class="card-header text-center bg-light">
+            <h5>Backtesting Panel</h5>
+        </div>
+        <div class="card-body text-center">
+            <div class="d-flex flex-column justify-content-center align-items-center gap-2">    
+                <a href="{{ url_for('main.fetch_and_save_data_for_backtest') }}" class="btn btn-primary w-100">Fetch and Save Data</a>
+                    <a href="{{ url_for('main.run_backtest') }}" class="btn btn-primary w-100">Run Backtest</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="col-12 col-md-6 card mt-3 mb-3">
+        <div class="card-header text-center bg-light">
+            <h5>Backtests Results</h5>
+        </div>
+        {% if all_backtest_results %}
+        <div class="card-body text-center">
+            <div class="accordion" id="botsAccordion">
+                {% for backtest in all_backtest_results %}
+                    {% include 'backtest.single_backtest.html' %}
+                {% endfor %}
+            </div>
+        </div>
+        </div>
+        {% else %}
+        <div class="card-body text-center">
+            <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+                <p class="mb-1">No backtest results found.<br>Start a backtest to see results here.</p>
+            </div>
+        </div>
+        {% endif %}
+
+{% endblock %}
