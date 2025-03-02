@@ -6,7 +6,6 @@ from app.models import BotSettings, User
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
 from ..utils.email_utils import send_admin_email, send_trade_email
-from ..stefan.logic_utils import execute_sell_order, get_current_price
 
 
 @exception_handler()
@@ -167,6 +166,8 @@ def handle_emergency_sell_order(bot_settings: BotSettings) -> None:
     Returns:
         None: This function does not return any value, it triggers a sell order action.
     """
+    from ..stefan.logic_utils import execute_sell_order, get_current_price
+    
     technical_analysis_data = bot_settings.bot_technical_analysis
     df_loaded = technical_analysis_data.get_df()
     current_price = get_current_price(df_loaded, bot_settings.id)
