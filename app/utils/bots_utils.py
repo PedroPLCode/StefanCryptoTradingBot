@@ -6,7 +6,7 @@ from app.models import BotSettings, User
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
 from ..utils.email_utils import send_admin_email, send_trade_email
-from ..stefan.api_utils import place_sell_order
+from ..stefan.logic_utils import execute_sell_order, get_current_price
 
 
 @exception_handler()
@@ -68,12 +68,12 @@ def stop_all_bots(current_user: User) -> None:
         current_user (User): The user requesting to stop all bots.
     """
     all_bots_settings = BotSettings.query.all()
+    
     with current_app.app_context():
         for bot_settings in all_bots_settings:
-            bot_id = bot_settings.id
             if bot_settings.bot_current_trade.is_active:
-                place_sell_order(bot_id)
-            stop_single_bot(bot_id, current_user)
+                handle_emergency_sell_order(bot_settings)    
+            stop_single_bot(bot_settings.id, current_user)
 
 
 @exception_handler()
@@ -147,4 +147,34 @@ def suspend_after_negative_trade(bot_settings: BotSettings) -> None:
     send_trade_email(
         f"Bot {bot_settings.id} suspend_after_negative_trade report.",
         f"StafanCryptoTradingBotBot suspend_after_negative_trade report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nBot {bot_settings.id} is suspended after negative trade.\nCycles of suspension: {bot_settings.cycles_of_suspension_after_negative_trade}\nCycles remaining: {bot_settings.cycles_of_suspension_after_negative_trade}",
+    )
+
+
+@exception_handler()
+def handle_emergency_sell_order(bot_settings: BotSettings) -> None:
+    """
+    Handles the emergency sell order for the given bot.
+
+    This function retrieves the technical analysis data for the specified bot, 
+    loads the corresponding DataFrame, gets the current price, and executes a sell 
+    order for the bot's active trade. The emergency sell order is executed by 
+    passing the bot settings, current trade, current price, and additional flags.
+
+    Args:
+        bot_settings (BotSettings): The settings and configuration for the bot, 
+                                     including technical analysis data and current trade.
+
+    Returns:
+        None: This function does not return any value, it triggers a sell order action.
+    """
+    technical_analysis_data = bot_settings.bot_technical_analysis
+    df_loaded = technical_analysis_data.get_df()
+    current_price = get_current_price(df_loaded, bot_settings.id)
+        
+    execute_sell_order(
+        bot_settings,
+        bot_settings.bot_current_trade,
+        current_price,
+        False,
+        False,
     )

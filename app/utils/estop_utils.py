@@ -31,11 +31,10 @@ def process_bot_emergency_stop(
         )
         return None
 
-    from ..stefan.api_utils import place_sell_order
+    from ..utils.bots_utils import handle_emergency_sell_order
 
-    bot_id = bot_settings.id
     if bot_settings.bot_current_trade and bot_settings.bot_current_trade.is_active:
-        place_sell_order(bot_id)
+        handle_emergency_sell_order(bot_settings) 
 
     bot_settings.bot_running = False
     logger.trade(
