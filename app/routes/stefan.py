@@ -6,6 +6,7 @@ from ..models import BotSettings, BacktestSettings
 from datetime import datetime
 from ..utils.logging import logger
 from . import main
+from .. import limiter
 from ..utils.exception_handlers import exception_handler
 from ..stefan.logic_utils import execute_sell_order
 from ..utils.reports_utils import generate_trade_report
@@ -223,42 +224,44 @@ def get_df():
     return jsonify({"all_bots_df": all_bots_df}), 200
 
 
-#curl -X POST -d "passwd=change-it" http://url/estop
-@main.route("/estop", methods=["POST"])
+@main.route("/emergencystop", methods=["POST"])
+@limiter.limit("2/hour")
 @exception_handler()
-def emergency_stop():
+def emergency_stop_all_bots():
     """
     Emergency stops all active bots.
+    
+    Usage:
+        curl -X POST -d "passwd=estop_password" http://localhost/emergencystop
     """
     passwd = request.form.get("passwd")
 
     if not passwd:
-        return "Missing password", 400
+        return jsonify({"error": "Missing password."}), 400
 
     logger.trade("Emergency stop attempt.")
     send_admin_email("Emergency stop attempt.", "An emergency stop attempt was made.")
 
     from .. import db
-    from ..stefan.api_utils import place_sell_order
+    from ..utils.estop_utils import (
+        handle_no_bots,
+        process_bot_emergency_stop,
+        handle_bots_stopped,
+    )
 
     all_bots_settings = BotSettings.query.all()
 
+    if not all_bots_settings:
+        return handle_no_bots()
+
+    bots_stopped = []
     for bot_settings in all_bots_settings:
-        if bot_settings.etop_passwd == passwd:
-            bot_id = bot_settings.id
-            if bot_settings.bot_current_trade and bot_settings.bot_current_trade.is_active:
-                place_sell_order(bot_id)
+        result = process_bot_emergency_stop(bot_settings, passwd)
+        if result:
+            bots_stopped.append(result)
 
-            bot_settings.bot_running = False
-
-            logger.trade(
-                f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} Emergency stopped."
-            )
-            send_admin_email(
-                f"Bot {bot_settings.id} Emergency stopped.",
-                f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} Emergency stopped.",
-            )
-
-    db.session.commit()
-
-    return "Emergency stop executed.", 200
+    if bots_stopped:
+        db.session.commit()
+        return handle_bots_stopped(bots_stopped)
+    else:
+        return jsonify({"error": "No bots stopped. All attempts failed."}), 403

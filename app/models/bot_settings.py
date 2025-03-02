@@ -324,7 +324,7 @@ class BotSettings(db.Model):
 
     plot_url = None
     
-    etop_passwd = db.Column(db.String(1024), default="change-it", nullable=False)
+    etop_passwd = db.Column(db.String(1024), default="estop_password", nullable=False)
 
     def __repr__(self):
         """Return a string representation of the object."""
