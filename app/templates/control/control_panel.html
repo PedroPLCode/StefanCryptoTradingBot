@@ -30,8 +30,19 @@
         <div class="card-body text-center">
             <div class="d-flex flex-column justify-content-center align-items-center gap-2">    
                 {% if all_bots_settings %}
-                    <a href="{{ url_for('main.start_all') }}" class="btn btn-success w-100">Start All bots</a>    
-                    <a href="{{ url_for('main.stop_all') }}" class="btn btn-danger w-100">Sell&Stop All Bots</a>   
+                    {% if all_bots_stopped %}
+                        <a href="" class="btn btn-light w-100">All Bots Stopped</a>
+                        <a href="{{ url_for('main.start_all') }}" class="btn btn-success w-100">Start All Bots</a>
+                    {% else %}
+                        {% if all_bots_running %}
+                            <a href="" class="btn btn-light w-100">All Bots Running</a>
+                        {% else %}
+                            <a href="{{ url_for('main.start_all') }}" class="btn btn-success w-100">Start All Bots</a>
+                        {% endif %}
+                        <a href="{{ url_for('main.stop_all') }}" class="btn btn-danger w-100">
+                            {% if at_least_one_bot_trading %}Sell and {% endif %}Stop All Bots
+                        </a>
+                    {% endif %}
                 {% endif %}
                 <a href="{{ url_for('main.refresh') }}" class="btn btn-primary w-100">Refresh</a>
             </div>
