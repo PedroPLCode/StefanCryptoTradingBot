@@ -8,18 +8,18 @@ from ..utils.logging import logger
 from . import main
 from .. import limiter
 from ..utils.exception_handlers import exception_handler
-from ..stefan.logic_utils import execute_sell_order
 from ..utils.reports_utils import generate_trade_report
 from ..utils.user_utils import check_if_user_have_control_access
 from ..utils.email_utils import (
     send_email,
-    send_admin_email,
+    send_admin_email
 )
 from ..utils.bots_utils import (
     stop_all_bots,
     start_all_bots,
     start_single_bot,
     stop_single_bot,
+    handle_emergency_sell_order
 )
 
 
@@ -57,13 +57,7 @@ def stop_bot(bot_id: int) -> Callable:
     bot_settings = BotSettings.query.filter_by(id=bot_id).first()
 
     if bot_settings.bot_current_trade.is_active:
-        execute_sell_order(
-            bot_settings,
-            bot_settings.bot_current_trade,
-            bot_settings.bot_current_trade.current_price,
-            False,
-            False,
-        )
+        handle_emergency_sell_order(bot_settings)
         send_admin_email(
             f"Bot {bot_settings.id} stopped manually.",
             f"Bot {bot_id} has been stopped manually with active CurrentTrade.\nCheck CurrentTrade in Flask Admin Panel.\nCurrentTrade needs to be deactivated and all params needs to be set on 0.",

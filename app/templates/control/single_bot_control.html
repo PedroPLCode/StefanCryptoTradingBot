@@ -219,7 +219,7 @@
             <div class="mt-2 d-flex flex-column justify-content-center align-items-center gap-2">
                 {% if bot_info.bot_running %}
                     <a href="" class="btn btn-light w-100">Bot is running</a>
-                    <a href="{{ url_for('main.stop_bot', bot_id=bot_info.id) }}" class="btn btn-danger w-100">Stop Bot {{bot_info.id}}</a>
+                    <a href="{{ url_for('main.stop_bot', bot_id=bot_info.id) }}" class="btn btn-danger w-100">Sell&Stop Bot {{bot_info.id}}</a>
                 {% else %}
                     <a href="{{ url_for('main.start_bot', bot_id=bot_info.id) }}" class="btn btn-success w-100">Start Bot {{bot_info.id}}</a>
                     <a href="" class="btn btn-light w-100">Bot is stopped</a>

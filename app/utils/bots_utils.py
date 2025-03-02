@@ -166,16 +166,12 @@ def handle_emergency_sell_order(bot_settings: BotSettings) -> None:
     Returns:
         None: This function does not return any value, it triggers a sell order action.
     """
-    from ..stefan.logic_utils import execute_sell_order, get_current_price
-    
-    technical_analysis_data = bot_settings.bot_technical_analysis
-    df_loaded = technical_analysis_data.get_df()
-    current_price = get_current_price(df_loaded, bot_settings.id)
+    from ..stefan.logic_utils import execute_sell_order
         
     execute_sell_order(
         bot_settings,
         bot_settings.bot_current_trade,
-        current_price,
+        bot_settings.bot_current_trade.current_price,
         False,
         False,
     )
