@@ -65,7 +65,7 @@ def register():
                 try:
                     send_admin_email(
                         "New User registered",
-                        f"New user has been registered in the database.\n\nlogin: {new_user.login}\nname: {new_user.name}\nemail: {new_user.email}\ncreation_date: {new_user.creation_date}",
+                        f"StefanCryptoTradingBot\nNew user has been registered in the database.\n\nlogin: {new_user.login}\nname: {new_user.name}\nemail: {new_user.email}\ncreation_date: {new_user.creation_date}",
                     )
                 except Exception as e:
                     logger.error(f"Error sending registration email: {str(e)}")
