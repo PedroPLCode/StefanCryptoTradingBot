@@ -85,6 +85,6 @@ def generate_trade_report(period: str) -> Union[str, Optional[int]]:
                     f"profit_percentage: {profit_percentage:.2f}%\n\n"
                 )
                 
-    report_data += "StefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nFomoSapiensCryptoDipHunter\nhttps://fomo.ropeaccess.pro\n\nCodeCave\nhttps://cave.ropeaccess.pro\n"
+    report_data += "-- \n\nStefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nFomoSapiensCryptoDipHunter\nhttps://fomo.ropeaccess.pro\n\nCodeCave\nhttps://cave.ropeaccess.pro\n"
     
     return report_data

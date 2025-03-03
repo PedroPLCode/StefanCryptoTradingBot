@@ -60,7 +60,7 @@ def stop_bot(bot_id: int) -> Callable:
         handle_emergency_sell_order(bot_settings)
         send_admin_email(
             f"Bot {bot_settings.id} stopped manually.",
-            f"Bot {bot_id} has been stopped manually with active CurrentTrade.\nCheck CurrentTrade in Flask Admin Panel.\nCurrentTrade needs to be deactivated and all params needs to be set on 0.",
+            f"Bot {bot_id} has been stopped manually.\n\nCheck CurrentTrade in Flask Admin Panel.\nCurrentTrade needs to be deactivated and all params needs to be set on 0.",
         )
 
     if bot_settings:

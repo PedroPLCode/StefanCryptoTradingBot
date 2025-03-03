@@ -54,7 +54,7 @@ def stop_single_bot(bot_id: int, current_user: User) -> None:
         flash(f"Bot {bot_settings.id} has been stopped.", "success")
         send_admin_email(
             f"Bot {bot_settings.id} stopped.",
-            f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} has been stopped by {current_user.login if current_user.login else current_user}.",
+            f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} has been stopped by {current_user.login if current_user.login else current_user}.\n\nCheck CurrentTrade in Flask Admin Panel.\nCurrentTrade needs to be deactivated and all params needs to be set on 0.",
         )
 
 

@@ -42,7 +42,7 @@ def process_bot_emergency_stop(
     )
     send_admin_email(
         f"Bot {bot_settings.id} Emergency stopped.",
-        f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} Emergency stopped.",
+        f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.strategy} Emergency stopped.\n\nCheck CurrentTrade in Flask Admin Panel.\nCurrentTrade needs to be deactivated and all params needs to be set on 0.",
     )
     return bot_settings
 
@@ -59,7 +59,7 @@ def handle_no_bots() -> tuple:
     logger.trade("No Bots Found to Emergency stop.")
     send_admin_email(
         "Bots Emergency stop Error.",
-        f"StafanCryptoTradingBot Emergency stop report.\n{now}\n\nNo Bots Found to Emergency stop.\n\nCheck it as soon as possible.\n\nStefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nFomoSapiensCryptoDipHunter\nhttps://fomo.ropeaccess.pro\n\nCodeCave\nhttps://cave.ropeaccess.pro\n",
+        f"StafanCryptoTradingBot Emergency stop report.\n{now}\n\nNo Bots Found to Emergency stop.\n\nCheck it as soon as possible.\n\n-- \n\nStefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nFomoSapiensCryptoDipHunter\nhttps://fomo.ropeaccess.pro\n\nCodeCave\nhttps://cave.ropeaccess.pro\n",
     )
     return jsonify({"error": "No bots to stop."}), 404
 
@@ -79,6 +79,6 @@ def handle_bots_stopped(bots_stopped: List) -> tuple:
     logger.trade(f"{len(bots_stopped)} Bots Emergency stopped.")
     send_admin_email(
         "All Bots Emergency stopped.",
-        f"StafanCryptoTradingBot Emergency stop report.\n{now}\n\n{len(bots_stopped)} Bots Emergency stopped.\n\nProbably due to power loss.\nCheck it as soon as possible.\n\nStefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nFomoSapiensCryptoDipHunter\nhttps://fomo.ropeaccess.pro\n\nCodeCave\nhttps://cave.ropeaccess.pro\n",
+        f"StafanCryptoTradingBot Emergency stop report.\n{now}\n\n{len(bots_stopped)} Bots Emergency stopped.\n\nProbably due to power loss.\nCheck it as soon as possible.\n\n-- \n\nStefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nFomoSapiensCryptoDipHunter\nhttps://fomo.ropeaccess.pro\n\nCodeCave\nhttps://cave.ropeaccess.pro\n",
     )
     return jsonify({"success": f"{len(bots_stopped)} Bots Emergency stopped."}), 200
