@@ -40,7 +40,7 @@
                             <a href="{{ url_for('main.start_all') }}" class="btn btn-success w-100">Start All Bots</a>
                         {% endif %}
                         <a href="{{ url_for('main.stop_all') }}" class="btn btn-danger w-100">
-                            {% if at_least_one_bot_trading %}Sell and {% endif %}Stop All Bots
+                            {% if at_least_one_bot_trading %}Finalize Trades and {% endif %}Stop All Bots
                         </a>
                     {% endif %}
                 {% endif %}
