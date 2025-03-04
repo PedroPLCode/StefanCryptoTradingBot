@@ -39,7 +39,7 @@ def generate_trade_report(period: str) -> Union[str, Optional[int]]:
     all_bots = BotSettings.query.all()
 
     report_data = (
-        f"StafanCryptoTradingBot {'daily' if period == '24h' else 'requested'} trades report.\n"
+        f"StefanCryptoTradingBot\n{'Daily' if period == '24h' else 'requested'} trades report.\n"
         f"{formatted_now}\n\n"
         f"All trades in last {period}.\n\n"
     )

@@ -84,11 +84,11 @@ def clear_old_trade_history():
     db.session.commit()
 
     summary_message = (
-        f"StafanCryptoTradingBot daily cleaning report.\n"
+        f"StefanCryptoTradingBot\nDaily clear_old_trade_history report.\n"
         f"{formatted_now}\n\nDays to clean history: {days_to_clean_history}\n\n"
     )
     error_message = (
-        f"StafanCryptoTradingBot daily cleaning.\n"
+        f"StefanCryptoTradingBot\nclear_old_trade_history\n"
         f"Errors during trade history cleaning.\n"
         f"{formatted_now}\n\n"
     )

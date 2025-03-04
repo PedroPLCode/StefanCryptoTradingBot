@@ -34,7 +34,7 @@ def send_logs_via_email_and_clear_logs():
 
             send_admin_email(
                 f"{subject}: {log}",
-                f"StafanCryptoTradingBot daily logs.\n{formatted_now}\n\n{log}\n\n{log_content}",
+                f"StefanCryptoTradingBot\nDaily logs report.\n{formatted_now}\n\n{log}\n\n{log_content}",
             )
             logger.info(f"Successfully sent email with log: {log}")
         else:

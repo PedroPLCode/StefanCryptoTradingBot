@@ -59,7 +59,7 @@ def handle_no_bots() -> tuple:
     logger.trade("No Bots Found to Emergency stop.")
     send_admin_email(
         "Bots Emergency stop Error.",
-        f"StafanCryptoTradingBot Emergency stop report.\n{now}\n\nNo Bots Found to Emergency stop.\n\nCheck it as soon as possible.\n\n-- \n\nStefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nFomoSapiensCryptoDipHunter\nhttps://fomo.ropeaccess.pro\n\nCodeCave\nhttps://cave.ropeaccess.pro\n",
+        f"StefanCryptoTradingBot\nEmergency stop report.\n{now}\n\nNo Bots Found to Emergency stop.\n\nCheck it as soon as possible.\n\n-- \n\nStefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nFomoSapiensCryptoDipHunter\nhttps://fomo.ropeaccess.pro\n\nCodeCave\nhttps://cave.ropeaccess.pro\n",
     )
     return jsonify({"error": "No bots to stop."}), 404
 
@@ -79,6 +79,6 @@ def handle_bots_stopped(bots_stopped: List) -> tuple:
     logger.trade(f"{len(bots_stopped)} Bots Emergency stopped.")
     send_admin_email(
         "All Bots Emergency stopped.",
-        f"StafanCryptoTradingBot Emergency stop report.\n{now}\n\n{len(bots_stopped)} Bots Emergency stopped.\n\nProbably due to power loss.\nCheck it as soon as possible.\n\n-- \n\nStefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nFomoSapiensCryptoDipHunter\nhttps://fomo.ropeaccess.pro\n\nCodeCave\nhttps://cave.ropeaccess.pro\n",
+        f"StefanCryptoTradingBot\nEmergency stop report.\n{now}\n\n{len(bots_stopped)} Bots Emergency stopped.\n\nProbably due to power loss.\nCheck it as soon as possible.\n\n-- \n\nStefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nFomoSapiensCryptoDipHunter\nhttps://fomo.ropeaccess.pro\n\nCodeCave\nhttps://cave.ropeaccess.pro\n",
     )
     return jsonify({"success": f"{len(bots_stopped)} Bots Emergency stopped."}), 200

@@ -31,5 +31,5 @@ def backup_database() -> Optional[str]:
     
     shutil.copy2(db_path, backup_path)
     logger.info(f"Database backup saved: {backup_path}")
-    send_admin_email('Database backup saved', f"StefanCryptoTradingBot database backup report.\n{formatted_now}\n\nDatabase backup saved successfully.\nDatabase backup path: {backup_path}")
+    send_admin_email('Database backup saved', f"StefanCryptoTradingBot\nDaily backup_database report.\n{formatted_now}\n\nDatabase backup saved successfully.\nDatabase backup path: {backup_path}")
     return backup_path
