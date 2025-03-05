@@ -116,7 +116,7 @@ def is_bot_suspended(bot_settings: BotSettings) -> bool:
         logger.info(f"Bot {bot_settings.id} suspension after negative trade finished.")
         send_trade_email(
             f"Bot {bot_settings.id} suspend_after_negative_trade report.",
-            f"StafanCryptoTradingBotBot suspend_after_negative_trade report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nSuspension after negative trade finished.\nBot {bot_settings.id} is back in operation",
+            f"StefanCryptoTradingBotBot\nsuspend_after_negative_trade report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nSuspension after negative trade finished.\nBot {bot_settings.id} is back in operation",
         )
 
     return False
@@ -145,7 +145,7 @@ def suspend_after_negative_trade(bot_settings: BotSettings) -> None:
     )
     send_trade_email(
         f"Bot {bot_settings.id} suspend_after_negative_trade report.",
-        f"StafanCryptoTradingBotBot suspend_after_negative_trade report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nBot {bot_settings.id} is suspended after negative trade.\nCycles of suspension: {bot_settings.cycles_of_suspension_after_negative_trade}\nCycles remaining: {bot_settings.cycles_of_suspension_after_negative_trade}",
+        f"StefanCryptoTradingBotBot\nsuspend_after_negative_trade report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nBot {bot_settings.id} is suspended after negative trade.\nCycles of suspension: {bot_settings.cycles_of_suspension_after_negative_trade}\nCycles remaining: {bot_settings.cycles_of_suspension_after_negative_trade}",
     )
 
 

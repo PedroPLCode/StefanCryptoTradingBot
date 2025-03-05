@@ -353,7 +353,6 @@ def place_sell_order(bot_id: str) -> Union[Tuple[bool, float], Tuple[bool, bool]
         tuple: A tuple containing a boolean indicating the success of the order and the amount of cryptocurrency sold.
                Returns (False, False) if the order couldn't be placed or there isn't enough balance to sell.
     """
-    from ..utils.email_utils import send_admin_email
     from .calc_utils import round_down_to_step_size
 
     bot_settings = BotSettings.query.get(bot_id)

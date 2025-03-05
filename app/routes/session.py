@@ -83,7 +83,7 @@ def register():
                 )
 
                 try:
-                    send_admin_email("Registration error", str(e))
+                    send_admin_email("StefanCryptoTradingBot\nRegistration error", f"New User Registration error.\n{str(e)}")
                 except Exception as email_error:
                     logger.error(
                         f"Error sending registration error email {str(email_error)}"
