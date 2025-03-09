@@ -5,10 +5,12 @@ from typing import Any
 from app.models import User
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
+from ..utils.retry_connection import retry_connection
 from ..utils.reports_utils import generate_trade_report
 
 
 @exception_handler(default_return=False)
+@retry_connection()
 def send_email(email: str, subject: str, body: str) -> bool:
     """
     Sends an email to a specified recipient.

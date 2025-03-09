@@ -7,6 +7,7 @@ from app.models import BotSettings
 import os
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
+from ..utils.retry_connection import retry_connection
 
 load_dotenv()
 
@@ -63,6 +64,7 @@ general_client = create_binance_client(None)
 
 
 @exception_handler()
+@retry_connection(max_retries=5, delay=3)
 def fetch_data(
     symbol: str,
     interval: str = "1m",
@@ -142,6 +144,7 @@ def fetch_data(
 
 
 @exception_handler(default_return=0)
+@retry_connection()
 def get_account_balance(bot_id: str, assets: list) -> Union[dict, int]:
     """
     Retrieves the balance of specified assets from the Binance account.
@@ -169,6 +172,7 @@ def get_account_balance(bot_id: str, assets: list) -> Union[dict, int]:
 
 
 @exception_handler()
+@retry_connection()
 def fetch_current_price(symbol: str) -> Union[float, Optional[int]]:
     """
     Retrieves the current price of a specific trading symbol from Binance.
@@ -190,6 +194,7 @@ def fetch_current_price(symbol: str) -> Union[float, Optional[int]]:
 
 
 @exception_handler(default_return=(0, 0))
+@retry_connection()
 def get_minimum_order_quantity(bot_id: str, symbol: str) -> Tuple[float, float]:
     """
     Fetches the minimum order quantity and step size for a given symbol on Binance.
@@ -214,6 +219,7 @@ def get_minimum_order_quantity(bot_id: str, symbol: str) -> Tuple[float, float]:
 
 
 @exception_handler()
+@retry_connection()
 def get_minimum_order_value(
     bot_id: str, symbol: str
 ) -> Union[Tuple[float, float], Optional[int]]:
@@ -238,6 +244,7 @@ def get_minimum_order_value(
 
 
 @exception_handler(default_return=(False, False))
+@retry_connection(max_retries=3, delay=3)
 def place_buy_order(bot_id: str) -> Union[Tuple[bool, float], Tuple[bool, bool]]:
     """
     Places a market buy order for a specified symbol on Binance using available stablecoin balance.
@@ -341,6 +348,7 @@ def place_buy_order(bot_id: str) -> Union[Tuple[bool, float], Tuple[bool, bool]]
 
 
 @exception_handler(default_return=(False, False))
+@retry_connection(max_retries=5, delay=3)
 def place_sell_order(bot_id: str) -> Union[Tuple[bool, float], Tuple[bool, bool]]:
     """
     Places a sell order for a specified bot. The function fetches the account balance for the specified cryptocurrency
@@ -411,6 +419,7 @@ def place_sell_order(bot_id: str) -> Union[Tuple[bool, float], Tuple[bool, bool]
 
 
 @exception_handler()
+@retry_connection()
 def fetch_system_status():
     """
     Fetches the current system status from the Binance API.
@@ -423,6 +432,7 @@ def fetch_system_status():
 
 
 @exception_handler()
+@retry_connection()
 def fetch_account_status(bot_id: str = None) -> Union[dict, Optional[int]]:
     """
     Fetches the account status of the bot's associated Binance account.
@@ -443,6 +453,7 @@ def fetch_account_status(bot_id: str = None) -> Union[dict, Optional[int]]:
 
 
 @exception_handler()
+@retry_connection()
 def fetch_server_time():
     """
     Fetches the current server time from the Binance API.
