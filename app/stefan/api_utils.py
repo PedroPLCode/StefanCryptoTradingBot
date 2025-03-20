@@ -40,6 +40,7 @@ def get_binance_api_credentials(
 
 
 @exception_handler()
+@retry_connection()
 def create_binance_client(
     bot_id: str = None, testnet: bool = False
 ) -> Union[Optional[int], Client]:
