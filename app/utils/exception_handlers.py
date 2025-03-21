@@ -36,9 +36,9 @@ def exception_handler(default_return=None, db_rollback=False):
         - Returns `default_return` in case of an error.
     """
 
-    def decorator(func):
+    def exception_handler_decorator(func):
         @functools.wraps(func)
-        def wrapper(*args, **kwargs):
+        def exception_handler_wrapper(*args, **kwargs):
             bot_id = None
 
             if "bot_settings" in kwargs and hasattr(kwargs["bot_settings"], "id"):
@@ -99,6 +99,6 @@ def exception_handler(default_return=None, db_rollback=False):
                 return default_return()
             return default_return
 
-        return wrapper
+        return exception_handler_wrapper
 
-    return decorator
+    return exception_handler_decorator

@@ -13,8 +13,8 @@ def retry_connection(max_retries=3, delay=1):
     :param delay: Time in seconds between each retry attempt.
     """
 
-    def decorator(func):
-        def wrapper(*args, **kwargs):
+    def retry_connection_decorator(func):
+        def retry_connection_wrapper(*args, **kwargs):
             retries = 0
             while retries < max_retries:
                 try:
@@ -32,6 +32,6 @@ def retry_connection(max_retries=3, delay=1):
             logger.error(error_msg)
             raise Exception(error_msg)
 
-        return wrapper
+        return retry_connection_wrapper
 
-    return decorator
+    return retry_connection_decorator
