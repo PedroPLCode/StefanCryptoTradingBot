@@ -19,11 +19,11 @@
             <p class="text-muted m-0 p-0">Strategy: {{ bot_info.strategy | upper }}</p>
             <p class="text-muted m-0 p-0">Comment: {{ bot_info.comment }}</p>
             <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>
-            <p class="text-muted m-0 p-0">Lookback Period: {{ bot_info.lookback_period }}</p>
+            <p class="text-muted m-0 p-0 border-bottom">Lookback Period: {{ bot_info.lookback_period }}</p>
 
             {% if bot_info.use_technical_analysis %}
 
-                <p class="text-muted m-0 p-0 border-top border-bottom">
+                <p class="text-muted m-0 p-0 border-bottom">
                     Technical Analysis Trade Signals:<br>
                     {% if bot_info.trend_signals %}TREND({{ bot_info.adx_timeperiod }}, avg: {{ bot_info.avg_adx_period }})<br>{% endif %}
                     {% if bot_info.rsi_signals %}RSI({{ bot_info.rsi_timeperiod }}, {{ bot_info.rsi_buy }}/{{ bot_info.rsi_sell }}, avg: {{ bot_info.avg_rsi_period }})<br>{% endif %}
@@ -50,51 +50,6 @@
                     {% if bot_info.di_signals %}DI({{ bot_info.di_timeperiod }}, avg: {{ bot_info.avg_di_period }})<br>{% endif %}
                     {% if bot_info.vol_signals %}VOLUME(avg: {{ bot_info.avg_volume_period }})<br>{% endif %}
                 </p>    
-
-            {% endif %}
-                
-            {% if bot_info.use_machine_learning %}
-            
-                <p class="text-muted m-0 p-0 border-bottom">Machine Learning Trade Signals:</p>
-
-                <p class="text-muted m-0 p-0 border-bottom">General Timeperiod: {{ bot_info.ml_general_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">MACD Timeperiod: {{ bot_info.ml_macd_timeperiod }}</p>
-                <p class="text-muted m-0 p-0 border-bottom">MACD signal Timeperiod: {{ bot_info.ml_macd_signal_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">Bollinger Timeperiod: {{ bot_info.ml_bollinger_timeperiod }}</p>
-                <p class="text-muted m-0 p-0 border-bottom">Bollinger nbdev: {{ bot_info.ml_bollinger_nbdev }}</p>
-                <p class="text-muted m-0 p-0">EMA Fast Timeperiod: {{ bot_info.ml_ema_fast_timeperiod }}</p>
-                <p class="text-muted m-0 p-0 border-bottom">EMA Slow Timeperiod: {{ bot_info.ml_ema_slow_timeperiod }}</p>
-                
-                <p class="text-muted m-0 p-0">RSI buy value: {{ bot_info.ml_rsi_buy }}</p>
-                <p class="text-muted m-0 p-0 border-bottom">RSI sell value: {{ bot_info.ml_rsi_sell }}</p>
-
-                <p class="text-muted m-0 p-0 border-bottom">Lag Calc Period: {{ bot_info.ml_lag_period }}</p>
-
-                <p class="text-muted m-0 p-0 {{ '' if bot_info.ml_use_random_forest_model else 'border-bottom' }}">Use ScikitLearn.RandomForestRegressor: <span class="{{ 'text-success' if bot_info.ml_use_random_forest_model else 'text-danger border-bottom' }}">{{ bot_info.ml_use_random_forest_model }}</span></p>
-                {% if bot_info.ml_use_random_forest_model %}
-                    <p class="text-muted m-0 p-0">Avg Last Predictions: {{ bot_info.ml_random_forest_predictions_avg}}</p>
-                    <p class="text-muted m-0 p-0">Model Filename: {{ bot_info.ml_random_forest_model_filename }}</p>
-                    <p class="text-muted m-0 p-0">Buy Trigger pct: {{ bot_info.ml_random_forest_buy_trigger_pct }}</p>
-                    <p class="text-muted m-0 p-0 border-bottom">Sell Trigger pct: {{ bot_info.ml_random_forest_sell_trigger_pct }}</p>
-                {% endif %}
-
-                <p class="text-muted m-0 p-0 {{ '' if bot_info.ml_use_xgboost_model else 'border-bottom' }}">Use XGBoost.XGBRegressor: <span class="{{ 'text-success' if bot_info.ml_use_xgboost_model else 'text-danger' }}">{{ bot_info.ml_use_xgboost_model }}</span></p>
-                {% if bot_info.ml_use_xgboost_model %}
-                    <p class="text-muted m-0 p-0">Avg Last Predictions: {{ bot_info.ml_xgboost_predictions_avg }}</p>
-                    <p class="text-muted m-0 p-0">Model Filename: {{ bot_info.ml_xgboost_model_filename }}</p>
-                    <p class="text-muted m-0 p-0">Buy Trigger pct: {{ bot_info.ml_xgboost_buy_trigger_pct }}</p>
-                    <p class="text-muted m-0 p-0 border-bottom">Sell Trigger pct: {{ bot_info.ml_xgboost_sell_trigger_pct }}</p>
-                {% endif %}
-
-                <p class="text-muted m-0 p-0 {{ '' if bot_info.ml_use_lstm_model else 'border-bottom' }}">Use Keras.LSTM: <span class="{{ 'text-success' if bot_info.ml_use_lstm_model else 'text-danger border-bottom' }}">{{ bot_info.ml_use_lstm_model }}</span></p>
-                {% if bot_info.ml_use_lstm_model %}
-                    <p class="text-muted m-0 p-0">Window Size: {{ bot_info.ml_lstm_window_size }}</p>
-                    <p class="text-muted m-0 p-0">Window Loopback: {{ bot_info.ml_lstm_window_lookback }}</p>
-                    <p class="text-muted m-0 p-0">Avg Last Predictions: {{ bot_info.ml_lstm_predictions_avg }}</p>
-                    <p class="text-muted m-0 p-0">Model Filename: {{ bot_info.ml_lstm_model_filename }}</p>
-                    <p class="text-muted m-0 p-0">Buy Trigger pct: {{ bot_info.ml_lstm_buy_trigger_pct }}</p>
-                    <p class="text-muted m-0 p-0 border-bottom">Sell Trigger pct: {{ bot_info.ml_lstm_sell_trigger_pct }}</p>
-                {% endif %}
 
             {% endif %}
             
@@ -133,6 +88,51 @@
                     {% endif %} )
                 </p>
             {% endfor %}
+
+            {% if bot_info.use_machine_learning %}
+            
+                <p class="text-muted m-0 p-0 border-bottom">Machine Learning Trade Signals:</p>
+
+                <p class="text-muted m-0 p-0 border-bottom">General Timeperiod: {{ bot_info.ml_general_timeperiod }}</p>
+                <p class="text-muted m-0 p-0">MACD Timeperiod: {{ bot_info.ml_macd_timeperiod }}</p>
+                <p class="text-muted m-0 p-0 border-bottom">MACD signal Timeperiod: {{ bot_info.ml_macd_signal_timeperiod }}</p>
+                <p class="text-muted m-0 p-0">Bollinger Timeperiod: {{ bot_info.ml_bollinger_timeperiod }}</p>
+                <p class="text-muted m-0 p-0 border-bottom">Bollinger nbdev: {{ bot_info.ml_bollinger_nbdev }}</p>
+                <p class="text-muted m-0 p-0">EMA Fast Timeperiod: {{ bot_info.ml_ema_fast_timeperiod }}</p>
+                <p class="text-muted m-0 p-0 border-bottom">EMA Slow Timeperiod: {{ bot_info.ml_ema_slow_timeperiod }}</p>
+                
+                <p class="text-muted m-0 p-0">RSI buy value: {{ bot_info.ml_rsi_buy }}</p>
+                <p class="text-muted m-0 p-0 border-bottom">RSI sell value: {{ bot_info.ml_rsi_sell }}</p>
+
+                <p class="text-muted m-0 p-0 border-bottom">Lag Calc Period: {{ bot_info.ml_lag_period }}</p>
+
+                <p class="text-muted m-0 p-0 {{ '' if bot_info.ml_use_random_forest_model else 'border-bottom' }}">Use ScikitLearn.RandomForestRegressor: <span class="{{ 'text-success' if bot_info.ml_use_random_forest_model else 'text-danger' }}">{{ bot_info.ml_use_random_forest_model }}</span></p>
+                {% if bot_info.ml_use_random_forest_model %}
+                    <p class="text-muted m-0 p-0">Avg Last Predictions: {{ bot_info.ml_random_forest_predictions_avg}}</p>
+                    <p class="text-muted m-0 p-0">Model Filename: {{ bot_info.ml_random_forest_model_filename }}</p>
+                    <p class="text-muted m-0 p-0">Buy Trigger pct: {{ bot_info.ml_random_forest_buy_trigger_pct }}</p>
+                    <p class="text-muted m-0 p-0 border-bottom">Sell Trigger pct: {{ bot_info.ml_random_forest_sell_trigger_pct }}</p>
+                {% endif %}
+
+                <p class="text-muted m-0 p-0 {{ '' if bot_info.ml_use_xgboost_model else 'border-bottom' }}">Use XGBoost.XGBRegressor: <span class="{{ 'text-success' if bot_info.ml_use_xgboost_model else 'text-danger' }}">{{ bot_info.ml_use_xgboost_model }}</span></p>
+                {% if bot_info.ml_use_xgboost_model %}
+                    <p class="text-muted m-0 p-0">Avg Last Predictions: {{ bot_info.ml_xgboost_predictions_avg }}</p>
+                    <p class="text-muted m-0 p-0">Model Filename: {{ bot_info.ml_xgboost_model_filename }}</p>
+                    <p class="text-muted m-0 p-0">Buy Trigger pct: {{ bot_info.ml_xgboost_buy_trigger_pct }}</p>
+                    <p class="text-muted m-0 p-0 border-bottom">Sell Trigger pct: {{ bot_info.ml_xgboost_sell_trigger_pct }}</p>
+                {% endif %}
+
+                <p class="text-muted m-0 p-0 {{ '' if bot_info.ml_use_lstm_model else 'border-bottom' }}">Use Keras.LSTM: <span class="{{ 'text-success' if bot_info.ml_use_lstm_model else 'text-danger' }}">{{ bot_info.ml_use_lstm_model }}</span></p>
+                {% if bot_info.ml_use_lstm_model %}
+                    <p class="text-muted m-0 p-0">Window Size: {{ bot_info.ml_lstm_window_size }}</p>
+                    <p class="text-muted m-0 p-0">Window Loopback: {{ bot_info.ml_lstm_window_lookback }}</p>
+                    <p class="text-muted m-0 p-0">Avg Last Predictions: {{ bot_info.ml_lstm_predictions_avg }}</p>
+                    <p class="text-muted m-0 p-0">Model Filename: {{ bot_info.ml_lstm_model_filename }}</p>
+                    <p class="text-muted m-0 p-0">Buy Trigger pct: {{ bot_info.ml_lstm_buy_trigger_pct }}</p>
+                    <p class="text-muted m-0 p-0 border-bottom">Sell Trigger pct: {{ bot_info.ml_lstm_sell_trigger_pct }}</p>
+                {% endif %}
+
+            {% endif %}
             
             <p class="text-muted m-0 p-0">Stop Loss Enabled: <span class="{{ 'text-success' if bot_info.use_stop_loss else 'text-danger' }}">{{ bot_info.use_stop_loss }}</span></p>
             <p class="text-muted m-0 p-0">Trailing Stop Loss Enabled: <span class="{{ 'text-success' if bot_info.use_trailing_stop_loss else 'text-muted' }}">{{ bot_info.use_trailing_stop_loss }}</span></p>
