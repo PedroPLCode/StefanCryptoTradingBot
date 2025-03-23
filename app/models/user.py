@@ -21,6 +21,7 @@ class User(UserMixin, db.Model):
         admin_panel_access (bool): Whether the user has admin privileges.
         email_raports_receiver (bool): Whether the user receives email reports.
         email_trades_receiver (bool): Whether the user receives trade-related emails.
+        telegram_trades_receiver (bool): Whether the user receives trade-related telegrams.
         login_errors (int): The number of failed login attempts.
         account_suspended (bool): Whether the account is suspended.
 
@@ -38,6 +39,7 @@ class User(UserMixin, db.Model):
     login = db.Column(db.String(56), nullable=False, unique=True)
     name = db.Column(db.String(56), nullable=False, unique=False)
     email = db.Column(db.String(128), nullable=False, unique=True)
+    telegram_chat_id = db.Column(db.String(512), nullable=True, unique=False)
     comment = db.Column(db.String(1024), nullable=True, unique=False)
     password_hash = db.Column(db.String(128), nullable=False)
     creation_date = db.Column(db.DateTime, nullable=False, default=dt.now)
@@ -48,6 +50,8 @@ class User(UserMixin, db.Model):
     email_raports_receiver = db.Column(
         db.Boolean, nullable=False, default=False)
     email_trades_receiver = db.Column(
+        db.Boolean, nullable=False, default=False)
+    telegram_trades_receiver = db.Column(
         db.Boolean, nullable=False, default=False)
 
     login_errors = db.Column(
@@ -103,6 +107,7 @@ class User(UserMixin, db.Model):
             f'admin_panel_access: {self.admin_panel_access}\n'
             f'email_raports_receiver: {self.email_raports_receiver}\n'
             f'email_trades_receiver: {self.email_trades_receiver}\n'
+            f'telegram_trades_receiver: {self.telegram_trades_receiver}\n'
             f'login_errors: {self.login_errors}\n'
             f'account_suspended: {self.account_suspended}>'
         )
