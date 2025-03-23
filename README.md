@@ -4,7 +4,7 @@ StefanCryptoTradingBot is an automated trading bot built for trading in cryptocu
 
 The bot utilizes machine learning through the [MariolaMLCryptoTradingUtils](https://github.com/PedroPLCode/MariolaMLCryptoTradingUtils) module to improve the prediction of future prices, providing a significant edge in the market.
 
-The bot provides an easy-to-use interface for starting and stopping the bot, real-time trade and balance monitoring, technical analysis panel, daily report emails and backtesting features. User can access a control panel to manage bot operations, and an admin panel for modifying key settings and strategies.
+The bot provides an easy-to-use interface for starting and stopping the bot, real-time trade and balance monitoring, technical analysis panel, trade reports via email or telegram and backtesting features. User can access a control panel to manage bot operations, and an admin panel for modifying key settings and strategies.
 
 ## Features
 
@@ -37,12 +37,13 @@ source venv/bin/activate or . venv/bin/activate
 pip install -r requirements.txt
 ```
 
-4. Configure your environment variables by creating a .env file with your Binance API credentials, database URL, and email configuration.
+4. Configure your environment variables by creating a .env file with your Binance API credentials, database URL, and email, telegram configuration.
 ```bash
 APP_SECRET_KEY = 'your_turbo_secret_key'
 CSRF_SECRET_KEY = 'your_total_secret_key'
 GMAIL_USERNAME = 'gmail@username.com'
 GMAIL_APP_PASSWORD="gmail_app_password"
+TELEGRAM_API_SECRET="telegram_api_secret_key"
 RECAPTCHA_PUBLIC_KEY = "recaptcha_public_key"
 RECAPTCHA_PRIVATE_KEY = "recaptcha_private_key"
 BINANCE_GENERAL_API_KEY='binance_general_api_key'
@@ -105,6 +106,7 @@ pytest
 - **Flask-SQLAlchemy**: ORM used to manage the database.
 - **Flask-JWT-Extended**: JWT-based authentication for securing user access.
 - **Flask-Mail**: For sending email reports.
+- **Python-Telegram-Bot**: For sending telegram trade informations.
 - **Binance API**: For fetching market data and executing trades.
 - **NumPy, Pandas and TALib**: Libraries used for implementing trading algorithms and data processing.
 - **Scikit-Learn, XGBoost and Keras**: A machine learning frameworks used for predictions and forecasting market trends.
