@@ -19,10 +19,14 @@ def retry_connection(max_retries=3, delay=1):
             while retries < max_retries:
                 try:
                     return func(*args, **kwargs)
-                except (ConnectionError, TimeoutError, 
-                        requests.exceptions.RequestException, 
-                        BinanceAPIException, smtplib.SMTPException,
-                        OSError) as e:
+                except (
+                    ConnectionError,
+                    TimeoutError,
+                    requests.exceptions.RequestException,
+                    BinanceAPIException,
+                    smtplib.SMTPException,
+                    OSError,
+                ) as e:
                     retries += 1
                     logger.warning(
                         f"retry_connection Connection failed (attempt {retries}/{max_retries}). Retrying in {delay} seconds..."

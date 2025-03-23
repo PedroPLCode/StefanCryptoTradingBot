@@ -67,11 +67,11 @@ def stop_all_bots(current_user: User) -> None:
         current_user (User): The user requesting to stop all bots.
     """
     all_bots_settings = BotSettings.query.all()
-    
+
     with current_app.app_context():
         for bot_settings in all_bots_settings:
             if bot_settings.bot_current_trade.is_active:
-                handle_emergency_sell_order(bot_settings)    
+                handle_emergency_sell_order(bot_settings)
             stop_single_bot(bot_settings.id, current_user)
 
 
@@ -154,20 +154,20 @@ def handle_emergency_sell_order(bot_settings: BotSettings) -> None:
     """
     Handles the emergency sell order for the given bot.
 
-    This function retrieves the technical analysis data for the specified bot, 
-    loads the corresponding DataFrame, gets the current price, and executes a sell 
-    order for the bot's active trade. The emergency sell order is executed by 
+    This function retrieves the technical analysis data for the specified bot,
+    loads the corresponding DataFrame, gets the current price, and executes a sell
+    order for the bot's active trade. The emergency sell order is executed by
     passing the bot settings, current trade, current price, and additional flags.
 
     Args:
-        bot_settings (BotSettings): The settings and configuration for the bot, 
+        bot_settings (BotSettings): The settings and configuration for the bot,
                                      including technical analysis data and current trade.
 
     Returns:
         None: This function does not return any value, it triggers a sell order action.
     """
     from ..stefan.logic_utils import execute_sell_order
-        
+
     execute_sell_order(
         bot_settings,
         bot_settings.bot_current_trade,

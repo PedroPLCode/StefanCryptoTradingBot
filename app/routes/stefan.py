@@ -10,16 +10,13 @@ from .. import limiter
 from ..utils.exception_handlers import exception_handler
 from ..utils.reports_utils import generate_trade_report
 from ..utils.user_utils import check_if_user_have_control_access
-from ..utils.email_utils import (
-    send_email,
-    send_admin_email
-)
+from ..utils.email_utils import send_email, send_admin_email
 from ..utils.bots_utils import (
     stop_all_bots,
     start_all_bots,
     start_single_bot,
     stop_single_bot,
-    handle_emergency_sell_order
+    handle_emergency_sell_order,
 )
 
 
@@ -224,7 +221,7 @@ def get_df():
 def emergency_stop_all_bots():
     """
     Emergency stops all active bots.
-    
+
     Usage:
         curl -X POST -d "passwd=estop_password" http://localhost/emergencystop
     """

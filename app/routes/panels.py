@@ -68,7 +68,7 @@ def control_panel_view():
     all_bots_stopped = True
     all_bots_running = True
     at_least_one_bot_trading = False
-    
+
     for bot_info in all_bots_settings:
         account_status = fetch_account_status(bot_info.id)
         cryptocoin_symbol = bot_info.symbol[:3]
@@ -79,20 +79,20 @@ def control_panel_view():
         bot_info.balance = balance
 
         if bot_info.bot_running:
-            all_bots_stopped = False 
+            all_bots_stopped = False
         else:
-            all_bots_running = False 
-            
+            all_bots_running = False
+
         if bot_info.bot_current_trade.is_active:
-            at_least_one_bot_trading = True 
-            
+            at_least_one_bot_trading = True
+
     return render_template(
         "control/control_panel.html",
         user=current_user,
         all_bots_settings=all_bots_settings,
         all_bots_stopped=all_bots_stopped,
         all_bots_running=all_bots_running,
-        at_least_one_bot_trading=at_least_one_bot_trading
+        at_least_one_bot_trading=at_least_one_bot_trading,
     )
 
 
@@ -213,7 +213,9 @@ def current_trades_view():
         else:
             bot.plot_url = None
 
-    return render_template("trades/trades_history.html", user=current_user, all_bots=all_bots)
+    return render_template(
+        "trades/trades_history.html", user=current_user, all_bots=all_bots
+    )
 
 
 @main.route("/admin")

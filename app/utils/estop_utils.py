@@ -7,9 +7,7 @@ from typing import List, Optional
 
 
 @exception_handler()
-def process_bot_emergency_stop(
-    bot_settings: object, passwd: str
-) -> Optional[object]:
+def process_bot_emergency_stop(bot_settings: object, passwd: str) -> Optional[object]:
     """
     Processes the emergency stop for a single bot by verifying the password, placing a sell order if needed,
     and setting the bot's status to not running.
@@ -34,7 +32,7 @@ def process_bot_emergency_stop(
     from ..utils.bots_utils import handle_emergency_sell_order
 
     if bot_settings.bot_current_trade and bot_settings.bot_current_trade.is_active:
-        handle_emergency_sell_order(bot_settings) 
+        handle_emergency_sell_order(bot_settings)
 
     bot_settings.bot_running = False
     logger.trade(

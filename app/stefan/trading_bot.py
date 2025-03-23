@@ -108,7 +108,10 @@ def run_selected_trading_bots(interval: str) -> Optional[int]:
                 run_single_trading_logic(bot_settings)
             else:
                 error_message = f"No BotCurrentTrade or BotTechnicalAnalysis found for Bot: {bot_settings.id}"
-                send_admin_email(f"Error starting bot {bot_settings.id}", f"Error starting bot {bot_settings.id}\n{error_message}")
+                send_admin_email(
+                    f"Error starting bot {bot_settings.id}",
+                    f"Error starting bot {bot_settings.id}\n{error_message}",
+                )
                 logger.trade(error_message)
 
 

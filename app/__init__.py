@@ -225,7 +225,7 @@ def start_scheduler():
         scheduler.add_job(
             func=partial(run_job_with_context, backup_database),
             trigger="interval",
-            hours=24
+            hours=24,
         )
         scheduler.start()
 

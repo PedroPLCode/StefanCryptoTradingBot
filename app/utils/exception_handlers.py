@@ -76,13 +76,19 @@ def exception_handler(default_return=None, db_rollback=False):
                 logger.error(f"{bot_str}{exception_type} in {func.__name__}: {str(e)}")
                 from .email_utils import send_admin_email
 
-                send_admin_email(f"{bot_str}{exception_type} in {func.__name__}", f"StefanCryptoTradingBot\n{exception_type} in {func.__name__}\n\n{str(e)}")
+                send_admin_email(
+                    f"{bot_str}{exception_type} in {func.__name__}",
+                    f"StefanCryptoTradingBot\n{exception_type} in {func.__name__}\n\n{str(e)}",
+                )
             except Exception as e:
                 exception_type = "Exception"
                 logger.error(f"{bot_str}{exception_type} in {func.__name__}: {str(e)}")
                 from .email_utils import send_admin_email
 
-                send_admin_email(f"{bot_str}{exception_type} in {func.__name__}", f"StefanCryptoTradingBot\n{exception_type} in {func.__name__}\n\n{str(e)}")
+                send_admin_email(
+                    f"{bot_str}{exception_type} in {func.__name__}",
+                    f"StefanCryptoTradingBot\n{exception_type} in {func.__name__}\n\n{str(e)}",
+                )
 
             if db_rollback:
                 from .. import db
