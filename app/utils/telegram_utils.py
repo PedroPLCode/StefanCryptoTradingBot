@@ -49,7 +49,7 @@ def send_telegram(chat_id: str, msg: str) -> bool:
 
 
 @exception_handler()
-def send_trade_telegram(msg: str) -> None:
+def filter_users_and_send_trade_telegrams(msg: str) -> None:
     """
     Sends a trade-related notification to all users with Telegram notifications enabled.
 
@@ -60,9 +60,9 @@ def send_trade_telegram(msg: str) -> None:
         Logs an error if the message fails to send.
     """
     with current_app.app_context():
-        users = User.query.filter_by(telegram_trades_receiver=True).all()
+        telegram_trades_receivers = User.query.filter_by(telegram_trades_receiver=True).all()
 
-        for user in users:
+        for user in telegram_trades_receivers:
             success = send_telegram(chat_id=user.telegram_chat_id, msg=msg)
             if not success:
                 logger.error(

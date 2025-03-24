@@ -8,8 +8,8 @@ from ..utils.logging import logger
 from typing import Optional
 from ..utils.exception_handlers import exception_handler
 from ..utils.bots_utils import suspend_after_negative_trade
-from ..utils.email_utils import send_trade_email
-from ..utils.telegram_utils import send_trade_telegram
+from ..utils.email_utils import filter_users_and_send_trade_emails
+from ..utils.telegram_utils import filter_users_and_send_trade_telegrams
 from ..utils.trades_utils import update_technical_analysis_data
 from .buy_signals import check_classic_ta_buy_signal
 from .sell_signals import check_classic_ta_sell_signal
@@ -362,10 +362,9 @@ def execute_buy_order(
             f"bot {bot_settings.id} {bot_settings.strategy} buy process completed."
         )
 
-        email_subject = f"Bot {bot_settings.id} execute_buy_order report."
-        email_message = f"StefanCryptoTradingBot\nexecute_buy_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_price}\nstop_loss_price: {stop_loss_price}\ntake_profit_price: {take_profit_price}\nbuy_timestamp: {formatted_now}\nbuy_success: {buy_success}\n\n-- \n\nStefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nFomoSapiensCryptoDipHunter\nhttps://fomo.ropeaccess.pro\n\nCodeCave\nhttps://cave.ropeaccess.pro\n"
-        telegram_message = f"StefanCryptoTradingBot\nexecute_buy_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_price}\nstop_loss_price: {stop_loss_price}\ntake_profit_price: {take_profit_price}\nbuy_timestamp: {formatted_now}\nbuy_success: {buy_success}"
-        send_trade_notification(email_subject, email_message, telegram_message)
+        trade_msg_subject = f"Bot {bot_settings.id} execute_buy_order report."
+        trade_msg_content = f"StefanCryptoTradingBot\nexecute_buy_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_price}\nstop_loss_price: {stop_loss_price}\ntake_profit_price: {take_profit_price}\nbuy_timestamp: {formatted_now}\nbuy_success: {buy_success}"
+        send_trade_notifications(trade_msg_subject, trade_msg_content)
 
 
 @exception_handler()
@@ -458,10 +457,9 @@ def execute_sell_order(
             f"bot {bot_settings.id} {bot_settings.strategy} sell process completed."
         )
 
-        email_subject = f"Bot {bot_settings.id} execute_sell_order report."
-        email_message = f"StefanCryptoTradingBot\nexecute_sell_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {trade_buy_price}\nsell_price: {current_price}\nstop_loss_price: {trade_stop_loss_price}\ntake_profit_price: {trade_take_profit_price}\nprice_rises_counter: {trade_price_rises_counter}\nstop_loss_activated: {stop_loss_activated}\ntake_profit_activated: {take_profit_activated}\ntrailing_take_profit_activated: {trade_trailing_take_profit_activated}\nbuy_timestamp: {trade_buy_timestamp}\nsell_timestamp: {formatted_now}\nsell_success: {sell_success}\n\n-- \n\nStefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nFomoSapiensCryptoDipHunter\nhttps://fomo.ropeaccess.pro\n\nCodeCave\nhttps://cave.ropeaccess.pro\n"
-        telegram_message = f"StefanCryptoTradingBot\nexecute_sell_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {trade_buy_price}\nsell_price: {current_price}\nstop_loss_price: {trade_stop_loss_price}\ntake_profit_price: {trade_take_profit_price}\nprice_rises_counter: {trade_price_rises_counter}\nstop_loss_activated: {stop_loss_activated}\ntake_profit_activated: {take_profit_activated}\ntrailing_take_profit_activated: {trade_trailing_take_profit_activated}\nbuy_timestamp: {trade_buy_timestamp}\nsell_timestamp: {formatted_now}\nsell_success: {sell_success}"
-        send_trade_notification(email_subject, email_message, telegram_message)
+        trade_msg_subject = f"Bot {bot_settings.id} execute_sell_order report."
+        trade_msg_content = f"StefanCryptoTradingBot\nexecute_sell_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {trade_buy_price}\nsell_price: {current_price}\nstop_loss_price: {trade_stop_loss_price}\ntake_profit_price: {trade_take_profit_price}\nprice_rises_counter: {trade_price_rises_counter}\nstop_loss_activated: {stop_loss_activated}\ntake_profit_activated: {take_profit_activated}\ntrailing_take_profit_activated: {trade_trailing_take_profit_activated}\nbuy_timestamp: {trade_buy_timestamp}\nsell_timestamp: {formatted_now}\nsell_success: {sell_success}"
+        send_trade_notifications(trade_msg_subject, trade_msg_content)
 
 
 @exception_handler()
@@ -519,10 +517,9 @@ def activate_trailing_take_profit(
         f"bot {bot_settings.id} {bot_settings.strategy} trailing take profit activated."
     )
 
-    email_subject = f"Bot {bot_settings.id} activate_trailing_take_profit report."
-    email_message = f"StefanCryptoTradingBot\nactivate_trailing_take_profit report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nTrailing take profit has been activated.\n\namount: {current_trade.amount}\nbuy_price: {current_trade.buy_price}\nbuy_timestamp: {current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S')}\ncurrent_price: {current_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}\n\n-- \n\nStefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nFomoSapiensCryptoDipHunter\nhttps://fomo.ropeaccess.pro\n\nCodeCave\nhttps://cave.ropeaccess.pro\n"
-    telegram_message = f"StefanCryptoTradingBot\nactivate_trailing_take_profit report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nTrailing take profit has been activated.\n\namount: {current_trade.amount}\nbuy_price: {current_trade.buy_price}\nbuy_timestamp: {current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S')}\ncurrent_price: {current_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}"
-    send_trade_notification(email_subject, email_message, telegram_message)
+    trade_msg_subject = f"Bot {bot_settings.id} activate_trailing_take_profit report."
+    trade_msg_content = f"StefanCryptoTradingBot\nactivate_trailing_take_profit report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nTrailing take profit has been activated.\n\namount: {current_trade.amount}\nbuy_price: {current_trade.buy_price}\nbuy_timestamp: {current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S')}\ncurrent_price: {current_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}"
+    send_trade_notifications(trade_msg_subject, trade_msg_content)
 
 
 @exception_handler()
@@ -749,30 +746,19 @@ def change_bot_settings(
 
 
 @exception_handler()
-def send_trade_notification(
-    email_subject: str, email_message: str, telegram_message: str
+def send_trade_notifications(
+    trade_msg_subject: str, trade_msg_content: str
 ) -> None:
     """
     Sends trade notifications via email and Telegram to users who have opted in.
 
     Args:
-        email_subject (str): The subject of the email to be sent.
-        email_message (str): The body of the email to be sent.
-        telegram_message (str): The message to be sent via Telegram.
+        email_subject (str): The subject of the message to be sent.
+        msg_content (str): The body of the message to be sent.
 
     Returns:
         None
     """
-    email_trades_receivers = User.query.filter(User.email_trades_receiver).all()
-    for user in email_trades_receivers:
-        if user.email:
-            send_trade_email(email_subject, email_message, user.email)
-        else:
-            logger.trade(f"Missing email addess for user {user.login}")
-
-    telegram_trades_receiver = User.query.filter(User.telegram_trades_receiver).all()
-    for user in telegram_trades_receiver:
-        if user.telegram_chat_id:
-            send_trade_telegram(user.telegram_chat_id, telegram_message)
-        else:
-            logger.trade(f"Missing telegram chat_id for user {user.login}")
+    filter_users_and_send_trade_telegrams(trade_msg_content)
+    trade_msg_content += "\n\n-- \n\nStefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nFomoSapiensCryptoDipHunter\nhttps://fomo.ropeaccess.pro\n\nCodeCave\nhttps://cave.ropeaccess.pro\n"
+    filter_users_and_send_trade_emails(trade_msg_subject, trade_msg_content)

@@ -69,7 +69,7 @@ def send_admin_email(subject: str, body: str) -> Any:
 
 
 @exception_handler()
-def send_trade_email(subject: str, body: str) -> Any:
+def filter_users_and_send_trade_emails(subject: str, body: str) -> Any:
     """
     Sends trade-related notifications via email.
 
@@ -85,8 +85,9 @@ def send_trade_email(subject: str, body: str) -> Any:
         Logs any exceptions encountered.
     """
     with current_app.app_context():
-        users = User.query.filter_by(email_trades_receiver=True).all()
-        for user in users:
+        email_trades_receivers = User.query.filter_by(email_trades_receiver=True).all()
+        
+        for user in email_trades_receivers:
             success = send_email(user.email, subject, body)
             if not success:
                 logger.error(
