@@ -363,7 +363,7 @@ def execute_buy_order(
         )
 
         trade_msg_subject = f"Bot {bot_settings.id} execute_buy_order report."
-        trade_msg_content = f"StefanCryptoTradingBot\nexecute_buy_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_price}\nstop_loss_price: {stop_loss_price}\ntake_profit_price: {take_profit_price}\nbuy_timestamp: {formatted_now}\nbuy_success: {buy_success}"
+        trade_msg_content = f"StefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nexecute_buy_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_price}\nstop_loss_price: {stop_loss_price}\ntake_profit_price: {take_profit_price}\nbuy_timestamp: {formatted_now}\nbuy_success: {buy_success}"
         send_trade_notifications(trade_msg_subject, trade_msg_content)
 
 
@@ -458,7 +458,7 @@ def execute_sell_order(
         )
 
         trade_msg_subject = f"Bot {bot_settings.id} execute_sell_order report."
-        trade_msg_content = f"StefanCryptoTradingBot\nexecute_sell_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {trade_buy_price}\nsell_price: {current_price}\nstop_loss_price: {trade_stop_loss_price}\ntake_profit_price: {trade_take_profit_price}\nprice_rises_counter: {trade_price_rises_counter}\nstop_loss_activated: {stop_loss_activated}\ntake_profit_activated: {take_profit_activated}\ntrailing_take_profit_activated: {trade_trailing_take_profit_activated}\nbuy_timestamp: {trade_buy_timestamp}\nsell_timestamp: {formatted_now}\nsell_success: {sell_success}"
+        trade_msg_content = f"StefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nexecute_sell_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {trade_buy_price}\nsell_price: {current_price}\nstop_loss_price: {trade_stop_loss_price}\ntake_profit_price: {trade_take_profit_price}\nprice_rises_counter: {trade_price_rises_counter}\nstop_loss_activated: {stop_loss_activated}\ntake_profit_activated: {take_profit_activated}\ntrailing_take_profit_activated: {trade_trailing_take_profit_activated}\nbuy_timestamp: {trade_buy_timestamp}\nsell_timestamp: {formatted_now}\nsell_success: {sell_success}"
         send_trade_notifications(trade_msg_subject, trade_msg_content)
 
 
@@ -518,7 +518,7 @@ def activate_trailing_take_profit(
     )
 
     trade_msg_subject = f"Bot {bot_settings.id} activate_trailing_take_profit report."
-    trade_msg_content = f"StefanCryptoTradingBot\nactivate_trailing_take_profit report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nTrailing take profit has been activated.\n\namount: {current_trade.amount}\nbuy_price: {current_trade.buy_price}\nbuy_timestamp: {current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S')}\ncurrent_price: {current_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}"
+    trade_msg_content = f"StefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nactivate_trailing_take_profit report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nTrailing take profit has been activated.\n\namount: {current_trade.amount}\nbuy_price: {current_trade.buy_price}\nbuy_timestamp: {current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S')}\ncurrent_price: {current_price}\nstop_loss_price: {current_trade.stop_loss_price}\ntake_profit_price: {current_trade.take_profit_price}\nprice_rises_counter: {current_trade.price_rises_counter}"
     send_trade_notifications(trade_msg_subject, trade_msg_content)
 
 
