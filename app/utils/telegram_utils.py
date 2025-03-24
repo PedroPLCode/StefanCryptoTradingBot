@@ -69,6 +69,6 @@ def filter_users_and_send_trade_telegrams(msg: str) -> None:
                     f"Failed to send trade info telegram to {user.email}. {msg}"
                 )
                 send_admin_email(
-                    f"Error in send_trade_telegram",
+                    f"Error in filter_users_and_send_trade_telegrams",
                     f"Failed to send trade info telegram to {user.email}",
                 )

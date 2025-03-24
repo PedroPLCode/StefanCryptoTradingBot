@@ -94,7 +94,7 @@ def filter_users_and_send_trade_emails(subject: str, body: str) -> Any:
                     f"Failed to send trade info email to {user.email}. {subject} {body}"
                 )
                 send_admin_email(
-                    f"Error in send_trade_email",
+                    f"Error in filter_users_and_send_trade_emails",
                     f"Failed to send trade info email to {user.email}",
                 )
 

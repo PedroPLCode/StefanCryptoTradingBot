@@ -5,7 +5,7 @@ from .. import db
 from app.models import BotSettings, User
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
-from ..utils.email_utils import send_admin_email, send_trade_email
+from ..utils.email_utils import send_admin_email, filter_users_and_send_trade_emails
 
 
 @exception_handler()
@@ -114,7 +114,7 @@ def is_bot_suspended(bot_settings: BotSettings) -> bool:
         now = dt.datetime.now()
         formatted_now = now.strftime("%Y-%m-%d %H:%M:%S")
         logger.info(f"Bot {bot_settings.id} suspension after negative trade finished.")
-        send_trade_email(
+        filter_users_and_send_trade_emails(
             f"Bot {bot_settings.id} suspend_after_negative_trade report.",
             f"StefanCryptoTradingBotBot\nsuspend_after_negative_trade report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nSuspension after negative trade finished.\nBot {bot_settings.id} is back in operation",
         )
@@ -143,7 +143,7 @@ def suspend_after_negative_trade(bot_settings: BotSettings) -> None:
     logger.info(
         f"Bot {bot_settings.id} suspended after negative trade. Cycles remaining: {bot_settings.cycles_of_suspension_after_negative_trade}."
     )
-    send_trade_email(
+    filter_users_and_send_trade_emails(
         f"Bot {bot_settings.id} suspend_after_negative_trade report.",
         f"StefanCryptoTradingBotBot\nsuspend_after_negative_trade report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\nBot {bot_settings.id} is suspended after negative trade.\nCycles of suspension: {bot_settings.cycles_of_suspension_after_negative_trade}\nCycles remaining: {bot_settings.cycles_of_suspension_after_negative_trade}",
     )
