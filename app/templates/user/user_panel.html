@@ -11,18 +11,32 @@
             <p class="text-muted m-0 p-0">Name: {{ user.name }}</p>
             <p class="text-muted m-0 p-0">Comment: {{ user.comment }}</p>
             <p class="text-muted m-0 p-0">Email: {{ user.email }}</p>
+            {% if user.telegram_chat_id %}
+                <p class="text-muted m-0 p-0">Telegram: {{ user.telegram_chat_id }}</p>
+            {% endif %}
+
             <p class="text-muted m-0 p-0">Control Panel Access: <span class="{{ 'text-success' if user.control_panel_access else 'text-danger' }}">{{ user.control_panel_access }}</span></p>
             <p class="text-muted m-0 p-0">Admin Panel Access: <span class="{{ 'text-success' if user.admin_panel_access else 'text-danger' }}">{{ user.admin_panel_access }}</span></p>
             <p class="text-muted m-0 p-0">Email Reports Receiver: <span class="{{ 'text-success' if user.email_raports_receiver else 'text-muted' }}">{{ user.email_raports_receiver }}</span></p>
-            <p class="text-muted m-0 p-0">Email Trades Receiver: <span class="{{ 'text-success' if user.email_trades_receiver else 'text-muted' }}">{{ user.email_trades_receiver }}</span></p>
-            <p class="text-muted m-0 p-0">Telegram Trades Receiver: <span class="{{ 'text-success' if user.telegram_trades_receiver else 'text-muted' }}">{{ user.telegram_trades_receiver }}</span></p>
+            
+            <p class="text-muted m-0 p-0">Trade Notifications: 
+                {% if user.email_trades_receiver %}Email{% endif %}
+                {% if user.email_trades_receiver and user.telegram_trades_receiver %}, {% endif %}
+                {% if user.telegram_trades_receiver %}Telegram{% endif %}
+                {% if not user.telegram_trades_receiver and not user.email_trades_receiver %}None{% endif %}
+            </p>            
+            
             <p class="text-muted m-0 p-0">Account Suspended: <span class="{{ 'text-success' if not user.account_suspended else 'text-danger' }}">{{ user.account_suspended }}</span></p>
+            <p class="text-muted m-0 p-0">Login Errors: <span class="{{ 'text-success' if user.login_errors == 0 else 'text-danger' }}">{{ user.login_errors }}</span></p>
 
             {% if account_status is not none %}
             <p class="text-muted m-0 p-0">Binance API canTrade: <span class="{{ 'text-success' if account_status.canTrade else 'text-danger' }}">{{ account_status.canTrade }}</span></p>
             <p class="text-muted m-0 p-0">Binance API canWithdraw: <span class="{{ 'text-success' if account_status.canWithdraw else 'text-danger' }}">{{ account_status.canWithdraw }}</span></p>
             <p class="text-muted m-0 p-0">Binance API canDeposit: <span class="{{ 'text-success' if account_status.canDeposit else 'text-danger' }}">{{ account_status.canDeposit }}</span></p>
             {% endif%}
+
+            <p class="text-muted m-0 p-0">Date joined: {{ user.creation_date }}</p>
+            <p class="text-muted m-0 p-0">Last login: {{ user.last_login }}</p>
 
         </div>
     </div>
