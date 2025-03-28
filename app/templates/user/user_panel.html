@@ -15,8 +15,8 @@
                 <p class="text-muted m-0 p-0">Telegram ChatID: {{ user.telegram_chat_id }}</p>
             {% endif %}
 
-            <p class="text-muted m-0 p-0 border-top">Control Panel Access: <span class="{{ 'text-success' if user.control_panel_access else 'text-danger' }}">{{ user.control_panel_access }}</span></p>
-            <p class="text-muted m-0 p-0">Admin Panel Access: <span class="{{ 'text-success' if user.admin_panel_access else 'text-danger' }}">{{ user.admin_panel_access }}</span></p>
+            <p class="text-muted m-0 p-0 border-top">Control Panel Access: <span class="{{ 'text-success' if user.control_panel_access else 'text-muted' }}">{{ user.control_panel_access }}</span></p>
+            <p class="text-muted m-0 p-0">Admin Panel Access: <span class="{{ 'text-success' if user.admin_panel_access else 'text-muted' }}">{{ user.admin_panel_access }}</span></p>
             <p class="text-muted m-0 p-0">Email Reports Receiver: <span class="{{ 'text-success' if user.email_raports_receiver else 'text-muted' }}">{{ user.email_raports_receiver }}</span></p>
             
             <p class="text-muted m-0 p-0 border-top">Trade Notifications: 
