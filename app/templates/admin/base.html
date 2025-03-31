@@ -53,8 +53,7 @@
                     <p class="text-dark nav navbar-nav navbar-right">{{ admin_view.admin.name }}</p>
                     <p class="text-dark nav navbar-nav navbar-right"> {{ date_and_time }}</p>
                     {% if current_user.is_authenticated %}
-                        <p class="text-dark nav navbar-nav navbar-right">logged in as 
-                            <a href="/">{{ current_user.login }}</a></p>
+                        <p class="text-dark nav navbar-nav navbar-right">logged in as <a href="/">{{ current_user.login }}</a></p>
                     {% endif %}
                 </div>
                 {% endblock %}
