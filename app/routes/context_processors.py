@@ -64,7 +64,7 @@ def inject_date_and_time():
     Returns:
         dict: A dictionary with the key 'date_and_time' pointing to the current date and time.
     """
-    return dict(date_and_time=dt.now())
+    return dict(date_and_time=dt.now().strftime('%Y-%m-%d %H:%M:%S'))
 
 
 @app.context_processor

@@ -51,10 +51,10 @@
                 {% block brand %}
                 <div class="mr-3">
                     <p class="text-dark nav navbar-nav navbar-right">{{ admin_view.admin.name }}</p>
+                    <p class="text-dark nav navbar-nav navbar-right"> {{ date_and_time }}</p>
                     {% if current_user.is_authenticated %}
-                        <p class="text-dark nav navbar-nav navbar-right">{{ current_user.email }}</p>
+                        <p class="text-dark nav navbar-nav navbar-right">Logged in as {{ current_user.login }}</p>
                     {% endif %}
-                        <p class="text-dark nav navbar-nav navbar-right"> {{ date_and_time }}</p>
                 </div>
                 {% endblock %}
         
