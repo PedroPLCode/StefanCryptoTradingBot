@@ -35,8 +35,8 @@
             <p class="text-muted m-0 p-0">Binance API canDeposit: <span class="{{ 'text-success' if account_status.canDeposit else 'text-danger' }}">{{ account_status.canDeposit }}</span></p>
             {% endif%}
 
-            <p class="text-muted m-0 p-0 border-top">Date joined: {{ user.creation_date }}</p>
-            <p class="text-muted m-0 p-0">Last login: {{ user.last_login }}</p>
+            <p class="text-muted m-0 p-0 border-top">Date joined: {{ user.creation_date.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            <p class="text-muted m-0 p-0">Last login: {{ user.last_login.strftime('%Y-%m-%d %H:%M:%S') }}</p>
 
         </div>
     </div>

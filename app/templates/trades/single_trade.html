@@ -6,11 +6,11 @@
     buy_price: ${{ '%.2f'|format(trade.buy_price) }} {{ trade.bot_settings.symbol[:-4] }}<br>
     sell_price: ${{ '%.2f'|format(trade.sell_price) }} {{ trade.bot_settings.symbol[:-4] }}<br>
     amount: {{ trade.amount }} {{ trade.bot_settings.symbol[:3] }}<br>
-    balance: {{ trade.stablecoin_balance }} USDC<br>
+    balance: {{ trade.stablecoin_balance | round(2) }} USDC<br>
     profit: {{ profit_percentage | round(2) }}%<br>
     stop_loss_activated: {{ trade.stop_loss_activated }}<br>
-    stop_loss_price: {{ trade.stop_loss_price }}<br>
+    stop_loss_price: {{ trade.stop_loss_price | round(2) }}<br>
     take_profit_activated: {{ trade.take_profit_activated }}<br>
     trailing_take_profit_activated: {{ trade.trailing_take_profit_activated }}<br>
-    take_profit_price: {{ trade.take_profit_price }}<br>
+    take_profit_price: {{ trade.take_profit_price | round(2) }}<br>
     price_rises_counter: {{ trade.price_rises_counter }}</p>
