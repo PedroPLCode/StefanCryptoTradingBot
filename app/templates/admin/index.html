@@ -9,7 +9,7 @@
                 <h5>Admin Panel</h5>
             </div>
             <div class="card-body text-center">
-                <p class='text-muted m-0 p-0'>User: {{ current_user.login }} logged in at {{ current_user.last_login }}</p>
+                <p class='text-muted m-0 p-0'>User: {{ current_user.login }} logged in at {{ current_user.last_login.strftime('%Y-%m-%d %H:%M:%S') }}</p>
                 <p class="text-muted m-0 p-0">System: {{ system_info }}</p>
                 <p class="text-muted m-0 p-0">Uptime: {{ system_uptime }}</p>
                 <p class="text-muted m-0 p-0">Python: {{ python_version }}</p>
