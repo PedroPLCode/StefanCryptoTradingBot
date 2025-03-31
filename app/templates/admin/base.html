@@ -49,11 +49,11 @@
             <!-- Navbar content -->
             <div class="collapse navbar-collapse" id="admin-navbar-collapse">
                 {% block brand %}
-                <div class="mr-3">
+                <div class="mr-3 d-flex flex-column justify-content-center align-items-center">
                     <p class="text-dark nav navbar-nav navbar-right">{{ admin_view.admin.name }}</p>
                     <p class="text-dark nav navbar-nav navbar-right"> {{ date_and_time }}</p>
                     {% if current_user.is_authenticated %}
-                        <p class="text-dark nav navbar-nav navbar-right">Logged in as {{ current_user.login }}</p>
+                        <p class="text-dark nav navbar-nav navbar-right">{{ current_user.login }} (logged in)</p>
                     {% endif %}
                 </div>
                 {% endblock %}
