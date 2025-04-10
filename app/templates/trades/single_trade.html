@@ -1,7 +1,7 @@
 <div class="accordion-item w-100">
     <div class="accordion-header w-100 d-flex justify-content-center" id="heading{{ trade.id }}">
         <button class="accordion-button collapsed text-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-trade-{{ bot_info.id }}-{{ trade.id }}" aria-expanded="false" aria-controls="collapse-trade-{{ bot_info.id }}-{{ trade.id }}">
-            <p class="{% if profit_percentage > 0 %}text-success{% elif profit_percentage < 0 %}text-danger{% else %}text-muted{% endif %} w-100 text-center m-0 p-0">{{ trade.sell_timestamp.strftime('%Y-%m-%d %H:%M:%S') }} profit: {{ profit_percentage }}%</p>
+            <p class="{% if profit_percentage > 0 %}text-success{% elif profit_percentage < 0 %}text-danger{% else %}text-muted{% endif %} w-100 text-center m-0 p-0">{{ trade.sell_timestamp.strftime('%Y-%m-%d %H:%M:%S') }}<br>Trade profit: {{ profit_percentage }}%</p>
         </button>
     </div>
     <div id="collapse-trade-{{ bot_info.id }}-{{ trade.id }}" class="accordion-collapse collapse" aria-labelledby="heading-trade-{{ bot_info.id }}-{{ trade.id }}">
