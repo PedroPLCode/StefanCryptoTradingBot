@@ -26,10 +26,15 @@
                     {% endif %}
 
                     <div class="accordion w-100" id="tradesAccordion{{ bot_info.id }}">
+                        {% set ns = namespace(total_profit=0) %}
                         {% for trade in bot_info.bot_trades_history %}
+                            {% set profit_percentage = ((trade.sell_price - trade.buy_price) / trade.buy_price * 100) | round(2) %}
+                            {% set ns.total_profit = ns.total_profit + profit_percentage %}
                             {% include 'trades/single_trade.html' %}
                         {% endfor %}
                     </div>
+
+                    <p class="mt-1 mb-1">Total Bot {{ bot_info.id }} Profit: <span class="{% if ns.total_profit > 0 %}text-success{% elif ns.total_profit < 0 %}text-danger{% else %}text-muted{% endif %}">{{ ns.total_profit | round(2) }}%</span></p>
                     
                 {% else %}
                     <p class="mb-1">List empty.<br>Boring...<br>Lets do some trades!</p>
