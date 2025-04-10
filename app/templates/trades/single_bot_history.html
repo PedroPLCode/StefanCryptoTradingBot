@@ -18,16 +18,18 @@
             </p>
             <p>Comment: {{ bot_info.comment }}</p>
             <p>{{ bot_info.days_period_to_clean_history }} days period</p>
-            <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+            <div class="w-100 d-flex flex-column justify-content-center align-items-center gap-2">
                 {% if bot_info.bot_trades_history %}
 
                     {% if bot_info.plot_url %}
                     <img src="data:image/png;base64,{{ bot_info.plot_url }}" alt="Account balance" style="max-width: 100%; height: auto; max-height: 300px;">
                     {% endif %}
 
-                    {% for trade in bot_info.bot_trades_history %}
-                        {% include 'trades/single_trade.html' %}
-                    {% endfor %}
+                    <div class="accordion w-100" id="tradesAccordion{{ bot_info.id }}">
+                        {% for trade in bot_info.bot_trades_history %}
+                            {% include 'trades/single_trade.html' %}
+                        {% endfor %}
+                    </div>
                     
                 {% else %}
                     <p class="mb-1">List empty.<br>Boring...<br>Lets do some trades!</p>
