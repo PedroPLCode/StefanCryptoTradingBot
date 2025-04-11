@@ -76,112 +76,150 @@
                 </p>
             {% endfor %}
 
+            <div class="accordion w-100" id="settingsAccordion{{ bot_info.id }}-0">
+                <div class="accordion-item w-100">
+                    <div class="accordion-header w-100 d-flex justify-content-center" id="heading{{ bot_info.id }}-0">
+                        <button class="accordion-button collapsed text-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-settings-{{ bot_info.id }}-0" aria-expanded="false" aria-controls="collapse-settings-{{ bot_info.id }}-0">
+                            <p class="w-100 text-muted text-center m-0 p-0">Stop Loss & Take Profit Settings</p>
+                        </button>
+                    </div>
+                    <div id="collapse-settings-{{ bot_info.id }}-0" class="accordion-collapse collapse" aria-labelledby="heading-settings-{{ bot_info.id }}-0">
+                        <div class="accordion-body">
+                            <p class="text-muted m-0 p-0">Stop Loss Enabled: <span class="{{ 'text-success' if bot_info.use_stop_loss else 'text-danger' }}">{{ bot_info.use_stop_loss }}</span></p>
+                            <p class="text-muted m-0 p-0">Trailing Stop Loss Enabled: <span class="{{ 'text-success' if bot_info.use_trailing_stop_loss else 'text-muted' }}">{{ bot_info.use_trailing_stop_loss }}</span></p>
+                            <p class="text-muted m-0 p-0">Stop Loss pct: {{ bot_info.stop_loss_pct }}%</p>
+                            <p class="text-muted m-0 p-0">ATR Trailing Stop Loss: <span class="{{ 'text-success' if bot_info.trailing_stop_with_atr else 'text-muted' }}">{{ bot_info.trailing_stop_with_atr }}</span></p>
+                            <p class="text-muted m-0 p-0 border-bottom">ATR Trailing Stop Multiplicator: {{ bot_info.trailing_stop_atr_calc }}</p>
+
+                            <p class="text-muted m-0 p-0">Take Profit Enabled: <span class="{{ 'text-success' if bot_info.use_take_profit else 'text-muted' }}">{{ bot_info.use_take_profit }}</span></p>
+                            <p class="text-muted m-0 p-0">Trailing Take Profit Enabled: <span class="{{ 'text-success' if bot_info.use_trailing_take_profit else 'text-muted' }}">{{ bot_info.use_trailing_take_profit }}</span></p>
+                            <p class="text-muted m-0 p-0">Take Profit pct: {{ bot_info.take_profit_pct }}%</p>
+                            <p class="text-muted m-0 p-0">ATR Take Profit: <span class="{{ 'text-success' if bot_info.take_profit_with_atr else 'text-muted' }}">{{ bot_info.take_profit_with_atr }}</span></p>
+                            <p class="text-muted m-0 p-0 border-bottom">ATR Take Profit Multiplicator: {{ bot_info.take_profit_atr_calc }}</p>
+
+                            <p class="text-muted m-0 p-0">Sell signal only Stop Loss / Take Profit: {{ bot_info.sell_signal_only_stop_loss_or_take_profit }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {% if bot_info.use_machine_learning %}
-            
-                <p class="text-muted m-0 p-0 border-bottom">Machine Learning Trade Signals:</p>
 
-                <p class="text-muted m-0 p-0 border-bottom">General Timeperiod: {{ bot_info.ml_general_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">MACD Timeperiod: {{ bot_info.ml_macd_timeperiod }}</p>
-                <p class="text-muted m-0 p-0 border-bottom">MACD signal Timeperiod: {{ bot_info.ml_macd_signal_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">Bollinger Timeperiod: {{ bot_info.ml_bollinger_timeperiod }}</p>
-                <p class="text-muted m-0 p-0 border-bottom">Bollinger nbdev: {{ bot_info.ml_bollinger_nbdev }}</p>
-                <p class="text-muted m-0 p-0">EMA Fast Timeperiod: {{ bot_info.ml_ema_fast_timeperiod }}</p>
-                <p class="text-muted m-0 p-0 border-bottom">EMA Slow Timeperiod: {{ bot_info.ml_ema_slow_timeperiod }}</p>
-                
-                <p class="text-muted m-0 p-0">RSI buy value: {{ bot_info.ml_rsi_buy }}</p>
-                <p class="text-muted m-0 p-0 border-bottom">RSI sell value: {{ bot_info.ml_rsi_sell }}</p>
+            <div class="accordion w-100" id="mlAccordion{{ bot_info.id }}-2">
+                <div class="accordion-item w-100">
+                    <div class="accordion-header w-100 d-flex justify-content-center" id="heading{{ bot_info.id }}-2">
+                        <button class="accordion-button collapsed text-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-ml-{{ bot_info.id }}-2" aria-expanded="false" aria-controls="collapse-ml-{{ bot_info.id }}-2">
+                            <p class="w-100 text-muted text-center m-0 p-0">Machine Learning Settings</p>
+                        </button>
+                    </div>
+                    <div id="collapse-ml-{{ bot_info.id }}-2" class="accordion-collapse collapse" aria-labelledby="heading-ml-{{ bot_info.id }}-2">
+                        <div class="accordion-body">
+                            <p class="text-muted m-0 p-0 border-bottom">Machine Learning Trade Signals:</p>
+                            <p class="text-muted m-0 p-0 border-bottom">General Timeperiod: {{ bot_info.ml_general_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">MACD Timeperiod: {{ bot_info.ml_macd_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0 border-bottom">MACD signal Timeperiod: {{ bot_info.ml_macd_signal_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">Bollinger Timeperiod: {{ bot_info.ml_bollinger_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0 border-bottom">Bollinger nbdev: {{ bot_info.ml_bollinger_nbdev }}</p>
+                            <p class="text-muted m-0 p-0">EMA Fast Timeperiod: {{ bot_info.ml_ema_fast_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0 border-bottom">EMA Slow Timeperiod: {{ bot_info.ml_ema_slow_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">RSI buy value: {{ bot_info.ml_rsi_buy }}</p>
+                            <p class="text-muted m-0 p-0 border-bottom">RSI sell value: {{ bot_info.ml_rsi_sell }}</p>
+                            <p class="text-muted m-0 p-0 border-bottom">Lag Calc Period: {{ bot_info.ml_lag_period }}</p>
 
-                <p class="text-muted m-0 p-0 border-bottom">Lag Calc Period: {{ bot_info.ml_lag_period }}</p>
+                            <p class="text-muted m-0 p-0">Use ScikitLearn.RandomForestRegressor: <span class="{{ 'text-success' if bot_info.ml_use_random_forest_model else 'text-muted' }}">{{ bot_info.ml_use_random_forest_model }}</span></p>
+                            <p class="text-muted m-0 p-0">Use XGBoost.XGBRegressor: <span class="{{ 'text-success' if bot_info.ml_use_xgboost_model else 'text-muted' }}">{{ bot_info.ml_use_xgboost_model }}</span></p>
+                            <p class="text-muted m-0 p-0 border-bottom">Use Keras.LSTM: <span class="{{ 'text-success' if bot_info.ml_use_lstm_model else 'text-muted' }}">{{ bot_info.ml_use_lstm_model }}</span></p>
+                            
+                            {% if bot_info.ml_use_random_forest_model %}
+                                <p class="text-muted m-0 p-0">Avg Last Predictions: {{ bot_info.ml_random_forest_predictions_avg}}</p>
+                                <p class="text-muted m-0 p-0">Model Filename: {{ bot_info.ml_random_forest_model_filename }}</p>
+                                <p class="text-muted m-0 p-0">Buy Trigger pct: {{ bot_info.ml_random_forest_buy_trigger_pct }}</p>
+                                <p class="text-muted m-0 p-0">Sell Trigger pct: {{ bot_info.ml_random_forest_sell_trigger_pct }}</p>
+                            {% endif %}
 
-                <p class="text-muted m-0 p-0 {{ '' if bot_info.ml_use_random_forest_model else 'border-bottom' }}">Use ScikitLearn.RandomForestRegressor: <span class="{{ 'text-success' if bot_info.ml_use_random_forest_model else 'text-danger' }}">{{ bot_info.ml_use_random_forest_model }}</span></p>
-                {% if bot_info.ml_use_random_forest_model %}
-                    <p class="text-muted m-0 p-0">Avg Last Predictions: {{ bot_info.ml_random_forest_predictions_avg}}</p>
-                    <p class="text-muted m-0 p-0">Model Filename: {{ bot_info.ml_random_forest_model_filename }}</p>
-                    <p class="text-muted m-0 p-0">Buy Trigger pct: {{ bot_info.ml_random_forest_buy_trigger_pct }}</p>
-                    <p class="text-muted m-0 p-0 border-bottom">Sell Trigger pct: {{ bot_info.ml_random_forest_sell_trigger_pct }}</p>
-                {% endif %}
+                            {% if bot_info.ml_use_xgboost_model %}
+                                <p class="text-muted m-0 p-0">Avg Last Predictions: {{ bot_info.ml_xgboost_predictions_avg }}</p>
+                                <p class="text-muted m-0 p-0">Model Filename: {{ bot_info.ml_xgboost_model_filename }}</p>
+                                <p class="text-muted m-0 p-0">Buy Trigger pct: {{ bot_info.ml_xgboost_buy_trigger_pct }}</p>
+                                <p class="text-muted m-0 p-0">Sell Trigger pct: {{ bot_info.ml_xgboost_sell_trigger_pct }}</p>
+                            {% endif %}
 
-                <p class="text-muted m-0 p-0 {{ '' if bot_info.ml_use_xgboost_model else 'border-bottom' }}">Use XGBoost.XGBRegressor: <span class="{{ 'text-success' if bot_info.ml_use_xgboost_model else 'text-danger' }}">{{ bot_info.ml_use_xgboost_model }}</span></p>
-                {% if bot_info.ml_use_xgboost_model %}
-                    <p class="text-muted m-0 p-0">Avg Last Predictions: {{ bot_info.ml_xgboost_predictions_avg }}</p>
-                    <p class="text-muted m-0 p-0">Model Filename: {{ bot_info.ml_xgboost_model_filename }}</p>
-                    <p class="text-muted m-0 p-0">Buy Trigger pct: {{ bot_info.ml_xgboost_buy_trigger_pct }}</p>
-                    <p class="text-muted m-0 p-0 border-bottom">Sell Trigger pct: {{ bot_info.ml_xgboost_sell_trigger_pct }}</p>
-                {% endif %}
+                            {% if bot_info.ml_use_lstm_model %}
+                                <p class="text-muted m-0 p-0">Window Size: {{ bot_info.ml_lstm_window_size }}</p>
+                                <p class="text-muted m-0 p-0">Window Loopback: {{ bot_info.ml_lstm_window_lookback }}</p>
+                                <p class="text-muted m-0 p-0">Avg Last Predictions: {{ bot_info.ml_lstm_predictions_avg }}</p>
+                                <p class="text-muted m-0 p-0">Model Filename: {{ bot_info.ml_lstm_model_filename }}</p>
+                                <p class="text-muted m-0 p-0">Buy Trigger pct: {{ bot_info.ml_lstm_buy_trigger_pct }}</p>
+                                <p class="text-muted m-0 p-0">Sell Trigger pct: {{ bot_info.ml_lstm_sell_trigger_pct }}</p>
+                            {% endif %}
 
-                <p class="text-muted m-0 p-0 {{ '' if bot_info.ml_use_lstm_model else 'border-bottom' }}">Use Keras.LSTM: <span class="{{ 'text-success' if bot_info.ml_use_lstm_model else 'text-danger' }}">{{ bot_info.ml_use_lstm_model }}</span></p>
-                {% if bot_info.ml_use_lstm_model %}
-                    <p class="text-muted m-0 p-0">Window Size: {{ bot_info.ml_lstm_window_size }}</p>
-                    <p class="text-muted m-0 p-0">Window Loopback: {{ bot_info.ml_lstm_window_lookback }}</p>
-                    <p class="text-muted m-0 p-0">Avg Last Predictions: {{ bot_info.ml_lstm_predictions_avg }}</p>
-                    <p class="text-muted m-0 p-0">Model Filename: {{ bot_info.ml_lstm_model_filename }}</p>
-                    <p class="text-muted m-0 p-0">Buy Trigger pct: {{ bot_info.ml_lstm_buy_trigger_pct }}</p>
-                    <p class="text-muted m-0 p-0 border-bottom">Sell Trigger pct: {{ bot_info.ml_lstm_sell_trigger_pct }}</p>
-                {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {% endif %}
-            
-            <p class="text-muted m-0 p-0">Stop Loss Enabled: <span class="{{ 'text-success' if bot_info.use_stop_loss else 'text-danger' }}">{{ bot_info.use_stop_loss }}</span></p>
-            <p class="text-muted m-0 p-0">Trailing Stop Loss Enabled: <span class="{{ 'text-success' if bot_info.use_trailing_stop_loss else 'text-muted' }}">{{ bot_info.use_trailing_stop_loss }}</span></p>
-            <p class="text-muted m-0 p-0">Stop Loss pct: {{ bot_info.stop_loss_pct }}%</p>
-            <p class="text-muted m-0 p-0">ATR Trailing Stop Loss: <span class="{{ 'text-success' if bot_info.trailing_stop_with_atr else 'text-muted' }}">{{ bot_info.trailing_stop_with_atr }}</span></p>
-            <p class="text-muted m-0 p-0 border-bottom">ATR Trailing Stop Multiplicator: {{ bot_info.trailing_stop_atr_calc }}</p>
-
-            <p class="text-muted m-0 p-0">Take Profit Enabled: <span class="{{ 'text-success' if bot_info.use_take_profit else 'text-muted' }}">{{ bot_info.use_take_profit }}</span></p>
-            <p class="text-muted m-0 p-0">Trailing Take Profit Enabled: <span class="{{ 'text-success' if bot_info.use_trailing_take_profit else 'text-muted' }}">{{ bot_info.use_trailing_take_profit }}</span></p>
-            <p class="text-muted m-0 p-0">Take Profit pct: {{ bot_info.take_profit_pct }}%</p>
-            <p class="text-muted m-0 p-0">ATR Take Profit: <span class="{{ 'text-success' if bot_info.take_profit_with_atr else 'text-muted' }}">{{ bot_info.take_profit_with_atr }}</span></p>
-            <p class="text-muted m-0 p-0 border-bottom">ATR Take Profit Multiplicator: {{ bot_info.take_profit_atr_calc }}</p>
-
-            <p class="text-muted m-0 p-0 border-bottom">Sell signal only Stop Loss / Take Profit: {{ bot_info.sell_signal_only_stop_loss_or_take_profit }}</p>
 
             {% if bot_info.use_technical_analysis %}
 
-                <p class="text-muted m-0 p-0">General Time Period: {{ bot_info.general_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">DI Time Period: {{ bot_info.di_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">ADX Time Period: {{ bot_info.adx_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">RSI Time Period: {{ bot_info.rsi_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">ATR Time Period: {{ bot_info.atr_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">CCI Time Period: {{ bot_info.cci_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">MFI Time Period: {{ bot_info.mfi_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">MACD Time Period: {{ bot_info.macd_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">MACD Signal Time Period: {{ bot_info.macd_signalperiod }}</p>
-                <p class="text-muted m-0 p-0">Bollinger Time Period: {{ bot_info.bollinger_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">Bollinger nbdev Time Period: {{ bot_info.bollinger_nbdev }}</p>
-                <p class="text-muted m-0 p-0">Stochastic K Time Period: {{ bot_info.stoch_k_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">Stochastic D Time Period: {{ bot_info.stoch_d_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">Stochastic RSI Time Period: {{ bot_info.stoch_rsi_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">Stochastic RSI K Time Period: {{ bot_info.stoch_rsi_k_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">Stochastic RSI D Time Period: {{ bot_info.stoch_rsi_d_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">EMA Fast Time Period: {{ bot_info.ema_fast_timeperiod }}</p>
-                <p class="text-muted m-0 p-0 border-bottom">EMA Slow Time Period: {{ bot_info.ema_slow_timeperiod }}</p>
-                <p class="text-muted m-0 p-0">Parabolic SAR Acceleration: {{ bot_info.psar_acceleration }}</p>
-                <p class="text-muted m-0 p-0 border-bottom">Parabolic SAR Maximum: {{ bot_info.psar_maximum }}</p>
+            <div class="accordion w-100" id="taAccordion{{ bot_info.id }}-1">
+                <div class="accordion-item w-100">
+                    <div class="accordion-header w-100 d-flex justify-content-center" id="heading{{ bot_info.id }}-1">
+                        <button class="accordion-button collapsed text-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-ta-{{ bot_info.id }}-1" aria-expanded="false" aria-controls="collapse-ta-{{ bot_info.id }}-1">
+                            <p class="w-100 text-muted text-center m-0 p-0">Technical Analysis Settings</p>
+                        </button>
+                    </div>
+                    <div id="collapse-ta-{{ bot_info.id }}-1" class="accordion-collapse collapse" aria-labelledby="heading-ta-{{ bot_info.id }}-1">
+                        <div class="accordion-body">
+                            <p class="text-muted m-0 p-0">General Time Period: {{ bot_info.general_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">DI Time Period: {{ bot_info.di_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">ADX Time Period: {{ bot_info.adx_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">RSI Time Period: {{ bot_info.rsi_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">ATR Time Period: {{ bot_info.atr_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">CCI Time Period: {{ bot_info.cci_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">MFI Time Period: {{ bot_info.mfi_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">MACD Time Period: {{ bot_info.macd_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">MACD Signal Time Period: {{ bot_info.macd_signalperiod }}</p>
+                            <p class="text-muted m-0 p-0">Bollinger Time Period: {{ bot_info.bollinger_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">Bollinger nbdev Time Period: {{ bot_info.bollinger_nbdev }}</p>
+                            <p class="text-muted m-0 p-0">Stochastic K Time Period: {{ bot_info.stoch_k_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">Stochastic D Time Period: {{ bot_info.stoch_d_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">Stochastic RSI Time Period: {{ bot_info.stoch_rsi_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">Stochastic RSI K Time Period: {{ bot_info.stoch_rsi_k_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">Stochastic RSI D Time Period: {{ bot_info.stoch_rsi_d_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">EMA Fast Time Period: {{ bot_info.ema_fast_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0 border-bottom">EMA Slow Time Period: {{ bot_info.ema_slow_timeperiod }}</p>
+                            <p class="text-muted m-0 p-0">Parabolic SAR Acceleration: {{ bot_info.psar_acceleration }}</p>
+                            <p class="text-muted m-0 p-0 border-bottom">Parabolic SAR Maximum: {{ bot_info.psar_maximum }}</p>
 
-                <p class="text-muted m-0 p-0">CCI Settings: buy {{ bot_info.cci_buy }} / sell {{ bot_info.cci_sell }}</p>
-                <p class="text-muted m-0 p-0">RSI Settings: buy {{ bot_info.rsi_buy }} / sell {{ bot_info.rsi_sell }}</p>
-                <p class="text-muted m-0 p-0">MFI Settings: buy {{ bot_info.mfi_buy }} / sell {{ bot_info.mfi_sell }}</p>
-                <p class="text-muted m-0 p-0">Stochastic Settings: buy {{ bot_info.stoch_buy }} / sell {{ bot_info.stoch_sell }}</p>
-                <p class="text-muted m-0 p-0 border-bottom">ATR buy treshold: {{ bot_info.atr_buy_treshold }}</p>
-                
-                <p class="text-muted m-0 p-0">Avg Volume Period: {{ bot_info.avg_volume_period }}</p>
-                <p class="text-muted m-0 p-0">Avg Close Period: {{ bot_info.avg_close_period }}</p>
-                <p class="text-muted m-0 p-0">Avg RSI Period: {{ bot_info.avg_rsi_period }}</p>
-                <p class="text-muted m-0 p-0">Avg CCI Period: {{ bot_info.avg_cci_period }}</p>
-                <p class="text-muted m-0 p-0">Avg MFI Period: {{ bot_info.avg_mfi_period }}</p>
-                <p class="text-muted m-0 p-0">Avg Stoch Period: {{ bot_info.avg_stoch_period }}</p>
-                <p class="text-muted m-0 p-0">Avg StochRSI Period: {{ bot_info.avg_stoch_rsi_period }}</p>
-                <p class="text-muted m-0 p-0">Avg MACD Period: {{ bot_info.avg_macd_period }}</p>
-                <p class="text-muted m-0 p-0">Avg EMA Period: {{ bot_info.avg_ema_period }}</p>
-                <p class="text-muted m-0 p-0">Avg ADX Period: {{ bot_info.avg_adx_period }}</p>
-                <p class="text-muted m-0 p-0">Avg ATR Period: {{ bot_info.avg_atr_period }}</p>
-                <p class="text-muted m-0 p-0">Avg PSAR Period: {{ bot_info.avg_psar_period }}</p>
-                <p class="text-muted m-0 p-0">Avg VWAP Period: {{ bot_info.avg_vwap_period }}</p>
-                <p class="text-muted m-0 p-0 border-bottom">Avg DI Period: {{ bot_info.avg_di_period }}</p>
+                            <p class="text-muted m-0 p-0">CCI Settings: buy {{ bot_info.cci_buy }} / sell {{ bot_info.cci_sell }}</p>
+                            <p class="text-muted m-0 p-0">RSI Settings: buy {{ bot_info.rsi_buy }} / sell {{ bot_info.rsi_sell }}</p>
+                            <p class="text-muted m-0 p-0">MFI Settings: buy {{ bot_info.mfi_buy }} / sell {{ bot_info.mfi_sell }}</p>
+                            <p class="text-muted m-0 p-0">Stochastic Settings: buy {{ bot_info.stoch_buy }} / sell {{ bot_info.stoch_sell }}</p>
+                            <p class="text-muted m-0 p-0 border-bottom">ATR buy treshold: {{ bot_info.atr_buy_treshold }}</p>
+                            
+                            <p class="text-muted m-0 p-0">Avg Volume Period: {{ bot_info.avg_volume_period }}</p>
+                            <p class="text-muted m-0 p-0">Avg Close Period: {{ bot_info.avg_close_period }}</p>
+                            <p class="text-muted m-0 p-0">Avg RSI Period: {{ bot_info.avg_rsi_period }}</p>
+                            <p class="text-muted m-0 p-0">Avg CCI Period: {{ bot_info.avg_cci_period }}</p>
+                            <p class="text-muted m-0 p-0">Avg MFI Period: {{ bot_info.avg_mfi_period }}</p>
+                            <p class="text-muted m-0 p-0">Avg Stoch Period: {{ bot_info.avg_stoch_period }}</p>
+                            <p class="text-muted m-0 p-0">Avg StochRSI Period: {{ bot_info.avg_stoch_rsi_period }}</p>
+                            <p class="text-muted m-0 p-0">Avg MACD Period: {{ bot_info.avg_macd_period }}</p>
+                            <p class="text-muted m-0 p-0">Avg EMA Period: {{ bot_info.avg_ema_period }}</p>
+                            <p class="text-muted m-0 p-0">Avg ADX Period: {{ bot_info.avg_adx_period }}</p>
+                            <p class="text-muted m-0 p-0">Avg ATR Period: {{ bot_info.avg_atr_period }}</p>
+                            <p class="text-muted m-0 p-0">Avg PSAR Period: {{ bot_info.avg_psar_period }}</p>
+                            <p class="text-muted m-0 p-0">Avg VWAP Period: {{ bot_info.avg_vwap_period }}</p>
+                            <p class="text-muted m-0 p-0 border-bottom">Avg DI Period: {{ bot_info.avg_di_period }}</p>
 
-                <p class="text-muted m-0 p-0">ADX Strong Trend: {{ bot_info.adx_strong_trend }}</p>
-                <p class="text-muted m-0 p-0">ADX Weak Trend: {{ bot_info.adx_weak_trend }}</p>
-                <p class="text-muted m-0 p-0 border-bottom">ADX No Trend: {{ bot_info.adx_no_trend }}</p>
+                            <p class="text-muted m-0 p-0">ADX Strong Trend: {{ bot_info.adx_strong_trend }}</p>
+                            <p class="text-muted m-0 p-0">ADX Weak Trend: {{ bot_info.adx_weak_trend }}</p>
+                            <p class="text-muted m-0 p-0">ADX No Trend: {{ bot_info.adx_no_trend }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {% endif %}
 
