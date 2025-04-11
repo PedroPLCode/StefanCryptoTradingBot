@@ -76,6 +76,24 @@
                 </p>
             {% endfor %}
 
+            <p class="text-muted m-0 p-0 {{ 'border-bottom' if not bot_info.bot_current_trade.is_active else '' }}">Current Trade Active: <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{{ bot_info.bot_current_trade.is_active }}</span></p>
+            {% if bot_info.bot_current_trade.is_active %}
+                <p class="text-muted m-0 p-0 border-bottom">buy_timestamp: {{ bot_info.bot_current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S') }}<br>amount: {{ bot_info.bot_current_trade.amount }}<br>buy_price: {{ bot_info.bot_current_trade.buy_price | round(2) }}<br>current_price: {{ bot_info.bot_current_trade.current_price | round(2) }}<br>stop_loss_price: {{ bot_info.bot_current_trade.stop_loss_price | round(2) }}<br>take_profit_price: {{ bot_info.bot_current_trade.take_profit_price | round(2) }}<br>trailing_take_profit_activated: {{ bot_info.bot_current_trade.trailing_take_profit_activated }}<br>price_rises_counter: {{ bot_info.bot_current_trade.price_rises_counter }}</p>
+            {% endif %}
+
+            <p class="text-muted m-0 p-0 {{ 'border-bottom' if not bot_info.use_suspension_after_negative_trade }}">Use suspension after negative trade: <span class="{{ 'text-danger' if bot_info.use_suspension_after_negative_trade else 'text-muted' }}">{{ bot_info.use_suspension_after_negative_trade }}</span></p>
+            {% if bot_info.use_suspension_after_negative_trade %}
+                <p class="text-muted m-0 p-0">is_suspended_after_negative_trade: <span class="{{ 'text-danger' if bot_info.is_suspended_after_negative_trade else 'text-success' }}">{{ bot_info.is_suspended_after_negative_trade }}</span></p>
+                <p class="text-muted m-0 p-0">cycles_of_suspension_after_negative_trade: {{ bot_info.cycles_of_suspension_after_negative_trade }}</p>
+                {% if bot_info.is_suspended_after_negative_trade %}
+                    <p class="text-muted m-0 p-0 border-bottom">suspension_cycles_remaining: {{ bot_info.suspension_cycles_remaining }}</p>
+                {% endif %}
+            {% endif %}
+
+            <p class="text-muted m-0 p-0">Bot Running: <span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{{ bot_info.bot_running }}</span></p>
+            <p class="text-muted m-0 p-0">Trades Count: {{ bot_info.bot_trades_history|length }}</p>
+            <p class="text-muted m-0 p-0">Days to clean history: {{ bot_info.days_period_to_clean_history }}</p>
+
             <div class="accordion w-100" id="settingsAccordion{{ bot_info.id }}-0">
                 <div class="accordion-item w-100">
                     <div class="accordion-header w-100 d-flex justify-content-center" id="heading{{ bot_info.id }}-0">
@@ -97,7 +115,7 @@
                             <p class="text-muted m-0 p-0">ATR Take Profit: <span class="{{ 'text-success' if bot_info.take_profit_with_atr else 'text-muted' }}">{{ bot_info.take_profit_with_atr }}</span></p>
                             <p class="text-muted m-0 p-0 border-bottom">ATR Take Profit Multiplicator: {{ bot_info.take_profit_atr_calc }}</p>
 
-                            <p class="text-muted m-0 p-0">Sell signal only Stop Loss / Take Profit: {{ bot_info.sell_signal_only_stop_loss_or_take_profit }}</p>
+                            <p class="text-muted m-0 p-0">Sell signal only SL / TP: {{ bot_info.sell_signal_only_stop_loss_or_take_profit }}</p>
                         </div>
                     </div>
                 </div>
@@ -126,9 +144,9 @@
                             <p class="text-muted m-0 p-0 border-bottom">RSI sell value: {{ bot_info.ml_rsi_sell }}</p>
                             <p class="text-muted m-0 p-0 border-bottom">Lag Calc Period: {{ bot_info.ml_lag_period }}</p>
 
-                            <p class="text-muted m-0 p-0">Use ScikitLearn.RandomForestRegressor: <span class="{{ 'text-success' if bot_info.ml_use_random_forest_model else 'text-muted' }}">{{ bot_info.ml_use_random_forest_model }}</span></p>
-                            <p class="text-muted m-0 p-0">Use XGBoost.XGBRegressor: <span class="{{ 'text-success' if bot_info.ml_use_xgboost_model else 'text-muted' }}">{{ bot_info.ml_use_xgboost_model }}</span></p>
-                            <p class="text-muted m-0 p-0 border-bottom">Use Keras.LSTM: <span class="{{ 'text-success' if bot_info.ml_use_lstm_model else 'text-muted' }}">{{ bot_info.ml_use_lstm_model }}</span></p>
+                            <p class="text-muted m-0 p-0">Use RandomForestRegressor: <span class="{{ 'text-success' if bot_info.ml_use_random_forest_model else 'text-muted' }}">{{ bot_info.ml_use_random_forest_model }}</span></p>
+                            <p class="text-muted m-0 p-0">Use XGBRegressor: <span class="{{ 'text-success' if bot_info.ml_use_xgboost_model else 'text-muted' }}">{{ bot_info.ml_use_xgboost_model }}</span></p>
+                            <p class="text-muted m-0 p-0 border-bottom">Use LSTM: <span class="{{ 'text-success' if bot_info.ml_use_lstm_model else 'text-muted' }}">{{ bot_info.ml_use_lstm_model }}</span></p>
                             
                             {% if bot_info.ml_use_random_forest_model %}
                                 <p class="text-muted m-0 p-0">Avg Last Predictions: {{ bot_info.ml_random_forest_predictions_avg}}</p>
@@ -195,7 +213,7 @@
                             <p class="text-muted m-0 p-0">CCI Settings: buy {{ bot_info.cci_buy }} / sell {{ bot_info.cci_sell }}</p>
                             <p class="text-muted m-0 p-0">RSI Settings: buy {{ bot_info.rsi_buy }} / sell {{ bot_info.rsi_sell }}</p>
                             <p class="text-muted m-0 p-0">MFI Settings: buy {{ bot_info.mfi_buy }} / sell {{ bot_info.mfi_sell }}</p>
-                            <p class="text-muted m-0 p-0">Stochastic Settings: buy {{ bot_info.stoch_buy }} / sell {{ bot_info.stoch_sell }}</p>
+                            <p class="text-muted m-0 p-0">Stochastic: buy {{ bot_info.stoch_buy }} / sell {{ bot_info.stoch_sell }}</p>
                             <p class="text-muted m-0 p-0 border-bottom">ATR buy treshold: {{ bot_info.atr_buy_treshold }}</p>
                             
                             <p class="text-muted m-0 p-0">Avg Volume Period: {{ bot_info.avg_volume_period }}</p>
@@ -222,24 +240,6 @@
             </div>
 
             {% endif %}
-
-            <p class="text-muted m-0 p-0 {{ 'border-bottom' if not bot_info.bot_current_trade.is_active else '' }}">Current Trade Active: <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{{ bot_info.bot_current_trade.is_active }}</span></p>
-            {% if bot_info.bot_current_trade.is_active %}
-                <p class="text-muted m-0 p-0 border-bottom">buy_timestamp: {{ bot_info.bot_current_trade.buy_timestamp.strftime('%Y-%m-%d %H:%M:%S') }}<br>amount: {{ bot_info.bot_current_trade.amount }}<br>buy_price: {{ bot_info.bot_current_trade.buy_price | round(2) }}<br>current_price: {{ bot_info.bot_current_trade.current_price | round(2) }}<br>stop_loss_price: {{ bot_info.bot_current_trade.stop_loss_price | round(2) }}<br>take_profit_price: {{ bot_info.bot_current_trade.take_profit_price | round(2) }}<br>trailing_take_profit_activated: {{ bot_info.bot_current_trade.trailing_take_profit_activated }}<br>price_rises_counter: {{ bot_info.bot_current_trade.price_rises_counter }}</p>
-            {% endif %}
-
-            <p class="text-muted m-0 p-0 {{ 'border-bottom' if not bot_info.use_suspension_after_negative_trade }}">Use suspension after negative trade: <span class="{{ 'text-danger' if bot_info.use_suspension_after_negative_trade else 'text-muted' }}">{{ bot_info.use_suspension_after_negative_trade }}</span></p>
-            {% if bot_info.use_suspension_after_negative_trade %}
-                <p class="text-muted m-0 p-0">is_suspended_after_negative_trade: <span class="{{ 'text-danger' if bot_info.is_suspended_after_negative_trade else 'text-success' }}">{{ bot_info.is_suspended_after_negative_trade }}</span></p>
-                <p class="text-muted m-0 p-0">cycles_of_suspension_after_negative_trade: {{ bot_info.cycles_of_suspension_after_negative_trade }}</p>
-                {% if bot_info.is_suspended_after_negative_trade %}
-                    <p class="text-muted m-0 p-0 border-bottom">suspension_cycles_remaining: {{ bot_info.suspension_cycles_remaining }}</p>
-                {% endif %}
-            {% endif %}
-
-            <p class="text-muted m-0 p-0">Bot Running: <span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{{ bot_info.bot_running }}</span></p>
-            <p class="text-muted m-0 p-0">Trades Count: {{ bot_info.bot_trades_history|length }}</p>
-            <p class="text-muted m-0 p-0">Days to clean history: {{ bot_info.days_period_to_clean_history }}</p>
             
             <div class="mt-2 d-flex flex-column justify-content-center align-items-center gap-2">
                 {% if bot_info.bot_running %}
