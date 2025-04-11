@@ -94,7 +94,7 @@
             <p class="text-muted m-0 p-0">Trades Count: {{ bot_info.bot_trades_history|length }}</p>
             <p class="text-muted m-0 p-0">Days to clean history: {{ bot_info.days_period_to_clean_history }}</p>
 
-            <div class="accordion w-100" id="settingsAccordion{{ bot_info.id }}-0">
+            <div class="accordion mt-2 w-100" id="settingsAccordion{{ bot_info.id }}-0">
                 <div class="accordion-item w-100">
                     <div class="accordion-header w-100 d-flex justify-content-center" id="heading{{ bot_info.id }}-0">
                         <button class="accordion-button collapsed text-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-settings-{{ bot_info.id }}-0" aria-expanded="false" aria-controls="collapse-settings-{{ bot_info.id }}-0">
@@ -123,7 +123,7 @@
 
             {% if bot_info.use_machine_learning %}
 
-            <div class="accordion w-100" id="mlAccordion{{ bot_info.id }}-2">
+            <div class="accordion mt-2 w-100" id="mlAccordion{{ bot_info.id }}-2">
                 <div class="accordion-item w-100">
                     <div class="accordion-header w-100 d-flex justify-content-center" id="heading{{ bot_info.id }}-2">
                         <button class="accordion-button collapsed text-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-ml-{{ bot_info.id }}-2" aria-expanded="false" aria-controls="collapse-ml-{{ bot_info.id }}-2">
@@ -180,7 +180,7 @@
 
             {% if bot_info.use_technical_analysis %}
 
-            <div class="accordion w-100" id="taAccordion{{ bot_info.id }}-1">
+            <div class="accordion mt-2 w-100" id="taAccordion{{ bot_info.id }}-1">
                 <div class="accordion-item w-100">
                     <div class="accordion-header w-100 d-flex justify-content-center" id="heading{{ bot_info.id }}-1">
                         <button class="accordion-button collapsed text-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-ta-{{ bot_info.id }}-1" aria-expanded="false" aria-controls="collapse-ta-{{ bot_info.id }}-1">
