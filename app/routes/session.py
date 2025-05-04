@@ -16,7 +16,7 @@ from ..utils.app_utils import get_ip_address
 
 
 @main.route("/register", methods=["GET", "POST"])
-@limiter.limit("4/min")
+@limiter.limit("4 per hour")
 @exception_handler(default_return=False)
 def register():
     """
@@ -101,7 +101,7 @@ def register():
 
 
 @main.route("/login", methods=["GET", "POST"])
-@limiter.limit("4/min")
+@limiter.limit("4 per hour")
 @exception_handler(default_return=False)
 def login():
     """
