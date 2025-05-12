@@ -6,7 +6,12 @@
         <div class="container-fluid">
             <div class="d-flex flex-column justify-content-center align-items-center">
                 <a class="text-dark fs-6 navbar-brand p-0 m-0" href="/">StefanCryptoTradingBot</a>
-                <p class="text-dark p-0 m-0">{{ date_and_time }}</p>
+                <p id="server-time" style="display:none;">{{ date_and_time_isoformat }}</p>
+                <p class="text-dark p-0 m-0">
+                    <span id="timezone">Loading date and time...</span>
+                    <span id="clock"></span>
+                    <span></span>
+                </p>
                 <p class="text-dark p-0 m-0">Logged in as&nbsp;<a href="/">{{ user.login }}</a></p>
             </div>       
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,5 +72,7 @@
         {% endblock content %}
 
     </div>
+
+    <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
 
 {% endblock base %}

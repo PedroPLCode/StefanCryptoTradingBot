@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 import tensorflow.keras
 import pytz
-from datetime import datetime
 from .. import app, db, login_manager
 
 
@@ -39,7 +38,7 @@ def to_datetime(timestamp: int) -> object:
     Returns:
         str: A formatted datetime string in 'YYYY-MM-DD HH:MM:SS' format.
     """
-    return datetime.fromtimestamp(timestamp / 1000.0, tz=pytz.utc).strftime(
+    return dt.fromtimestamp(timestamp / 1000.0, tz=pytz.utc).strftime(
         "%Y-%m-%d %H:%M:%S"
     )
 
@@ -65,6 +64,16 @@ def inject_date_and_time():
         dict: A dictionary with the key 'date_and_time' pointing to the current date and time.
     """
     return dict(date_and_time=dt.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+
+@app.context_processor
+def inject_date_and_time_isoformat():
+    """
+    Injects the current date and time ISO format including timezone into the context for use in templates.
+    """
+    tz = pytz.timezone('Europe/Warsaw')
+    current_time = dt.now(tz)
+    return dict(date_and_time_isoformat=current_time.isoformat())
 
 
 @app.context_processor
