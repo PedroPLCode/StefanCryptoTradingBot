@@ -53,9 +53,9 @@
                     <p class="text-dark nav navbar-nav navbar-right">{{ admin_view.admin.name }}</p>
                     <p id="server-time" style="display:none;">{{ date_and_time_isoformat }}</p>
                     <p class="text-dark p-0 m-0">
-                        <span id="timezone">{{ date_and_time }}</span>
+                        <span id="date">{{ date_and_time }}</span>
                         <span id="clock"></span>
-                        <span></span>
+                        <span id="timezone"></span>
                     </p>
                     {% if current_user.is_authenticated %}
                         <p class="text-dark nav navbar-nav navbar-right">Logged in as&nbsp;<a href="/">{{ current_user.login }}</a></p>
