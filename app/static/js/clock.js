@@ -14,7 +14,6 @@ function updateClock() {
   document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
 
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  console.log("Pełna strefa czasowa:", timezone);
   
   const date = new Date();
   const options = { timeZoneName: "short" };
