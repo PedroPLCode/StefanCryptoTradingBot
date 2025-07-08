@@ -1,16 +1,7 @@
-{% set capital = 100.0 %}
-{% for trade in bot_info.bot_trades_history %}
-    {% if trade.buy_price and trade.sell_price and trade.buy_price != 0 %}
-        {% set trade_return = (trade.sell_price - trade.buy_price) / trade.buy_price %}
-        {% set capital = capital * (1 + trade_return) %}
-    {% endif %}
-{% endfor %}
-{% set total_profit = (capital - 100) / 100 * 100 %}
-                    
 <div class="accordion-item">
     <div class="accordion-header d-flex justify-content-center" id="heading{{ bot_info.id }}">
         <button class="accordion-button collapsed text-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ bot_info.id }}" aria-expanded="false" aria-controls="collapse{{ bot_info.id }}">
-            <p class="w-100 text-center m-0 p-0">Bot {{ bot_info.id }} {{ bot_info.symbol }} {{ bot_info.strategy | upper }}<br><span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{% if bot_info.bot_running %} Running {% else %} Stopped {% endif %}</span> <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{% if bot_info.bot_current_trade.is_active %} CurrentTradeActive {% else %} NoCurrentTrade {% endif %}</span> Trades: {{ bot_info.bot_trades_history | length }}<br>Total Profil: <span class="{% if total_profit > 0 %}text-success{% elif total_profit < 0 %}text-danger{% else %}text-muted{% endif %}">{{ total_profit | round(2) }}%</span></p>
+            <p class="w-100 text-center m-0 p-0">Bot {{ bot_info.id }} {{ bot_info.symbol }} {{ bot_info.strategy | upper }}<br><span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{% if bot_info.bot_running %} Running {% else %} Stopped {% endif %}</span> <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{% if bot_info.bot_current_trade.is_active %} CurrentTradeActive {% else %} NoCurrentTrade {% endif %}</span> Trades: {{ bot_info.bot_trades_history | length }}<br>Total Profil: <span class="{% if ns.total_profit > 0 %}text-success{% elif ns.total_profit < 0 %}text-danger{% else %}text-muted{% endif %}">{{ ns.total_profit | round(2) }}%</span></p>
         </button>
     </div>
     <div id="collapse{{ bot_info.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ bot_info.id }}" data-bs-parent="#botsAccordion">
@@ -27,7 +18,7 @@
             </p>
             <p class="m-0 p-0">Comment: {{ bot_info.comment }}</p>
             <p class="m-0 p-0">{{ bot_info.days_period_to_clean_history }} days period</p>
-            <p class="mt-0 p-0">Total Profit: <span class="{% if total_profit > 0 %}text-success{% elif total_profit < 0 %}text-danger{% else %}text-muted{% endif %}">{{ total_profit | round(2) }}%</span></p>
+            <p class="mt-0 p-0">Total Profit: <span class="{% if ns.total_profit > 0 %}text-success{% elif ns.total_profit < 0 %}text-danger{% else %}text-muted{% endif %}">{{ ns.total_profit | round(2) }}%</span></p>
     
             <div class="w-100 d-flex flex-column justify-content-center align-items-center gap-2">
                 {% if bot_info.bot_trades_history %}
@@ -43,7 +34,7 @@
                         {% endfor %}
                     </div>
 
-                    <p class="mt-1 mb-3">Total Bot {{ bot_info.id }} Profit: <span class="{% if total_profit > 0 %}text-success{% elif total_profit < 0 %}text-danger{% else %}text-muted{% endif %}">{{ total_profit | round(2) }}%</span></p>
+                    <p class="mt-1 mb-3">Total Bot {{ bot_info.id }} Profit: <span class="{% if ns.total_profit > 0 %}text-success{% elif ns.total_profit < 0 %}text-danger{% else %}text-muted{% endif %}">{{ ns.total_profit | round(2) }}%</span></p>
                     
                 {% else %}
                     <p class="mb-1">List empty.<br>Boring...<br>Lets do some trades!</p>
