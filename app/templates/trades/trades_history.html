@@ -19,7 +19,7 @@
                         {% endif %}
                     {% endfor %}
                     {% set total_profit = (capital - 100) / 100 * 100 %}
-                    {% include 'trades/single_bot_history.html' %}
+                    {% include 'trades/single_bot_history.html' with total_profit=total_profit %}
                 {% endfor %}
             </div>
         </div>
