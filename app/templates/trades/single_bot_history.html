@@ -1,3 +1,12 @@
+{% set capital = 100.0 %}
+{% for trade in bot_info.bot_trades_history %}
+    {% if trade.buy_price and trade.sell_price and trade.buy_price != 0 %}
+        {% set trade_return = (trade.sell_price - trade.buy_price) / trade.buy_price %}
+        {% set capital = capital * (1 + trade_return) %}
+    {% endif %}
+{% endfor %}
+{% set total_profit = (capital - 100) / 100 * 100 %}
+                    
 <div class="accordion-item">
     <div class="accordion-header d-flex justify-content-center" id="heading{{ bot_info.id }}">
         <button class="accordion-button collapsed text-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ bot_info.id }}" aria-expanded="false" aria-controls="collapse{{ bot_info.id }}">

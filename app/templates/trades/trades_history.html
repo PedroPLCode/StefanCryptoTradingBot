@@ -11,15 +11,7 @@
         <div class="card-body text-center">
             <div class="accordion" id="botsAccordion">
                 {% for bot_info in all_bots %}
-                    {% set capital = 100.0 %}
-                    {% for trade in bot_info.bot_trades_history %}
-                        {% if trade.buy_price and trade.sell_price and trade.buy_price != 0 %}
-                            {% set trade_return = (trade.sell_price - trade.buy_price) / trade.buy_price %}
-                            {% set capital = capital * (1 + trade_return) %}
-                        {% endif %}
-                    {% endfor %}
-                    {% set total_profit = (capital - 100) / 100 * 100 %}
-                    {% include 'trades/single_bot_history.html' with total_profit=total_profit %}
+                    {% include 'trades/single_bot_history.html' %}
                 {% endfor %}
             </div>
         </div>
