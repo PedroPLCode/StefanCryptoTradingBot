@@ -11,11 +11,12 @@
         <div class="card-body text-center">
             <div class="accordion" id="botsAccordion">
                 {% for bot_info in all_bots %}
-                    {% set ns = namespace(total_profit=0) %}
+                    {% set capital = 100.0 %}
                     {% for trade in bot_info.bot_trades_history %}
-                        {% set trade_profit = ((trade.sell_price - trade.buy_price) / trade.buy_price * 100) | round(2) %}
-                        {% set ns.total_profit = ns.total_profit + trade_profit %}
+                        {% set trade_return = (trade.sell_price - trade.buy_price) / trade.buy_price %}
+                        {% set capital = capital * (1 + trade_return) %}
                     {% endfor %}
+                    {% set total_profit = (capital - 100) / 100 * 100 %}
                     {% include 'trades/single_bot_history.html' %}
                 {% endfor %}
             </div>
