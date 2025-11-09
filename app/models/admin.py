@@ -246,7 +246,6 @@ class BotSettingsAdmin(AdminModelView):
         'ml_lstm_buy_trigger_pct',
         'ml_lstm_sell_trigger_pct',
         'gpt_model',
-        'gpt_prompt',
         'etop_passwd',
     )
 
@@ -389,6 +388,5 @@ class BotTechnicalAnalysisAdmin(AdminModelView):
         'avg_minus_di',
         'avg_psar',
         'avg_vwap',
-        'gpt_analysis',
         'last_updated_timestamp'
     )
