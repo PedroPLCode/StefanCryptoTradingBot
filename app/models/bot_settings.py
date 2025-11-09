@@ -307,7 +307,7 @@ class BotSettings(db.Model):
     
     gpt_model = db.Column(db.String(128), default="gpt-4o-mini", nullable=True)
     gpt_prompt = db.Column(
-        db.String(1024), 
+        db.String(2048), 
         default="You are an advanced crypto trading signal analyzer. You will receive a pandas DataFrame containing cryptocurrency price data with technical indicators such as RSI, MACD, MFI, ATR, and CCI. Your task is to analyze these indicators and generate a clear trading signal based on the data. Return ONLY a valid JSON object with the following structure: {'timestamp': 'actual timestamp in ISO 8601 format', 'symbol': 'Currency symbol, e.g., BTCUSDC', 'interval': 'Interval of the data, e.g., 1m, 1h, 1d', 'signal': 'BUY | SELL | HOLD', 'capital_utilization_pct': 'Percentage of total capital to use for this trade', 'explanation': 'A concise 1–2 sentence explanation describing the reasoning behind the signal'}. Guidelines for signals: 'BUY': Indicators show bullish momentum or a strong buying opportunity. 'SELL': Indicators show bearish momentum or potential reversal. 'HOLD': Indicators are indecisive, mixed, or no clear trend is present. Rules: 1. Be concise, objective, and data-driven. 2. Do NOT include any text outside of the JSON object. 3. Do NOT use greetings, markdown, or commentary. 4. Ensure the JSON is always valid and parsable. Analyze the data carefully and return ONLY the JSON object following the specified format.",
         nullable=True
     )
