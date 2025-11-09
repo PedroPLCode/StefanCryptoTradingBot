@@ -367,7 +367,7 @@ def execute_buy_order(
         )
 
         trade_msg_subject = f"Bot {bot_settings.id} execute_buy_order report."
-        trade_msg_content = f"StefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nexecute_buy_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\namount: {amount}\nbuy_price: {current_price:.2f}\nstop_loss_price: {stop_loss_price:.2f}\ntake_profit_price: {take_profit_price:.2f}\nbuy_timestamp: {formatted_now}\nbuy_success: {buy_success}"
+        trade_msg_content = f"StefanCryptoTradingBot\nhttps://stefan.ropeaccess.pro\n\nexecute_buy_order report.\n{formatted_now}\n\nBot {bot_settings.id} {bot_settings.strategy} {bot_settings.symbol}.\ncomment: {bot_settings.comment}\n\ncapital_utilization_pct: {bot_settings.capital_utilization_pct}\namount: {amount}\nbuy_price: {current_price:.2f}\nstop_loss_price: {stop_loss_price:.2f}\ntake_profit_price: {take_profit_price:.2f}\nbuy_timestamp: {formatted_now}\nbuy_success: {buy_success}"
         send_trade_notifications(trade_msg_subject, trade_msg_content)
 
 
