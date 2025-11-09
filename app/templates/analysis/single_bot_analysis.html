@@ -45,6 +45,7 @@
             <p class="text-muted m-0 p-0">symbol: {{ bot_info.bot_technical_analysis.gpt_analysis.symbol or 'None'}}</p>  
             <p class="text-muted m-0 p-0">interval: {{ bot_info.bot_technical_analysis.gpt_analysis.interval or 'None'}}</p>                 
             <p class="text-muted m-0 p-0">signal: {{ bot_info.bot_technical_analysis.gpt_analysis.signal or 'None'}}</p>
+            <p class="text-muted m-0 p-0">capital_utilization_pct: {{ bot_info.bot_technical_analysis.capital_utilization_pct or 'None'}}</p>
             <p class="text-muted m-0 p-0 border-bottom">explanation: {{ bot_info.bot_technical_analysis.gpt_analysis.explanation or 'None'}}</p>
 
             {% if bot_info.plot_url %}

@@ -179,11 +179,11 @@ def update_technical_analysis_data(
 
 
 @exception_handler(db_rollback=True)
-def update_gpt_analysis_data(
+def update_gpt_trade_and_analysis_data(
     bot_settings: object, gpt_analysis: str
 ) -> None:
     """
-    Update the GPT analysis data for a specific trading bot in the database.
+    Update the GPT trade and analysis data for a specific trading bot in the database.
 
     This function updates the `gpt_analysis` field in the `BotTechnicalAnalysis`
     table for the given bot based on its ID. It also sets the 
@@ -203,12 +203,17 @@ def update_gpt_analysis_data(
         Exception: Any database-related errors are caught and handled by the
             `@exception_handler` decorator, which performs a rollback if needed.
     """
+    try:
+        bot_settings.capital_utilization_pct = float(gpt_analysis.get("capital_utilization_pct", 0.95))
+    except (ValueError, TypeError):
+        bot_settings.capital_utilization_pct = 0.95
+    
     technical_analysis = BotTechnicalAnalysis.query.filter_by(
         id=bot_settings.id
     ).first()
-
     technical_analysis.gpt_analysis = gpt_analysis
     technical_analysis.last_updated_timestamp = datetime.now()
+    
     db.session.commit()
     
     logger.trade(

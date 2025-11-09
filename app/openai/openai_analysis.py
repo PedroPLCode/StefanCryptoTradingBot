@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
 from ..utils.retry_connection import retry_connection
-from ..utils.trades_utils import update_gpt_analysis_data
+from ..utils.trades_utils import update_gpt_trade_and_analysis_data
 
 load_dotenv()
 
@@ -77,7 +77,7 @@ def check_gpt_trade_signal(
             logger.error(f"Raw GPT content: {response_extracted}")
             return False
 
-        update_gpt_analysis_data(bot_settings, response_json)
+        update_gpt_trade_and_analysis_data(bot_settings, response_json)
 
         gpt_signal = response_json.get("signal", "").upper()
         return signal_type.upper() == gpt_signal

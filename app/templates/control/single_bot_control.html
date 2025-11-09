@@ -245,10 +245,21 @@
 
             {% if bot_info.use_gpt_analysis %}
 
-                <p class="text-muted m-0 p-0 border-bottom">
-                    Use GPT Analysis: <span class="{{ 'text-success' if bot_info.use_gpt_analysis else 'text-danger' }}">{{ bot_info.use_gpt_analysis }}</span><br>
-                    GPT Model: {{ bot_info.gpt_model }}<br>
-                </p>    
+            <div class="accordion mt-2 w-100" id="aiAccordion{{ bot_info.id }}-0">
+                <div class="accordion-item w-100">
+                    <div class="accordion-header w-100 d-flex justify-content-center" id="heading{{ bot_info.id }}-0">
+                        <button class="accordion-button collapsed text-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-ai-{{ bot_info.id }}-0" aria-expanded="false" aria-controls="collapse-ai-{{ bot_info.id }}-0">
+                            <p class="w-100 text-muted text-center m-0 p-0">AI GPT Settings</p>
+                        </button>
+                    </div>
+                    <div id="collapse-ai-{{ bot_info.id }}-0" class="accordion-collapse collapse" aria-labelledby="heading-ai-{{ bot_info.id }}-0">
+                        <div class="accordion-body">
+                            <p class="text-muted m-0 p-0">Use GPT Analysis: <span class="{{ 'text-success' if bot_info.use_gpt_analysis else 'text-danger' }}">{{ bot_info.use_gpt_analysis }}</span></p>
+                            <p class="text-muted m-0 p-0 border-bottom">GPT Model: {{ bot_info.gpt_model }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {% endif %}
             
