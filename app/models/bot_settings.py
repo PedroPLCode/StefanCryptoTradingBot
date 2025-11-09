@@ -19,6 +19,7 @@ class BotSettings(db.Model):
         sell_signal_only_stop_loss_or_take_profit (bool): Flag to indicate if the sell signal is based on stop-loss or take-profit only.
         use_technical_analysis (bool): Flag to indicate if technical analysis should be used.
         use_machine_learning (bool): Flag to indicate if machine learning models should be used.
+        use_gpt_analysis (bool): Flag to indicate if openai gpt model should be used.
         use_suspension_after_negative_trade (bool): Flag to enable suspension after a negative trade.
         is_suspended_after_negative_trade (bool): Flag to indicate if the bot is suspended after a negative trade.
         cycles_of_suspension_after_negative_trade (int): The number of suspension cycles after a negative trade.
@@ -130,6 +131,8 @@ class BotSettings(db.Model):
         ml_lstm_predictions_avg (int): The average number of predictions for LSTM.
         ml_lstm_buy_trigger_pct (float): The percentage threshold for a buy trigger in LSTM.
         ml_lstm_sell_trigger_pct (float): The percentage threshold for a sell trigger in LSTM.
+        gpt_model (str): Name of the GPT model used.
+        gpt_prompt (str): GPT Prompt to send together with df.
 
     Methods:
         __repr__: Returns a string representation of the BotSettings instance.
@@ -156,6 +159,7 @@ class BotSettings(db.Model):
     use_technical_analysis = db.Column(
         db.Boolean, default=False, nullable=False)
     use_machine_learning = db.Column(db.Boolean, default=False, nullable=False)
+    use_gpt_analysis = db.Column(db.Boolean, default=False, nullable=True)
 
     use_suspension_after_negative_trade = db.Column(
         db.Boolean, default=False, nullable=False)
@@ -300,6 +304,13 @@ class BotSettings(db.Model):
     ml_lstm_predictions_avg = db.Column(db.Integer, default=1, nullable=False)
     ml_lstm_buy_trigger_pct = db.Column(db.Float, default=3, nullable=False)
     ml_lstm_sell_trigger_pct = db.Column(db.Float, default=-2, nullable=False)
+    
+    gpt_model = db.Column(db.String(128), default="gpt-4o-mini", nullable=True)
+    gpt_prompt = db.Column(
+        db.String(1024), 
+        default="You are an advanced crypto trading signal analyzer. You will receive a pandas DataFrame containing cryptocurrency price data with technical indicators such as RSI, MACD, MFI, ATR, and CCI.  Your goal is to analyze these indicators and determine a clear trading signal. Return ONLY a valid JSON object with the following structure: {'timestamp': 'actual timestamp', 'symbol': 'Currency symbol, for example BTCUSDC', 'interval': 'Interval, for example 1h, 1d', 'signal': 'BUY' | 'SELL' | 'HOLD', 'explanation': '<a concise 1–2 sentences explanation describing the reasoning>'} Guidelines:  'BUY' - when indicators show bullish momentum or a good buying opportunity.  'SELL' - when indicators show bearish momentum or potential reversal. 'HOLD' - when data is indecisive or mixed. Be concise and objective. Do NOT include any text outside of the JSON object (no greetings, markdown, or explanations).",
+        nullable=True
+    )
 
     bot_current_trade = db.relationship(
         'BotCurrentTrade',

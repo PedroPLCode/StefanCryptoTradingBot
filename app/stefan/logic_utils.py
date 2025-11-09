@@ -14,6 +14,7 @@ from ..utils.trades_utils import update_technical_analysis_data
 from .buy_signals import check_classic_ta_buy_signal
 from .sell_signals import check_classic_ta_sell_signal
 from ..mariola.predict import check_ml_trade_signal
+from ..openai.openai_analysis import check_gpt_trade_signal
 from .api_utils import fetch_data, place_buy_order, place_sell_order
 from .calc_utils import (
     calculate_ta_indicators,
@@ -276,10 +277,13 @@ def check_signal(
 
     elif bot_settings.use_machine_learning:
         return check_ml_trade_signal(df_raw, signal_type, bot_settings)
+    
+    elif bot_settings.use_gpt_analysis:
+        return check_gpt_trade_signal(df_calculated, signal_type, bot_settings)
 
     else:
         logger.error(
-            f"Bot {bot_settings.id} not use_technical_analysis and not use_machine_learning"
+            f"Bot {bot_settings.id} not use_technical_analysis / not use_machine_learning / use_gpt_model"
         )
         return False
 

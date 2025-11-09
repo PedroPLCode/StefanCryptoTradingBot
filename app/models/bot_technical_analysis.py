@@ -54,6 +54,7 @@ class BotTechnicalAnalysis(db.Model):
         avg_psar (float, optional): The average PSAR value (default: 0).
         avg_vwap (float, optional): The average VWAP value (default: 0).
         avg_close (float, optional): The average closing price (default: 0).
+        gpt_analysis (JSON): OpenAI GPT model analysis response.
         last_updated_timestamp (datetime, optional): The timestamp of the last update (default: current timestamp).
         bot_settings_id (int): The foreign key referencing the bot settings.
 
@@ -124,6 +125,8 @@ class BotTechnicalAnalysis(db.Model):
     avg_psar = db.Column(db.Float, default=0, nullable=True)
     avg_vwap = db.Column(db.Float, default=0, nullable=True)
     avg_close = db.Column(db.Float, default=0, nullable=True)
+    
+    gpt_analysis = db.Column(db.JSON, nullable=True)
 
     last_updated_timestamp = db.Column(
         db.DateTime, default=db.func.current_timestamp(), nullable=True)

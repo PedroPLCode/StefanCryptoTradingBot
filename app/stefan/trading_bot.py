@@ -101,7 +101,9 @@ def run_selected_trading_bots(interval: str) -> Optional[int]:
 
     for bot_settings in all_selected_bots:
         if bot_settings.bot_running and (
-            bot_settings.use_technical_analysis or bot_settings.use_machine_learning
+            bot_settings.use_technical_analysis or 
+            bot_settings.use_machine_learning or 
+            bot_settings.use_gpt_analysis
         ):
 
             if bot_settings.bot_current_trade and bot_settings.bot_technical_analysis:

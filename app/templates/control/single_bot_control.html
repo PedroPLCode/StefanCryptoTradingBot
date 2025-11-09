@@ -12,6 +12,8 @@
                     Machine Learning
                 {% elif bot_info.use_technical_analysis %}
                     Technical Analysis
+                {% elif bot_info.use_gpt_model %}
+                    GPT Analysis
                 {% else %}
                     None
                 {% endif %}
@@ -238,6 +240,15 @@
                     </div>
                 </div>
             </div>
+
+            {% endif %}
+
+            {% if bot_info.use_gpt_analysis %}
+
+                <p class="text-muted m-0 p-0 border-bottom">
+                    Use GPT Analysis: <span class="{{ 'text-success' if bot_info.use_gpt_analysis else 'text-danger' }}">{{ bot_info.use_gpt_analysis }}</span><br>
+                    GPT Model: {{ bot_info.gpt_model }}<br>
+                </p>    
 
             {% endif %}
             

@@ -136,6 +136,7 @@ class BotSettingsAdmin(AdminModelView):
         'suspension_cycles_remaining',
         'use_technical_analysis',
         'use_machine_learning',
+        'use_gpt_analysis',
         'sell_signal_only_stop_loss_or_take_profit',
         'use_stop_loss',
         'use_trailing_stop_loss',
@@ -244,6 +245,8 @@ class BotSettingsAdmin(AdminModelView):
         'ml_lstm_predictions_avg',
         'ml_lstm_buy_trigger_pct',
         'ml_lstm_sell_trigger_pct',
+        'gpt_model',
+        'gpt_prompt',
         'etop_passwd',
     )
 
@@ -386,5 +389,6 @@ class BotTechnicalAnalysisAdmin(AdminModelView):
         'avg_minus_di',
         'avg_psar',
         'avg_vwap',
+        'gpt_analysis',
         'last_updated_timestamp'
     )

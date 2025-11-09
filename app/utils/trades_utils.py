@@ -176,3 +176,41 @@ def update_technical_analysis_data(
     logger.trade(
         f"BotTechnicalAnalysis {technical_analysis.id}: bot {bot_settings.id} updated in database."
     )
+
+
+@exception_handler(db_rollback=True)
+def update_gpt_analysis_data(
+    bot_settings: object, gpt_analysis: str
+) -> None:
+    """
+    Update the GPT analysis data for a specific trading bot in the database.
+
+    This function updates the `gpt_analysis` field in the `BotTechnicalAnalysis`
+    table for the given bot based on its ID. It also sets the 
+    `last_updated_timestamp` to the current time and commits the changes 
+    to the database.
+
+    Args:
+        bot_settings (object): The bot settings object containing at least the bot ID.
+        gpt_analysis (dict): The GPT analysis data (as a JSON-serializable dictionary) 
+            returned by the GPT model, containing information such as signal, 
+            explanation, timestamp, etc.
+
+    Returns:
+        None
+
+    Raises:
+        Exception: Any database-related errors are caught and handled by the
+            `@exception_handler` decorator, which performs a rollback if needed.
+    """
+    technical_analysis = BotTechnicalAnalysis.query.filter_by(
+        id=bot_settings.id
+    ).first()
+
+    technical_analysis.gpt_analysis = gpt_analysis
+    technical_analysis.last_updated_timestamp = datetime.now()
+    db.session.commit()
+    
+    logger.trade(
+        f"BotTechnicalAnalysis {technical_analysis.id}: bot {bot_settings.id} GPT Analysis updated in database."
+    )
