@@ -203,21 +203,18 @@ def update_gpt_trade_and_analysis_data(
         Exception: Any database-related errors are caught and handled by the
             `@exception_handler` decorator, which performs a rollback if needed.
     """
-    logger.trade(f"gpt_analysis: {gpt_analysis}")
     try:
         gpt_capital_utilization_pct = gpt_analysis.get("capital_utilization_pct", 0.95)
         bot_settings.capital_utilization_pct = float(gpt_capital_utilization_pct)
-        logger.trade(f"gpt_capital_utilization_pct: {gpt_capital_utilization_pct}")
+        db.session.commit()
     except (ValueError, TypeError):
         bot_settings.capital_utilization_pct = 0.95
-        logger.trade(f"gpt_capital_utilization_pct: ValueError, TypeError")
     
     technical_analysis = BotTechnicalAnalysis.query.filter_by(
         id=bot_settings.id
     ).first()
     technical_analysis.gpt_analysis = gpt_analysis
     technical_analysis.last_updated_timestamp = datetime.now()
-    
     db.session.commit()
     
     logger.trade(
