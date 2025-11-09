@@ -204,9 +204,12 @@ def update_gpt_trade_and_analysis_data(
             `@exception_handler` decorator, which performs a rollback if needed.
     """
     try:
-        bot_settings.capital_utilization_pct = float(gpt_analysis.get("capital_utilization_pct", 0.95))
+        gpt_capital_utilization_pct = gpt_analysis.get("capital_utilization_pct", 0.95)
+        bot_settings.capital_utilization_pct = float(gpt_capital_utilization_pct)
+        logger.trade(f"gpt_capital_utilization_pct: {gpt_capital_utilization_pct}") # DEBUG
     except (ValueError, TypeError):
         bot_settings.capital_utilization_pct = 0.95
+        logger.trade(f"gpt_capital_utilization_pct: ValueError, TypeError") # DEBUG
     
     technical_analysis = BotTechnicalAnalysis.query.filter_by(
         id=bot_settings.id
