@@ -9,6 +9,15 @@ import pandas as pd
 import tensorflow.keras
 import pytz
 from .. import app, db, login_manager
+from app.models import (
+    User, 
+    BotSettings, 
+    BotTechnicalAnalysis,
+    BotCurrentTrade,
+    TradesHistory,
+    BacktestResult,
+    BacktestSettings
+)
 
 
 @login_manager.user_loader
@@ -233,10 +242,11 @@ def make_shell_context():
     """
     return {
         "db": db,
-        "User": app.models.User,
-        "BotSettings": app.models.BotSettings,
-        "BotCurrentTrade": app.models.BotCurrentTrade,
-        "TradesHistory": app.models.TradesHistory,
-        "BacktestSettings": app.models.BacktestSettings,
-        "BacktestResult": app.models.BacktestResult,
+        "User": User,
+        "BotSettings": BotSettings,
+        "BotCurrentTrade": BotCurrentTrade,
+        "BotTechnicalAnalysis": BotTechnicalAnalysis,
+        "TradesHistory": TradesHistory,
+        "BacktestSettings": BacktestSettings,
+        "BacktestResult": BacktestResult,
     }

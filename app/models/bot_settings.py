@@ -159,7 +159,7 @@ class BotSettings(db.Model):
     use_technical_analysis = db.Column(
         db.Boolean, default=False, nullable=False)
     use_machine_learning = db.Column(db.Boolean, default=False, nullable=False)
-    use_gpt_analysis = db.Column(db.Boolean, default=False, nullable=True)
+    use_gpt_analysis = db.Column(db.Boolean, default=False, nullable=False)
 
     use_suspension_after_negative_trade = db.Column(
         db.Boolean, default=False, nullable=False)
