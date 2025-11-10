@@ -1,7 +1,7 @@
 from datetime import datetime
 import pandas as pd
 from .. import db
-from app.models import BotTechnicalAnalysis
+from app.models import BotSettings, BotTechnicalAnalysis
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
 from ..stefan.api_utils import fetch_current_price
@@ -179,11 +179,11 @@ def update_technical_analysis_data(
 
 
 @exception_handler(db_rollback=True)
-def update_gpt_trade_and_analysis_data(
-    bot_settings: object, gpt_analysis: str
+def update_gpt_technical_analysis_data(
+    bot_settings: object, gpt_analysis: dict
 ) -> None:
     """
-    Update the GPT trade and analysis data for a specific trading bot in the database.
+    Update the GPT analysis data for a specific trading bot in the database.
 
     This function updates the `gpt_analysis` field in the `BotTechnicalAnalysis`
     table for the given bot based on its ID. It also sets the 
@@ -203,13 +203,6 @@ def update_gpt_trade_and_analysis_data(
         Exception: Any database-related errors are caught and handled by the
             `@exception_handler` decorator, which performs a rollback if needed.
     """
-    try:
-        gpt_capital_utilization_pct = gpt_analysis.get("capital_utilization_pct", 0.95)
-        bot_settings.capital_utilization_pct = float(gpt_capital_utilization_pct)
-        db.session.commit()
-    except (ValueError, TypeError):
-        bot_settings.capital_utilization_pct = 0.95
-    
     technical_analysis = BotTechnicalAnalysis.query.filter_by(
         id=bot_settings.id
     ).first()
@@ -220,3 +213,39 @@ def update_gpt_trade_and_analysis_data(
     logger.trade(
         f"BotTechnicalAnalysis {technical_analysis.id}: bot {bot_settings.id} GPT Analysis updated in database."
     )
+
+
+@exception_handler(db_rollback=True)
+def update_bot_capital_utilization_pct(bot_settings: object, gpt_analysis: dict) -> None:
+    """
+    Update the capital utilization percentage for a specific trading bot based on GPT analysis data.
+
+    This function retrieves the latest BotSettings entry from the database using the bot ID,
+    extracts the "capital_utilization_pct" value from the GPT analysis, and updates the corresponding
+    field in the database. If the provided value is invalid or missing, a default of 0.95 (95%) is used.
+    Any database-related errors are handled by the `@exception_handler` decorator, which performs a rollback
+    if necessary.
+
+    Args:
+        bot_settings (object): The BotSettings object representing the trading bot whose capital utilization
+            should be updated. Must contain a valid `id` field.
+        gpt_analysis (dict): The GPT analysis result containing trading signal information, including
+            an optional "capital_utilization_pct" key.
+
+    Returns:
+        None
+    """
+    bot = BotSettings.query.get(bot_settings.id)
+    if not bot:
+        logger.error(f"BotSettings with ID {bot_settings.id} not found.")
+        return
+
+    try:
+        gpt_capital_utilization_pct = gpt_analysis.get("capital_utilization_pct", 0.95)
+        bot.capital_utilization_pct = float(gpt_capital_utilization_pct)
+    except (ValueError, TypeError):
+        bot.capital_utilization_pct = 0.95
+
+    db.session.add(bot)
+    db.session.commit()
+    logger.trade(f"Bot {bot.id}: Capital utilization percentage updated to {bot.capital_utilization_pct:.2f}.")
