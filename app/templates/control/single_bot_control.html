@@ -55,7 +55,7 @@
 
             {% endif %}
             
-            <p class="text-muted m-0 p-0 border-bottom">Capital utilization: {{ bot_info.capital_utilization_pct }}%</p>
+            <p class="text-muted m-0 p-0 border-bottom">Capital utilization: {{ bot_info.capital_utilization_pct }}</p>
 
             {% for balance in bot_info.balance %}
                 {% if balance.asset != 'USDC' %}

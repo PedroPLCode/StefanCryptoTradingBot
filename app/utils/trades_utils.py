@@ -241,13 +241,10 @@ def update_bot_capital_utilization_pct(bot_settings: object, gpt_analysis: dict)
         return
 
     try:
-        logger.trade(f"gpt_analysis: {gpt_analysis}") #DEBUG
-        gpt_capital_utilization_pct = gpt_analysis.get("gpt_capital_utilization_pct", 0.95)
+        gpt_capital_utilization_pct = gpt_analysis.get("capital_utilization_pct", 0.95)
         bot.capital_utilization_pct = float(gpt_capital_utilization_pct)
-        logger.trade(f"gpt_capital_utilization_pct: {gpt_capital_utilization_pct} UPDATED") #DEBUG
     except (ValueError, TypeError):
         bot.capital_utilization_pct = 0.95
-        logger.trade(f"gpt_capital_utilization_pct: ValueError, TypeError") #DEBUG
 
     db.session.add(bot)
     db.session.commit()
