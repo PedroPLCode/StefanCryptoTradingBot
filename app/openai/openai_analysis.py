@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
 from ..utils.retry_connection import retry_connection
-from news_fetcher import fetch_all_crypto_news
+from .news_fetcher import fetch_all_crypto_news
 from ..utils.trades_utils import (
     update_gpt_technical_analysis_data,
     update_bot_capital_utilization_pct
