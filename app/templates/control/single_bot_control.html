@@ -256,7 +256,7 @@
                         <div class="accordion-body">
                             <p class="text-muted m-0 p-0">Use GPT Analysis: <span class="{{ 'text-success' if bot_info.use_gpt_analysis else 'text-danger' }}">{{ bot_info.use_gpt_analysis }}</span></p>
                             <p class="text-muted m-0 p-0 border-bottom">GPT Model: {{ bot_info.gpt_model }}</p>
-                            <p class="text-muted m-0 p-0">gpt_prompt_with_news: {{ bot_info.gpt_prompt_with_news }}</p>
+                            <p class="text-muted m-0 p-0">gpt_prompt_with_news: <span class="{{ 'text-success' if bot_info.gpt_prompt_with_news else 'text-muted' }}">{{ bot_info.gpt_prompt_with_news }}</span></p>
                             <p class="text-muted m-0 p-0">len(news_sources): {{ bot_info.news_sources|length }}</p>
                             <p class="text-muted m-0 p-0">news_limit_per_source: {{ bot_info.news_limit_per_source }}</p>
                             <p class="text-muted m-0 p-0 border-bottom">news_total_limit: {{ bot_info.news_total_limit }}</p>

@@ -56,8 +56,6 @@ def check_gpt_trade_signal(
     news_context = fetch_all_crypto_news(bot_settings) if bot_settings.gpt_prompt_with_news else ""
     content = f"{bot_settings.gpt_prompt}\n\n{news_context}\n\n{df_calculated}"
 
-    logger.trade(f"[DEBUG] check_gpt_trade_signal content:\n{content}")
-    
     try:
         response = client.chat.completions.create(
             model=bot_settings.gpt_model,

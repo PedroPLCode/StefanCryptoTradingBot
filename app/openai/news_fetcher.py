@@ -80,8 +80,6 @@ def fetch_all_crypto_news(bot_settings: object) -> str:
             unique_news.append(n)
         if len(unique_news) >= total_limit:
             break
-        
-    logger.trade(f"[DEBUG] fetch_all_crypto_news unique_news:\n{unique_news}")
 
     if not unique_news:
         return "There is no recent crypto and geopolitical news to consider."
