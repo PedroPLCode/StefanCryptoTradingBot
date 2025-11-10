@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
 from ..utils.retry_connection import retry_connection
+from news_fetcher import fetch_all_crypto_news
 from ..utils.trades_utils import (
     update_gpt_technical_analysis_data,
     update_bot_capital_utilization_pct
@@ -52,8 +53,11 @@ def check_gpt_trade_signal(
         logger.error("analyse_with_gpt_model called with empty or None df_calculated")
         return False
 
-    content = f"{bot_settings.gpt_prompt}\n\n{df_calculated}"
+    news_context = fetch_all_crypto_news(bot_settings) if bot_settings.gpt_prompt_with_news else ""
+    content = f"{bot_settings.gpt_prompt}\n\n{news_context}\n\n{df_calculated}"
 
+    logger.trade(f"[DEBUG] check_gpt_trade_signal content:\n{content}")
+    
     try:
         response = client.chat.completions.create(
             model=bot_settings.gpt_model,

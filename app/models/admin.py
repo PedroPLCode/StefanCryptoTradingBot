@@ -246,6 +246,9 @@ class BotSettingsAdmin(AdminModelView):
         'ml_lstm_buy_trigger_pct',
         'ml_lstm_sell_trigger_pct',
         'gpt_model',
+        'gpt_prompt_with_news',
+        'news_limit_per_source',
+        'news_total_limit',
         'etop_passwd',
     )
 

@@ -1,5 +1,20 @@
 from .. import db
+from typing import List
 
+def default_crypto_news_urls() -> List[str]:
+    """Returns a list of reliable crypto RSS feed URLs."""
+    return [
+        "https://cointelegraph.com/rss",
+        "https://www.coindesk.com/arc/outboundfeeds/rss/",
+        "https://cryptonews.com/news/feed/",
+        "https://decrypt.co/feed",
+        "https://www.newsbtc.com/feed/",
+        "https://www.bitcoinist.com/feed/",
+        "https://www.cryptopotato.com/feed/",
+        "https://www.cryptobriefing.com/feed/",
+        "https://www.cryptovibes.com/feed/",
+    ]
+        
 
 class BotSettings(db.Model):
     """
@@ -133,6 +148,10 @@ class BotSettings(db.Model):
         ml_lstm_sell_trigger_pct (float): The percentage threshold for a sell trigger in LSTM.
         gpt_model (str): Name of the GPT model used.
         gpt_prompt (str): GPT Prompt to send together with df.
+        gpt_prompt_with_news (bool): Flag to use crypto news in GPT prompt.
+        news_sources (List): A set of crypto news urls.
+        news_limit_per_source (int): News linit per one url.
+        news_total_limit (int): Total newl limit.
 
     Methods:
         __repr__: Returns a string representation of the BotSettings instance.
@@ -308,9 +327,13 @@ class BotSettings(db.Model):
     gpt_model = db.Column(db.String(128), default="gpt-4o-mini", nullable=True)
     gpt_prompt = db.Column(
         db.String(2048), 
-        default="You are an advanced crypto trading signal analyzer. You will receive a pandas DataFrame containing cryptocurrency price data with technical indicators such as RSI, MACD, MFI, ATR, and CCI. Your task is to analyze these indicators and generate a clear trading signal based on the data. Return ONLY a valid JSON object with the following structure: {'timestamp': '(str) actual timestamp in ISO 8601 format', 'symbol': '(str) Currency symbol, e.g., BTCUSDC', 'interval': '(str) Interval of the data, e.g., 1m, 1h, 1d', 'signal': '(str) BUY | SELL | HOLD', 'capital_utilization_pct': '(float) Percentage of total capital to use for this trade, for example 95%=0.95, 70%=0.70', 'explanation': '(str) A concise 1–2 sentence explanation describing the reasoning behind the signal'}. Guidelines for signals: 'BUY': Indicators show bullish momentum or a strong buying opportunity. 'SELL': Indicators show bearish momentum or potential reversal. 'HOLD': Indicators are indecisive, mixed, or no clear trend is present. Rules: 1. Be concise, objective, and data-driven. 2. Do NOT include any text outside of the JSON object. 3. Do NOT use greetings, markdown, or commentary. 4. Ensure the JSON is always valid and parsable. Analyze the data carefully and return ONLY the JSON object following the specified format.",
+        default="You are an advanced crypto trading signal analyzer. You will receive a pandas DataFrame containing cryptocurrency price data with technical indicators such as RSI, MACD, MFI, ATR, and CCI and the current geopolitical context news. Your task is to analyze these indicators and news and generate a clear trading signal based on the data. Return ONLY a valid JSON object with the following structure: {'timestamp': '(str) actual timestamp in ISO 8601 format', 'symbol': '(str) Currency symbol, e.g., BTCUSDC', 'interval': '(str) Interval of the data, e.g., 1m, 1h, 1d', 'signal': '(str) BUY | SELL | HOLD', 'capital_utilization_pct': '(float) Percentage of total capital to use for this trade, for example 95%=0.95, 70%=0.70', 'explanation': '(str) A concise 2–3 sentence explanation describing the reasoning behind the signal'}. Guidelines for signals: 'BUY': Indicators show bullish momentum or a strong buying opportunity. 'SELL': Indicators show bearish momentum or potential reversal. 'HOLD': Indicators are indecisive, mixed, or no clear trend is present. Rules: 1. Be concise, objective, and data-driven. 2. Do NOT include any text outside of the JSON object. 3. Do NOT use greetings, markdown, or commentary. 4. Ensure the JSON is always valid and parsable. Analyze the data carefully and return ONLY the JSON object following the specified format.",
         nullable=True
     )
+    gpt_prompt_with_news = db.Column(db.Boolean, default=True, nullable=True)
+    news_sources = db.Column(db.JSON, default=default_crypto_news_urls, nullable=True)
+    news_limit_per_source = db.Column(db.Integer, default=5, nullable=True)
+    news_total_limit = db.Column(db.Integer, default=25, nullable=True)
 
     bot_current_trade = db.relationship(
         'BotCurrentTrade',

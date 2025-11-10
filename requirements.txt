@@ -46,6 +46,7 @@ grpcio==1.66.2
 gunicorn==23.0.0
 h11==0.16.0
 h5py==3.12.1
+html5lib==1.1
 httpcore==1.0.9
 httpx==0.28.1
 idna==3.10
@@ -61,6 +62,7 @@ kiwisolver==1.4.8
 libclang==18.1.1
 libcst==1.6.0
 limits==3.13.0
+lxml==6.0.2
 Mako==1.3.5
 Markdown==3.7
 markdown-it-py==3.0.0
@@ -107,6 +109,8 @@ regex==2024.9.11
 requests==2.32.3
 requests-oauthlib==1.3.1
 rich==13.8.1
+scikit-learn==1.6.1
+scipy==1.15.1
 six==1.16.0
 sniffio==1.3.1
 soupsieve==2.6
@@ -127,6 +131,7 @@ tzdata==2024.1
 tzlocal==5.2
 ujson==5.10.0
 urllib3==2.2.3
+webencodings==0.5.1
 websockets==13.1
 Werkzeug==3.0.4
 wrapt==1.16.0
