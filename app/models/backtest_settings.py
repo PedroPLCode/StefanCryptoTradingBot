@@ -29,4 +29,4 @@ class BacktestSettings(db.Model):
     csv_file_path = db.Column(
         db.String(64), default="backtest_historical_data.csv", nullable=False)
     initial_balance = db.Column(db.Float, default=10.0, nullable=False)
-    crypto_balance = db.Column(db.Float, default=0.0, nullable=True)
+    crypto_balance = db.Column(db.Float, default=0.0, nullable=False)

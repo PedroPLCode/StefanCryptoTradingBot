@@ -164,7 +164,7 @@ class BotSettings(db.Model):
     lookback_period = db.Column(db.String(16), default="2d", nullable=False)
     strategy = db.Column(db.String(128), default="rsi + macd", nullable=False)
     comment = db.Column(db.String(1024), default="swing",
-                        nullable=True, unique=False)
+                        nullable=False, unique=False)
 
     capital_utilization_pct = db.Column(db.Float, default=0.95, nullable=False)
     selected_plot_indicators = db.Column(
@@ -178,7 +178,7 @@ class BotSettings(db.Model):
     use_technical_analysis = db.Column(
         db.Boolean, default=False, nullable=False)
     use_machine_learning = db.Column(db.Boolean, default=False, nullable=False)
-    use_gpt_analysis = db.Column(db.Boolean, default=False, nullable=True)
+    use_gpt_analysis = db.Column(db.Boolean, default=False, nullable=False)
 
     use_suspension_after_negative_trade = db.Column(
         db.Boolean, default=False, nullable=False)
@@ -324,16 +324,16 @@ class BotSettings(db.Model):
     ml_lstm_buy_trigger_pct = db.Column(db.Float, default=3, nullable=False)
     ml_lstm_sell_trigger_pct = db.Column(db.Float, default=-2, nullable=False)
     
-    gpt_model = db.Column(db.String(128), default="gpt-4o-mini", nullable=True)
+    gpt_model = db.Column(db.String(128), default="gpt-4o-mini", nullable=False)
     gpt_prompt = db.Column(
         db.String(2048), 
         default="You are an advanced crypto trading signal analyzer. You will receive a pandas DataFrame containing cryptocurrency price data with technical indicators such as RSI, MACD, MFI, ATR, and CCI and the current geopolitical context news. Your task is to analyze these indicators and news and generate a clear trading signal based on the data. Return ONLY a valid JSON object with the following structure: {'timestamp': '(str) actual timestamp in ISO 8601 format', 'symbol': '(str) Currency symbol, e.g., BTCUSDC', 'interval': '(str) Interval of the data, e.g., 1m, 1h, 1d', 'signal': '(str) BUY | SELL | HOLD', 'capital_utilization_pct': '(float) Percentage of total capital to use for this trade, for example 95%=0.95, 70%=0.70', 'explanation': '(str) A concise 2–3 sentence explanation describing the reasoning behind the signal'}. Guidelines for signals: 'BUY': Indicators show bullish momentum or a strong buying opportunity. 'SELL': Indicators show bearish momentum or potential reversal. 'HOLD': Indicators are indecisive, mixed, or no clear trend is present. Rules: 1. Be concise, objective, and data-driven. 2. Do NOT include any text outside of the JSON object. 3. Do NOT use greetings, markdown, or commentary. 4. Ensure the JSON is always valid and parsable. Analyze the data carefully and return ONLY the JSON object following the specified format.",
-        nullable=True
+        nullable=False
     )
-    gpt_prompt_with_news = db.Column(db.Boolean, default=True, nullable=True)
-    news_sources = db.Column(db.JSON, default=default_crypto_news_urls, nullable=True)
-    news_limit_per_source = db.Column(db.Integer, default=5, nullable=True)
-    news_total_limit = db.Column(db.Integer, default=25, nullable=True)
+    gpt_prompt_with_news = db.Column(db.Boolean, default=True, nullable=False)
+    news_sources = db.Column(db.JSON, default=default_crypto_news_urls, nullable=False)
+    news_limit_per_source = db.Column(db.Integer, default=5, nullable=False)
+    news_total_limit = db.Column(db.Integer, default=25, nullable=False)
 
     bot_current_trade = db.relationship(
         'BotCurrentTrade',
