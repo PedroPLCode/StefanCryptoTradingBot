@@ -4,9 +4,12 @@ from typing import Optional
 from pandas import DataFrame
 from openai import OpenAI
 from dotenv import load_dotenv
+from datetime import datetime
 from ..utils.logging import logger
 from ..utils.exception_handlers import exception_handler
 from ..utils.retry_connection import retry_connection
+from .openai_error_formatter import format_openai_error
+from ..utils.email_utils import send_admin_email
 from .news_fetcher import fetch_all_crypto_news
 from ..utils.trades_utils import (
     update_gpt_technical_analysis_data,
@@ -56,38 +59,44 @@ def check_gpt_trade_signal(
     news_context = fetch_all_crypto_news(bot_settings) if bot_settings.gpt_prompt_with_news else ""
     content = f"{bot_settings.gpt_prompt}\n\n{news_context}\n\n{df_calculated}"
 
+    response_json = None
+
     try:
         response = client.chat.completions.create(
             model=bot_settings.gpt_model,
             messages=[{"role": "user", "content": content}],
         )
 
-        if not response or not getattr(response, "choices", None):
-            logger.error("GPT response is empty or malformed")
-            return False
-
         choice = response.choices[0]
         content_text = getattr(choice.message, "content", None)
-
-        if not content_text:
-            logger.error("GPT response content is missing")
-            return False
-
         response_extracted = content_text.strip()
-
+        
         try:
             response_json = json.loads(response_extracted)
         except json.JSONDecodeError as e:
+            response_json = {
+                    "model": "N/A",
+                    "timestamp": datetime.now().isoformat(),
+                    "symbol": "N/A",
+                    "interval": "N/A",
+                    "signal": "N/A",
+                    "capital_utilization_pct": 0,
+                    "explanation": "json.JSONDecodeError: Invalid JSON returned from GPT model.",
+                    "error": True,
+                }
             logger.error(f"Failed to parse GPT response as JSON: {e}")
             logger.error(f"Raw GPT content: {response_extracted}")
+            send_admin_email(f"Bot {bot_settings.id} Invalid JSON returned from GPT model.", f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.comment}\n\njson.JSONDecodeError: Invalid JSON returned from GPT model.")
             return False
-
-        update_gpt_technical_analysis_data(bot_settings, response_json)
-        update_bot_capital_utilization_pct(bot_settings, response_json)
-
-        gpt_signal = response_json.get("signal", "").upper()
-        return signal_type.upper() == gpt_signal
-
+        
     except Exception as e:
+        response_json = format_openai_error(e)
         logger.error(f"Error during GPT analysis: {e}")
+        send_admin_email(f"Bot {bot_settings.id} Error during GPT analysis.", f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.comment}\n\nError during GPT analysis\n\nresponse_json: {response_json}")
         return False
+
+    update_gpt_technical_analysis_data(bot_settings, response_json)
+    update_bot_capital_utilization_pct(bot_settings, response_json)
+
+    gpt_signal = response_json.get("signal", "").upper()
+    return signal_type.upper() == gpt_signal
