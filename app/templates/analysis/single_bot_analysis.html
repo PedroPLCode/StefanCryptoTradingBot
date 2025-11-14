@@ -44,6 +44,9 @@
             <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>
             <p class="text-muted m-0 p-0 border-bottom">Lookback Period: {{ bot_info.lookback_period }}</p>
 
+            {% if bot_info.bot_technical_analysis.gpt_analysis.error %}
+                <p class="w-100 text-center text-danger m-0 p-0">OpenAI API Error - Check Logs</p>
+            {% endif %}
             <p class="text-muted m-0 p-0">GPT Analysis Response:</p>
             <p class="text-muted m-0 p-0">model: {{ bot_info.gpt_model or 'None'}}</p>
             <p class="text-muted m-0 p-0">timestamp: {{ bot_info.bot_technical_analysis.gpt_analysis.timestamp or 'None'}}</p>  

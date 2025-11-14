@@ -17,7 +17,7 @@
                     Machine Learning
                 {% elif bot_info.use_technical_analysis %}
                     Technical Analysis
-                {% elif bot_info.use_gpt_model %}
+                {% elif bot_info.use_gpt_analysis %}
                     GPT Analysis
                 {% else %}
                     None
@@ -27,6 +27,10 @@
             <p class="text-muted m-0 p-0">Comment: {{ bot_info.comment }}</p>
             <p class="text-muted m-0 p-0">Interval: {{ bot_info.interval }}</p>
             <p class="text-muted m-0 p-0 border-bottom">Lookback Period: {{ bot_info.lookback_period }}</p>
+
+            {% if bot_info.bot_technical_analysis.gpt_analysis.error %}
+                <p class="w-100 text-center text-danger m-0 p-0">OpenAI API Error - Check Logs</p>
+            {% endif %}
 
             {% if bot_info.use_technical_analysis %}
 
@@ -261,6 +265,7 @@
                         <div class="accordion-body">
                             <p class="text-muted m-0 p-0">Use GPT Analysis: <span class="{{ 'text-success' if bot_info.use_gpt_analysis else 'text-danger' }}">{{ bot_info.use_gpt_analysis }}</span></p>
                             <p class="text-muted m-0 p-0 border-bottom">GPT Model: {{ bot_info.gpt_model }}</p>
+                            <p class="w-100 text-center text-danger m-0 p-0">Error: <span class="{{ 'text-danger' if bot_info.bot_technical_analysis.gpt_analysis.error else 'text-success' }}">{{ bot_info.bot_technical_analysis.gpt_analysis.error }}</span></p>
                             <p class="text-muted m-0 p-0">gpt_prompt_with_news: <span class="{{ 'text-success' if bot_info.gpt_prompt_with_news else 'text-muted' }}">{{ bot_info.gpt_prompt_with_news }}</span></p>
                             <p class="text-muted m-0 p-0">len(news_sources): {{ bot_info.news_sources|length }}</p>
                             <p class="text-muted m-0 p-0">news_limit_per_source: {{ bot_info.news_limit_per_source }}</p>
