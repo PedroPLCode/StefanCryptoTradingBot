@@ -1,10 +1,12 @@
 <div class="accordion-item">
     <div class="accordion-header d-flex justify-content-center" id="heading{{ bot_info.id }}">
         <button class="accordion-button collapsed text-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ bot_info.id }}" aria-expanded="false" aria-controls="collapse{{ bot_info.id }}">
-            {% if bot_info.bot_technical_analysis.gpt_analysis.error %}
-                <p class="w-100 text-center text-danger m-0 p-0">OpenAI API Error</p>
-            {% endif %}
-            <p class="w-100 text-center m-0 p-0">Bot {{ bot_info.id }} {{ bot_info.symbol }} {{ bot_info.strategy | upper }}<br><span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{% if bot_info.bot_running %} Running {% else %} Stopped {% endif %}</span> <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{% if bot_info.bot_current_trade.is_active %} CurrentTradeActive {% else %} NoCurrentTrade {% endif %}</span> {% if bot_info.bot_running %}Live{% else %}Arch{% endif %} Data</p>
+            <p class="w-100 text-center m-0 p-0">
+                {% if bot_info.bot_technical_analysis.gpt_analysis.error %}
+                    <span class="w-100 text-center text-danger m-0 p-0">OpenAI API Error - Check Logs</span><br>
+                {% endif %}
+                Bot {{ bot_info.id }} {{ bot_info.symbol }} {{ bot_info.strategy | upper }}<br><span class="{{ 'text-success' if bot_info.bot_running else 'text-danger' }}">{% if bot_info.bot_running %} Running {% else %} Stopped {% endif %}</span> <span class="{{ 'text-success' if bot_info.bot_current_trade.is_active else 'text-danger' }}">{% if bot_info.bot_current_trade.is_active %} CurrentTradeActive {% else %} NoCurrentTrade {% endif %}</span> {% if bot_info.bot_running %}Live{% else %}Arch{% endif %} Data
+            </p>
         </button>
     </div>
 
