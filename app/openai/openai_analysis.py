@@ -73,6 +73,7 @@ def check_gpt_trade_signal(
         
         try:
             response_json = json.loads(response_extracted)
+            response_json["error"] = False
         except json.JSONDecodeError as e:
             response_json = {
                     "model": "N/A",
