@@ -87,13 +87,11 @@ def check_gpt_trade_signal(
             logger.error(f"Failed to parse GPT response as JSON: {e}")
             logger.error(f"Raw GPT content: {response_extracted}")
             send_admin_email(f"Bot {bot_settings.id} Invalid JSON returned from GPT model.", f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.comment}\n\njson.JSONDecodeError: Invalid JSON returned from GPT model.")
-            return False
-        
+
     except Exception as e:
         response_json = format_openai_error(e)
         logger.error(f"Error during GPT analysis: {e}")
         send_admin_email(f"Bot {bot_settings.id} Error during GPT analysis.", f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.comment}\n\nError during GPT analysis\n\nresponse_json: {response_json}")
-        return False
 
     update_gpt_technical_analysis_data(bot_settings, response_json)
     update_bot_capital_utilization_pct(bot_settings, response_json)
