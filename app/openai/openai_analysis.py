@@ -57,8 +57,8 @@ def check_gpt_trade_signal(
         logger.error("analyse_with_gpt_model called with empty or None df_calculated")
         return False
 
-    last_trades = get_bot_last_trades_history(bot_settings) if bot_settings.gpt_prompt_with_last_trades else "\n\n"
     news_context = fetch_all_crypto_news(bot_settings) if bot_settings.gpt_prompt_with_news else "\n\n"
+    last_trades = get_bot_last_trades_history(bot_settings) if bot_settings.gpt_prompt_with_last_trades else "\n\n"
     content = f"{bot_settings.gpt_prompt}{news_context}{last_trades}{df_calculated}"
 
     logger.trade(content) #DEBUG

@@ -1,9 +1,8 @@
-from ..models import BotSettings, TradesHistory
+from ..models import BotSettings
 from ..utils.exception_handlers import exception_handler
-from ..utils.logging import logger
 
 
-@exception_handler
+@exception_handler()
 def get_bot_last_trades_history(bot_settings) -> str:
     """
     Generate a short summary of the last trades for GPT prompt.
@@ -37,7 +36,5 @@ def get_bot_last_trades_history(bot_settings) -> str:
             f"Strategy: {t.strategy}, "
             f"SL:{t.stop_loss_activated}, TP:{t.take_profit_activated}, TTP:{t.trailing_take_profit_activated}"
         )
-        
-    logger.trade(summary_lines) #DEBUG
 
     return "\n\n".join(summary_lines) + "\n\n"
