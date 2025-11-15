@@ -98,6 +98,8 @@ def check_gpt_trade_signal(
         logger.error(f"Error during GPT analysis: {e}")
         send_admin_email(f"Bot {bot_settings.id} Error during GPT analysis.", f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.comment}\n\nError during GPT analysis\n\nresponse_json: {response_json}")
 
+    logger.trade(response_json) #DEBUG
+
     update_gpt_technical_analysis_data(bot_settings, response_json)
     update_bot_capital_utilization_pct(bot_settings, response_json)
 

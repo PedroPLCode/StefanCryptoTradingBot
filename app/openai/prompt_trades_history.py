@@ -1,31 +1,22 @@
 from ..models import BotSettings, TradesHistory
 from ..utils.exception_handlers import exception_handler
+from ..utils.logging import logger
 
 
 @exception_handler
-def get_bot_last_trades_history(bot_settings, limit: int = 5) -> str:
+def get_bot_last_trades_history(bot_settings) -> str:
     """
     Generate a short summary of the last trades for GPT prompt.
 
     Args:
         bot_settings: BotSettings instance.
-        limit (int): How many recent trades to include.
 
     Returns:
         str: Formatted summary text for GPT, or empty string if no trades.
     """
     bot = BotSettings.query.get(bot_settings.id)
-    
-    if bot.last_trades_limit:
-        limit = bot.last_trades_limit
-
-    trades = (
-        TradesHistory.query
-        .filter_by(bot_id=bot_settings.id)
-        .order_by(TradesHistory.id.desc())
-        .limit(limit)
-        .all()
-    )
+    limit = bot.last_trades_limit or 5
+    trades = sorted(bot.bot_trades_history, key=lambda t: t.id, reverse=True)[:limit]
 
     if not trades:
         return "\n\n"
@@ -46,5 +37,7 @@ def get_bot_last_trades_history(bot_settings, limit: int = 5) -> str:
             f"Strategy: {t.strategy}, "
             f"SL:{t.stop_loss_activated}, TP:{t.take_profit_activated}, TTP:{t.trailing_take_profit_activated}"
         )
+        
+    logger.trade(summary_lines) #DEBUG
 
     return "\n\n".join(summary_lines) + "\n\n"

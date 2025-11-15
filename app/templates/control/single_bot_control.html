@@ -270,7 +270,7 @@
                             <p class="text-muted m-0 p-0">len(news_sources): {{ bot_info.news_sources|length }}</p>
                             <p class="text-muted m-0 p-0">news_limit_per_source: {{ bot_info.news_limit_per_source }}</p>
                             <p class="text-muted m-0 p-0 border-bottom">news_total_limit: {{ bot_info.news_total_limit }}</p>
-                            <p class="text-muted m-0 p-0">gpt_prompt_with_last_trades: {{ bot_info.gpt_prompt_with_last_trades }}</p>
+                            <p class="text-muted m-0 p-0">gpt_prompt_with_last_trades: <span class="{{ 'text-success' if bot_info.gpt_prompt_with_last_trades else 'text-muted' }}">{{ bot_info.gpt_prompt_with_last_trades }}</span></p>
                             <p class="text-muted m-0 p-0">last_trades_limit: {{ bot_info.last_trades_limit }}</p>
                         </div>
                     </div>
