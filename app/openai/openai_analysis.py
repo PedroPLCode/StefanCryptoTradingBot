@@ -63,8 +63,6 @@ def check_gpt_trade_signal(
     df = prepare_df_info(bot_settings, df_calculated)
     content = f"{bot_settings.gpt_prompt}{news_context}{last_trades}{df}"
 
-    logger.trade(content)
-
     response_json = None
 
     try:
