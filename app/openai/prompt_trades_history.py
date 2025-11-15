@@ -21,7 +21,7 @@ def get_bot_last_trades_history(bot_settings) -> str:
         return "\n\n"
 
     summary_lines = []
-    summary_lines.append(f"Recent {len(trades)} trades summary:")
+    summary_lines.append(f"\n\nRecent {len(trades)} trades summary:")
 
     for t in trades:
         if t.sell_price and t.buy_price:
@@ -37,4 +37,4 @@ def get_bot_last_trades_history(bot_settings) -> str:
             f"SL:{t.stop_loss_activated}, TP:{t.take_profit_activated}, TTP:{t.trailing_take_profit_activated}"
         )
 
-    return "\n\n".join(summary_lines) + "\n\n"
+    return "\n".join(summary_lines) + "\n\n"
