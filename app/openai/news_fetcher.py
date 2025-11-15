@@ -82,7 +82,7 @@ def fetch_all_crypto_news(bot_settings: object) -> str:
             break
 
     if not unique_news:
-        return "There is no recent crypto and geopolitical news to consider."
+        return "\n\nThere is no recent crypto and geopolitical news to consider."
 
     summary = " | ".join(unique_news)
-    return f"Consider the following recent crypto and geopolitical news: {summary}"
+    return f"\n\nConsider the following recent crypto and geopolitical news: {summary}"

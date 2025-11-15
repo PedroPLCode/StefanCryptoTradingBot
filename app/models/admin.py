@@ -249,6 +249,8 @@ class BotSettingsAdmin(AdminModelView):
         'gpt_prompt_with_news',
         'news_limit_per_source',
         'news_total_limit',
+        'gpt_prompt_with_last_trades',
+        'last_trades_limit',
         'etop_passwd',
     )
 
