@@ -61,8 +61,6 @@ def check_gpt_trade_signal(
     last_trades = get_bot_last_trades_history(bot_settings) if bot_settings.gpt_prompt_with_last_trades else "\n\n"
     content = f"{bot_settings.gpt_prompt}{news_context}{last_trades}{df_calculated}"
 
-    logger.trade(content) #DEBUG
-
     response_json = None
 
     try:
@@ -97,8 +95,6 @@ def check_gpt_trade_signal(
         response_json = format_openai_error(e)
         logger.error(f"Error during GPT analysis: {e}")
         send_admin_email(f"Bot {bot_settings.id} Error during GPT analysis.", f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.comment}\n\nError during GPT analysis\n\nresponse_json: {response_json}")
-
-    logger.trade(response_json) #DEBUG
 
     update_gpt_technical_analysis_data(bot_settings, response_json)
     update_bot_capital_utilization_pct(bot_settings, response_json)
