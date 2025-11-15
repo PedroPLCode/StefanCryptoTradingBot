@@ -61,6 +61,8 @@ def check_gpt_trade_signal(
     last_trades = get_bot_last_trades_history(bot_settings) if bot_settings.gpt_prompt_with_last_trades else "\n\n"
     content = f"{bot_settings.gpt_prompt}{news_context}{last_trades}{df_calculated}"
 
+    logger.trade(content)
+
     response_json = None
 
     try:
