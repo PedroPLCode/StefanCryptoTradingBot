@@ -12,6 +12,7 @@ from .openai_error_formatter import format_openai_error
 from ..utils.email_utils import send_admin_email
 from .news_fetcher import fetch_all_crypto_news
 from .prompt_trades_history import get_bot_last_trades_history
+from .prompt_utils import prepare_df_info
 from ..utils.trades_utils import (
     update_gpt_technical_analysis_data,
     update_bot_capital_utilization_pct
@@ -59,7 +60,8 @@ def check_gpt_trade_signal(
 
     news_context = fetch_all_crypto_news(bot_settings) if bot_settings.gpt_prompt_with_news else "\n\n"
     last_trades = get_bot_last_trades_history(bot_settings) if bot_settings.gpt_prompt_with_last_trades else "\n\n"
-    content = f"{bot_settings.gpt_prompt}{news_context}{last_trades}{df_calculated}"
+    df = prepare_df_info(bot_settings, df_calculated)
+    content = f"{bot_settings.gpt_prompt}{news_context}{last_trades}{df}"
 
     logger.trade(content)
 
