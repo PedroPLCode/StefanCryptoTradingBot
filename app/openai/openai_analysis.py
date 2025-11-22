@@ -1,4 +1,6 @@
 import os
+import re
+import time
 import json
 from typing import Optional
 from pandas import DataFrame
@@ -48,7 +50,7 @@ def check_gpt_trade_signal(
             the `@exception_handler` decorator.
     """
     api_key = os.environ.get("OPENAI_API_KEY")
-    client = OpenAI(api_key=api_key)
+    client = OpenAI(api_key=api_key, timeout=900)
 
     if not client:
         logger.error("analyse_with_gpt_model error during OpenAI client initialization.")
@@ -65,38 +67,58 @@ def check_gpt_trade_signal(
 
     response_json = None
 
-    try:
-        response = client.chat.completions.create(
-            model=bot_settings.gpt_model,
-            messages=[{"role": "user", "content": content}],
-        )
-
-        choice = response.choices[0]
-        content_text = getattr(choice.message, "content", None)
-        response_extracted = content_text.strip()
-        
+    for i in range(3):
         try:
-            response_json = json.loads(response_extracted)
-            response_json["error"] = False
-        except json.JSONDecodeError as e:
-            response_json = {
-                    "model": "N/A",
-                    "timestamp": datetime.now().isoformat(),
-                    "symbol": "N/A",
-                    "interval": "N/A",
-                    "signal": "N/A",
-                    "capital_utilization_pct": 0,
-                    "explanation": "json.JSONDecodeError: Invalid JSON returned from GPT model.",
-                    "error": True,
-                }
-            logger.error(f"Failed to parse GPT response as JSON: {e}")
-            logger.error(f"Raw GPT content: {response_extracted}")
-            send_admin_email(f"Bot {bot_settings.id} Invalid JSON returned from GPT model.", f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.comment}\n\njson.JSONDecodeError: Invalid JSON returned from GPT model.")
+            response = client.chat.completions.create(
+                model=bot_settings.gpt_model,
+                messages=[{"role": "user", "content": content}],
+                response_format={"type": "json_object"}
+            )
+            choice = response.choices[0]
+            content_text = getattr(choice.message, "content", None)
+            response_extracted = content_text.strip() if content_text else "{}"
+            
+            try:
+                response_json = json.loads(response_extracted)
+                response_json["error"] = False
+                break
+            except json.JSONDecodeError as e:
+                match = re.search(r"\{.*\}", response_extracted, re.DOTALL)
+                if match:
+                    try:
+                        response_json = json.loads(match.group(0))
+                        response_json["error"] = False
+                        break
+                    except:
+                        pass
+                    
+                if i < 2:
+                    time.sleep(3)
+                    logger.warning(f"Attempt {i + 1}: Retrying GPT response parsing due to JSONDecodeError: {e}")
+                    continue
+                        
+                response_json = {
+                        "model": "N/A",
+                        "timestamp": datetime.now().isoformat(),
+                        "symbol": "N/A",
+                        "interval": "N/A",
+                        "signal": "N/A",
+                        "capital_utilization_pct": 0,
+                        "explanation": "json.JSONDecodeError: Invalid JSON returned from GPT model.",
+                        "error": True,
+                    }
+                logger.error(f"Failed to parse GPT response as JSON: {e}")
+                logger.error(f"Raw GPT content: {response_extracted}")
+                send_admin_email(f"Bot {bot_settings.id} Invalid JSON returned from GPT model.", f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.comment}\n\njson.JSONDecodeError: Invalid JSON returned from GPT model.")
 
-    except Exception as e:
-        response_json = format_openai_error(e)
-        logger.error(f"Error during GPT analysis: {e}")
-        send_admin_email(f"Bot {bot_settings.id} Error during GPT analysis.", f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.comment}\n\nError during GPT analysis\n\nresponse_json: {response_json}")
+        except Exception as e:
+            if i < 2:
+                logger.warning(f"Attempt {i + 1}: Retrying GPT request due to Exception: {e}")
+                time.sleep(3)
+            else:
+                response_json = format_openai_error(e)
+                logger.error(f"Error during GPT analysis: {e}")
+                send_admin_email(f"Bot {bot_settings.id} Error during GPT analysis.", f"Bot {bot_settings.id} {bot_settings.symbol} {bot_settings.comment}\n\nError during GPT analysis\n\nresponse_json: {response_json}")
 
     update_gpt_technical_analysis_data(bot_settings, response_json)
     update_bot_capital_utilization_pct(bot_settings, response_json)
